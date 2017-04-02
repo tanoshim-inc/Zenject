@@ -52,7 +52,9 @@ namespace Zenject
 
         public IEnumerator<GameObject> Instantiate(List<TypeValuePair> args)
         {
-            var gameObject = _container.CreateAndParentPrefab(GetPrefab(), _gameObjectBindInfo);
+            var context = new InjectContext(_container, _argumentTarget, null);
+            var gameObject = _container.CreateAndParentPrefab(
+                GetPrefab(), _gameObjectBindInfo, context);
             Assert.IsNotNull(gameObject);
 
             // Return it before inject so we can do circular dependencies
@@ -75,7 +77,7 @@ namespace Zenject
                 var injectArgs = new InjectArgs()
                 {
                     ExtraArgs = allArgs,
-                    Context = new InjectContext(_container, _argumentTarget, null),
+                    Context = context,
                     ConcreteIdentifier = null,
                 };
 

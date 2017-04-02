@@ -1029,17 +1029,24 @@ namespace Zenject
             startCoroutineOn.StartCoroutine(result);
         }
 
+        public GameObject CreateAndParentPrefabResource(
+            string resourcePath, GameObjectCreationParameters gameObjectBindInfo)
+        {
+            return CreateAndParentPrefabResource(resourcePath, gameObjectBindInfo, null);
+        }
+
         // Don't use this unless you know what you're doing
         // You probably want to use InstantiatePrefab instead
         // This one will only create the prefab and will not inject into it
-        public GameObject CreateAndParentPrefabResource(string resourcePath, GameObjectCreationParameters gameObjectBindInfo)
+        public GameObject CreateAndParentPrefabResource(
+            string resourcePath, GameObjectCreationParameters gameObjectBindInfo, InjectContext context)
         {
             var prefab = (GameObject)Resources.Load(resourcePath);
 
             Assert.IsNotNull(prefab,
                 "Could not find prefab at resource location '{0}'".Fmt(resourcePath));
 
-            return CreateAndParentPrefab(prefab, gameObjectBindInfo);
+            return CreateAndParentPrefab(prefab, gameObjectBindInfo, context);
         }
 
         GameObject GetPrefabAsGameObject(UnityEngine.Object prefab)
@@ -1053,11 +1060,17 @@ namespace Zenject
             return ((Component)prefab).gameObject;
         }
 
+        public GameObject CreateAndParentPrefab(
+            UnityEngine.Object prefab, GameObjectCreationParameters gameObjectBindInfo)
+        {
+            return CreateAndParentPrefab(prefab, gameObjectBindInfo, null);
+        }
+
         // Don't use this unless you know what you're doing
         // You probably want to use InstantiatePrefab instead
         // This one will only create the prefab and will not inject into it
         public GameObject CreateAndParentPrefab(
-            UnityEngine.Object prefab, GameObjectCreationParameters gameObjectBindInfo)
+            UnityEngine.Object prefab, GameObjectCreationParameters gameObjectBindInfo, InjectContext context)
         {
             Assert.That(!AssertOnNewGameObjects,
                 "Given DiContainer does not support creating new game objects");
@@ -1067,7 +1080,7 @@ namespace Zenject
             var prefabAsGameObject = GetPrefabAsGameObject(prefab);
 
             var gameObj = (GameObject)GameObject.Instantiate(
-                prefabAsGameObject, GetTransformGroup(gameObjectBindInfo), false);
+                prefabAsGameObject, GetTransformGroup(gameObjectBindInfo, context), false);
 
             if (gameObjectBindInfo.Name != null)
             {
@@ -1079,10 +1092,11 @@ namespace Zenject
 
         public GameObject CreateEmptyGameObject(string name)
         {
-            return CreateEmptyGameObject(new GameObjectCreationParameters() { Name = name });
+            return CreateEmptyGameObject(new GameObjectCreationParameters() { Name = name }, null);
         }
 
-        public GameObject CreateEmptyGameObject(GameObjectCreationParameters gameObjectBindInfo)
+        public GameObject CreateEmptyGameObject(
+            GameObjectCreationParameters gameObjectBindInfo, InjectContext context)
         {
             Assert.That(!AssertOnNewGameObjects,
                 "Given DiContainer does not support creating new game objects");
@@ -1090,11 +1104,12 @@ namespace Zenject
             FlushBindings();
 
             var gameObj = new GameObject(gameObjectBindInfo.Name ?? "GameObject");
-            gameObj.transform.SetParent(GetTransformGroup(gameObjectBindInfo), false);
+            gameObj.transform.SetParent(GetTransformGroup(gameObjectBindInfo, context), false);
             return gameObj;
         }
 
-        Transform GetTransformGroup(GameObjectCreationParameters gameObjectBindInfo)
+        Transform GetTransformGroup(
+            GameObjectCreationParameters gameObjectBindInfo, InjectContext context)
         {
             Assert.That(!AssertOnNewGameObjects,
                 "Given DiContainer does not support creating new game objects");
@@ -1111,9 +1126,17 @@ namespace Zenject
             {
                 Assert.IsNull(gameObjectBindInfo.GroupName);
 
-                // TODO: Pass in InjectContext instead of container here
+                if (context == null)
+                {
+                    context = new InjectContext()
+                    {
+                        // This is the only information we can supply in this case
+                        Container = this,
+                    };
+                }
+
                 // NOTE: Null is fine here, will just be a root game object in that case
-                return gameObjectBindInfo.ParentTransformGetter(this);
+                return gameObjectBindInfo.ParentTransformGetter(context);
             }
 
             var groupName = gameObjectBindInfo.GroupName;
@@ -1243,7 +1266,7 @@ namespace Zenject
             where T : Component
         {
             return InstantiateComponent<T>(
-                CreateEmptyGameObject(new GameObjectCreationParameters() { Name = gameObjectName }),
+                CreateEmptyGameObject(gameObjectName),
                 extraArgs);
         }
 
@@ -2219,7 +2242,7 @@ namespace Zenject
             GameObject prefabAsGameObject = GetPrefabAsGameObject(prefab);
 
             var gameObj = (GameObject)GameObject.Instantiate(
-                prefabAsGameObject, GetTransformGroup(gameObjectBindInfo), false);
+                prefabAsGameObject, GetTransformGroup(gameObjectBindInfo, args.Context), false);
 
             return InjectGameObjectForComponentExplicit(
                 gameObj, componentType, args);

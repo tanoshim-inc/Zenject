@@ -251,7 +251,8 @@ namespace Zenject.Tests.Bindings
             parentGameObject.transform.position = new Vector3(100, 100, 100);
             var parentTransform = parentGameObject.transform;
 
-            var go = Container.CreateAndParentPrefab(FooPrefab, new GameObjectCreationParameters() { ParentTransform = parentTransform });
+            var go = Container.CreateAndParentPrefab(
+                FooPrefab, new GameObjectCreationParameters() { ParentTransform = parentTransform });
 
             var foo = go.GetComponentInChildren<Foo>();
 

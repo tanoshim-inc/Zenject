@@ -61,7 +61,10 @@ namespace Zenject.Tests.TickableManagers
             Assert.AreEqual(0, NestedTickableTwo.TickCount);
             Assert.AreEqual(0, DoublyNestedTickable.TickCount);
 
-            monoKernels.ForEach(kernel => kernel.Update());
+            foreach (var kernel in monoKernels)
+            {
+                kernel.Update();
+            }
 
             Assert.AreEqual(1, RootTickable.TickCount);
             Assert.AreEqual(1, NestedTickableOne.TickCount);
@@ -69,7 +72,10 @@ namespace Zenject.Tests.TickableManagers
             Assert.AreEqual(1, DoublyNestedTickable.TickCount);
 
             tickManager.Pause();
-            monoKernels.ForEach(kernel => kernel.Update());
+            foreach (var kernel in monoKernels)
+            {
+                kernel.Update();
+            }
 
             Assert.AreEqual(1, RootTickable.TickCount);
             Assert.AreEqual(1, NestedTickableOne.TickCount);
@@ -77,7 +83,10 @@ namespace Zenject.Tests.TickableManagers
             Assert.AreEqual(1, DoublyNestedTickable.TickCount);
 
             tickManager.Resume();
-            monoKernels.ForEach(kernel => kernel.Update());
+            foreach (var kernel in monoKernels)
+            {
+                kernel.Update();
+            }
 
             Assert.AreEqual(2, RootTickable.TickCount);
             Assert.AreEqual(2, NestedTickableOne.TickCount);
@@ -121,7 +130,10 @@ namespace Zenject.Tests.TickableManagers
             Assert.AreEqual(0, NestedTickableTwo.TickCount);
             Assert.AreEqual(0, DoublyNestedTickable.TickCount);
 
-            monoKernels.ForEach(kernel => kernel.Update());
+            foreach (var kernel in monoKernels)
+            {
+                kernel.Update();
+            }
 
             Assert.AreEqual(1, RootTickable.TickCount);
             Assert.AreEqual(1, NestedTickableOne.TickCount);
@@ -129,7 +141,10 @@ namespace Zenject.Tests.TickableManagers
             Assert.AreEqual(1, DoublyNestedTickable.TickCount);
 
             nestedTickManager.Pause();
-            monoKernels.ForEach(kernel => kernel.Update());
+            foreach (var kernel in monoKernels)
+            {
+                kernel.Update();
+            }
 
             Assert.AreEqual(2, RootTickable.TickCount);
             Assert.AreEqual(2, NestedTickableOne.TickCount);
@@ -137,7 +152,10 @@ namespace Zenject.Tests.TickableManagers
             Assert.AreEqual(1, DoublyNestedTickable.TickCount);
 
             nestedTickManager.Resume();
-            monoKernels.ForEach(kernel => kernel.Update());
+            foreach (var kernel in monoKernels)
+            {
+                kernel.Update();
+            }
 
             Assert.AreEqual(3, RootTickable.TickCount);
             Assert.AreEqual(3, NestedTickableOne.TickCount);
