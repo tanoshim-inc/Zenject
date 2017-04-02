@@ -577,6 +577,14 @@ namespace Zenject
 
         public object Resolve(InjectContext context)
         {
+            if (context.Container != this)
+            // Sometimes it's useful to forward context directly from one container to another
+            // So make sure the container is correct in this case
+            {
+                context = context.Clone();
+                context.Container = this;
+            }
+
             Assert.IsNotNull(context);
 
             ProviderPair providerPair;

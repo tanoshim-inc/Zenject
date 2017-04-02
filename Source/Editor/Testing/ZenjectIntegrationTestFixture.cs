@@ -11,11 +11,6 @@ using Assert = ModestTree.Assert;
 
 namespace Zenject
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class ValidateOnlyAttribute : Attribute
-    {
-    }
-
     public abstract class ZenjectIntegrationTestFixture
     {
         SceneContext _sceneContext;
@@ -120,3 +115,4 @@ namespace Zenject
         }
     }
 }
+
