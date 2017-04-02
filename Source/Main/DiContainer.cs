@@ -1029,24 +1029,19 @@ namespace Zenject
             startCoroutineOn.StartCoroutine(result);
         }
 
-        public GameObject CreateAndParentPrefabResource(
-            string resourcePath, GameObjectCreationParameters gameObjectBindInfo)
-        {
-            return CreateAndParentPrefabResource(resourcePath, gameObjectBindInfo, null);
-        }
-
         // Don't use this unless you know what you're doing
         // You probably want to use InstantiatePrefab instead
         // This one will only create the prefab and will not inject into it
-        public GameObject CreateAndParentPrefabResource(
-            string resourcePath, GameObjectCreationParameters gameObjectBindInfo, InjectContext context)
+        // Also, this will always return the new game object as disabled, so that injection can occur before Awake / OnEnable / Start
+        internal GameObject CreateAndParentPrefabResource(
+            string resourcePath, GameObjectCreationParameters gameObjectBindInfo, InjectContext context, out bool shouldMakeActive)
         {
             var prefab = (GameObject)Resources.Load(resourcePath);
 
             Assert.IsNotNull(prefab,
                 "Could not find prefab at resource location '{0}'".Fmt(resourcePath));
 
-            return CreateAndParentPrefab(prefab, gameObjectBindInfo, context);
+            return CreateAndParentPrefab(prefab, gameObjectBindInfo, context, out shouldMakeActive);
         }
 
         GameObject GetPrefabAsGameObject(UnityEngine.Object prefab)
@@ -1060,18 +1055,15 @@ namespace Zenject
             return ((Component)prefab).gameObject;
         }
 
-        public GameObject CreateAndParentPrefab(
-            UnityEngine.Object prefab, GameObjectCreationParameters gameObjectBindInfo)
-        {
-            return CreateAndParentPrefab(prefab, gameObjectBindInfo, null);
-        }
-
         // Don't use this unless you know what you're doing
         // You probably want to use InstantiatePrefab instead
         // This one will only create the prefab and will not inject into it
-        public GameObject CreateAndParentPrefab(
-            UnityEngine.Object prefab, GameObjectCreationParameters gameObjectBindInfo, InjectContext context)
+        internal GameObject CreateAndParentPrefab(
+            UnityEngine.Object prefab, GameObjectCreationParameters gameObjectBindInfo,
+            InjectContext context, out bool shouldMakeActive)
         {
+            Assert.That(prefab != null, "Null prefab found when instantiating game object");
+
             Assert.That(!AssertOnNewGameObjects,
                 "Given DiContainer does not support creating new game objects");
 
@@ -1079,15 +1071,36 @@ namespace Zenject
 
             var prefabAsGameObject = GetPrefabAsGameObject(prefab);
 
-            var gameObj = (GameObject)GameObject.Instantiate(
-                prefabAsGameObject, GetTransformGroup(gameObjectBindInfo, context), false);
+            var wasActive = prefabAsGameObject.activeSelf;
 
-            if (gameObjectBindInfo.Name != null)
+            if (wasActive)
             {
-                gameObj.name = gameObjectBindInfo.Name;
+                prefabAsGameObject.SetActive(false);
             }
 
-            return gameObj;
+            shouldMakeActive = wasActive;
+
+            try
+            {
+                var gameObj = (GameObject)GameObject.Instantiate(
+                    prefabAsGameObject, GetTransformGroup(gameObjectBindInfo, context), false);
+
+                if (gameObjectBindInfo.Name != null)
+                {
+                    gameObj.name = gameObjectBindInfo.Name;
+                }
+
+                return gameObj;
+            }
+            finally
+            {
+                if (wasActive)
+                {
+                    // Always make sure to reset prefab state otherwise this change could be saved
+                    // persistently
+                    prefabAsGameObject.SetActive(true);
+                }
+            }
         }
 
         public GameObject CreateEmptyGameObject(string name)
@@ -1290,9 +1303,16 @@ namespace Zenject
         {
             FlushBindings();
 
-            var gameObj = CreateAndParentPrefab(prefab, gameObjectBindInfo);
+            bool shouldMakeActive;
+            var gameObj = CreateAndParentPrefab(
+                prefab, gameObjectBindInfo, null, out shouldMakeActive);
 
             InjectGameObject(gameObj);
+
+            if (shouldMakeActive)
+            {
+                gameObj.SetActive(true);
+            }
 
             return gameObj;
         }
@@ -2234,18 +2254,21 @@ namespace Zenject
 
             FlushBindings();
 
-            Assert.That(prefab != null, "Null prefab found when instantiating game object");
-
             Assert.That(componentType.IsInterface() || componentType.DerivesFrom<Component>(),
                 "Expected type '{0}' to derive from UnityEngine.Component", componentType);
 
-            GameObject prefabAsGameObject = GetPrefabAsGameObject(prefab);
+            bool shouldMakeActive;
+            var gameObj = CreateAndParentPrefab(prefab, gameObjectBindInfo, args.Context, out shouldMakeActive);
 
-            var gameObj = (GameObject)GameObject.Instantiate(
-                prefabAsGameObject, GetTransformGroup(gameObjectBindInfo, args.Context), false);
-
-            return InjectGameObjectForComponentExplicit(
+            var component = InjectGameObjectForComponentExplicit(
                 gameObj, componentType, args);
+
+            if (shouldMakeActive)
+            {
+                gameObj.SetActive(true);
+            }
+
+            return gameObj;
         }
 #endif
 
