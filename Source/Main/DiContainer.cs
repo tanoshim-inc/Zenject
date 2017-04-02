@@ -2268,7 +2268,7 @@ namespace Zenject
                 gameObj.SetActive(true);
             }
 
-            return gameObj;
+            return component;
         }
 #endif
 

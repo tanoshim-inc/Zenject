@@ -63,7 +63,7 @@ namespace ZenjectSignalsAndSignals.Tests
             Initialize();
 
             var cmd = Container.Resolve<DoSomethingSignal>();
-            var foo = Container.Resolve<Foo>();
+            Container.Resolve<Foo>();
 
             Assert.That(!Bar.WasTriggered);
             cmd.Fire();

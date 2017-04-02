@@ -71,7 +71,7 @@ namespace Zenject.Tests.Factories
 
             new GameObject().AddComponent<Foo>();
 
-            var foo = factory.Create();
+            factory.Create();
 
             new GameObject().AddComponent<Foo>();
 

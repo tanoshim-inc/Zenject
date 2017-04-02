@@ -51,7 +51,7 @@ namespace Zenject.Tests.Bindings
 
             Initialize();
 
-            var ifoo = Container.Resolve<IFoo>();
+            Container.Resolve<IFoo>();
             Assert.IsEqual(Foo.InstanceCount, 1);
         }
 
@@ -65,7 +65,7 @@ namespace Zenject.Tests.Bindings
 
             Initialize();
 
-            var foo = Container.Resolve<IFoo>();
+            Container.Resolve<IFoo>();
             Assert.IsEqual(Foo.InstanceCount, 1);
         }
 
