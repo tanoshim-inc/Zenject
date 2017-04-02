@@ -123,6 +123,20 @@ namespace Zenject
             return new ScopeArgConditionCopyNonLazyBinder(BindInfo);
         }
 
+        public ScopeArgConditionCopyNonLazyBinder FromNewComponentOn(Func<InjectContext, GameObject> gameObjectGetter)
+        {
+            BindingUtil.AssertIsComponent(ConcreteTypes);
+            BindingUtil.AssertTypesAreNotAbstract(ConcreteTypes);
+
+            BindInfo.RequireExplicitScope = true;
+            SubFinalizer = new ScopableBindingFinalizer(
+                BindInfo, SingletonTypes.FromComponentGameObject, gameObjectGetter,
+                (container, type) => new AddToExistingGameObjectComponentProviderGetter(
+                    gameObjectGetter, container, type, BindInfo.ConcreteIdentifier, BindInfo.Arguments));
+
+            return new ScopeArgConditionCopyNonLazyBinder(BindInfo);
+        }
+
         public ArgConditionCopyNonLazyBinder FromNewComponentSibling()
         {
             BindingUtil.AssertIsComponent(ConcreteTypes);

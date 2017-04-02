@@ -89,6 +89,20 @@ namespace Zenject
             return this;
         }
 
+        public ConditionCopyNonLazyBinder FromNewComponentOn(
+            Func<InjectContext, GameObject> gameObjectGetter)
+        {
+            BindingUtil.AssertIsComponent(ContractType);
+            BindingUtil.AssertIsNotAbstract(ContractType);
+
+            ProviderFunc =
+                (container) => new AddToExistingGameObjectComponentProviderGetter(
+                    gameObjectGetter, container, ContractType,
+                    null, new List<TypeValuePair>());
+
+            return this;
+        }
+
         public NameTransformConditionCopyNonLazyBinder FromNewComponentOnNewGameObject()
         {
             BindingUtil.AssertIsComponent(ContractType);

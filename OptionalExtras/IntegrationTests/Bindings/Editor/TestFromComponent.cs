@@ -27,6 +27,21 @@ namespace Zenject.Tests.Bindings
         }
 
         [Test]
+        public void TestBasicByMethod()
+        {
+            var gameObject = Container.CreateEmptyGameObject("Foo");
+
+            Container.BindInstance(gameObject, true).WithId("Foo");
+
+            Container.Bind<Foo>().FromNewComponentOn((context) => gameObject).AsSingle();
+            Container.BindRootResolve<Foo>();
+
+            Initialize();
+
+            FixtureUtil.AssertComponentCount<Foo>(Container, 1);
+        }
+
+        [Test]
         public void TestTransient()
         {
             var gameObject = Container.CreateEmptyGameObject("Foo");
