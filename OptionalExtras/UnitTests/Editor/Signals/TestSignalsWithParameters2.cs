@@ -45,7 +45,7 @@ namespace ZenjectSignalsAndSignals.Tests
             Bar2.Value2 = 0;
 
             Container.DeclareSignal<DoSomethingSignal2>();
-            Container.BindSignal<string, int, DoSomethingSignal2>()
+            Container.BindSignal<string, object, DoSomethingSignal2>()
                 .To<Bar2>(x => x.Execute).AsSingle();
 
             Initialize();
@@ -69,7 +69,7 @@ namespace ZenjectSignalsAndSignals.Tests
             Bar3.Value3 = 0.0f;
 
             Container.DeclareSignal<DoSomethingSignal3>();
-            Container.BindSignal<string, int, float, DoSomethingSignal3>()
+            Container.BindSignal<string, object, object, DoSomethingSignal3>()
                 .To<Bar3>(x => x.Execute).AsSingle();
 
             Initialize();
@@ -93,10 +93,10 @@ namespace ZenjectSignalsAndSignals.Tests
             Bar4.Value1 = null;
             Bar4.Value2 = 0;
             Bar4.Value3 = 0.0f;
-            Bar4.Value4 = '0';
+            Bar4.Value4 = null;
 
             Container.DeclareSignal<DoSomethingSignal4>();
-            Container.BindSignal<string, int, float, char, DoSomethingSignal4>()
+            Container.BindSignal<string, object, object, string, DoSomethingSignal4>()
                 .To<Bar4>(x => x.Execute).AsSingle();
 
             Initialize();
@@ -108,7 +108,7 @@ namespace ZenjectSignalsAndSignals.Tests
             Assert.IsEqual(Bar4.Value3, 0.0f);
             Assert.IsEqual(Bar4.Value4, '0');
 
-            cmd.Fire("asdf", 4, 7.2f, 'z');
+            cmd.Fire("asdf", null, null, "z");
 
             Assert.IsEqual(Bar4.Value1, "asdf");
             Assert.IsEqual(Bar4.Value2, 4);
@@ -117,9 +117,9 @@ namespace ZenjectSignalsAndSignals.Tests
         }
 
         public class DoSomethingSignal1 : Signal<string, DoSomethingSignal1> { }
-        public class DoSomethingSignal2 : Signal<string, int, DoSomethingSignal2> { }
-        public class DoSomethingSignal3 : Signal<string, int, float, DoSomethingSignal3> { }
-        public class DoSomethingSignal4 : Signal<string, int, float, char, DoSomethingSignal4> { }
+        public class DoSomethingSignal2 : Signal<string, object, DoSomethingSignal2> { }
+        public class DoSomethingSignal3 : Signal<string, object, object, DoSomethingSignal3> { }
+        public class DoSomethingSignal4 : Signal<string, object, object, string, DoSomethingSignal4> { }
 
         public class Bar1
         {
@@ -134,9 +134,9 @@ namespace ZenjectSignalsAndSignals.Tests
         public class Bar2
         {
             public static string Value1;
-            public static int Value2;
+            public static object Value2;
 
-            public void Execute(string value1, int value2)
+            public void Execute(string value1, object value2)
             {
                 Value1 = value1;
                 Value2 = value2;
@@ -146,10 +146,10 @@ namespace ZenjectSignalsAndSignals.Tests
         public class Bar3
         {
             public static string Value1;
-            public static int Value2;
-            public static float Value3;
+            public static object Value2;
+            public static object Value3;
 
-            public void Execute(string value1, int value2, float value3)
+            public void Execute(string value1, object value2, object value3)
             {
                 Value1 = value1;
                 Value2 = value2;
@@ -160,11 +160,11 @@ namespace ZenjectSignalsAndSignals.Tests
         public class Bar4
         {
             public static string Value1;
-            public static int Value2;
-            public static float Value3;
-            public static char Value4;
+            public static object Value2;
+            public static object Value3;
+            public static string Value4;
 
-            public void Execute(string value1, int value2, float value3, char value4)
+            public void Execute(string value1, object value2, object value3, string value4)
             {
                 Value1 = value1;
                 Value2 = value2;

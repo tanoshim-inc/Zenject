@@ -33,13 +33,13 @@ namespace ZenjectSignalsAndSignals.Tests
             bar.Initialize();
 
             Assert.IsNull(bar.ReceivedValue);
-            foo.DoSomething("asdf", 5, 1.2f, "zxcv");
+            foo.DoSomething("asdf", null, null, "zxcv");
             Assert.IsEqual(bar.ReceivedValue, "zxcv");
 
             bar.Dispose();
         }
 
-        public class SomethingHappenedSignal : Signal<string, int, float, string, SomethingHappenedSignal>
+        public class SomethingHappenedSignal : Signal<string, object, object, string, SomethingHappenedSignal>
         {
         }
 
@@ -52,7 +52,7 @@ namespace ZenjectSignalsAndSignals.Tests
                 _signal = signal;
             }
 
-            public void DoSomething(string value1, int value2, float value3, string value4)
+            public void DoSomething(string value1, object value2, object value3, string value4)
             {
                 _signal.Fire(value1, value2, value3, value4);
             }
@@ -86,7 +86,7 @@ namespace ZenjectSignalsAndSignals.Tests
                 _signal -= OnStarted;
             }
 
-            void OnStarted(string value1, int value2, float value3, string value4)
+            void OnStarted(string value1, object value2, object value3, string value4)
             {
                 _receivedValue = value4;
             }

@@ -66,6 +66,10 @@ namespace Zenject
     }
 
     public abstract class SignalHandlerBinder<TParam1>
+#if ENABLE_IL2CPP
+        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+        where TParam1 : class
+#endif
     {
         readonly BindFinalizerWrapper _finalizerWrapper;
         readonly Type _signalType;
@@ -112,6 +116,10 @@ namespace Zenject
     }
 
     public class SignalHandlerBinderWithId<TParam1> : SignalHandlerBinder<TParam1>
+#if ENABLE_IL2CPP
+        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+        where TParam1 : class
+#endif
     {
         public SignalHandlerBinderWithId(
             DiContainer container, Type signalType, BindFinalizerWrapper finalizerWrapper)
@@ -127,6 +135,11 @@ namespace Zenject
     }
 
     public abstract class SignalHandlerBinder<TParam1, TParam2>
+#if ENABLE_IL2CPP
+        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+        where TParam1 : class
+        where TParam2 : class
+#endif
     {
         readonly BindFinalizerWrapper _finalizerWrapper;
         readonly Type _signalType;
@@ -173,6 +186,11 @@ namespace Zenject
     }
 
     public class SignalHandlerBinderWithId<TParam1, TParam2> : SignalHandlerBinder<TParam1, TParam2>
+#if ENABLE_IL2CPP
+        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+        where TParam1 : class
+        where TParam2 : class
+#endif
     {
         public SignalHandlerBinderWithId(
             DiContainer container, Type signalType, BindFinalizerWrapper finalizerWrapper)
@@ -188,6 +206,12 @@ namespace Zenject
     }
 
     public abstract class SignalHandlerBinder<TParam1, TParam2, TParam3>
+#if ENABLE_IL2CPP
+        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+        where TParam1 : class
+        where TParam2 : class
+        where TParam3 : class
+#endif
     {
         readonly BindFinalizerWrapper _finalizerWrapper;
         readonly Type _signalType;
@@ -234,6 +258,12 @@ namespace Zenject
     }
 
     public class SignalHandlerBinderWithId<TParam1, TParam2, TParam3> : SignalHandlerBinder<TParam1, TParam2, TParam3>
+#if ENABLE_IL2CPP
+        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+        where TParam1 : class
+        where TParam2 : class
+        where TParam3 : class
+#endif
     {
         public SignalHandlerBinderWithId(
             DiContainer container, Type signalType, BindFinalizerWrapper finalizerWrapper)
@@ -249,6 +279,13 @@ namespace Zenject
     }
 
     public abstract class SignalHandlerBinder<TParam1, TParam2, TParam3, TParam4>
+#if ENABLE_IL2CPP
+        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+        where TParam1 : class
+        where TParam2 : class
+        where TParam3 : class
+        where TParam4 : class
+#endif
     {
         readonly BindFinalizerWrapper _finalizerWrapper;
         readonly Type _signalType;
@@ -295,6 +332,13 @@ namespace Zenject
     }
 
     public class SignalHandlerBinderWithId<TParam1, TParam2, TParam3, TParam4> : SignalHandlerBinder<TParam1, TParam2, TParam3, TParam4>
+#if ENABLE_IL2CPP
+        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+        where TParam1 : class
+        where TParam2 : class
+        where TParam3 : class
+        where TParam4 : class
+#endif
     {
         public SignalHandlerBinderWithId(
             DiContainer container, Type signalType, BindFinalizerWrapper finalizerWrapper)

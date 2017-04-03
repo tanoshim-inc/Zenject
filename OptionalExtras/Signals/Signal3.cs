@@ -20,6 +20,12 @@ namespace Zenject
 
     public abstract class Signal<TParam1, TParam2, TParam3, TDerived> : SignalBase, ISignal<TParam1, TParam2, TParam3>
         where TDerived : Signal<TParam1, TParam2, TParam3, TDerived>
+#if ENABLE_IL2CPP
+        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+        where TParam1 : class
+        where TParam2 : class
+        where TParam3 : class
+#endif
     {
         readonly List<Action<TParam1, TParam2, TParam3>> _listeners = new List<Action<TParam1, TParam2, TParam3>>();
 #if ZEN_SIGNALS_ADD_UNIRX
