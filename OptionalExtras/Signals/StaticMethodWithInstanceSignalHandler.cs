@@ -5,6 +5,32 @@ using ModestTree.Util;
 
 namespace Zenject
 {
+    public class StaticMethodWithInstanceSignalHandler<THandler> : InstanceMethodSignalHandlerBase<THandler>
+    {
+        readonly Action<THandler> _method;
+
+        [Inject]
+        public StaticMethodWithInstanceSignalHandler(
+            BindingId signalId, SignalManager manager, InjectContext lookupContext,
+            Action<THandler> method)
+            : base(signalId, manager, lookupContext)
+        {
+            _method = method;
+        }
+
+        protected override void InternalExecute(THandler handler, object[] args)
+        {
+            Assert.That(args.IsLength(1));
+
+#if UNITY_EDITOR
+            using (ProfileBlock.Start(_method.ToDebugString()))
+#endif
+            {
+                _method(handler);
+            }
+        }
+    }
+
     public class StaticMethodWithInstanceSignalHandler<TParam1, THandler> : InstanceMethodSignalHandlerBase<THandler>
 #if ENABLE_IL2CPP
         // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
