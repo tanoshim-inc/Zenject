@@ -140,6 +140,22 @@
     <Compile Include="Runtime\Kernels\MonoKernel.cs" />
     <Compile Include="Runtime\Kernels\ProjectKernel.cs" />
     <Compile Include="Runtime\Kernels\SceneKernel.cs" />
+    <Compile Include="Signals\InstanceMethodSignalHandler.cs" />
+    <Compile Include="Signals\ISignalHandler.cs" />
+    <Compile Include="Signals\Signal0.cs" />
+    <Compile Include="Signals\Signal1.cs" />
+    <Compile Include="Signals\Signal2.cs" />
+    <Compile Include="Signals\Signal3.cs" />
+    <Compile Include="Signals\Signal4.cs" />
+    <Compile Include="Signals\SignalBase.cs" />
+    <Compile Include="Signals\SignalBinder.cs" />
+    <Compile Include="Signals\SignalExtensions.cs" />
+    <Compile Include="Signals\SignalFromBinder.cs" />
+    <Compile Include="Signals\SignalHandlerBase.cs" />
+    <Compile Include="Signals\SignalHandlerBinder.cs" />
+    <Compile Include="Signals\SignalManager.cs" />
+    <Compile Include="Signals\StaticMethodSignalHandler.cs" />
+    <Compile Include="Signals\StaticMethodWithInstanceSignalHandler.cs" />
     <Compile Include="Usage\IGuiRenderable.cs" />
     <Compile Include="Usage\IInitializable.cs" />
     <Compile Include="Usage\ILateDisposable.cs" />
@@ -241,21 +257,6 @@
     <Compile Include="Util\ValidationUtil.cs" />
     <Compile Include="Validation\ValidationMarker.cs" />
     <Compile Include="Binding\Binders\NonLazyBinder.cs" />
-    <Compile Include="..\OptionalExtras\Signals\InstanceMethodSignalHandler.cs" />
-    <Compile Include="..\OptionalExtras\Signals\ISignalHandler.cs" />
-    <Compile Include="..\OptionalExtras\Signals\Signal0.cs" />
-    <Compile Include="..\OptionalExtras\Signals\Signal1.cs" />
-    <Compile Include="..\OptionalExtras\Signals\Signal2.cs" />
-    <Compile Include="..\OptionalExtras\Signals\Signal3.cs" />
-    <Compile Include="..\OptionalExtras\Signals\Signal4.cs" />
-    <Compile Include="..\OptionalExtras\Signals\SignalBase.cs" />
-    <Compile Include="..\OptionalExtras\Signals\SignalBinder.cs" />
-    <Compile Include="..\OptionalExtras\Signals\SignalExtensions.cs" />
-    <Compile Include="..\OptionalExtras\Signals\SignalFromBinder.cs" />
-    <Compile Include="..\OptionalExtras\Signals\SignalHandlerBase.cs" />
-    <Compile Include="..\OptionalExtras\Signals\SignalHandlerBinder.cs" />
-    <Compile Include="..\OptionalExtras\Signals\SignalManager.cs" />
-    <Compile Include="..\OptionalExtras\Signals\StaticMethodSignalHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Editor\Testing\" />
