@@ -139,12 +139,12 @@ namespace Zenject
         where TParam4 : class
 #endif
     {
-        readonly Action<THandler, TParam1, TParam2, TParam3, TParam4> _method;
+        readonly ModestTree.Util.Action<THandler, TParam1, TParam2, TParam3, TParam4> _method;
 
         [Inject]
         public StaticMethodWithInstanceSignalHandler(
             BindingId signalId, SignalManager manager, InjectContext lookupContext,
-            Action<THandler, TParam1, TParam2, TParam3, TParam4> method)
+            ModestTree.Util.Action<THandler, TParam1, TParam2, TParam3, TParam4> method)
             : base(signalId, manager, lookupContext)
         {
             _method = method;

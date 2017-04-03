@@ -11,7 +11,7 @@ namespace Zenject
         {
         }
 
-        public ConditionCopyNonLazyBinder ByMethod(Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> installerMethod)
+        public ConditionCopyNonLazyBinder ByMethod(ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> installerMethod)
         {
             ProviderFunc = 
                 (container) => new SubContainerDependencyProvider(

@@ -172,9 +172,9 @@ namespace Zenject
 
     public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TValue> : IProvider
     {
-        readonly Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TValue> _method;
+        readonly ModestTree.Util.Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TValue> _method;
 
-        public MethodProviderWithContainer(Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TValue> method)
+        public MethodProviderWithContainer(ModestTree.Util.Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TValue> method)
         {
             _method = method;
         }
@@ -219,9 +219,9 @@ namespace Zenject
 
     public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> : IProvider
     {
-        readonly Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TValue> _method;
+        readonly ModestTree.Util.Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TValue> _method;
 
-        public MethodProviderWithContainer(Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TValue> method)
+        public MethodProviderWithContainer(ModestTree.Util.Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TValue> method)
         {
             _method = method;
         }
