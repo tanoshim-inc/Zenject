@@ -11,7 +11,7 @@ namespace Zenject
         {
         }
 
-        public ConditionCopyNonLazyBinder FromMethod(ModestTree.Util.Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TContract> method)
+        public ConditionCopyNonLazyBinder FromMethod(Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TContract> method)
         {
             ProviderFunc = 
                 (container) => new MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TContract>(method);

@@ -24,6 +24,22 @@ namespace Zenject
             set;
         }
 
+        public SignalFromBinder<THandler> To<THandler>(Action<THandler> method)
+        {
+            // This is just to ensure they don't stop at BindSignal
+            _finalizerWrapper.SubFinalizer = new NullBindingFinalizer();
+
+            var lookupId = Guid.NewGuid();
+
+            _container.Bind(typeof(IInitializable), typeof(IDisposable)).To<StaticMethodWithInstanceSignalHandler<THandler>>().AsCached()
+                .WithArguments(method, new InjectContext(_container, typeof(THandler), lookupId), new BindingId(_signalType, Identifier));
+
+            var info = new BindInfo(typeof(THandler));
+
+            return new SignalFromBinder<THandler>(
+                info, _container.Bind<THandler>(info).WithId(lookupId).To<THandler>());
+        }
+
         public SignalFromBinder<THandler> To<THandler>(Func<THandler, Action> methodGetter)
         {
             // This is just to ensure they don't stop at BindSignal
@@ -87,6 +103,22 @@ namespace Zenject
         {
             get;
             set;
+        }
+
+        public SignalFromBinder<THandler> To<THandler>(Action<THandler, TParam1> method)
+        {
+            // This is just to ensure they don't stop at BindSignal
+            _finalizerWrapper.SubFinalizer = new NullBindingFinalizer();
+
+            var lookupId = Guid.NewGuid();
+
+            _container.Bind(typeof(IInitializable), typeof(IDisposable)).To<StaticMethodWithInstanceSignalHandler<TParam1, THandler>>().AsCached()
+                .WithArguments(method, new InjectContext(_container, typeof(THandler), lookupId), new BindingId(_signalType, Identifier));
+
+            var info = new BindInfo(typeof(THandler));
+
+            return new SignalFromBinder<THandler>(
+                info, _container.Bind<THandler>(info).WithId(lookupId).To<THandler>());
         }
 
         public SignalFromBinder<THandler> To<THandler>(Func<THandler, Action<TParam1>> methodGetter)
@@ -157,6 +189,22 @@ namespace Zenject
         {
             get;
             set;
+        }
+
+        public SignalFromBinder<THandler> To<THandler>(Action<THandler, TParam1, TParam2> method)
+        {
+            // This is just to ensure they don't stop at BindSignal
+            _finalizerWrapper.SubFinalizer = new NullBindingFinalizer();
+
+            var lookupId = Guid.NewGuid();
+
+            _container.Bind(typeof(IInitializable), typeof(IDisposable)).To<StaticMethodWithInstanceSignalHandler<TParam1, TParam2, THandler>>().AsCached()
+                .WithArguments(method, new InjectContext(_container, typeof(THandler), lookupId), new BindingId(_signalType, Identifier));
+
+            var info = new BindInfo(typeof(THandler));
+
+            return new SignalFromBinder<THandler>(
+                info, _container.Bind<THandler>(info).WithId(lookupId).To<THandler>());
         }
 
         public SignalFromBinder<THandler> To<THandler>(Func<THandler, Action<TParam1, TParam2>> methodGetter)
@@ -231,6 +279,22 @@ namespace Zenject
             set;
         }
 
+        public SignalFromBinder<THandler> To<THandler>(Action<THandler, TParam1, TParam2, TParam3> method)
+        {
+            // This is just to ensure they don't stop at BindSignal
+            _finalizerWrapper.SubFinalizer = new NullBindingFinalizer();
+
+            var lookupId = Guid.NewGuid();
+
+            _container.Bind(typeof(IInitializable), typeof(IDisposable)).To<StaticMethodWithInstanceSignalHandler<TParam1, TParam2, TParam3, THandler>>().AsCached()
+                .WithArguments(method, new InjectContext(_container, typeof(THandler), lookupId), new BindingId(_signalType, Identifier));
+
+            var info = new BindInfo(typeof(THandler));
+
+            return new SignalFromBinder<THandler>(
+                info, _container.Bind<THandler>(info).WithId(lookupId).To<THandler>());
+        }
+
         public SignalFromBinder<THandler> To<THandler>(Func<THandler, Action<TParam1, TParam2, TParam3>> methodGetter)
         {
             // This is just to ensure they don't stop at BindSignal
@@ -303,6 +367,22 @@ namespace Zenject
         {
             get;
             set;
+        }
+
+        public SignalFromBinder<THandler> To<THandler>(Action<THandler, TParam1, TParam2, TParam3, TParam4> method)
+        {
+            // This is just to ensure they don't stop at BindSignal
+            _finalizerWrapper.SubFinalizer = new NullBindingFinalizer();
+
+            var lookupId = Guid.NewGuid();
+
+            _container.Bind(typeof(IInitializable), typeof(IDisposable)).To<StaticMethodWithInstanceSignalHandler<TParam1, TParam2, TParam3, TParam4, THandler>>().AsCached()
+                .WithArguments(method, new InjectContext(_container, typeof(THandler), lookupId), new BindingId(_signalType, Identifier));
+
+            var info = new BindInfo(typeof(THandler));
+
+            return new SignalFromBinder<THandler>(
+                info, _container.Bind<THandler>(info).WithId(lookupId).To<THandler>());
         }
 
         public SignalFromBinder<THandler> To<THandler>(Func<THandler, Action<TParam1, TParam2, TParam3, TParam4>> methodGetter)

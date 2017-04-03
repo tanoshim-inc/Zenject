@@ -146,7 +146,7 @@ namespace ModestTree.Util
 #endif
         }
 
-        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4, TParam5>(this ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TParam5> action)
+        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4, TParam5>(this Action<TParam1, TParam2, TParam3, TParam4, TParam5> action)
         {
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
             return action.ToString();
@@ -155,7 +155,7 @@ namespace ModestTree.Util
 #endif
         }
 
-        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6>(this ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> action)
+        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6>(this Action<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> action)
         {
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
             return action.ToString();
