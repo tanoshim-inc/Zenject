@@ -118,6 +118,7 @@ namespace Zenject
             Assert.That(args.IsLength(2));
             ValidateParameter<TParam1>(args[0]);
             ValidateParameter<TParam2>(args[1]);
+
             var method = _methodGetter(handler);
 #if UNITY_EDITOR
             using (ProfileBlock.Start(method.ToDebugString()))
@@ -153,6 +154,7 @@ namespace Zenject
             ValidateParameter<TParam1>(args[0]);
             ValidateParameter<TParam2>(args[1]);
             ValidateParameter<TParam3>(args[2]);
+
             var method = _methodGetter(handler);
 #if UNITY_EDITOR
             using (ProfileBlock.Start(method.ToDebugString()))
@@ -190,6 +192,7 @@ namespace Zenject
             ValidateParameter<TParam2>(args[1]);
             ValidateParameter<TParam3>(args[2]);
             ValidateParameter<TParam4>(args[3]);
+
             var method = _methodGetter(handler);
 #if UNITY_EDITOR
             using (ProfileBlock.Start(method.ToDebugString()))

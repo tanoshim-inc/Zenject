@@ -10,12 +10,30 @@ using Zenject;
 namespace ZenjectSignalsAndSignals.Tests
 {
     [TestFixture]
-    public class TestSignalsWithParameters2 : ZenjectIntegrationTestFixture
+    public class TestSignalsWithParameters3 : ZenjectIntegrationTestFixture
     {
         [SetUp]
         public void CommonInstall()
         {
             Container.BindInterfacesAndSelfTo<SignalManager>().AsSingle();
+        }
+
+        [Test]
+        public void TestParameters0()
+        {
+            Bar0.HasFired = false;
+
+            Container.DeclareSignal<DoSomethingSignal0>();
+            Container.BindSignal<DoSomethingSignal0>()
+                .To<Bar0>((h) => h.Execute()).AsSingle();
+
+            Initialize();
+
+            var cmd = Container.Resolve<DoSomethingSignal0>();
+
+            cmd.Fire();
+
+            Assert.That(Bar0.HasFired);
         }
 
         [Test]
@@ -25,7 +43,7 @@ namespace ZenjectSignalsAndSignals.Tests
 
             Container.DeclareSignal<DoSomethingSignal1>();
             Container.BindSignal<string, DoSomethingSignal1>()
-                .To<Bar1>(x => x.Execute).AsSingle();
+                .To<Bar1>((h, p1) => h.Execute(p1)).AsSingle();
 
             Initialize();
 
@@ -46,7 +64,7 @@ namespace ZenjectSignalsAndSignals.Tests
 
             Container.DeclareSignal<DoSomethingSignal2>();
             Container.BindSignal<string, object, DoSomethingSignal2>()
-                .To<Bar2>(x => x.Execute).AsSingle();
+                .To<Bar2>((h, p1, p2) => h.Execute(p1, p2)).AsSingle();
 
             Initialize();
 
@@ -70,7 +88,7 @@ namespace ZenjectSignalsAndSignals.Tests
 
             Container.DeclareSignal<DoSomethingSignal3>();
             Container.BindSignal<string, object, object, DoSomethingSignal3>()
-                .To<Bar3>(x => x.Execute).AsSingle();
+                .To<Bar3>((h, p1, p2, p3) => h.Execute(p1, p2, p3)).AsSingle();
 
             Initialize();
 
@@ -97,7 +115,7 @@ namespace ZenjectSignalsAndSignals.Tests
 
             Container.DeclareSignal<DoSomethingSignal4>();
             Container.BindSignal<string, object, object, string, DoSomethingSignal4>()
-                .To<Bar4>(x => x.Execute).AsSingle();
+                .To<Bar4>((h, p1, p2, p3, p4) => h.Execute(p1, p2, p3, p4)).AsSingle();
 
             Initialize();
 
@@ -116,10 +134,21 @@ namespace ZenjectSignalsAndSignals.Tests
             Assert.IsEqual(Bar4.Value4, "z");
         }
 
+        public class DoSomethingSignal0 : Signal<DoSomethingSignal0> { }
         public class DoSomethingSignal1 : Signal<string, DoSomethingSignal1> { }
         public class DoSomethingSignal2 : Signal<string, object, DoSomethingSignal2> { }
         public class DoSomethingSignal3 : Signal<string, object, object, DoSomethingSignal3> { }
         public class DoSomethingSignal4 : Signal<string, object, object, string, DoSomethingSignal4> { }
+
+        public class Bar0
+        {
+            public static bool HasFired;
+
+            public void Execute()
+            {
+                HasFired = true;
+            }
+        }
 
         public class Bar1
         {

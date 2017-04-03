@@ -20,7 +20,7 @@ namespace Zenject
 
         protected override void InternalExecute(THandler handler, object[] args)
         {
-            Assert.That(args.IsLength(1));
+            Assert.That(args.IsEmpty());
 
 #if UNITY_EDITOR
             using (ProfileBlock.Start(_method.ToDebugString()))
@@ -82,8 +82,9 @@ namespace Zenject
 
         protected override void InternalExecute(THandler handler, object[] args)
         {
-            Assert.That(args.IsLength(1));
+            Assert.That(args.IsLength(2));
             ValidateParameter<TParam1>(args[0]);
+            ValidateParameter<TParam2>(args[1]);
 
 #if UNITY_EDITOR
             using (ProfileBlock.Start(_method.ToDebugString()))
@@ -115,8 +116,10 @@ namespace Zenject
 
         protected override void InternalExecute(THandler handler, object[] args)
         {
-            Assert.That(args.IsLength(1));
+            Assert.That(args.IsLength(3));
             ValidateParameter<TParam1>(args[0]);
+            ValidateParameter<TParam2>(args[1]);
+            ValidateParameter<TParam3>(args[2]);
 
 #if UNITY_EDITOR
             using (ProfileBlock.Start(_method.ToDebugString()))
@@ -149,8 +152,11 @@ namespace Zenject
 
         protected override void InternalExecute(THandler handler, object[] args)
         {
-            Assert.That(args.IsLength(1));
+            Assert.That(args.IsLength(4));
             ValidateParameter<TParam1>(args[0]);
+            ValidateParameter<TParam2>(args[1]);
+            ValidateParameter<TParam3>(args[2]);
+            ValidateParameter<TParam4>(args[3]);
 
 #if UNITY_EDITOR
             using (ProfileBlock.Start(_method.ToDebugString()))
