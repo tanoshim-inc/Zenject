@@ -23,6 +23,7 @@ namespace Zenject.Internal
             return obj == null || obj.Equals(null);
         }
 
+#if UNITY_EDITOR
         // This can be useful if you are running code outside unity
         // since in that case you have to make sure to avoid calling anything
         // inside Unity DLLs
@@ -30,6 +31,7 @@ namespace Zenject.Internal
         {
             return AppDomain.CurrentDomain.FriendlyName != "Unity Child Domain";
         }
+#endif
 
         public static bool AreFunctionsEqual(Delegate left, Delegate right)
         {
@@ -42,7 +44,7 @@ namespace Zenject.Internal
         {
             Assert.That(derived.DerivesFromOrEqual(parent));
 
-            if (parent.IsInterface)
+            if (parent.IsInterface())
             {
                 // Not sure if we can calculate this so just return 1
                 return 1;
@@ -54,9 +56,10 @@ namespace Zenject.Internal
             }
 
             int distance = 1;
+
             Type child = derived;
 
-            while ((child = child.BaseType) != parent)
+            while ((child = child.BaseType()) != parent)
             {
                 distance++;
             }
