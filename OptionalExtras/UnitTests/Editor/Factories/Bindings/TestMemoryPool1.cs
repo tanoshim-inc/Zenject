@@ -73,12 +73,6 @@ namespace Zenject.Tests.Bindings
             Assert.IsEqual(pool.NumActive, 3);
             Assert.IsEqual(pool.NumTotal, 3);
             Assert.IsEqual(pool.NumInactive, 0);
-
-            pool.DespawnAll();
-
-            Assert.IsEqual(pool.NumActive, 0);
-            Assert.IsEqual(pool.NumTotal, 3);
-            Assert.IsEqual(pool.NumInactive, 3);
         }
 
         class Foo
