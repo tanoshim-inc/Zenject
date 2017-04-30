@@ -159,10 +159,23 @@ namespace Zenject
 
             ProviderFunc =
                 (container) => new ScriptableObjectResourceProvider(
-                    resourcePath, ContractType, container, null, new List<TypeValuePair>());
+                    resourcePath, ContractType, container, null, new List<TypeValuePair>(), true);
 
             return this;
         }
+
+        public ConditionCopyNonLazyBinder FromScriptableObjectResource(string resourcePath)
+        {
+            BindingUtil.AssertIsValidResourcePath(resourcePath);
+            BindingUtil.AssertIsInterfaceOrScriptableObject(ContractType);
+
+            ProviderFunc =
+                (container) => new ScriptableObjectResourceProvider(
+                    resourcePath, ContractType, container, null, new List<TypeValuePair>(), false);
+
+            return this;
+        }
+
 #endif
     }
 }

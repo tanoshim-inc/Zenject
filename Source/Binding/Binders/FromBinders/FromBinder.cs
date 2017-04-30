@@ -213,16 +213,27 @@ namespace Zenject
 
         public ScopeArgConditionCopyNonLazyBinder FromNewScriptableObjectResource(string resourcePath)
         {
+            return FromScriptableObjectResourceInternal(resourcePath, true);
+        }
+
+        public ScopeArgConditionCopyNonLazyBinder FromScriptableObjectResource(string resourcePath)
+        {
+            return FromScriptableObjectResourceInternal(resourcePath, false);
+        }
+
+        ScopeArgConditionCopyNonLazyBinder FromScriptableObjectResourceInternal(
+            string resourcePath, bool createNew)
+        {
             BindingUtil.AssertIsValidResourcePath(resourcePath);
             BindingUtil.AssertIsInterfaceOrScriptableObject(AllParentTypes);
 
             BindInfo.RequireExplicitScope = true;
             SubFinalizer = new ScopableBindingFinalizer(
                 BindInfo,
-                SingletonTypes.FromNewScriptableObjectResource,
+                createNew ? SingletonTypes.FromNewScriptableObjectResource : SingletonTypes.FromScriptableObjectResource,
                 resourcePath.ToLower(),
                 (container, type) => new ScriptableObjectResourceProvider(
-                    resourcePath, type, container, BindInfo.ConcreteIdentifier, BindInfo.Arguments));
+                    resourcePath, type, container, BindInfo.ConcreteIdentifier, BindInfo.Arguments, createNew));
 
             return new ScopeArgConditionCopyNonLazyBinder(BindInfo);
         }
