@@ -23,11 +23,11 @@ namespace Zenject.Tests.Factories.BindFactoryFive
 
         public override void InstallBindings()
         {
-            Container.BindInstance(_param1, true).WhenInjectedInto<Foo>();
-            Container.BindInstance(_param2, true).WhenInjectedInto<Foo>();
-            Container.BindInstance(_param3, true).WhenInjectedInto<Foo>();
-            Container.BindInstance(_param4, true).WhenInjectedInto<Foo>();
-            Container.BindInstance(_param5, true).WhenInjectedInto<Foo>();
+            Container.BindInstance(_param1).WhenInjectedInto<Foo>();
+            Container.BindInstance(_param2).WhenInjectedInto<Foo>();
+            Container.BindInstance(_param3).WhenInjectedInto<Foo>();
+            Container.BindInstance(_param4).WhenInjectedInto<Foo>();
+            Container.BindInstance(_param5).WhenInjectedInto<Foo>();
 
             Container.Bind<Foo>().FromNewComponentOnNewGameObject().AsTransient();
         }

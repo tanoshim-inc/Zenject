@@ -13,7 +13,7 @@ namespace Zenject.Tests.Bindings.FromSubContainerPrefabResource
 
         public override void InstallBindings()
         {
-            Container.BindInstance(_bar, true);
+            Container.BindInstance(_bar);
             Container.Bind<Gorp>().WithId("gorp").AsSingle();
         }
     }

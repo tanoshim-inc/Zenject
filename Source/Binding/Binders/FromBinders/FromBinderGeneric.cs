@@ -47,12 +47,7 @@ namespace Zenject
 
         public ScopeConditionCopyNonLazyBinder FromInstance(TContract instance)
         {
-            return FromInstance(instance, false);
-        }
-
-        public ScopeConditionCopyNonLazyBinder FromInstance(TContract instance, bool allowNull)
-        {
-            return FromInstanceBase(instance, allowNull);
+            return FromInstanceBase(instance);
         }
 
 #if !NOT_UNITY3D

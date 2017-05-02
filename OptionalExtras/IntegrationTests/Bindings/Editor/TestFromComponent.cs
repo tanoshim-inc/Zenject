@@ -16,7 +16,7 @@ namespace Zenject.Tests.Bindings
         {
             var gameObject = Container.CreateEmptyGameObject("Foo");
 
-            Container.BindInstance(gameObject, true).WithId("Foo");
+            Container.BindInstance(gameObject).WithId("Foo");
 
             Container.Bind<Foo>().FromNewComponentOn(gameObject).AsSingle();
             Container.BindRootResolve<Foo>();
@@ -31,7 +31,7 @@ namespace Zenject.Tests.Bindings
         {
             var gameObject = Container.CreateEmptyGameObject("Foo");
 
-            Container.BindInstance(gameObject, true).WithId("Foo");
+            Container.BindInstance(gameObject).WithId("Foo");
 
             Container.Bind<Foo>().FromNewComponentOn((context) => gameObject).AsSingle();
             Container.BindRootResolve<Foo>();
@@ -46,7 +46,7 @@ namespace Zenject.Tests.Bindings
         {
             var gameObject = Container.CreateEmptyGameObject("Foo");
 
-            Container.BindInstance(gameObject, true).WithId("Foo");
+            Container.BindInstance(gameObject).WithId("Foo");
 
             Container.Bind<Foo>().FromNewComponentOn(gameObject).AsTransient();
             Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsTransient();
@@ -63,7 +63,7 @@ namespace Zenject.Tests.Bindings
         {
             var gameObject = Container.CreateEmptyGameObject("Foo");
 
-            Container.BindInstance(gameObject, true).WithId("Foo");
+            Container.BindInstance(gameObject).WithId("Foo");
 
             Container.Bind<Foo>().FromNewComponentOn(gameObject).AsSingle();
             Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsSingle();
@@ -81,7 +81,7 @@ namespace Zenject.Tests.Bindings
         {
             var gameObject = Container.CreateEmptyGameObject("Foo");
 
-            Container.BindInstance(gameObject, true).WithId("Foo");
+            Container.BindInstance(gameObject).WithId("Foo");
 
             Container.Bind<Foo>().FromNewComponentOn(gameObject).AsCached();
             Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsCached();
@@ -99,7 +99,7 @@ namespace Zenject.Tests.Bindings
         {
             var gameObject = Container.CreateEmptyGameObject("Foo");
 
-            Container.BindInstance(gameObject, true).WithId("Foo");
+            Container.BindInstance(gameObject).WithId("Foo");
 
             Container.Bind(typeof(IFoo), typeof(Foo)).To<Foo>().FromNewComponentOn(gameObject).AsCached();
 
@@ -116,7 +116,7 @@ namespace Zenject.Tests.Bindings
         {
             var gameObject = Container.CreateEmptyGameObject("Foo");
 
-            Container.BindInstance(gameObject, true).WithId("Foo");
+            Container.BindInstance(gameObject).WithId("Foo");
 
             Container.Bind(typeof(IFoo), typeof(IBar))
                 .To(new List<Type>() { typeof(Foo), typeof(Bar) }).FromNewComponentOn(gameObject).AsCached();
@@ -134,7 +134,7 @@ namespace Zenject.Tests.Bindings
         {
             var gameObject = Container.CreateEmptyGameObject("Foo");
 
-            Container.BindInstance(gameObject, true).WithId("Foo");
+            Container.BindInstance(gameObject).WithId("Foo");
 
             Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type>() { typeof(Foo), typeof(Bar) })
                 .FromNewComponentOn(gameObject).AsSingle();

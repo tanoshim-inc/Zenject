@@ -15,7 +15,7 @@ namespace Zenject.Tests.Factories.BindFactoryOne
 
         public override void InstallBindings()
         {
-            Container.BindInstance(_param1, true).WhenInjectedInto<Foo>();
+            Container.BindInstance(_param1).WhenInjectedInto<Foo>();
             Container.Bind<Foo>().FromNewComponentOnNewGameObject().AsTransient();
         }
     }
