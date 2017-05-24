@@ -592,7 +592,20 @@ namespace Zenject
             FlushBindings();
             CheckForInstallWarning(context);
 
-            var result = TryGetUniqueProvider(context, out providerPair);
+            var lookupContext = context;
+
+            // The context used for lookups is always the same as the given context EXCEPT for Lazy<>
+            // In CreateLazyBinding above, we forward the context to a new instance of Lazy<>
+            // The problem is, we want the binding for Bind(typeof(Lazy<>)) to always match even
+            // for members that are marked for a specific ID, so we need to discard the identifier
+            // for this one particular case
+            if (context.MemberType.IsGenericType && context.MemberType.GetGenericTypeDefinition() == typeof(Lazy<>))
+            {
+                lookupContext = context.Clone();
+                lookupContext.Identifier = null;
+            }
+
+            var result = TryGetUniqueProvider(lookupContext, out providerPair);
 
             if (result == ProviderLookupResult.Multiple)
             {
