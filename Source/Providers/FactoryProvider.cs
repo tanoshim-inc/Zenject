@@ -8,6 +8,7 @@ namespace Zenject
         where TFactory : IFactory
     {
         readonly List<TypeValuePair> _factoryArgs;
+        object _factory;
 
         public FactoryProviderBase(DiContainer container, List<TypeValuePair> factoryArgs)
         {
