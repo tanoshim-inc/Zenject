@@ -5,6 +5,7 @@ using System.Collections;
 using Zenject;
 
 #pragma warning disable 649
+#pragma warning disable 618
 
 namespace Zenject.Asteroids
 {
