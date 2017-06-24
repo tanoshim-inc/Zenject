@@ -597,6 +597,8 @@ namespace Zenject
             {
                 lookupContext = context.Clone();
                 lookupContext.Identifier = null;
+                lookupContext.SourceType = InjectSources.Local;
+                lookupContext.Optional = false;
             }
 
             var result = TryGetUniqueProvider(lookupContext, out providerPair);

@@ -60,6 +60,36 @@ namespace Zenject.Tests.Bindings
             Initialize();
         }
 
+        [Test]
+        public void TestOptional1()
+        {
+            Container.Bind<Bar>().AsSingle();
+            Container.Bind<Qux>().AsSingle();
+            Initialize();
+
+            Assert.IsNotNull(Container.Resolve<Qux>().Bar.Value);
+        }
+
+        [Test]
+        public void TestOptional2()
+        {
+            Container.Bind<Qux>().AsSingle();
+            Initialize();
+
+            Assert.IsNull(Container.Resolve<Qux>().Bar.Value);
+        }
+
+        [Test]
+        public void TestOptional3()
+        {
+            Container.Bind<Gorp>().AsSingle();
+            Initialize();
+
+            var gorp = Container.Resolve<Gorp>();
+            object temp;
+            Assert.Throws(() => temp = gorp.Bar.Value);
+        }
+
         public class Bar
         {
             public static int InstanceCount = 0;
@@ -87,6 +117,17 @@ namespace Zenject.Tests.Bindings
             {
                 _bar.Value.DoIt();
             }
+        }
+
+        public class Qux
+        {
+            [Inject(Optional = true)]
+            public Lazy<Bar> Bar;
+        }
+
+        public class Gorp
+        {
+            public Lazy<Bar> Bar;
         }
     }
 }
