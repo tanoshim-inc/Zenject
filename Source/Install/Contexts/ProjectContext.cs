@@ -179,11 +179,10 @@ namespace Zenject
                 _container.IsInstalling = false;
             }
 
-            _container.FlushInjectQueue();
-
             Assert.That(_dependencyRoots.IsEmpty());
-
             _dependencyRoots.AddRange(_container.ResolveDependencyRoots());
+
+            _container.FlushInjectQueue();
         }
 
         protected override IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours()
