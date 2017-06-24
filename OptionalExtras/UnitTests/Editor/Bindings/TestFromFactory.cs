@@ -64,38 +64,6 @@ namespace Zenject.Tests.Bindings
         }
 
         [Test]
-        public void TestSelfTransient()
-        {
-            FooFactory.InstanceCount = 0;
-
-            Container.Bind<Foo>().FromFactory<FooFactory>().AsTransient().NonLazy();
-
-            Assert.IsEqual(Container.Resolve<Foo>(), StaticFoo);
-
-            Container.Resolve<Foo>();
-            Container.Resolve<Foo>();
-            Container.Resolve<Foo>();
-
-            Assert.IsEqual(FooFactory.InstanceCount, 4);
-        }
-
-        [Test]
-        public void TestConcreteTransient()
-        {
-            FooFactory.InstanceCount = 0;
-
-            Container.Bind<IFoo>().To<Foo>().FromFactory<FooFactory>().AsTransient().NonLazy();
-
-            Assert.IsEqual(Container.Resolve<IFoo>(), StaticFoo);
-
-            Container.Resolve<IFoo>();
-            Container.Resolve<IFoo>();
-            Container.Resolve<IFoo>();
-
-            Assert.IsEqual(FooFactory.InstanceCount, 4);
-        }
-
-        [Test]
         public void TestSelfCached()
         {
             FooFactory.InstanceCount = 0;
