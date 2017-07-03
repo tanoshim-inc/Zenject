@@ -593,7 +593,7 @@ namespace Zenject
             // The problem is, we want the binding for Bind(typeof(Lazy<>)) to always match even
             // for members that are marked for a specific ID, so we need to discard the identifier
             // for this one particular case
-            if (context.MemberType.IsGenericType && context.MemberType.GetGenericTypeDefinition() == typeof(Lazy<>))
+            if (context.MemberType.IsGenericType() && context.MemberType.GetGenericTypeDefinition() == typeof(Lazy<>))
             {
                 lookupContext = context.Clone();
                 lookupContext.Identifier = null;
