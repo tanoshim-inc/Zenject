@@ -157,6 +157,7 @@ namespace Zenject
             }
         }
 
+#if !(UNITY_WSA && ENABLE_DOTNET) || UNITY_EDITOR
         private static IEnumerable<FieldInfo> GetAllFields(Type t, BindingFlags flags)
         {
             if (t == null)
@@ -190,6 +191,7 @@ namespace Zenject
 
             return (injectable, value) => writeableField.SetValue(injectable, value);
         }
+#endif
 
         static InjectableInfo CreateForMember(MemberInfo memInfo, Type parentType)
         {
@@ -226,10 +228,18 @@ namespace Zenject
                 var propInfo = (PropertyInfo)memInfo;
                 memberType = propInfo.PropertyType;
 
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+                setter = ((object injectable, object value) => propInfo.SetValue(injectable, value, null));
+#else
                 if (propInfo.CanWrite)
-                    setter = (( object injectable, object value) => propInfo.SetValue(injectable, value, null));
+                {
+                    setter = ((object injectable, object value) => propInfo.SetValue(injectable, value, null));
+                }
                 else
+                {
                     setter = GetOnlyPropertySetter(parentType, propInfo.Name);
+                }
+#endif
             }
 
             return new InjectableInfo(
