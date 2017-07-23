@@ -1092,18 +1092,28 @@ namespace Zenject
             try
             {
                 GameObject gameObj;
+
+                var transformParent = GetTransformGroup(gameObjectBindInfo, context);
+
                 if (gameObjectBindInfo.Position.HasValue && gameObjectBindInfo.Rotation.HasValue)
-                    gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, 
-                        gameObjectBindInfo.Position.Value,gameObjectBindInfo.Rotation.Value, GetTransformGroup(gameObjectBindInfo, context));
-                else if (gameObjectBindInfo.Position.HasValue)
-                    gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, 
-                        gameObjectBindInfo.Position.Value,prefabAsGameObject.transform.rotation, GetTransformGroup(gameObjectBindInfo, context));
-                else if (gameObjectBindInfo.Rotation.HasValue)
-                    gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, 
-                        prefabAsGameObject.transform.position, gameObjectBindInfo.Rotation.Value, GetTransformGroup(gameObjectBindInfo, context));
-                else
+                {
                     gameObj = (GameObject)GameObject.Instantiate(
-                        prefabAsGameObject, GetTransformGroup(gameObjectBindInfo, context), false);
+                        prefabAsGameObject, gameObjectBindInfo.Position.Value,gameObjectBindInfo.Rotation.Value, transformParent);
+                }
+                else if (gameObjectBindInfo.Position.HasValue)
+                {
+                    gameObj = (GameObject)GameObject.Instantiate(
+                        prefabAsGameObject, gameObjectBindInfo.Position.Value,prefabAsGameObject.transform.rotation, transformParent);
+                }
+                else if (gameObjectBindInfo.Rotation.HasValue)
+                {
+                    gameObj = (GameObject)GameObject.Instantiate(
+                        prefabAsGameObject, prefabAsGameObject.transform.position, gameObjectBindInfo.Rotation.Value, transformParent);
+                }
+                else
+                {
+                    gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, transformParent);
+                }
 
                 if (gameObjectBindInfo.Name != null)
                 {
@@ -1318,7 +1328,8 @@ namespace Zenject
         }
 
         // Create a new game object from a prefab and fill in dependencies for all children
-        public GameObject InstantiatePrefab(UnityEngine.Object prefab,Vector3 position,Quaternion rotation, Transform parentTransform)
+        public GameObject InstantiatePrefab(
+            UnityEngine.Object prefab, Vector3 position, Quaternion rotation, Transform parentTransform)
         {
             return InstantiatePrefab(
                 prefab, new GameObjectCreationParameters()
