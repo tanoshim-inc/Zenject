@@ -2304,6 +2304,139 @@ namespace Zenject
         }
 #endif
 
+        ////////////// Execution order ////////////////
+
+        public void BindExecutionOrder<T>(int order)
+        {
+            BindExecutionOrder(typeof(T), order);
+        }
+
+        public void BindExecutionOrder(Type type, int order)
+        {
+            Assert.That(type.DerivesFrom<ITickable>() || type.DerivesFrom<IInitializable>() || type.DerivesFrom<IDisposable>() || type.DerivesFrom<ILateDisposable>() || type.DerivesFrom<IFixedTickable>() || type.DerivesFrom<ILateTickable>(),
+                "Expected type '{0}' to derive from one or more of the following interfaces: ITickable, IInitializable, ILateTickable, IFixedTickable, IDisposable, ILateDisposable", type);
+
+            if (type.DerivesFrom<ITickable>())
+            {
+                BindTickableExecutionOrder(type, order);
+            }
+
+            if (type.DerivesFrom<IInitializable>())
+            {
+                BindInitializableExecutionOrder(type, order);
+            }
+
+            if (type.DerivesFrom<IDisposable>())
+            {
+                BindDisposableExecutionOrder(type, order);
+            }
+
+            if (type.DerivesFrom<ILateDisposable>())
+            {
+                BindLateDisposableExecutionOrder(type, order);
+            }
+
+            if (type.DerivesFrom<IFixedTickable>())
+            {
+                BindFixedTickableExecutionOrder(type, order);
+            }
+
+            if (type.DerivesFrom<ILateTickable>())
+            {
+                BindLateTickableExecutionOrder(type, order);
+            }
+        }
+
+        public void BindTickableExecutionOrder<T>(int order)
+            where T : ITickable
+        {
+            BindTickableExecutionOrder(typeof(T), order);
+        }
+
+        public void BindTickableExecutionOrder(Type type, int order)
+        {
+            Assert.That(type.DerivesFrom<ITickable>(),
+                "Expected type '{0}' to derive from ITickable", type);
+
+            BindInstance(
+                ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<TickableManager>();
+        }
+
+        public void BindInitializableExecutionOrder<T>(int order)
+            where T : IInitializable
+        {
+            BindInitializableExecutionOrder(typeof(T), order);
+        }
+
+        public void BindInitializableExecutionOrder(Type type, int order)
+        {
+            Assert.That(type.DerivesFrom<IInitializable>(),
+                "Expected type '{0}' to derive from IInitializable", type);
+
+            BindInstance(
+                ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<InitializableManager>();
+        }
+
+        public void BindDisposableExecutionOrder<T>(int order)
+            where T : IDisposable
+        {
+            BindDisposableExecutionOrder(typeof(T), order);
+        }
+
+        public void BindLateDisposableExecutionOrder<T>(int order)
+            where T : ILateDisposable
+        {
+            BindLateDisposableExecutionOrder(typeof(T), order);
+        }
+
+        public void BindDisposableExecutionOrder(Type type, int order)
+        {
+            Assert.That(type.DerivesFrom<IDisposable>(),
+                "Expected type '{0}' to derive from IDisposable", type);
+
+            BindInstance(
+                ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<DisposableManager>();
+        }
+
+        public void BindLateDisposableExecutionOrder(Type type, int order)
+        {
+            Assert.That(type.DerivesFrom<ILateDisposable>(),
+            "Expected type '{0}' to derive from ILateDisposable", type);
+
+            BindInstance(
+                ModestTree.Util.ValuePair.New(type, order)).WithId("Late").WhenInjectedInto<DisposableManager>();
+        }
+
+        public void BindFixedTickableExecutionOrder<T>(int order)
+            where T : IFixedTickable
+        {
+            BindFixedTickableExecutionOrder(typeof(T), order);
+        }
+
+        public void BindFixedTickableExecutionOrder(Type type, int order)
+        {
+            Assert.That(type.DerivesFrom<IFixedTickable>(),
+                "Expected type '{0}' to derive from IFixedTickable", type);
+
+            Bind<ModestTree.Util.ValuePair<Type, int>>().WithId("Fixed")
+                .FromInstance(ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<TickableManager>();
+        }
+
+        public void BindLateTickableExecutionOrder<T>(int order)
+            where T : ILateTickable
+        {
+            BindLateTickableExecutionOrder(typeof(T), order);
+        }
+
+        public void BindLateTickableExecutionOrder(Type type, int order)
+        {
+            Assert.That(type.DerivesFrom<ILateTickable>(),
+                "Expected type '{0}' to derive from ILateTickable", type);
+
+            Bind<ModestTree.Util.ValuePair<Type, int>>().WithId("Late")
+                .FromInstance(ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<TickableManager>();
+        }
+
         ////////////// Types ////////////////
 
         class ProviderPair
