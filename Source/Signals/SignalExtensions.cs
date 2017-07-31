@@ -15,6 +15,14 @@ namespace Zenject
             return new SignalBinderWithId(info, signalSettings);
         }
 
+        public static SignalBinderWithId DeclareSignal(this DiContainer container, Type type)
+        {
+            var info = new BindInfo(type);
+            var signalSettings = new SignalSettings();
+            container.Bind(type).AsCached().WithArguments(signalSettings, info);
+            return new SignalBinderWithId(info, signalSettings);
+        }
+
         public static SignalHandlerBinderWithId BindSignal<TSignal>(this DiContainer container)
             where TSignal : ISignal
         {
