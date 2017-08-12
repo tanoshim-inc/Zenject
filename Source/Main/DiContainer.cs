@@ -1775,6 +1775,63 @@ namespace Zenject
             return _providers.Remove(bindingId);
         }
 
+        public void UnbindInterfacesTo<TConcrete>()
+        {
+            UnbindInterfacesTo(typeof(TConcrete));
+        }
+
+        public void UnbindInterfacesTo(Type concreteType)
+        {
+            foreach (var i in concreteType.Interfaces())
+            {
+                Unbind(i, concreteType);
+            }
+        }
+
+        public bool Unbind<TContract, TConcrete>()
+        {
+            return Unbind(typeof(TContract), typeof(TConcrete));
+        }
+
+        public bool Unbind(Type contractType, Type concreteType)
+        {
+            return UnbindId(contractType, concreteType, null);
+        }
+
+        public bool UnbindId<TContract, TConcrete>(object identifier)
+        {
+            return UnbindId(typeof(TContract), typeof(TConcrete), identifier);
+        }
+
+        public bool UnbindId(Type contractType, Type concreteType, object identifier)
+        {
+            FlushBindings();
+
+            var bindingId = new BindingId(contractType, identifier);
+
+            List<ProviderInfo> providers;
+
+            if (!_providers.TryGetValue(bindingId, out providers))
+            {
+                return false;
+            }
+
+            var matches = providers.Where(x => x.Provider.GetInstanceType(new InjectContext(this, contractType, identifier)).DerivesFromOrEqual(concreteType)).ToList();
+
+            if (matches.IsEmpty())
+            {
+                return false;
+            }
+
+            foreach (var info in matches)
+            {
+                bool success = providers.Remove(info);
+                Assert.That(success);
+            }
+
+            return true;
+        }
+
         // Returns true if the given type is bound to something in the container
         public bool HasBinding(InjectContext context)
         {

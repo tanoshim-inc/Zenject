@@ -11,7 +11,11 @@ namespace Zenject.Tests.BindFeatures
         {
         }
 
-        class Test2 : ITest
+        interface ITest2
+        {
+        }
+
+        class Test2 : ITest, ITest2
         {
         }
 
@@ -25,6 +29,20 @@ namespace Zenject.Tests.BindFeatures
             Container.Unbind<ITest>();
 
             Assert.IsNull(Container.TryResolve<ITest>());
+        }
+
+        [Test]
+        public void TestUnbindInterfaces()
+        {
+            Container.BindInterfacesTo<Test2>().AsSingle();
+
+            Assert.IsNotNull(Container.Resolve<ITest>());
+            Assert.IsNotNull(Container.Resolve<ITest2>());
+
+            Container.UnbindInterfacesTo<Test2>();
+
+            Assert.IsNull(Container.TryResolve<ITest>());
+            Assert.IsNull(Container.TryResolve<ITest2>());
         }
     }
 }
