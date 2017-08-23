@@ -48,7 +48,10 @@ namespace Zenject
         bool _isInstalling;
         bool _hasDisplayedInstallWarning;
 
-        public DiContainer(bool isValidating)
+	    public bool ShouldCheckForInstallWarning = true;
+
+
+		public DiContainer(bool isValidating)
         {
             _isValidating = isValidating;
 
@@ -470,8 +473,9 @@ namespace Zenject
             return ReflectionUtil.CreateGenericList(context.MemberType, new object[] {});
         }
 
-        void CheckForInstallWarning(InjectContext context)
-        {
+        void CheckForInstallWarning(InjectContext context) {
+	        if (!ShouldCheckForInstallWarning) return;
+
             Assert.IsNotNull(context);
 #if DEBUG || UNITY_EDITOR
             if (!_isInstalling)
