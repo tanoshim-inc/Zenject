@@ -24,9 +24,10 @@ namespace Zenject
             Assert.That(!ZenUtilInternal.IsNull(prefab), "Received null prefab during bind command");
 
 #if UNITY_EDITOR
-            // This won't execute in dll builds sadly
-            Assert.That(PrefabUtility.GetPrefabType(prefab) == PrefabType.Prefab,
-                "Expected prefab but found game object with name '{0}' during bind command", prefab.name);
+            // Unfortunately we can't do this check because asset bundles return PrefabType.None here
+            // as discussed here: https://github.com/modesttree/Zenject/issues/269#issuecomment-323419408
+            //Assert.That(PrefabUtility.GetPrefabType(prefab) == PrefabType.Prefab,
+                //"Expected prefab but found game object with name '{0}' during bind command", prefab.name);
 #endif
         }
 
@@ -35,8 +36,10 @@ namespace Zenject
             Assert.That(!ZenUtilInternal.IsNull(gameObject), "Received null game object during bind command");
 
 #if UNITY_EDITOR
-            Assert.That(PrefabUtility.GetPrefabType(gameObject) != PrefabType.Prefab,
-                "Expected game object but found prefab instead with name '{0}' during bind command", gameObject.name);
+            // Unfortunately we can't do this check because asset bundles return PrefabType.None here
+            // as discussed here: https://github.com/modesttree/Zenject/issues/269#issuecomment-323419408
+            //Assert.That(PrefabUtility.GetPrefabType(gameObject) != PrefabType.Prefab,
+                //"Expected game object but found prefab instead with name '{0}' during bind command", gameObject.name);
 #endif
         }
 
