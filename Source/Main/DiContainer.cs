@@ -48,16 +48,15 @@ namespace Zenject
         bool _isInstalling;
         bool _hasDisplayedInstallWarning;
 
-	    public bool ShouldCheckForInstallWarning = true;
-
-
-		public DiContainer(bool isValidating)
+        public DiContainer(bool isValidating)
         {
             _isValidating = isValidating;
 
             _singletonMarkRegistry = new SingletonMarkRegistry();
             _lazyInjector = new LazyInstanceInjector(this);
             _singletonProviderCreator = new SingletonProviderCreator(this, _singletonMarkRegistry);
+
+            ShouldCheckForInstallWarning = true;
 
             InstallDefaultBindings();
             FlushBindings();
@@ -127,6 +126,11 @@ namespace Zenject
         public DiContainer(IEnumerable<DiContainer> parentContainers)
             : this(parentContainers, false)
         {
+        }
+
+        public bool ShouldCheckForInstallWarning
+        {
+            get; set;
         }
 
         // When true, this will throw exceptions whenever we create new game objects
@@ -473,8 +477,12 @@ namespace Zenject
             return ReflectionUtil.CreateGenericList(context.MemberType, new object[] {});
         }
 
-        void CheckForInstallWarning(InjectContext context) {
-	        if (!ShouldCheckForInstallWarning) return;
+        void CheckForInstallWarning(InjectContext context)
+        {
+            if (!ShouldCheckForInstallWarning)
+            {
+                return;
+            }
 
             Assert.IsNotNull(context);
 #if DEBUG || UNITY_EDITOR
@@ -504,7 +512,7 @@ namespace Zenject
 
             _hasDisplayedInstallWarning = true;
             // Feel free to comment this out if you are comfortable with this practice
-            Log.Warn("Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type '{0}'.  If you don't care about this, you can just remove this warning.", rootContext.MemberType);
+            Log.Warn("Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type '{0}'.  If you don't care about this, you can remove this warning or set 'Container.ShouldCheckForInstallWarning' to false.", rootContext.MemberType);
 #endif
         }
 
