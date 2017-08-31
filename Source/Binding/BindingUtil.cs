@@ -200,6 +200,9 @@ namespace Zenject
 
         public static void AssertIsDerivedFromType(Type concreteType, Type parentType)
         {
+#if !(UNITY_WSA && ENABLE_DOTNET)
+            // TODO: Is it possible to do this on WSA?
+
             Assert.That(parentType.IsOpenGenericType() == concreteType.IsOpenGenericType(),
                 "Invalid type given during bind command.  Expected type '{0}' and type '{1}' to both either be open generic types or not open generic types", parentType, concreteType);
 
@@ -210,6 +213,7 @@ namespace Zenject
                     "Invalid type given during bind command.  Expected open generic type '{0}' to derive from open generic type '{1}'", concreteType, parentType);
             }
             else
+#endif
             {
                 Assert.That(concreteType.DerivesFromOrEqual(parentType),
                     "Invalid type given during bind command.  Expected type '{0}' to derive from type '{1}'", concreteType, parentType.Name());

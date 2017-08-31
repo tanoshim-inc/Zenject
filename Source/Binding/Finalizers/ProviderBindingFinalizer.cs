@@ -146,6 +146,9 @@ namespace Zenject
                 return false;
             }
 
+#if !(UNITY_WSA && ENABLE_DOTNET)
+            // TODO: Is it possible to do this on WSA?
+
             if (contractType.IsOpenGenericType())
             {
                 Assert.That(concreteType.IsOpenGenericType());
@@ -159,6 +162,12 @@ namespace Zenject
             {
                 return true;
             }
+#else
+            if (concreteType.DerivesFromOrEqual(contractType))
+            {
+                return true;
+            }
+#endif
 
             if (BindInfo.InvalidBindResponse == InvalidBindResponses.Assert)
             {

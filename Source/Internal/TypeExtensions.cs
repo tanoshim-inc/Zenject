@@ -32,6 +32,8 @@ namespace ModestTree
 #endif
         }
 
+#if !(UNITY_WSA && ENABLE_DOTNET)
+        // TODO: Is it possible to do this on WSA?
         public static bool IsAssignableToGenericType(Type givenType, Type genericType)
         {
             var interfaceTypes = givenType.GetInterfaces();
@@ -58,6 +60,7 @@ namespace ModestTree
 
             return IsAssignableToGenericType(baseType, genericType);
         }
+#endif
 
         public static bool IsEnum(this Type type)
         {
