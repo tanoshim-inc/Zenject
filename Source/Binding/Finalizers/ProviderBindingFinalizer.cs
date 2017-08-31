@@ -141,7 +141,21 @@ namespace Zenject
         // Returns true if the bind should continue, false to skip
         bool ValidateBindTypes(Type concreteType, Type contractType)
         {
-            if (concreteType.DerivesFromOrEqual(contractType))
+            if (concreteType.IsOpenGenericType() != contractType.IsOpenGenericType())
+            {
+                return false;
+            }
+
+            if (contractType.IsOpenGenericType())
+            {
+                Assert.That(concreteType.IsOpenGenericType());
+
+                if (TypeExtensions.IsAssignableToGenericType(concreteType, contractType))
+                {
+                    return true;
+                }
+            }
+            else if (concreteType.DerivesFromOrEqual(contractType))
             {
                 return true;
             }
