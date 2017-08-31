@@ -349,19 +349,6 @@ namespace ModestTree
             return provider.AllAttributes(typeof(T)).Any();
         }
 
-        public static bool HasAttributeIncludingInterfaces<T>(this Type provider)
-            where T : Attribute
-        {
-            foreach (var interfaceProvider in provider.GetInterfaces())
-            {
-                if (interfaceProvider.HasAttribute<T>())
-                {
-                    return true;
-                }   
-            }
-            return provider.AllAttributes(typeof(T)).Any();
-        }
-
         public static IEnumerable<T> AllAttributes<T>(
             this MemberInfo provider)
             where T : Attribute
