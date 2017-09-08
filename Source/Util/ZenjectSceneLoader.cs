@@ -56,7 +56,17 @@ namespace Zenject
             Action<DiContainer> extraBindings,
             LoadSceneRelationship containerMode)
         {
-            PrepareForLoadScene(loadMode, extraBindings, containerMode);
+            LoadScene(sceneName, loadMode, extraBindings, containerMode, null);
+        }
+
+        public void LoadScene(
+            string sceneName,
+            LoadSceneMode loadMode,
+            Action<DiContainer> extraBindings,
+            LoadSceneRelationship containerMode,
+            Action<DiContainer> extraBindingsLate)
+        {
+            PrepareForLoadScene(loadMode, extraBindings, extraBindingsLate, containerMode);
 
             Assert.That(Application.CanStreamedLevelBeLoaded(sceneName),
                 "Unable to load scene '{0}'", sceneName);
@@ -90,7 +100,18 @@ namespace Zenject
             Action<DiContainer> extraBindings,
             LoadSceneRelationship containerMode)
         {
-            PrepareForLoadScene(loadMode, extraBindings, containerMode);
+            return LoadSceneAsync(
+                sceneName, loadMode, extraBindings, containerMode, null);
+        }
+
+        public AsyncOperation LoadSceneAsync(
+            string sceneName,
+            LoadSceneMode loadMode,
+            Action<DiContainer> extraBindings,
+            LoadSceneRelationship containerMode,
+            Action<DiContainer> extraBindingsLate)
+        {
+            PrepareForLoadScene(loadMode, extraBindings, extraBindingsLate, containerMode);
 
             Assert.That(Application.CanStreamedLevelBeLoaded(sceneName),
                 "Unable to load scene '{0}'", sceneName);
@@ -101,6 +122,7 @@ namespace Zenject
         void PrepareForLoadScene(
             LoadSceneMode loadMode,
             Action<DiContainer> extraBindings,
+            Action<DiContainer> extraBindingsLate,
             LoadSceneRelationship containerMode)
         {
             if (loadMode == LoadSceneMode.Single)
@@ -129,6 +151,7 @@ namespace Zenject
             }
 
             SceneContext.ExtraBindingsInstallMethod = extraBindings;
+            SceneContext.ExtraBindingsLateInstallMethod = extraBindingsLate;
         }
     }
 }

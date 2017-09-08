@@ -15,6 +15,7 @@ namespace Zenject
     public class SceneContext : RunnableContext
     {
         public static Action<DiContainer> ExtraBindingsInstallMethod;
+        public static Action<DiContainer> ExtraBindingsLateInstallMethod;
 
         public static IEnumerable<DiContainer> ParentContainers;
 
@@ -308,6 +309,13 @@ namespace Zenject
             foreach (var decoratorContext in _decoratorContexts)
             {
                 decoratorContext.InstallLateDecoratorInstallers();
+            }
+
+            if (ExtraBindingsLateInstallMethod != null)
+            {
+                ExtraBindingsLateInstallMethod(_container);
+                // Reset extra bindings for next time we change scenes
+                ExtraBindingsLateInstallMethod = null;
             }
         }
 
