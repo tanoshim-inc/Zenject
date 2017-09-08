@@ -179,7 +179,7 @@ namespace ModestTree
         {
             if (val == null)
             {
-                Throw("Assert Hit! Found null pointer when value was expected. " + message);
+                Throw("Assert Hit! " + message);
             }
         }
 
