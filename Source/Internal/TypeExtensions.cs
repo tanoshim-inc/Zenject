@@ -252,12 +252,6 @@ namespace ModestTree
             }
         }
 
-        public static string NameWithParents(this Type type)
-        {
-            var typeList = type.GetParentTypes().Prepend(type).Select(x => x.Name()).ToArray();
-            return string.Join(":", typeList);
-        }
-
         public static bool IsClosedGenericType(this Type type)
         {
             return type.IsGenericType() && type != type.GetGenericTypeDefinition();

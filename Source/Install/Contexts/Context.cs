@@ -246,7 +246,7 @@ namespace Zenject
                     }
                     case ZenjectBinding.BindTypes.AllInterfacesAndSelf:
                     {
-                        Container.Bind(componentType.Interfaces().Append(componentType).ToArray()).WithId(identifier).FromInstance(component);
+                        Container.Bind(componentType.Interfaces().Concat(new[] { componentType }).ToArray()).WithId(identifier).FromInstance(component);
                         break;
                     }
                     default:
