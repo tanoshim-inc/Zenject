@@ -56,7 +56,6 @@ MonoBehaviour:
   - {fileID: 11487118}
   _installerPrefabs: []
   _scriptableObjectInstallers: []
-  _autoRun: 1
   _kernel: {fileID: 0}
 --- !u!1001 &100100000
 Prefab:
