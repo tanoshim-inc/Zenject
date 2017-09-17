@@ -8,7 +8,7 @@ namespace Zenject
     [AttributeUsage(AttributeTargets.Parameter
         | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
 #if !NOT_UNITY3D
-	[MeansImplicitUse(ImplicitUseKindFlags.Assign)]
+    [MeansImplicitUse(ImplicitUseKindFlags.Assign)]
 #endif
     public class InjectOptionalAttribute : InjectAttributeBase
     {

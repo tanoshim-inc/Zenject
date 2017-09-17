@@ -48,7 +48,26 @@ namespace Zenject
 
         public bool IsPaused
         {
-            get { return _isPaused || (_parents.Value != null ? _parents.Value.Any(x => x.IsPaused) : _isPaused); }
+            get
+            {
+                if (_isPaused)
+                {
+                    return true;
+                }
+
+                if (_parents.Value != null)
+                {
+                    for (int i = 0; i < _parents.Value.Count; i++)
+                    {
+                        if (_parents.Value[i].IsPaused)
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
         }
 
         [Inject]
