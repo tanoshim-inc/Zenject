@@ -56,13 +56,10 @@ namespace Zenject.SpaceFighter
 
         void SpawnEnemy()
         {
-            var tunables = new EnemyTunables()
-            {
-                Speed = Random.Range(_settings.SpeedMin, _settings.SpeedMax),
-                Accuracy = Random.Range(_settings.AccuracyMin, _settings.AccuracyMax),
-            };
+            float speed = Random.Range(_settings.SpeedMin, _settings.SpeedMax);
+            float accuracy = Random.Range(_settings.AccuracyMin, _settings.AccuracyMax);
 
-            var enemyFacade = _enemyFactory.Spawn(tunables);
+            var enemyFacade = _enemyFactory.Spawn(accuracy, speed);
             enemyFacade.Position = ChooseRandomStartPosition();
 
             _lastSpawnTime = Time.realtimeSinceStartup;

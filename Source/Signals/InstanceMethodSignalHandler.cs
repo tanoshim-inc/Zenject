@@ -54,7 +54,7 @@ namespace Zenject
             Assert.That(args.IsEmpty());
 
             var method = _methodGetter(handler);
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
             using (ProfileBlock.Start(method.ToDebugString()))
 #endif
             {
@@ -86,7 +86,7 @@ namespace Zenject
             ValidateParameter<TParam1>(args[0]);
 
             var method = _methodGetter(handler);
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
             using (ProfileBlock.Start(method.ToDebugString()))
 #endif
             {
@@ -120,7 +120,7 @@ namespace Zenject
             ValidateParameter<TParam2>(args[1]);
 
             var method = _methodGetter(handler);
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
             using (ProfileBlock.Start(method.ToDebugString()))
 #endif
             {
@@ -156,7 +156,7 @@ namespace Zenject
             ValidateParameter<TParam3>(args[2]);
 
             var method = _methodGetter(handler);
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
             using (ProfileBlock.Start(method.ToDebugString()))
 #endif
             {
@@ -194,7 +194,7 @@ namespace Zenject
             ValidateParameter<TParam4>(args[3]);
 
             var method = _methodGetter(handler);
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
             using (ProfileBlock.Start(method.ToDebugString()))
 #endif
             {

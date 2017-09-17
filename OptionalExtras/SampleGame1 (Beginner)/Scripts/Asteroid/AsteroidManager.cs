@@ -116,17 +116,17 @@ namespace Zenject.Asteroids
 
         public void FixedTick()
         {
-            foreach (var asteroid in _asteroids)
+            for (int i = 0; i < _asteroids.Count; i++)
             {
-                asteroid.FixedTick();
+                _asteroids[i].FixedTick();
             }
         }
 
         public void Tick()
         {
-            foreach (var asteroid in _asteroids)
+            for (int i = 0; i < _asteroids.Count; i++)
             {
-                asteroid.Tick();
+                _asteroids[i].Tick();
             }
 
             if (_started && _autoSpawn)

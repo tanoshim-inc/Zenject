@@ -12,8 +12,7 @@ namespace Zenject.SpaceFighter
         public Enemy(
             Rigidbody rigidBody,
             Collider collider,
-            MeshRenderer renderer,
-            EnemyTunables tunables)
+            MeshRenderer renderer)
         {
             _renderer = renderer;
             _collider = collider;

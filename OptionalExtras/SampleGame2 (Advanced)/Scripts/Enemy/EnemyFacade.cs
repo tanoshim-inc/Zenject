@@ -41,12 +41,12 @@ namespace Zenject.SpaceFighter
             _deathHandler.Die();
         }
 
-        public class Pool : MonoMemoryPool<EnemyTunables, EnemyFacade>
+        public class Pool : MonoMemoryPool<float, float, EnemyFacade>
         {
-            protected override void Reinitialize(EnemyTunables tunables, EnemyFacade enemy)
+            protected override void Reinitialize(float accuracy, float speed, EnemyFacade enemy)
             {
-                enemy._tunables.Accuracy = tunables.Accuracy;
-                enemy._tunables.Speed = tunables.Speed;
+                enemy._tunables.Accuracy = accuracy;
+                enemy._tunables.Speed = speed;
             }
         }
     }

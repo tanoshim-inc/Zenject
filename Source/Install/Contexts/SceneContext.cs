@@ -174,11 +174,14 @@ namespace Zenject
                 .Select(x => x.Container)
                 .ToList();
 
-            Assert.That(parentContainers.Any(), () => string.Format(
-                "SceneContext on object {0} of scene {1} requires at least one of contracts '{2}', but none of the loaded SceneContexts implements that contract.",
-                gameObject.name,
-                gameObject.scene.name,
-                parentContractNames.Join(", ")));
+            if (!parentContainers.Any())
+            {
+                throw Assert.CreateException(
+                    "SceneContext on object {0} of scene {1} requires at least one of contracts '{2}', but none of the loaded SceneContexts implements that contract.",
+                    gameObject.name,
+                    gameObject.scene.name,
+                    parentContractNames.Join(", "));
+            }
 
             return parentContainers;
         }

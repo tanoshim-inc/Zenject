@@ -20,17 +20,20 @@ namespace Zenject.SpaceFighter
             Container.BindInterfacesTo<EnemySpawner>().AsSingle();
 
             Container.BindMemoryPool<EnemyFacade, EnemyFacade.Pool>()
+                .WithInitialSize(10)
                 .FromSubContainerResolve()
                 .ByNewPrefab(_settings.EnemyFacadePrefab)
                 .UnderTransformGroup("Enemies");
 
-            Container.BindMemoryPool<Bullet, Bullet.Pool>().WithInitialSize(10).ExpandByDoubling()
+            Container.BindMemoryPool<Bullet, Bullet.Pool>()
+                .WithInitialSize(25)
                 .FromComponentInNewPrefab(_settings.BulletPrefab)
                 .UnderTransformGroup("Bullets");
 
             Container.Bind<LevelBoundary>().AsSingle();
 
-            Container.BindMemoryPool<Explosion, Explosion.Pool>().WithInitialSize(3)
+            Container.BindMemoryPool<Explosion, Explosion.Pool>()
+                .WithInitialSize(4)
                 .FromComponentInNewPrefab(_settings.ExplosionPrefab)
                 .UnderTransformGroup("Explosions");
 

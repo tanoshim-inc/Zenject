@@ -22,7 +22,7 @@ namespace Zenject
         {
             Assert.That(args.IsEmpty());
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
             using (ProfileBlock.Start(_method.ToDebugString()))
 #endif
             {
@@ -53,7 +53,7 @@ namespace Zenject
             Assert.That(args.IsLength(1));
             ValidateParameter<TParam1>(args[0]);
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
             using (ProfileBlock.Start(_method.ToDebugString()))
 #endif
             {
@@ -86,7 +86,7 @@ namespace Zenject
             ValidateParameter<TParam1>(args[0]);
             ValidateParameter<TParam2>(args[1]);
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
             using (ProfileBlock.Start(_method.ToDebugString()))
 #endif
             {
@@ -121,7 +121,7 @@ namespace Zenject
             ValidateParameter<TParam2>(args[1]);
             ValidateParameter<TParam3>(args[2]);
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
             using (ProfileBlock.Start(_method.ToDebugString()))
 #endif
             {
@@ -158,7 +158,7 @@ namespace Zenject
             ValidateParameter<TParam3>(args[2]);
             ValidateParameter<TParam4>(args[3]);
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
             using (ProfileBlock.Start(_method.ToDebugString()))
 #endif
             {
