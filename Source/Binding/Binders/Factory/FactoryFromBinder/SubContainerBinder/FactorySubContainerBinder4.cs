@@ -24,7 +24,7 @@ namespace Zenject
 
 #if !NOT_UNITY3D
         public NameTransformConditionCopyNonLazyBinder ByNewPrefabMethod(
-            UnityEngine.Object prefab, Action<DiContainer, TParam1, TParam2, TParam3, TParam4> installerMethod)
+            UnityEngine.Object prefab, ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4> installerMethod)
         {
             BindingUtil.AssertIsValidPrefab(prefab);
 
@@ -42,7 +42,7 @@ namespace Zenject
         }
 
         public NameTransformConditionCopyNonLazyBinder ByNewPrefabResourceMethod(
-            string resourcePath, Action<DiContainer, TParam1, TParam2, TParam3, TParam4> installerMethod)
+            string resourcePath, ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4> installerMethod)
         {
             BindingUtil.AssertIsValidResourcePath(resourcePath);
 

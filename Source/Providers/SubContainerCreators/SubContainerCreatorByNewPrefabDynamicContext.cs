@@ -196,12 +196,12 @@ namespace Zenject
 
     public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4> : SubContainerCreatorByNewPrefabDynamicContext
     {
-        readonly Action<DiContainer, TParam1, TParam2, TParam3, TParam4> _installerMethod;
+        readonly ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4> _installerMethod;
 
         public SubContainerCreatorByNewPrefabMethod(
             DiContainer container, IPrefabProvider prefabProvider,
             GameObjectCreationParameters gameObjectBindInfo,
-            Action<DiContainer, TParam1, TParam2, TParam3, TParam4> installerMethod)
+            ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4> installerMethod)
             : base(container, prefabProvider, gameObjectBindInfo)
         {
             _installerMethod = installerMethod;
@@ -229,12 +229,12 @@ namespace Zenject
 
     public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4, TParam5> : SubContainerCreatorByNewPrefabDynamicContext
     {
-        readonly Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> _installerMethod;
+        readonly ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> _installerMethod;
 
         public SubContainerCreatorByNewPrefabMethod(
             DiContainer container, IPrefabProvider prefabProvider,
             GameObjectCreationParameters gameObjectBindInfo,
-            Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> installerMethod)
+            ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> installerMethod)
             : base(container, prefabProvider, gameObjectBindInfo)
         {
             _installerMethod = installerMethod;
