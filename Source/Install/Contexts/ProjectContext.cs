@@ -163,7 +163,10 @@ namespace Zenject
             _container = new DiContainer(
                 new DiContainer[] { StaticContext.Container }, isValidating);
 
-            foreach (var instance in GetInjectableMonoBehaviours().Cast<object>())
+            var injectableMonoBehaviours = new List<MonoBehaviour>();
+            GetInjectableMonoBehaviours(injectableMonoBehaviours);
+
+            foreach (var instance in injectableMonoBehaviours)
             {
                 _container.QueueForInject(instance);
             }
@@ -172,7 +175,7 @@ namespace Zenject
 
             try
             {
-                InstallBindings();
+                InstallBindings(injectableMonoBehaviours);
             }
             finally
             {
@@ -185,12 +188,12 @@ namespace Zenject
             _container.FlushInjectQueue();
         }
 
-        protected override IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours()
+        protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
-            return ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject);
+            ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject, monoBehaviours);
         }
 
-        void InstallBindings()
+        void InstallBindings(List<MonoBehaviour> injectableMonoBehaviours)
         {
             _container.DefaultParent = this.transform;
 
@@ -210,8 +213,7 @@ namespace Zenject
 
             _container.Bind<ProjectKernel>().FromNewComponentOn(this.gameObject).AsSingle().NonLazy();
 
-            InstallSceneBindings();
-
+            InstallSceneBindings(injectableMonoBehaviours);
             InstallInstallers();
         }
     }

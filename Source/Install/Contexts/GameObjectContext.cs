@@ -47,7 +47,11 @@ namespace Zenject
 
         protected override void RunInternal()
         {
-            foreach (var instance in GetInjectableMonoBehaviours().Cast<object>())
+            var injectableMonoBehaviours = new List<MonoBehaviour>();
+
+            GetInjectableMonoBehaviours(injectableMonoBehaviours);
+
+            foreach (var instance in injectableMonoBehaviours)
             {
                 if (instance is MonoKernel)
                 {
@@ -62,7 +66,7 @@ namespace Zenject
 
             try
             {
-                InstallBindings();
+                InstallBindings(injectableMonoBehaviours);
             }
             finally
             {
@@ -103,7 +107,7 @@ namespace Zenject
             }
         }
 
-        protected override IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours()
+        protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
             // We inject on all components on the root except ourself
             foreach (var monoBehaviour in GetComponents<MonoBehaviour>())
@@ -114,9 +118,8 @@ namespace Zenject
                     continue;
                 }
 
-                if (monoBehaviour.GetType().DerivesFrom<MonoInstaller>())
+                if (!ZenUtilInternal.IsInjectableMonoBehaviourType(monoBehaviour.GetType()))
                 {
-                    // Do not inject on installers since these are always injected before they are installed
                     continue;
                 }
 
@@ -125,17 +128,22 @@ namespace Zenject
                     continue;
                 }
 
-                yield return monoBehaviour;
+                monoBehaviours.Add(monoBehaviour);
             }
 
-            foreach (var monoBehaviour in UnityUtil.GetDirectChildren(this.gameObject)
-                .SelectMany<GameObject, MonoBehaviour>(ZenUtilInternal.GetInjectableMonoBehaviours))
+            for (int i = 0; i < this.transform.childCount; i++)
             {
-                yield return monoBehaviour;
+                var child = this.transform.GetChild(i);
+
+                if (child != null)
+                {
+                    ZenUtilInternal.GetInjectableMonoBehaviours(
+                        child.gameObject, monoBehaviours);
+                }
             }
         }
 
-        void InstallBindings()
+        void InstallBindings(List<MonoBehaviour> injectableMonoBehaviours)
         {
             _container.DefaultParent = this.transform;
 
@@ -152,7 +160,7 @@ namespace Zenject
                 _container.Bind<MonoKernel>().FromInstance(_kernel).AsSingle().NonLazy();
             }
 
-            InstallSceneBindings();
+            InstallSceneBindings(injectableMonoBehaviours);
             InstallInstallers();
         }
     }

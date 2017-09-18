@@ -164,9 +164,9 @@ namespace Zenject
             }
         }
 
-        protected void InstallSceneBindings()
+        protected void InstallSceneBindings(List<MonoBehaviour> injectableMonoBehaviours)
         {
-            foreach (var binding in GetInjectableMonoBehaviours().OfType<ZenjectBinding>())
+            foreach (var binding in injectableMonoBehaviours.OfType<ZenjectBinding>())
             {
                 if (binding == null)
                 {
@@ -181,6 +181,9 @@ namespace Zenject
 
             // We'd prefer to use GameObject.FindObjectsOfType<ZenjectBinding>() here
             // instead but that doesn't find inactive gameobjects
+            // TODO: Consider changing this
+            // Maybe ZenjectBinding could add itself to a registry class on Awake/OnEnable
+            // then we could avoid calling the slow Resources.FindObjectsOfTypeAll here
             foreach (var binding in Resources.FindObjectsOfTypeAll<ZenjectBinding>())
             {
                 if (binding == null)
@@ -257,7 +260,7 @@ namespace Zenject
             }
         }
 
-        protected abstract IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours();
+        protected abstract void GetInjectableMonoBehaviours(List<MonoBehaviour> components);
     }
 }
 

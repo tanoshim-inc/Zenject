@@ -238,7 +238,9 @@ namespace Zenject
             // so that it doesn't inject on the game object twice
             // InitialComponentsInjecter will also guarantee that any component that is injected into
             // another component has itself been injected
-            foreach (var instance in GetInjectableMonoBehaviours().Cast<object>())
+            var injectableMonoBehaviours = new List<MonoBehaviour>();
+            GetInjectableMonoBehaviours(injectableMonoBehaviours);
+            foreach (var instance in injectableMonoBehaviours)
             {
                 _container.QueueForInject(instance);
             }
@@ -252,7 +254,7 @@ namespace Zenject
 
             try
             {
-                InstallBindings();
+                InstallBindings(injectableMonoBehaviours);
             }
             finally
             {
@@ -278,7 +280,7 @@ namespace Zenject
             Log.Debug("SceneContext: Initialized successfully");
         }
 
-        void InstallBindings()
+        void InstallBindings(List<MonoBehaviour> injectableMonoBehaviours)
         {
             _container.Bind(typeof(Context), typeof(SceneContext)).To<SceneContext>().FromInstance(this);
 
@@ -287,7 +289,7 @@ namespace Zenject
                 decoratorContext.InstallDecoratorSceneBindings();
             }
 
-            InstallSceneBindings();
+            InstallSceneBindings(injectableMonoBehaviours);
 
             _container.Bind<SceneKernel>().FromNewComponentOn(this.gameObject).AsSingle().NonLazy();
 
@@ -322,9 +324,9 @@ namespace Zenject
             }
         }
 
-        protected override IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours()
+        protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
-            return ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject.scene);
+            ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject.scene, monoBehaviours);
         }
 
         // These methods can be used for cases where you need to create the SceneContext entirely in code

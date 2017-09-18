@@ -65,6 +65,7 @@ namespace Zenject
         string _decoratedContractName = null;
 
         DiContainer _container;
+        List<MonoBehaviour> _injectableMonoBehaviours;
 
         public string DecoratedContractName
         {
@@ -90,9 +91,13 @@ namespace Zenject
         public void Initialize(DiContainer container)
         {
             Assert.IsNull(_container);
+            Assert.IsNull(_injectableMonoBehaviours);
             _container = container;
 
-            foreach (var instance in GetInjectableMonoBehaviours().Cast<object>())
+            _injectableMonoBehaviours = new List<MonoBehaviour>();
+            GetInjectableMonoBehaviours(_injectableMonoBehaviours);
+
+            foreach (var instance in _injectableMonoBehaviours)
             {
                 container.QueueForInject(instance);
             }
@@ -101,7 +106,7 @@ namespace Zenject
         public void InstallDecoratorSceneBindings()
         {
             _container.Bind<SceneDecoratorContext>().FromInstance(this);
-            InstallSceneBindings();
+            InstallSceneBindings(_injectableMonoBehaviours);
         }
 
         public void InstallDecoratorInstallers()
@@ -109,9 +114,9 @@ namespace Zenject
             InstallInstallers();
         }
 
-        protected override IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours()
+        protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
-            return ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject.scene);
+            ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject.scene, monoBehaviours);
         }
 
         public void InstallLateDecoratorInstallers()

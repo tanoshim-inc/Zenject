@@ -1601,7 +1601,9 @@ namespace Zenject
         {
             FlushBindings();
 
-            foreach (var monoBehaviour in ZenUtilInternal.GetInjectableMonoBehaviours(gameObject))
+            var monoBehaviours = new List<MonoBehaviour>();
+            ZenUtilInternal.GetInjectableMonoBehaviours(gameObject, monoBehaviours);
+            foreach (var monoBehaviour in monoBehaviours)
             {
                 Inject(monoBehaviour);
             }
@@ -1653,7 +1655,9 @@ namespace Zenject
                     "Cannot inject into non-monobehaviours!  Argument list must be zero length");
             }
 
-            foreach (var monoBehaviour in ZenUtilInternal.GetInjectableMonoBehaviours(gameObject))
+            var injectableMonoBehaviours = new List<MonoBehaviour>();
+            ZenUtilInternal.GetInjectableMonoBehaviours(gameObject, injectableMonoBehaviours);
+            foreach (var monoBehaviour in injectableMonoBehaviours)
             {
                 if (monoBehaviour.GetType().DerivesFromOrEqual(componentType))
                 {
