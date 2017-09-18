@@ -64,6 +64,7 @@ namespace Zenject
             return new ArgConditionCopyNonLazyBinder(BindInfo);
         }
 
+#if !NOT_UNITY3D
         public NameTransformConditionCopyNonLazyBinder ByNewPrefabInstaller<TInstaller>(
             UnityEngine.Object prefab)
             where TInstaller : InstallerBase
@@ -116,5 +117,6 @@ namespace Zenject
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
+#endif
     }
 }
