@@ -275,7 +275,7 @@ namespace Zenject
             Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetPath);
         }
 
-        [MenuItem("Edit/Zenject/Validate All Active Scenes #%v")]
+        [MenuItem("Edit/Zenject/Validate All Active Scenes")]
         public static void ValidateAllActiveScenes()
         {
             ValidateWrapper(() =>
