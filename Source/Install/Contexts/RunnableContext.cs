@@ -40,7 +40,6 @@ namespace Zenject
 
         protected abstract void RunInternal();
 
-
         public static T CreateComponent<T>(GameObject gameObject) where T : RunnableContext
         {
             _staticAutoRun = false;

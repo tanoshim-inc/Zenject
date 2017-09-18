@@ -1,5 +1,6 @@
 #if !NOT_UNITY3D
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ModestTree;
@@ -121,7 +122,7 @@ namespace Zenject
 
         public void InstallLateDecoratorInstallers()
         {
-            InstallInstallers(new List<InstallerBase>(), _lateScriptableObjectInstallers, _lateInstallers, _lateInstallerPrefabs);
+            InstallInstallers(new List<InstallerBase>(), new List<Type>(), _lateScriptableObjectInstallers, _lateInstallers, _lateInstallerPrefabs);
         }
     }
 }
