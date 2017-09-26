@@ -103,7 +103,7 @@ namespace Zenject
             if (gameObject.scene.isLoaded && !_container.IsValidating)
             {
                 _kernel = _container.Resolve<MonoKernel>();
-                _kernel.ForceInitialize();
+                _kernel.Initialize();
             }
         }
 

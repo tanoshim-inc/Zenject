@@ -211,7 +211,8 @@ namespace Zenject
             _container.Bind<SignalManager>().AsSingle();
             _container.Bind<Context>().FromInstance(this);
 
-            _container.Bind<ProjectKernel>().FromNewComponentOn(this.gameObject).AsSingle().NonLazy();
+            _container.Bind(typeof(ProjectKernel), typeof(MonoKernel))
+                .To<ProjectKernel>().FromNewComponentOn(this.gameObject).AsSingle().NonLazy();
 
             InstallSceneBindings(injectableMonoBehaviours);
             InstallInstallers();

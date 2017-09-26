@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -7,48 +8,52 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using ModestTree;
 using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
 using Assert=ModestTree.Assert;
 
 namespace Zenject.Tests.SceneDecorators
 {
-    [TestFixture]
     public class TestSceneDecorators
     {
-        const string CommonFolderPath = "Assets/Plugins/Zenject/OptionalExtras/IntegrationTests/SceneLoading/Decorators";
+        const string CommonFolderPath = "Assets/Mtm.Zenject-IntegrationTests/SceneLoading/Decorators";
         const string DecoratorScenePath = CommonFolderPath + "/DecoratorScene.unity";
         const string MainScenePath = CommonFolderPath + "/MainScene.unity";
 
         Scene _mainScene;
         Scene _decoratorScene;
 
-        [Test]
-        public void TestValidationPass()
+        [UnityTest]
+        public IEnumerator TestValidationPass()
         {
             ZenUnityEditorUtil.ValidateCurrentSceneSetup();
+            yield break;
         }
 
-        [Test]
-        public void TestValidationFail()
+        [UnityTest]
+        public IEnumerator TestValidationFail()
         {
             _decoratorScene.GetRootGameObjects().Where(x => x.name == "Foo")
                 .Single().GetComponent<ZenjectBinding>().enabled = false;
 
             Assert.Throws(() => ZenUnityEditorUtil.ValidateCurrentSceneSetup());
+            yield break;
         }
 
-        [Test]
-        public void TestSuccess()
+        [UnityTest]
+        public IEnumerator TestSuccess()
         {
             ZenUnityEditorUtil.RunCurrentSceneSetup();
+            yield break;
         }
 
-        [Test]
-        public void TestFail()
+        [UnityTest]
+        public IEnumerator TestFail()
         {
             _decoratorScene.GetRootGameObjects().Where(x => x.name == "Foo")
                 .Single().GetComponent<ZenjectBinding>().enabled = false;
 
             Assert.Throws(() => ZenUnityEditorUtil.RunCurrentSceneSetup());
+            yield break;
         }
 
         [SetUp]
