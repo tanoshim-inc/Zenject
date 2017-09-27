@@ -66,7 +66,9 @@ namespace Zenject
 
             var shouldValidate = CurrentTestHasAttribute<ValidateOnlyAttribute>();
 
+#if UNITY_EDITOR
             ProjectContext.ValidateOnNextRun = shouldValidate;
+#endif
 
             Assert.IsNull(_sceneContext);
 
