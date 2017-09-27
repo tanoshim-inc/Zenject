@@ -128,10 +128,10 @@ namespace ZenjectSignalsAndSignals.Tests
             yield break;
         }
 
-        public class DoSomethingSignal1 : Signal<string, DoSomethingSignal1> { }
-        public class DoSomethingSignal2 : Signal<string, object, DoSomethingSignal2> { }
-        public class DoSomethingSignal3 : Signal<string, object, object, DoSomethingSignal3> { }
-        public class DoSomethingSignal4 : Signal<string, object, object, string, DoSomethingSignal4> { }
+        public class DoSomethingSignal1 : Signal<DoSomethingSignal1, string> { }
+        public class DoSomethingSignal2 : Signal<DoSomethingSignal2, string, object> { }
+        public class DoSomethingSignal3 : Signal<DoSomethingSignal3, string, object, object> { }
+        public class DoSomethingSignal4 : Signal<DoSomethingSignal4, string, object, object, string> { }
 
         public class Bar1
         {
