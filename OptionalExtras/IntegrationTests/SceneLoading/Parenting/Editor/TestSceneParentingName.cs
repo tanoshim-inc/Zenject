@@ -15,7 +15,7 @@ namespace Zenject.Tests.SceneParenting
 {
     public class TestSceneParentingName
     {
-        const string CommonFolderPath = "Assets/Mtm.Zenject-IntegrationTests/SceneLoading/Parenting";
+        const string CommonFolderPath = "Assets/Plugins/Zenject/OptionalExtras/IntegrationTests/SceneLoading/Parenting";
         const string ParentScenePath = CommonFolderPath + "/ParentScene.unity";
         const string ChildScenePath = CommonFolderPath + "/ChildScene.unity";
 
