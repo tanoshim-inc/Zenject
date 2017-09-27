@@ -9,17 +9,35 @@ namespace Zenject.SpaceFighter
         Enemy _enemy;
         EnemyTunables _tunables;
         EnemyDeathHandler _deathHandler;
+        EnemyStateManager _stateManager;
 
         // We can't use a constructor here because MonoFacade derives from
         // MonoBehaviour
         [Inject]
         public void Construct(
             Enemy enemy, EnemyTunables tunables,
-            EnemyDeathHandler deathHandler)
+            EnemyDeathHandler deathHandler, 
+            EnemyStateManager stateManager)
         {
             _enemy = enemy;
             _tunables = tunables;
             _deathHandler = deathHandler;
+            _stateManager = stateManager;
+        }
+
+        public EnemyStates State
+        {
+            get { return _stateManager.CurrentState; }
+        }
+
+        public float Accuracy
+        {
+            get { return _tunables.Accuracy; }
+        }
+
+        public float Speed
+        {
+            get { return _tunables.Speed; }
         }
 
         // Here we can add some high-level methods to give some info to other

@@ -6,7 +6,7 @@ namespace Zenject.SpaceFighter
 {
     public class PlayerShootHandler : ITickable
     {
-        readonly AudioPlayer _audioPlayer;
+        readonly IAudioPlayer _audioPlayer;
         readonly Player _player;
         readonly Settings _settings;
         readonly Bullet.Pool _bulletPool;
@@ -19,7 +19,7 @@ namespace Zenject.SpaceFighter
             Bullet.Pool bulletPool,
             Settings settings,
             Player player,
-            AudioPlayer audioPlayer)
+            IAudioPlayer audioPlayer)
         {
             _audioPlayer = audioPlayer;
             _player = player;

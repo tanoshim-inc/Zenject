@@ -9,10 +9,10 @@ namespace Zenject.SpaceFighter
     public class EnemyStateAttack : IEnemyState
     {
         readonly EnemyCommonSettings _commonSettings;
-        readonly AudioPlayer _audioPlayer;
+        readonly IAudioPlayer _audioPlayer;
         readonly EnemyTunables _tunables;
         readonly EnemyStateManager _stateManager;
-        readonly PlayerFacade _player;
+        readonly IPlayer _player;
         readonly Settings _settings;
         readonly Enemy _enemy;
         readonly Bullet.Pool _bulletPool;
@@ -25,10 +25,10 @@ namespace Zenject.SpaceFighter
             Bullet.Pool bulletPool,
             Enemy enemy,
             Settings settings,
-            PlayerFacade player,
+            IPlayer player,
             EnemyStateManager stateManager,
             EnemyTunables tunables,
-            AudioPlayer audioPlayer,
+            IAudioPlayer audioPlayer,
             EnemyCommonSettings commonSettings)
         {
             _commonSettings = commonSettings;

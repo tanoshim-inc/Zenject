@@ -3,7 +3,16 @@ using Zenject;
 
 namespace Zenject.SpaceFighter
 {
-    public class PlayerFacade : MonoBehaviour
+    public interface IPlayer
+    {
+        bool IsDead { get; }
+        Vector3 Position { get; }
+        Quaternion Rotation { get; }
+
+        void TakeDamage(Vector3 moveDirection);
+    }
+
+    public class PlayerFacade : MonoBehaviour, IPlayer
     {
         Player _model;
         PlayerDamageHandler _hitHandler;
