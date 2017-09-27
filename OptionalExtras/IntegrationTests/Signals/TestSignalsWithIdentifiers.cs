@@ -64,7 +64,7 @@ namespace ZenjectSignalsAndSignals.Tests
             yield break;
         }
 
-        public class SomethingHappenedSignal : Signal<string, SomethingHappenedSignal>
+        public class SomethingHappenedSignal : Signal<SomethingHappenedSignal, string>
         {
         }
 

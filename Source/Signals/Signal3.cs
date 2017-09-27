@@ -18,14 +18,8 @@ namespace Zenject
         void Unlisten(Action<TParam1, TParam2, TParam3> listener);
     }
 
-    public abstract class Signal<TParam1, TParam2, TParam3, TDerived> : SignalBase, ISignal<TParam1, TParam2, TParam3>
-        where TDerived : Signal<TParam1, TParam2, TParam3, TDerived>
-#if ENABLE_IL2CPP
-        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
-        where TParam1 : class
-        where TParam2 : class
-        where TParam3 : class
-#endif
+    public abstract class Signal<TDerived, TParam1, TParam2, TParam3> : SignalBase, ISignal<TParam1, TParam2, TParam3>
+        where TDerived : Signal<TDerived, TParam1, TParam2, TParam3>
     {
         readonly List<Action<TParam1, TParam2, TParam3>> _listeners = new List<Action<TParam1, TParam2, TParam3>>();
 #if ZEN_SIGNALS_ADD_UNIRX
@@ -70,13 +64,13 @@ namespace Zenject
             }
         }
 
-        public static TDerived operator + (Signal<TParam1, TParam2, TParam3, TDerived> signal, Action<TParam1, TParam2, TParam3> listener)
+        public static TDerived operator + (Signal<TDerived, TParam1, TParam2, TParam3> signal, Action<TParam1, TParam2, TParam3> listener)
         {
             signal.Listen(listener);
             return (TDerived)signal;
         }
 
-        public static TDerived operator - (Signal<TParam1, TParam2, TParam3, TDerived> signal, Action<TParam1, TParam2, TParam3> listener)
+        public static TDerived operator - (Signal<TDerived, TParam1, TParam2, TParam3> signal, Action<TParam1, TParam2, TParam3> listener)
         {
             signal.Unlisten(listener);
             return (TDerived)signal;
