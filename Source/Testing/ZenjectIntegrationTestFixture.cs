@@ -1,4 +1,6 @@
 using System;
+
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -6,10 +8,13 @@ using NUnit.Framework.Interfaces;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using ModestTree;
+#endif
+
 using Assert = ModestTree.Assert;
 
 namespace Zenject
 {
+#if UNITY_EDITOR
     public abstract class ZenjectIntegrationTestFixture
     {
         SceneContext _sceneContext;
@@ -66,9 +71,7 @@ namespace Zenject
 
             var shouldValidate = CurrentTestHasAttribute<ValidateOnlyAttribute>();
 
-#if UNITY_EDITOR
             ProjectContext.ValidateOnNextRun = shouldValidate;
-#endif
 
             Assert.IsNull(_sceneContext);
 
@@ -186,4 +189,42 @@ namespace Zenject
             _hasDestroyedAll = false;
         }
     }
+#else
+    public abstract class ZenjectIntegrationTestFixture
+    {
+        protected DiContainer Container
+        {
+            get
+            {
+                throw CreateException();
+            }
+        }
+
+        Exception CreateException()
+        {
+            return Assert.CreateException(
+                "ZenjectIntegrationTestFixture currently only supports running within unity editor");
+        }
+
+        protected void SkipInstall()
+        {
+            throw CreateException();
+        }
+
+        protected void PreInstall()
+        {
+            throw CreateException();
+        }
+
+        protected void PostInstall()
+        {
+            throw CreateException();
+        }
+
+        protected void DestroyAll()
+        {
+            throw CreateException();
+        }
+    }
+#endif
 }
