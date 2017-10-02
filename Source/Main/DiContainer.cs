@@ -2382,7 +2382,24 @@ namespace Zenject
             using (ProfileBlock.Start("Zenject.Instantiate({0})", concreteType))
 #endif
             {
-                return InstantiateInternal(concreteType, autoInject, args);
+                if (IsValidating)
+                {
+                    try
+                    {
+                        return InstantiateInternal(concreteType, autoInject, args);
+                    }
+                    catch (Exception e)
+                    {
+                        // Just log the error and continue to print multiple validation errors
+                        // at once
+                        Log.ErrorException(e);
+                        return new ValidationMarker(concreteType);
+                    }
+                }
+                else
+                {
+                    return InstantiateInternal(concreteType, autoInject, args);
+                }
             }
         }
 
