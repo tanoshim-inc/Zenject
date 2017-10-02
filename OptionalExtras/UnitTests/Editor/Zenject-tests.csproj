@@ -88,7 +88,6 @@
     <Compile Include="Injection\TestTestOptional.cs" />
     <Compile Include="Other\TestCopyIntoAllSubContainers.cs" />
     <Compile Include="Other\TestGenericContract.cs" />
-    <Compile Include="Other\TestMoq.cs" />
     <Compile Include="Other\TestNestedContainer.cs" />
     <Compile Include="Other\TestResolveMany.cs" />
     <Compile Include="Other\TestSubContainers.cs" />
