@@ -979,6 +979,28 @@ namespace Zenject
         public void InjectExplicit(
             object injectable, Type injectableType, InjectArgs args)
         {
+            if (IsValidating)
+            {
+                try
+                {
+                    InjectExplicitInternal(injectable, injectableType, args);
+                }
+                catch (Exception e)
+                {
+                    // Just log the error and continue to print multiple validation errors
+                    // at once
+                    Log.ErrorException(e);
+                }
+            }
+            else
+            {
+                InjectExplicitInternal(injectable, injectableType, args);
+            }
+        }
+
+        void InjectExplicitInternal(
+            object injectable, Type injectableType, InjectArgs args)
+        {
             Assert.That(injectable != null);
 
             // Installers are the only things that we instantiate/inject on during validation
