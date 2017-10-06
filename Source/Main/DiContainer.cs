@@ -981,6 +981,15 @@ namespace Zenject
         {
             if (IsValidating)
             {
+                var marker = injectable as ValidationMarker;
+
+                if (marker != null && marker.InstantiateFailed)
+                {
+                    // Do nothing in this case because it already failed and so there
+                    // could be many knock-on errors that aren't related to the user
+                    return;
+                }
+
                 try
                 {
                     InjectExplicitInternal(injectable, injectableType, args);
@@ -2415,7 +2424,7 @@ namespace Zenject
                         // Just log the error and continue to print multiple validation errors
                         // at once
                         Log.ErrorException(e);
-                        return new ValidationMarker(concreteType);
+                        return new ValidationMarker(concreteType, true);
                     }
                 }
                 else
