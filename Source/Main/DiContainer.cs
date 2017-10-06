@@ -253,9 +253,12 @@ namespace Zenject
 
                 foreach (var provider in validatableProviders)
                 {
-                    var validatable = (IValidatable)provider.Provider.GetInstance(injectContext);
+                    var validatable = provider.Provider.GetInstance(injectContext) as IValidatable;
 
-                    validatable.Validate();
+                    if (validatable != null)
+                    {
+                        validatable.Validate();
+                    }
                 }
             }
 
