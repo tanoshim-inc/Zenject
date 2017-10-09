@@ -30,16 +30,6 @@ namespace Zenject.Tests.SceneDecorators
         }
 
         [UnityTest]
-        public IEnumerator TestValidationFail()
-        {
-            _decoratorScene.GetRootGameObjects().Where(x => x.name == "Foo")
-                .Single().GetComponent<ZenjectBinding>().enabled = false;
-
-            Assert.Throws(() => ZenUnityEditorUtil.ValidateCurrentSceneSetup());
-            yield break;
-        }
-
-        [UnityTest]
         public IEnumerator TestSuccess()
         {
             ZenUnityEditorUtil.RunCurrentSceneSetup();

@@ -303,8 +303,7 @@ namespace Zenject.Tests.Factories
         {
             PreInstall();
             Container.BindFactory<Texture, Factory<Texture>>()
-                .FromResource("TestBindFactory/TestTexture");
-            Container.BindRootResolve<Factory<Texture>>();
+                .FromResource("TestBindFactory/TestTexture").NonLazy();
 
             PostInstall();
 
@@ -317,8 +316,7 @@ namespace Zenject.Tests.Factories
         {
             PreInstall();
             Container.BindFactory<UnityEngine.Object, Factory<UnityEngine.Object>>()
-                .To<Texture>().FromResource("TestBindFactory/TestTexture");
-            Container.BindRootResolve<Factory<UnityEngine.Object>>();
+                .To<Texture>().FromResource("TestBindFactory/TestTexture").NonLazy();
 
             PostInstall();
             yield break;

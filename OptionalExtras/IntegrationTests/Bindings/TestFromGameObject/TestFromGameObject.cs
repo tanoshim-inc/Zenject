@@ -18,8 +18,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestBasic()
         {
             PreInstall();
-            Container.Bind<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsSingle();
-            Container.BindRootResolve<Foo>();
+            Container.Bind<Foo>().FromNewComponentOnNewGameObject()
+                .WithGameObjectName(GameObjName).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -32,11 +32,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSingle()
         {
             PreInstall();
-            Container.Bind<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsSingle();
-            Container.Bind<IFoo>().To<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsSingle();
-
-            Container.BindRootResolve<IFoo>();
-            Container.BindRootResolve<Foo>();
+            Container.Bind<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsSingle().NonLazy();
+            Container.Bind<IFoo>().To<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -49,11 +46,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestTransient()
         {
             PreInstall();
-            Container.Bind<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsTransient();
-            Container.Bind<IFoo>().To<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsTransient();
-
-            Container.BindRootResolve<IFoo>();
-            Container.BindRootResolve<Foo>();
+            Container.Bind<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsTransient().NonLazy();
+            Container.Bind<IFoo>().To<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsTransient().NonLazy();
 
             PostInstall();
 
@@ -66,11 +60,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestCached1()
         {
             PreInstall();
-            Container.Bind<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsCached();
-            Container.Bind<IFoo>().To<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsCached();
-
-            Container.BindRootResolve<IFoo>();
-            Container.BindRootResolve<Foo>();
+            Container.Bind<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsCached().NonLazy();
+            Container.Bind<IFoo>().To<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsCached().NonLazy();
 
             PostInstall();
 
@@ -83,10 +74,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestCached2()
         {
             PreInstall();
-            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsCached();
-
-            Container.BindRootResolve<IFoo>();
-            Container.BindRootResolve<Foo>();
+            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>()
+                .FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsCached().NonLazy();
 
             PostInstall();
 
@@ -100,9 +89,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind<IFoo>().To(typeof(Foo), typeof(Bar)).FromNewComponentOnNewGameObject()
-                .WithGameObjectName(GameObjName).AsTransient();
-
-            Container.BindRootResolve<IFoo>();
+                .WithGameObjectName(GameObjName).AsTransient().NonLazy();
 
             PostInstall();
 
@@ -117,10 +104,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type>() {typeof(Foo), typeof(Bar)}).FromNewComponentOnNewGameObject()
-                .WithGameObjectName(GameObjName).AsTransient();
-
-            Container.BindRootResolve<IFoo>();
-            Container.BindRootResolve<IBar>();
+                .WithGameObjectName(GameObjName).AsTransient().NonLazy();
 
             PostInstall();
 
@@ -135,10 +119,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type>() {typeof(Foo), typeof(Bar)}).FromNewComponentOnNewGameObject()
-                .WithGameObjectName(GameObjName).AsCached();
-
-            Container.BindRootResolve<IFoo>();
-            Container.BindRootResolve<IBar>();
+                .WithGameObjectName(GameObjName).AsCached().NonLazy();
 
             PostInstall();
 
@@ -153,10 +134,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type>() {typeof(Foo), typeof(Bar)}).FromNewComponentOnNewGameObject()
-                .WithGameObjectName(GameObjName).AsSingle();
-
-            Container.BindRootResolve<IFoo>();
-            Container.BindRootResolve<IBar>();
+                .WithGameObjectName(GameObjName).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -170,8 +148,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
 
             Container.Bind<Foo>().FromNewComponentOnNewGameObject()
-                .WithGameObjectName(GameObjName).UnderTransformGroup("Foo").AsSingle();
-            Container.BindRootResolve<Foo>();
+                .WithGameObjectName(GameObjName).UnderTransformGroup("Foo").AsSingle().NonLazy();
 
             PostInstall();
 
@@ -188,8 +165,8 @@ namespace Zenject.Tests.Bindings
             var tempGameObject = new GameObject("Foo");
 
             Container.Bind<Foo>().FromNewComponentOnNewGameObject()
-                .WithGameObjectName(GameObjName).UnderTransform(tempGameObject.transform).AsSingle();
-            Container.BindRootResolve<Foo>();
+                .WithGameObjectName(GameObjName)
+                .UnderTransform(tempGameObject.transform).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -204,8 +181,8 @@ namespace Zenject.Tests.Bindings
             var tempGameObject = new GameObject("Foo");
 
             Container.Bind<Foo>().FromNewComponentOnNewGameObject()
-                .WithGameObjectName(GameObjName).UnderTransform((context) => tempGameObject.transform).AsSingle();
-            Container.BindRootResolve<Foo>();
+                .WithGameObjectName(GameObjName)
+                .UnderTransform((context) => tempGameObject.transform).AsSingle().NonLazy();
 
             PostInstall();
 

@@ -20,8 +20,7 @@ namespace Zenject.Tests.Bindings
 
             Container.BindInstance(gameObject).WithId("Foo");
 
-            Container.Bind<Foo>().FromNewComponentOn(gameObject).AsSingle();
-            Container.BindRootResolve<Foo>();
+            Container.Bind<Foo>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -38,8 +37,7 @@ namespace Zenject.Tests.Bindings
 
             Container.BindInstance(gameObject).WithId("Foo");
 
-            Container.Bind<Foo>().FromNewComponentOn((context) => gameObject).AsSingle();
-            Container.BindRootResolve<Foo>();
+            Container.Bind<Foo>().FromNewComponentOn((context) => gameObject).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -55,10 +53,8 @@ namespace Zenject.Tests.Bindings
 
             Container.BindInstance(gameObject).WithId("Foo");
 
-            Container.Bind<Foo>().FromNewComponentOn(gameObject).AsTransient();
-            Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsTransient();
-
-            Container.BindRootResolve(new[] {typeof(IFoo), typeof(Foo)});
+            Container.Bind<Foo>().FromNewComponentOn(gameObject).AsTransient().NonLazy();
+            Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsTransient().NonLazy();
 
             PostInstall();
 
@@ -74,11 +70,8 @@ namespace Zenject.Tests.Bindings
 
             Container.BindInstance(gameObject).WithId("Foo");
 
-            Container.Bind<Foo>().FromNewComponentOn(gameObject).AsSingle();
-            Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsSingle();
-
-            Container.BindRootResolve<IFoo>();
-            Container.BindRootResolve<Foo>();
+            Container.Bind<Foo>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
+            Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -94,11 +87,8 @@ namespace Zenject.Tests.Bindings
 
             Container.BindInstance(gameObject).WithId("Foo");
 
-            Container.Bind<Foo>().FromNewComponentOn(gameObject).AsCached();
-            Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsCached();
-
-            Container.BindRootResolve<IFoo>();
-            Container.BindRootResolve<Foo>();
+            Container.Bind<Foo>().FromNewComponentOn(gameObject).AsCached().NonLazy();
+            Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsCached().NonLazy();
 
             PostInstall();
 
@@ -114,10 +104,8 @@ namespace Zenject.Tests.Bindings
 
             Container.BindInstance(gameObject).WithId("Foo");
 
-            Container.Bind(typeof(IFoo), typeof(Foo)).To<Foo>().FromNewComponentOn(gameObject).AsCached();
-
-            Container.BindRootResolve<IFoo>();
-            Container.BindRootResolve<Foo>();
+            Container.Bind(typeof(IFoo), typeof(Foo)).To<Foo>()
+                .FromNewComponentOn(gameObject).AsCached().NonLazy();
 
             PostInstall();
 
@@ -134,9 +122,8 @@ namespace Zenject.Tests.Bindings
             Container.BindInstance(gameObject).WithId("Foo");
 
             Container.Bind(typeof(IFoo), typeof(IBar))
-                .To(new List<Type>() { typeof(Foo), typeof(Bar) }).FromNewComponentOn(gameObject).AsCached();
-
-            Container.BindRootResolve(new [] { typeof(IFoo), typeof(IBar) });
+                .To(new List<Type>() { typeof(Foo), typeof(Bar) })
+                .FromNewComponentOn(gameObject).AsCached().NonLazy();
 
             PostInstall();
 
@@ -154,10 +141,8 @@ namespace Zenject.Tests.Bindings
             Container.BindInstance(gameObject).WithId("Foo");
 
             Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type>() { typeof(Foo), typeof(Bar) })
-                .FromNewComponentOn(gameObject).AsSingle();
-            Container.Bind<IFoo2>().To<Foo>().FromNewComponentOn(gameObject).AsSingle();
-
-            Container.BindRootResolve(new [] { typeof(IFoo), typeof(IFoo2), typeof(IBar) });
+                .FromNewComponentOn(gameObject).AsSingle().NonLazy();
+            Container.Bind<IFoo2>().To<Foo>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
 
             PostInstall();
 

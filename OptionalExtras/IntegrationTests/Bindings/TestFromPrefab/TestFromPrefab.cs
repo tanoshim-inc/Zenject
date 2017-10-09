@@ -47,10 +47,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestTransient()
         {
             PreInstall();
-            Container.Bind<Foo>().FromComponentInNewPrefab(FooPrefab).AsTransient();
-            Container.Bind<Foo>().FromComponentInNewPrefab(FooPrefab).AsTransient();
-
-            Container.BindRootResolve<Foo>();
+            Container.Bind<Foo>().FromComponentInNewPrefab(FooPrefab).AsTransient().NonLazy();
+            Container.Bind<Foo>().FromComponentInNewPrefab(FooPrefab).AsTransient().NonLazy();
 
             PostInstall();
 
@@ -76,12 +74,9 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             // For ToPrefab, the 'AsSingle' applies to the prefab and not the type, so this is valid
-            Container.Bind<IFoo>().To<Foo>().FromComponentInNewPrefab(FooPrefab).AsSingle();
-            Container.Bind<Foo>().FromComponentInNewPrefab(FooPrefab2).AsSingle();
-            Container.Bind<Foo>().FromMethod(ctx => ctx.Container.CreateEmptyGameObject("Foo").AddComponent<Foo>());
-
-            Container.BindRootResolve<Foo>();
-            Container.BindRootResolve<IFoo>();
+            Container.Bind<IFoo>().To<Foo>().FromComponentInNewPrefab(FooPrefab).AsSingle().NonLazy();
+            Container.Bind<Foo>().FromComponentInNewPrefab(FooPrefab2).AsSingle().NonLazy();
+            Container.Bind<Foo>().FromMethod(ctx => ctx.Container.CreateEmptyGameObject("Foo").AddComponent<Foo>()).NonLazy();
 
             PostInstall();
 

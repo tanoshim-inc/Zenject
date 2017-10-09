@@ -30,16 +30,6 @@ namespace Zenject.Tests.SceneParenting
         }
 
         [UnityTest]
-        public IEnumerator TestValidationFail()
-        {
-            _parentScene.GetRootGameObjects().Where(x => x.name == "Foo")
-                .Single().GetComponent<ZenjectBinding>().enabled = false;
-
-            Assert.Throws(() => ZenUnityEditorUtil.ValidateCurrentSceneSetup());
-            yield break;
-        }
-
-        [UnityTest]
         public IEnumerator TestSuccess()
         {
             ZenUnityEditorUtil.RunCurrentSceneSetup();

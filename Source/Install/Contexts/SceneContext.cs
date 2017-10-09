@@ -37,7 +37,6 @@ namespace Zenject
         List<string> _parentContractNames = new List<string>();
 
         DiContainer _container;
-        readonly List<object> _dependencyRoots = new List<object>();
 
         readonly List<SceneDecoratorContext> _decoratorContexts = new List<SceneDecoratorContext>();
 
@@ -272,9 +271,7 @@ namespace Zenject
 
             Log.Debug("SceneContext: Resolving all...");
 
-            Assert.That(_dependencyRoots.IsEmpty());
-            _dependencyRoots.AddRange(_container.ResolveDependencyRoots());
-
+            _container.ResolveDependencyRoots();
             _container.FlushInjectQueue();
 
             Log.Debug("SceneContext: Initialized successfully");

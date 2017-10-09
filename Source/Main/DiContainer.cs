@@ -27,8 +27,6 @@ namespace Zenject
     // - Instantiate new values via InstantiateX() methods
     public class DiContainer : IInstantiator
     {
-        public const string DependencyRootIdentifier = "DependencyRoot";
-
         readonly Dictionary<BindingId, List<ProviderInfo>> _providers = new Dictionary<BindingId, List<ProviderInfo>>();
         readonly List<DiContainer> _parentContainers = new List<DiContainer>();
         readonly List<DiContainer> _ancestorContainers = new List<DiContainer>();
@@ -66,7 +64,7 @@ namespace Zenject
         void InstallDefaultBindings()
         {
             Bind(typeof(DiContainer), typeof(IInstantiator)).FromInstance(this);
-            Bind(typeof(Lazy<>)).FromMethodUntyped(CreateLazyBinding);
+            Bind(typeof(Lazy<>)).FromMethodUntyped(CreateLazyBinding).Lazy();
         }
 
         object CreateLazyBinding(InjectContext context)
@@ -206,14 +204,27 @@ namespace Zenject
             }
         }
 
-        public List<object> ResolveDependencyRoots()
+        public void ResolveDependencyRoots()
         {
-            var context = new InjectContext(
-                this, typeof(object), DependencyRootIdentifier);
-            context.SourceType = InjectSources.Local;
-            context.Optional = true;
+            FlushBindings();
+            foreach (var bindinPair in _providers)
+            {
+                foreach (var provider in bindinPair.Value)
+                {
+                    if (provider.NonLazy)
+                    {
+                        var context = new InjectContext(
+                            this, bindinPair.Key.Type, bindinPair.Key.Identifier);
+                        context.SourceType = InjectSources.Local;
+                        context.Optional = true;
 
-            return ResolveAll(context).Cast<object>().ToList();
+                        var matches = SafeGetInstances(
+                            new ProviderPair(provider, this), context);
+
+                        Assert.That(matches.Count() > 0);
+                    }
+                }
+            }
         }
 
         // This will instantiate any binding that results in a type that derives from IValidatable
@@ -295,9 +306,9 @@ namespace Zenject
         }
 
         public void RegisterProvider(
-            BindingId bindingId, BindingCondition condition, IProvider provider)
+            BindingId bindingId, BindingCondition condition, IProvider provider, bool nonLazy)
         {
-            var info = new ProviderInfo(provider, condition);
+            var info = new ProviderInfo(provider, condition, nonLazy);
 
             if (_providers.ContainsKey(bindingId))
             {
@@ -2053,28 +2064,6 @@ namespace Zenject
         }
 #endif
 
-        // This is equivalent to calling NonLazy() at the end of your bind statement
-        // It's only in rare cases where you need to call this instead of NonLazy()
-        public void BindRootResolve<TContract>()
-        {
-            BindRootResolveId<TContract>(null);
-        }
-
-        public void BindRootResolve(IEnumerable<Type> rootTypes)
-        {
-            BindRootResolveId(rootTypes, null);
-        }
-
-        public void BindRootResolveId<TContract>(object identifier)
-        {
-            BindRootResolveId(new Type[] { typeof(TContract) }, identifier);
-        }
-
-        public void BindRootResolveId(IEnumerable<Type> rootTypes, object identifier)
-        {
-            Bind<object>().WithId(DependencyRootIdentifier).To(rootTypes).FromResolve(identifier);
-        }
-
         // Bind all the interfaces for the given type to the same thing.
         //
         // Example:
@@ -2724,10 +2713,17 @@ namespace Zenject
 
         public class ProviderInfo
         {
-            public ProviderInfo(IProvider provider, BindingCondition condition)
+            public ProviderInfo(IProvider provider, BindingCondition condition, bool nonLazy)
             {
                 Provider = provider;
                 Condition = condition;
+                NonLazy = nonLazy;
+            }
+
+            public bool NonLazy
+            {
+                get;
+                private set;
             }
 
             public IProvider Provider
