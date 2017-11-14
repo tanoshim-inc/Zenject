@@ -67,7 +67,7 @@ namespace Zenject
                 BindInfo.Condition,
                 provider, BindInfo.NonLazy);
 
-            if (contractType.IsValueType())
+            if (contractType.IsValueType() && !(contractType.IsGenericType() && contractType.GetGenericTypeDefinition() == typeof(Nullable<>)))
             {
                 var nullableType = typeof(Nullable<>).MakeGenericType(contractType);
 
