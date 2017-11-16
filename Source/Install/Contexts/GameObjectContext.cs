@@ -71,8 +71,6 @@ namespace Zenject
                 _container.IsInstalling = false;
             }
 
-            Log.Debug("GameObjectContext: Resolving all dependencies...");
-
             _container.ResolveDependencyRoots();
             _container.FlushInjectQueue();
 
@@ -83,8 +81,6 @@ namespace Zenject
                 // so call it here instead
                 _container.ValidateValidatables();
             }
-
-            Log.Debug("GameObjectContext: Initialized successfully");
 
             // Normally, the IInitializable.Initialize method would be called during MonoKernel.Start
             // However, this behaviour is undesirable for dynamically created objects, since Unity

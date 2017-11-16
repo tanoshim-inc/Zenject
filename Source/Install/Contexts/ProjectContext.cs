@@ -145,8 +145,6 @@ namespace Zenject
 
         void Initialize()
         {
-            Log.Debug("Initializing ProjectContext");
-
             Assert.IsNull(_container);
 
             bool isValidating = false;

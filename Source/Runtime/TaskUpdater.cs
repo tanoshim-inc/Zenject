@@ -90,7 +90,6 @@ namespace Zenject
 
                 if (info.IsRemoved)
                 {
-                    //Log.Debug("Removed task '" + info.Task.GetType().ToString() + "'");
                     tasks.Remove(node);
                 }
 

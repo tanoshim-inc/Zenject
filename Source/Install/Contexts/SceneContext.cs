@@ -220,8 +220,6 @@ namespace Zenject
             Assert.That(_decoratorContexts.IsEmpty());
             _decoratorContexts.AddRange(LookupDecoratorContexts());
 
-            Log.Debug("SceneContext: Running installers...");
-
             if (_parentNewObjectsUnderRoot)
             {
                 _container.DefaultParent = this.transform;
@@ -263,18 +261,12 @@ namespace Zenject
 
         public void Resolve()
         {
-            Log.Debug("SceneContext: Injecting components in the scene...");
-
             Assert.That(_hasInstalled);
             Assert.That(!_hasResolved);
             _hasResolved = true;
 
-            Log.Debug("SceneContext: Resolving all...");
-
             _container.ResolveDependencyRoots();
             _container.FlushInjectQueue();
-
-            Log.Debug("SceneContext: Initialized successfully");
         }
 
         void InstallBindings(List<MonoBehaviour> injectableMonoBehaviours)

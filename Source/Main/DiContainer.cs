@@ -926,7 +926,6 @@ namespace Zenject
 
                 if (!IsValidating || CanCreateOrInjectDuringValidation(concreteType))
                 {
-                    //Log.Debug("Zenject: Instantiating type '{0}'", concreteType);
                     try
                     {
 #if UNITY_EDITOR && ZEN_PROFILING_ENABLED
