@@ -41,6 +41,10 @@ namespace Zenject
 
         readonly List<ILazy> _lateBindingsToValidate = new List<ILazy>();
 
+#if !NOT_UNITY3D
+        Context _context;
+#endif
+
         bool _isFinalizingBinding;
         bool _isValidating;
         bool _isInstalling;
@@ -125,6 +129,22 @@ namespace Zenject
             : this(parentContainers, false)
         {
         }
+
+#if !NOT_UNITY3D
+        Context Context
+        {
+            get
+            {
+                if (_context == null)
+                {
+                    _context = Resolve<Context>();
+                    Assert.IsNotNull(_context);
+                }
+
+                return _context;
+            }
+        }
+#endif
 
         public bool ShouldCheckForInstallWarning
         {
@@ -1245,6 +1265,13 @@ namespace Zenject
                     gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, transformParent);
                 }
 
+                if (transformParent == null)
+                {
+                    // This ensures it gets added to the right scene instead of just the active scene
+                    gameObj.transform.SetParent(Context.transform, false);
+                    gameObj.transform.SetParent(null, false);
+                }
+
                 if (gameObjectBindInfo.Name != null)
                 {
                     gameObj.name = gameObjectBindInfo.Name;
@@ -1277,7 +1304,19 @@ namespace Zenject
             FlushBindings();
 
             var gameObj = new GameObject(gameObjectBindInfo.Name ?? "GameObject");
-            gameObj.transform.SetParent(GetTransformGroup(gameObjectBindInfo, context), false);
+            var parent = GetTransformGroup(gameObjectBindInfo, context);
+
+            if (parent == null)
+            {
+                // This ensures it gets added to the right scene instead of just the active scene
+                gameObj.transform.SetParent(Context.transform, false);
+                gameObj.transform.SetParent(null, false);
+            }
+            else
+            {
+                gameObj.transform.SetParent(parent, false);
+            }
+
             return gameObj;
         }
 
@@ -1321,7 +1360,7 @@ namespace Zenject
                     return null;
                 }
 
-                return (GameObject.Find("/" + groupName) ?? new GameObject(groupName)).transform;
+                return (GameObject.Find("/" + groupName) ?? CreateTransformGroup(groupName)).transform;
             }
 
             if (groupName == null)
@@ -1340,6 +1379,14 @@ namespace Zenject
             var group = new GameObject(groupName).transform;
             group.SetParent(DefaultParent, false);
             return group;
+        }
+
+        GameObject CreateTransformGroup(string groupName)
+        {
+            var gameObj = new GameObject(groupName);
+            gameObj.transform.SetParent(Context.transform, false);
+            gameObj.transform.SetParent(null, false);
+            return gameObj;
         }
 
 #endif
