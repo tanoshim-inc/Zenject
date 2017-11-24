@@ -314,10 +314,16 @@ namespace Zenject
             _lazyInjector.LazyInjectAll();
         }
 
-        // Do not use this
-        internal void OnInstanceResolved(object instance)
+        // Note: this only does anything useful during the injection phase
+        // It will inject on the given instance if it hasn't already been injected, but only
+        // if the given instance has been queued for inject already by calling QueueForInject
+        // In some rare cases this can be useful - for example if you want to add a binding in a
+        // a higher level container to a resolve inside a lower level game object context container
+        // since in this case you need the game object context to be injected so you can access its
+        // Container property
+        public void LazyInject(object instance)
         {
-            _lazyInjector.OnInstanceResolved(instance);
+            _lazyInjector.LazyInject(instance);
         }
 
         DiContainer CreateSubContainer(bool isValidating)
