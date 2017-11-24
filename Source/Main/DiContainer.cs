@@ -321,9 +321,10 @@ namespace Zenject
         // a higher level container to a resolve inside a lower level game object context container
         // since in this case you need the game object context to be injected so you can access its
         // Container property
-        public void LazyInject(object instance)
+        public T LazyInject<T>(T instance)
         {
             _lazyInjector.LazyInject(instance);
+            return instance;
         }
 
         DiContainer CreateSubContainer(bool isValidating)
