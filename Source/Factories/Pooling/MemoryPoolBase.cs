@@ -75,8 +75,11 @@ namespace Zenject
 
         public void Despawn(TContract item)
         {
-            Assert.That(!_inactiveItems.Contains(item),
-                "Tried to return an item to pool {0} twice", this.GetType());
+            if (_inactiveItems.Contains(item))
+            {
+                throw Assert.CreateException(
+                    "Tried to return an item to pool {0} twice", this.GetType());
+            }
 
             _activeCount--;
 
@@ -90,7 +93,11 @@ namespace Zenject
             try
             {
                 var item = _factory.Create();
-                Assert.IsNotNull(item, "Factory '{0}' returned null value when creating via {1}!", _factory.GetType(), this.GetType());
+                if (item == null)
+                {
+                    throw Assert.CreateException(
+                        "Factory '{0}' returned null value when creating via {1}!", _factory.GetType(), this.GetType());
+                }
                 OnCreated(item);
                 return item;
             }
