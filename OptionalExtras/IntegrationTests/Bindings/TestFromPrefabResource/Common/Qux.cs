@@ -14,7 +14,7 @@ namespace Zenject.Tests.Bindings.FromPrefabResource
         [Inject]
         public void Initialize()
         {
-            Log.Trace("Received arg '{0}' in Qux", _arg);
+            ModestTree.Log.Trace("Received arg '{0}' in Qux", _arg);
         }
     }
 }

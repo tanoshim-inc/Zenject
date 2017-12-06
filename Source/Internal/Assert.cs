@@ -293,7 +293,7 @@ namespace ModestTree
         {
             if (!condition)
             {
-                Log.Warn("Warning!  See call stack");
+                ModestTree.Log.Warn("Warning!  See call stack");
             }
         }
 
@@ -304,7 +304,7 @@ namespace ModestTree
         {
             if (!condition)
             {
-                Log.Warn("Warning Assert hit! " + messageGenerator());
+                ModestTree.Log.Warn("Warning Assert hit! " + messageGenerator());
             }
         }
 
@@ -366,7 +366,7 @@ namespace ModestTree
         {
             if (!condition)
             {
-                Log.Warn("Warning Assert hit! " + message);
+                ModestTree.Log.Warn("Warning Assert hit! " + message);
             }
         }
 

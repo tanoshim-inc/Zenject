@@ -553,7 +553,7 @@ namespace Zenject
 
             _hasDisplayedInstallWarning = true;
             // Feel free to comment this out if you are comfortable with this practice
-            Log.Warn("Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type '{0}'.  If you don't care about this, you can remove this warning or set 'Container.ShouldCheckForInstallWarning' to false.", rootContext.MemberType);
+            ModestTree.Log.Warn("Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type '{0}'.  If you don't care about this, you can remove this warning or set 'Container.ShouldCheckForInstallWarning' to false.", rootContext.MemberType);
 #endif
         }
 
@@ -1038,7 +1038,7 @@ namespace Zenject
                 {
                     // Just log the error and continue to print multiple validation errors
                     // at once
-                    Log.ErrorException(e);
+                    ModestTree.Log.ErrorException(e);
                 }
             }
             else
@@ -2468,7 +2468,7 @@ namespace Zenject
                     {
                         // Just log the error and continue to print multiple validation errors
                         // at once
-                        Log.ErrorException(e);
+                        ModestTree.Log.ErrorException(e);
                         return new ValidationMarker(concreteType, true);
                     }
                 }

@@ -246,7 +246,7 @@ namespace Zenject.Tests.Factories
             {
                 Assert.IsEqual(_factory.Create(0.15, 0, 2.4f, "zxcv", 'z').Value, "zxcv");
 
-                Log.Info("Factory created foo successfully");
+                ModestTree.Log.Info("Factory created foo successfully");
             }
         }
     }

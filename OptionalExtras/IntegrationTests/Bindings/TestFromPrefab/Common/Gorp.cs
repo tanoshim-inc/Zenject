@@ -19,7 +19,7 @@ namespace Zenject.Tests.Bindings.FromPrefab
         [Inject]
         public void Initialize()
         {
-            Log.Trace("Received arg '{0}' in Gorp", _arg);
+            ModestTree.Log.Trace("Received arg '{0}' in Gorp", _arg);
         }
     }
 }

@@ -186,7 +186,7 @@ namespace Zenject.Tests.Bindings
                 Assert.IsNotNull(_jim.Bob);
                 Assert.IsNotNull(_bob.Jim);
 
-                Log.Info("Jim and bob successfully got the other reference");
+                ModestTree.Log.Info("Jim and bob successfully got the other reference");
             }
         }
     }

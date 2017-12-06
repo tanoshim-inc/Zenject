@@ -19,7 +19,7 @@ namespace Zenject.Tests.Bindings.DiContainerMethods
         [Inject]
         public void Initialize()
         {
-            Log.Trace("Received arg '{0}' in Gorp", _arg);
+            ModestTree.Log.Trace("Received arg '{0}' in Gorp", _arg);
         }
     }
 }

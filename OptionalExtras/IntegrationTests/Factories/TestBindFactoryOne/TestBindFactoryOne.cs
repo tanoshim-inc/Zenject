@@ -294,7 +294,7 @@ namespace Zenject.Tests.Factories
             {
                 Assert.IsEqual(_factory.Create("asdf").Value, "asdf");
 
-                Log.Info("Factory created foo successfully");
+                ModestTree.Log.Info("Factory created foo successfully");
             }
         }
     }
