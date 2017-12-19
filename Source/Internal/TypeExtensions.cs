@@ -143,7 +143,7 @@ namespace ModestTree
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
             return type.GetTypeInfo().IsGenericTypeDefinition;
 #else
-            return type.IsGenericType;
+            return type.IsGenericTypeDefinition;
 #endif
         }
 
