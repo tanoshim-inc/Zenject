@@ -92,27 +92,16 @@ namespace Zenject
 
                 shouldMakeActive = wasActive;
 
-                if (wasActive)
-                {
-                    prefab.SetActive(false);
-                }
-
-                try
-                {
-                    _instance = GameObject.Instantiate(prefab).GetComponent<ProjectContext>();
-                }
-                finally
-                {
-                    if (wasActive)
-                    {
-                        // Always make sure to reset prefab state otherwise this change could be saved
-                        // persistently
-                        prefab.SetActive(true);
-                    }
-                }
+                _instance = GameObject.Instantiate(prefab, DiContainer.DisabledIndestructiblePrefabParent).GetComponent<ProjectContext>();
 
                 Assert.IsNotNull(_instance,
                     "Could not find ProjectContext component on prefab 'Resources/{0}.prefab'", ProjectContextResourcePath);
+
+                if(wasActive) {
+                    _instance.gameObject.SetActive(false);
+                }
+                
+                _instance.transform.SetParent(null, false);
             }
 
             // Note: We use Initialize instead of awake here in case someone calls
