@@ -383,7 +383,7 @@ namespace ModestTree
         public static IEnumerable<Attribute> AllAttributes(
             this MemberInfo provider, params Type[] attributeTypes)
         {
-            var allAttributes = provider.GetCustomAttributes(true).Cast<Attribute>();
+            var allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
 
             if (attributeTypes.Length == 0)
             {
@@ -417,7 +417,7 @@ namespace ModestTree
         public static IEnumerable<Attribute> AllAttributes(
             this ParameterInfo provider, params Type[] attributeTypes)
         {
-            var allAttributes = provider.GetCustomAttributes(true).Cast<Attribute>();
+            var allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
 
             if (attributeTypes.Length == 0)
             {
