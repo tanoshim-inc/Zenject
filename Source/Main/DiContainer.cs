@@ -131,24 +131,6 @@ namespace Zenject
         }
 
 #if !NOT_UNITY3D
-        internal static Transform DisabledIndestructiblePrefabParent
-        {
-            get
-            {
-                if(disabledIndestructibleGameObject == null) {
-                    var go = new GameObject("Prefab Parent");
-                    go.hideFlags = HideFlags.HideAndDontSave;
-                    go.SetActive(false);
-                    UnityEngine.Object.DontDestroyOnLoad(go);
-                    disabledIndestructibleGameObject = go.transform;
-                }
-
-                return disabledIndestructibleGameObject;
-            }
-        }
-
-        static Transform disabledIndestructibleGameObject;
-
         Context Context
         {
             get
@@ -1259,41 +1241,65 @@ namespace Zenject
 
             shouldMakeActive = wasActive;
 
+            var finalParent = GetTransformGroup(gameObjectBindInfo, context);
+
+            Transform firstParent;
+#if UNITY_EDITOR
+            if(wasActive)
+            {
+                // This ensures the prefab's Awake() methods don't fire (and, if in the editor, that the prefab file doesn't get modified)
+                firstParent = ZenUtilInternal.GetOrCreateInactivePrefabParent();
+            }
+            else
+#endif
+            if(finalParent == null)
+            {
+                // This ensures it gets added to the right scene instead of just the active scene
+                firstParent = Context.transform;
+            } else {
+                firstParent = finalParent;
+            }
+
+#if !UNITY_EDITOR
+            if(wasActive)
+            {
+                prefabAsGameObject.SetActive(false);
+            }
+#endif
+
             GameObject gameObj;
-
-            var transformParent = GetTransformGroup(gameObjectBindInfo, context);
-
-            if (gameObjectBindInfo.Position.HasValue && gameObjectBindInfo.Rotation.HasValue)
+            if(gameObjectBindInfo.Position.HasValue && gameObjectBindInfo.Rotation.HasValue)
             {
                 gameObj = (GameObject)GameObject.Instantiate(
-                    prefabAsGameObject, gameObjectBindInfo.Position.Value,gameObjectBindInfo.Rotation.Value, DisabledIndestructiblePrefabParent);
+                    prefabAsGameObject, gameObjectBindInfo.Position.Value,gameObjectBindInfo.Rotation.Value, firstParent);
             }
             else if (gameObjectBindInfo.Position.HasValue)
             {
                 gameObj = (GameObject)GameObject.Instantiate(
-                    prefabAsGameObject, gameObjectBindInfo.Position.Value,prefabAsGameObject.transform.rotation, DisabledIndestructiblePrefabParent);
+                    prefabAsGameObject, gameObjectBindInfo.Position.Value,prefabAsGameObject.transform.rotation, firstParent);
             }
             else if (gameObjectBindInfo.Rotation.HasValue)
             {
                 gameObj = (GameObject)GameObject.Instantiate(
-                    prefabAsGameObject, prefabAsGameObject.transform.position, gameObjectBindInfo.Rotation.Value, DisabledIndestructiblePrefabParent);
+                    prefabAsGameObject, prefabAsGameObject.transform.position, gameObjectBindInfo.Rotation.Value, firstParent);
             }
             else
             {
-                gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, DisabledIndestructiblePrefabParent);
+                gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, firstParent);
             }
 
-            if(wasActive) {
-                gameObj.SetActive(false);
-            }
-
-            if (transformParent == null)
+            if(wasActive)
             {
-                // This ensures it gets added to the right scene instead of just the active scene
-                gameObj.transform.SetParent(Context.transform, false);
-                gameObj.transform.SetParent(null, false);
-            } else {
-                gameObj.transform.SetParent(transformParent, false);
+#if UNITY_EDITOR
+                gameObj.SetActive(false);
+#else
+                prefabAsGameObject.SetActive(true);
+#endif
+            }
+
+            if(firstParent != finalParent)
+            {
+                gameObj.transform.SetParent(finalParent, false);
             }
 
             if (gameObjectBindInfo.Name != null)

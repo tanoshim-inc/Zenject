@@ -186,6 +186,30 @@ namespace Zenject.Internal
                     && x.GetComponent<ProjectContext>() == null
                     && x.scene == scene);
         }
+
+        // Returns a Transform in the DontDestroyOnLoad scene (or, if we're not in play mode, within the current active scene)
+        // whose GameObject is inactive, and whose hide flags are set to HideAndDontSave. We can instantiate prefabs in here
+        // without any of their Awake() methods firing.
+        public static Transform GetOrCreateInactivePrefabParent()
+        {
+            if(disabledIndestructibleGameObject == null || (!Application.isPlaying && disabledIndestructibleGameObject.scene != SceneManager.GetActiveScene()))
+            {
+                var go = new GameObject("ZenUtilInternal_PrefabParent");
+                go.hideFlags = HideFlags.HideAndDontSave;
+                go.SetActive(false);
+
+                if(Application.isPlaying)
+                {
+                    UnityEngine.Object.DontDestroyOnLoad(go);
+                }
+
+                disabledIndestructibleGameObject = go;
+            }
+
+            return disabledIndestructibleGameObject.transform;
+        }
+
+        static GameObject disabledIndestructibleGameObject;
 #endif
     }
 }
