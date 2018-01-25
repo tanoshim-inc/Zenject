@@ -1241,65 +1241,72 @@ namespace Zenject
 
             shouldMakeActive = wasActive;
 
-            var finalParent = GetTransformGroup(gameObjectBindInfo, context);
+            var parent = GetTransformGroup(gameObjectBindInfo, context);
 
-            Transform firstParent;
-#if UNITY_EDITOR
-            if(wasActive)
-            {
-                // This ensures the prefab's Awake() methods don't fire (and, if in the editor, that the prefab file doesn't get modified)
-                firstParent = ZenUtilInternal.GetOrCreateInactivePrefabParent();
-            }
-            else
-#endif
-            if(finalParent == null)
-            {
-                // This ensures it gets added to the right scene instead of just the active scene
-                firstParent = Context.transform;
-            } else {
-                firstParent = finalParent;
-            }
-
+            Transform initialParent;
 #if !UNITY_EDITOR
             if(wasActive)
             {
                 prefabAsGameObject.SetActive(false);
             }
+#else
+            if(wasActive)
+            {
+                initialParent = ZenUtilInternal.GetOrCreateInactivePrefabParent();
+            }
+            else
 #endif
+            if(parent != null)
+            {
+                initialParent = parent;
+            }
+            else
+            {
+                // This ensures it gets added to the right scene instead of just the active scene
+                initialParent = Context.transform;
+            }
 
             GameObject gameObj;
             if(gameObjectBindInfo.Position.HasValue && gameObjectBindInfo.Rotation.HasValue)
             {
                 gameObj = (GameObject)GameObject.Instantiate(
-                    prefabAsGameObject, gameObjectBindInfo.Position.Value,gameObjectBindInfo.Rotation.Value, firstParent);
+                    prefabAsGameObject, gameObjectBindInfo.Position.Value,gameObjectBindInfo.Rotation.Value, initialParent);
             }
             else if (gameObjectBindInfo.Position.HasValue)
             {
                 gameObj = (GameObject)GameObject.Instantiate(
-                    prefabAsGameObject, gameObjectBindInfo.Position.Value,prefabAsGameObject.transform.rotation, firstParent);
+                    prefabAsGameObject, gameObjectBindInfo.Position.Value,prefabAsGameObject.transform.rotation, initialParent);
             }
             else if (gameObjectBindInfo.Rotation.HasValue)
             {
                 gameObj = (GameObject)GameObject.Instantiate(
-                    prefabAsGameObject, prefabAsGameObject.transform.position, gameObjectBindInfo.Rotation.Value, firstParent);
+                    prefabAsGameObject, prefabAsGameObject.transform.position, gameObjectBindInfo.Rotation.Value, initialParent);
             }
             else
             {
-                gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, firstParent);
+                gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, initialParent);
             }
 
+#if !UNITY_EDITOR
             if(wasActive)
             {
-#if UNITY_EDITOR
-                gameObj.SetActive(false);
-#else
                 prefabAsGameObject.SetActive(true);
-#endif
             }
-
-            if(firstParent != finalParent)
+#else
+            if(wasActive)
             {
-                gameObj.transform.SetParent(finalParent, false);
+                gameObj.SetActive(false);
+
+                if(parent == null)
+                {
+                    gameObj.transform.SetParent(Context.transform, false);
+                }
+            }
+#endif
+
+            if(gameObj.transform.parent != parent)
+            {
+                gameObj.transform.SetParent(parent, false);
             }
 
             if (gameObjectBindInfo.Name != null)
@@ -1411,7 +1418,7 @@ namespace Zenject
 
 #endif
 
-        public T Instantiate<T>()
+            public T Instantiate<T>()
         {
             return Instantiate<T>(new object[0]);
         }
