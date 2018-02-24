@@ -192,6 +192,8 @@ namespace Zenject
         {
             _container.DefaultParent = this.transform;
 
+            _container.Bind<ZenjectSceneLoader>().AsSingle();
+
             // Note that adding GuiRenderableManager here doesn't instantiate it by default
             // You still have to add GuiRenderer manually
             // We could add the contents of GuiRenderer into MonoKernel, but this adds
