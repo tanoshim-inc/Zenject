@@ -32,7 +32,7 @@ namespace Zenject
 
             if (!removed)
             {
-                Log.Warn("Failed to remove SceneContext from SceneContextRegistry");
+                ModestTree.Log.Warn("Failed to remove SceneContext from SceneContextRegistry");
             }
         }
     }

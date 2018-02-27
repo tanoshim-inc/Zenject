@@ -107,7 +107,7 @@ namespace Zenject
                 var item = _factory.Create();
 
                 // For debugging when new objects should not be re-created
-                //Log.Info("Created new object of type '{0}' in pool '{1}'.  Total instances: {2}", typeof(TContract), this.GetType(), this.NumTotal);
+                //ModestTree.Log.Info("Created new object of type '{0}' in pool '{1}'.  Total instances: {2}", typeof(TContract), this.GetType(), this.NumTotal);
 
                 Assert.IsNotNull(item, "Factory '{0}' returned null value when creating via {1}!", _factory.GetType(), this.GetType());
                 OnCreated(item);

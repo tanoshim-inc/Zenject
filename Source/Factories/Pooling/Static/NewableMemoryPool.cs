@@ -72,7 +72,7 @@ namespace Zenject
 
             if (_stack.Count > 0 && ReferenceEquals(_stack.Peek(), element))
             {
-                Log.Error("Getter error. Trying to destroy object that is already released to pool.");
+                ModestTree.Log.Error("Getter error. Trying to destroy object that is already released to pool.");
             }
 
             Assert.That(!_stack.Contains(element), "Attempted to despawn element twice!");
