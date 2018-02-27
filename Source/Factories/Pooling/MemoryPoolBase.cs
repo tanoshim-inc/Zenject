@@ -148,6 +148,29 @@ namespace Zenject
             return item;
         }
 
+        /// <summary>
+        /// Expands the pool by the additional size.
+        ///
+        /// This bypasses the configured expansion method (OneAtATime or Doubling), but still enforces the Fixed size
+        /// constraint.
+        /// </summary>
+        /// <param name="additionalSize">The additional number of items to allocate in the pool.</param>
+        /// <exception cref="PoolExceededFixedSizeException">if the pool is configured with a fixed size.</exception>
+        public void ExpandPoolBy(int additionalSize)
+        {
+            if (_settings.ExpandMethod == PoolExpandMethods.Fixed)
+            {
+                throw new PoolExceededFixedSizeException(
+                    "Pool factory '{0}' exceeded its max size of '{1}'!"
+                    .Fmt(this.GetType(), NumTotal));
+            }
+
+            for (int i = 0; i < additionalSize; i++)
+            {
+                _inactiveItems.Push(AllocNew());
+            }
+        }
+
         void ExpandPool()
         {
             switch (_settings.ExpandMethod)

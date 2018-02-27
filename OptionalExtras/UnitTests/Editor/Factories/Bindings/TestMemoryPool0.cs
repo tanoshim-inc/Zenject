@@ -190,6 +190,66 @@ namespace Zenject.Tests.Bindings
             Assert.IsEqual(factory.NumInactive, 5);
         }
 
+        [Test]
+        public void TestExpandManually()
+        {
+            Container.BindMemoryPool<Foo, Foo.Pool>();
+
+            var factory = Container.Resolve<Foo.Pool>();
+
+            Assert.IsEqual(factory.NumActive, 0);
+            Assert.IsEqual(factory.NumTotal, 0);
+            Assert.IsEqual(factory.NumInactive, 0);
+
+            factory.ExpandPoolBy(2);
+
+            Assert.IsEqual(factory.NumActive, 0);
+            Assert.IsEqual(factory.NumTotal, 2);
+            Assert.IsEqual(factory.NumInactive, 2);
+
+            var foo = factory.Spawn();
+
+            Assert.IsEqual(factory.NumActive, 1);
+            Assert.IsEqual(factory.NumTotal, 2);
+            Assert.IsEqual(factory.NumInactive, 1);
+
+            factory.ExpandPoolBy(3);
+
+            Assert.IsEqual(factory.NumActive, 1);
+            Assert.IsEqual(factory.NumTotal, 5);
+            Assert.IsEqual(factory.NumInactive, 4);
+
+            var foo2 = factory.Spawn();
+
+            Assert.IsEqual(factory.NumActive, 2);
+            Assert.IsEqual(factory.NumTotal, 5);
+            Assert.IsEqual(factory.NumInactive, 3);
+
+            var foo3 = factory.Spawn();
+
+            Assert.IsEqual(factory.NumActive, 3);
+            Assert.IsEqual(factory.NumTotal, 5);
+            Assert.IsEqual(factory.NumInactive, 2);
+
+            factory.ExpandPoolBy(1);
+
+            Assert.IsEqual(factory.NumActive, 3);
+            Assert.IsEqual(factory.NumTotal, 6);
+            Assert.IsEqual(factory.NumInactive, 3);
+
+            factory.Despawn(foo2);
+
+            Assert.IsEqual(factory.NumActive, 2);
+            Assert.IsEqual(factory.NumTotal, 6);
+            Assert.IsEqual(factory.NumInactive, 4);
+
+            var foo4 = factory.Spawn();
+
+            Assert.IsEqual(factory.NumActive, 3);
+            Assert.IsEqual(factory.NumTotal, 6);
+            Assert.IsEqual(factory.NumInactive, 3);
+        }
+
         class Bar
         {
             public Bar()
