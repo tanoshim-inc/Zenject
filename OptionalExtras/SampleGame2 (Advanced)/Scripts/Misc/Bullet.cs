@@ -27,7 +27,7 @@ namespace Zenject.SpaceFighter
         Material _enemyMaterial = null;
 
         [Inject]
-        Pool _bulletPool;
+        Pool _bulletPool = null;
 
         public BulletTypes Type
         {

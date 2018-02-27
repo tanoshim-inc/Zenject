@@ -1,5 +1,4 @@
 using ModestTree;
-using Moq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,6 +8,9 @@ using UnityEngine.TestTools;
 using Zenject.SpaceFighter;
 using Assert = ModestTree.Assert;
 using System.Linq;
+
+// Ignore warning about using SceneManager.UnloadScene instead of SceneManager.UnloadSceneAsync
+#pragma warning disable 618
 
 namespace Zenject.SpaceFighter
 {
@@ -39,7 +41,9 @@ namespace Zenject.SpaceFighter
             Assert.That(!_hasLoadedScene, "Attempted to load scene '{0}' twice", _sceneName);
             _hasLoadedScene = true;
 
-            var currentScene = SceneManager.GetAllScenes().Single();
+            Assert.IsEqual(SceneManager.sceneCount, 1);
+
+            var currentScene = SceneManager.GetSceneAt(0);
             Assert.That(currentScene.name.StartsWith("InitTestScene"));
 
             Assert.That(!ProjectContext.HasInstance);
