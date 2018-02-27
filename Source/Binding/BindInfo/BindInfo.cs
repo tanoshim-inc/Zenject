@@ -23,6 +23,15 @@ namespace Zenject
         Skip,
     }
 
+    public enum BindingInheritanceMethods
+    {
+        None,
+        CopyIntoAll,
+        CopyDirectOnly,
+        MoveIntoAll,
+        MoveDirectOnly,
+    }
+
     public class BindInfo
     {
         public BindInfo(List<Type> contractTypes, string contextInfo)
@@ -33,7 +42,8 @@ namespace Zenject
             ToTypes = new List<Type>();
             Arguments = new List<TypeValuePair>();
             ToChoice = ToChoices.Self;
-            CopyIntoAllSubContainers = false;
+            BindingInheritanceMethod = BindingInheritanceMethods.None;
+            OnlyBindIfNotBound = false;
 
             // Change this to true if you want all dependencies to be created at the start
             NonLazy = false;
@@ -55,6 +65,12 @@ namespace Zenject
         public BindInfo()
             : this(new List<Type>())
         {
+        }
+
+        public bool OnlyBindIfNotBound
+        {
+            get;
+            set;
         }
 
         public string ContextInfo
@@ -82,6 +98,11 @@ namespace Zenject
         }
 
         public bool CopyIntoAllSubContainers
+        {
+            get { return BindingInheritanceMethod == BindingInheritanceMethods.CopyIntoAll; }
+        }
+
+        public BindingInheritanceMethods BindingInheritanceMethod
         {
             get;
             set;

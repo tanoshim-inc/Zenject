@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Zenject
 {
-    public class FactoryFromBinder<TParam1, TParam2, TParam3, TContract> : FactoryFromBinderBase<TContract>
+    public class FactoryFromBinder<TParam1, TParam2, TParam3, TContract> : FactoryFromBinderBase
     {
         public FactoryFromBinder(
             BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
-            : base(bindInfo, factoryBindInfo)
+            : base(typeof(TContract), bindInfo, factoryBindInfo)
         {
         }
 

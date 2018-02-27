@@ -25,6 +25,11 @@ namespace Zenject
             return FromFactoryBase<TContract, TFactory>();
         }
 
+        public ScopeArgConditionCopyNonLazyBinder FromMethod(Func<TContract> method)
+        {
+            return FromMethodBase<TContract>(ctx => method());
+        }
+
         public ScopeArgConditionCopyNonLazyBinder FromMethod(Func<InjectContext, TContract> method)
         {
             return FromMethodBase<TContract>(method);

@@ -1,5 +1,6 @@
 using System;
 using ModestTree;
+using System.Linq;
 
 namespace Zenject
 {
@@ -28,9 +29,10 @@ namespace Zenject
                     new TransientProvider(
                         _factoryBindInfo.FactoryType,
                         container,
-                        InjectUtil.CreateArgListExplicit(
-                            provider,
-                            new InjectContext(container, typeof(TContract))),
+                        _factoryBindInfo.Arguments.Concat(
+                            InjectUtil.CreateArgListExplicit(
+                                provider,
+                                new InjectContext(container, typeof(TContract)))).ToList(),
                         null,
                         BindInfo.ContextInfo)));
         }

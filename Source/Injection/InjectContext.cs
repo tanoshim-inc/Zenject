@@ -242,7 +242,7 @@ namespace Zenject
                     continue;
                 }
 
-                result.AppendLine(context.ObjectType.Name());
+                result.AppendLine(context.ObjectType.PrettyName());
             }
 
             return result.ToString();

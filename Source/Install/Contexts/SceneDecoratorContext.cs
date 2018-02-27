@@ -66,7 +66,7 @@ namespace Zenject
         string _decoratedContractName = null;
 
         DiContainer _container;
-        List<MonoBehaviour> _injectableMonoBehaviours;
+        readonly List<MonoBehaviour> _injectableMonoBehaviours = new List<MonoBehaviour>();
 
         public string DecoratedContractName
         {
@@ -92,10 +92,10 @@ namespace Zenject
         public void Initialize(DiContainer container)
         {
             Assert.IsNull(_container);
-            Assert.IsNull(_injectableMonoBehaviours);
+            Assert.That(_injectableMonoBehaviours.IsEmpty());
+
             _container = container;
 
-            _injectableMonoBehaviours = new List<MonoBehaviour>();
             GetInjectableMonoBehaviours(_injectableMonoBehaviours);
 
             foreach (var instance in _injectableMonoBehaviours)

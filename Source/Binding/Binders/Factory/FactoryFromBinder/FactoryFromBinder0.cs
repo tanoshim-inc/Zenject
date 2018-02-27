@@ -5,11 +5,11 @@ using ModestTree;
 
 namespace Zenject
 {
-    public class FactoryFromBinder<TContract> : FactoryFromBinderBase<TContract>
+    public class FactoryFromBinder<TContract> : FactoryFromBinderBase
     {
         public FactoryFromBinder(
             BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
-            : base(bindInfo, factoryBindInfo)
+            : base(typeof(TContract), bindInfo, factoryBindInfo)
         {
         }
 
@@ -31,16 +31,6 @@ namespace Zenject
         {
             ProviderFunc =
                 (container) => new MethodProviderWithContainer<TContract>(method);
-
-            return this;
-        }
-
-        public ConditionCopyNonLazyBinder FromInstance(object instance)
-        {
-            BindingUtil.AssertInstanceDerivesFromOrEqual(instance, AllParentTypes);
-
-            ProviderFunc =
-                (container) => new InstanceProvider(ContractType, instance, container);
 
             return this;
         }
@@ -98,16 +88,6 @@ namespace Zenject
 
                     return matches.Single();
                 });
-        }
-
-        public ConditionCopyNonLazyBinder FromResource(string resourcePath)
-        {
-            BindingUtil.AssertDerivesFromUnityObject(ContractType);
-
-            ProviderFunc =
-                (container) => new ResourceProvider(resourcePath, ContractType);
-
-            return this;
         }
 #endif
     }

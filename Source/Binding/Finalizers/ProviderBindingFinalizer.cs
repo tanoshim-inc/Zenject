@@ -49,7 +49,17 @@ namespace Zenject
                 return;
             }
 
-            OnFinalizeBinding(container);
+            try
+            {
+                OnFinalizeBinding(container);
+            }
+            catch (Exception e)
+            {
+                throw Assert.CreateException(
+                    e, "Error while finalizing previous binding! Contract: {0}, Identifier: {1} {2}",
+                    BindInfo.ContractTypes.Select(x => x.ToString()).Join(", "), BindInfo.Identifier,
+                    BindInfo.ContextInfo != null ? "Context: '{0}'".Fmt(BindInfo.ContextInfo) : "");
+            }
         }
 
         protected abstract void OnFinalizeBinding(DiContainer container);
@@ -63,6 +73,11 @@ namespace Zenject
         protected void RegisterProvider(
             DiContainer container, Type contractType, IProvider provider)
         {
+            if (BindInfo.OnlyBindIfNotBound && container.HasBindingId(contractType, BindInfo.Identifier))
+            {
+                return;
+            }
+
             container.RegisterProvider(
                 new BindingId(contractType, BindInfo.Identifier),
                 BindInfo.Condition,

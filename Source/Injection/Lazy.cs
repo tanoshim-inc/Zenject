@@ -19,7 +19,7 @@ namespace Zenject
 
         public Lazy(DiContainer container, InjectContext context)
         {
-            Assert.IsEqual(typeof(T), context.MemberType);
+            Assert.DerivesFromOrEqual<T>(context.MemberType);
 
             _container = container;
             _context = context;

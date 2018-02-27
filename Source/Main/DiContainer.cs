@@ -543,6 +543,14 @@ namespace Zenject
                 return;
             }
 
+#if UNITY_EDITOR
+            if (context.MemberType.DerivesFrom<Context>())
+            {
+                // This happens when getting default transform parent so ok
+                return;
+            }
+#endif
+
             var rootContext = context.ParentContextsAndSelf.Last();
 
             if (rootContext.MemberType.DerivesFrom<IInstaller>())
@@ -553,7 +561,7 @@ namespace Zenject
 
             _hasDisplayedInstallWarning = true;
             // Feel free to comment this out if you are comfortable with this practice
-            ModestTree.Log.Warn("Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type '{0}'.  If you don't care about this, you can remove this warning or set 'Container.ShouldCheckForInstallWarning' to false.", rootContext.MemberType);
+            Log.Warn("Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type '{0}'.  If you don't care about this, you can remove this warning or set 'Container.ShouldCheckForInstallWarning' to false.", rootContext.MemberType);
 #endif
         }
 
@@ -953,6 +961,7 @@ namespace Zenject
 
                 if (!IsValidating || CanCreateOrInjectDuringValidation(concreteType))
                 {
+                    //Log.Debug("Zenject: Instantiating type '{0}'", concreteType);
                     try
                     {
 #if UNITY_EDITOR && ZEN_PROFILING_ENABLED
@@ -982,7 +991,7 @@ namespace Zenject
                 {
                     throw Assert.CreateException(
                         "Passed unnecessary parameters when injecting into type '{0}'. \nExtra Parameters: {1}\nObject graph:\n{2}",
-                        newObj.GetType(), String.Join(",", args.ExtraArgs.Select(x => x.Type.Name()).ToArray()), args.Context.GetObjectGraphString());
+                        newObj.GetType(), String.Join(",", args.ExtraArgs.Select(x => x.Type.PrettyName()).ToArray()), args.Context.GetObjectGraphString());
                 }
             }
 
@@ -1038,7 +1047,7 @@ namespace Zenject
                 {
                     // Just log the error and continue to print multiple validation errors
                     // at once
-                    ModestTree.Log.ErrorException(e);
+                    Log.ErrorException(e);
                 }
             }
             else
@@ -1166,7 +1175,7 @@ namespace Zenject
             {
                 throw Assert.CreateException(
                     "Passed unnecessary parameters when injecting into type '{0}'. \nExtra Parameters: {1}\nObject graph:\n{2}",
-                    injectableType, String.Join(",", args.ExtraArgs.Select(x => x.Type.Name()).ToArray()), args.Context.GetObjectGraphString());
+                    injectableType, String.Join(",", args.ExtraArgs.Select(x => x.Type.PrettyName()).ToArray()), args.Context.GetObjectGraphString());
             }
         }
 
@@ -1341,7 +1350,9 @@ namespace Zenject
                 return gameObjectBindInfo.ParentTransform;
             }
 
-            if (gameObjectBindInfo.ParentTransformGetter != null)
+            // Don't execute the ParentTransformGetter method during validation
+            // since it might do a resolve etc.
+            if (gameObjectBindInfo.ParentTransformGetter != null && !IsValidating)
             {
                 Assert.IsNull(gameObjectBindInfo.GroupName);
 
@@ -2241,11 +2252,18 @@ namespace Zenject
             return BindMemoryPool<TItemContract, TPool, TPool>();
         }
 
-        public MemoryPoolInitialSizeBinder<TItemContract> BindMemoryPool<TItemContract, TPoolConcrete, TPoolContract>()
+        public MemoryPoolInitialSizeBinder<TItemContract> BindMemoryPool<TItemContract, TPoolConcrete, TPoolContract>(bool includeConcreteType = false)
             where TPoolConcrete : TPoolContract, IMemoryPool
             where TPoolContract : IMemoryPool
         {
-            var bindInfo = new BindInfo(typeof(TPoolContract));
+            var contractTypes = new List<Type>() { typeof(TPoolContract) };
+
+            if (includeConcreteType)
+            {
+                contractTypes.Add(typeof(TPoolConcrete));
+            }
+
+            var bindInfo = new BindInfo(contractTypes);
 
             // This interface is used in the optional class PoolCleanupChecker
             // And also allow people to manually call DespawnAll() for all IMemoryPool
@@ -2432,9 +2450,65 @@ namespace Zenject
             return BindFactoryInternal<TParam1, TParam2, TParam3, TParam4, TParam5, TContract, TFactoryContract, TFactoryConcrete>();
         }
 
+        FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract> BindFactoryInternal<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract, TFactoryContract, TFactoryConcrete>()
+            where TFactoryConcrete : TFactoryContract, IFactory
+            where TFactoryContract : IFactory
+        {
+            var bindInfo = new BindInfo(typeof(TFactoryContract));
+            var factoryBindInfo = new FactoryBindInfo(typeof(TFactoryConcrete));
+
+            StartBinding().SubFinalizer = new PlaceholderFactoryBindingFinalizer<TContract>(
+                bindInfo, factoryBindInfo);
+
+            return new FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>(
+                bindInfo, factoryBindInfo);
+        }
+
+        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract> BindIFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>()
+        {
+            return BindFactoryInternal<
+                TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract, IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>, Factory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>>();
+        }
+
+        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract> BindFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract, TFactory>()
+            where TFactory : Factory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>
+        {
+            return BindFactoryInternal<
+                TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract, TFactory, TFactory>();
+        }
+
+        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract> BindFactoryContract<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract, TFactoryContract, TFactoryConcrete>()
+            where TFactoryConcrete : Factory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>, TFactoryContract
+            where TFactoryContract : IFactory
+        {
+            return BindFactoryInternal<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract, TFactoryContract, TFactoryConcrete>();
+        }
+
         public T InstantiateExplicit<T>(List<TypeValuePair> extraArgs)
         {
             return (T)InstantiateExplicit(typeof(T), extraArgs);
+        }
+
+        public System.Lazy<T> InstantiateLazy<T>()
+        {
+            return InstantiateLazy<T>(typeof(T));
+        }
+
+        public System.Lazy<T> InstantiateLazy<T>(Type concreteType)
+        {
+            Assert.That(concreteType.DerivesFromOrEqual<T>());
+            return new System.Lazy<T>(() => (T)this.Instantiate(concreteType));
+        }
+
+        public System.Lazy<T> ResolveLazy<T>()
+        {
+            return ResolveLazy<T>(typeof(T));
+        }
+
+        public System.Lazy<T> ResolveLazy<T>(Type concreteType)
+        {
+            Assert.That(concreteType.DerivesFromOrEqual<T>());
+            return new System.Lazy<T>(() => (T)this.Resolve(concreteType));
         }
 
         public object InstantiateExplicit(Type concreteType, List<TypeValuePair> extraArgs)
@@ -2468,7 +2542,7 @@ namespace Zenject
                     {
                         // Just log the error and continue to print multiple validation errors
                         // at once
-                        ModestTree.Log.ErrorException(e);
+                        Log.ErrorException(e);
                         return new ValidationMarker(concreteType, true);
                     }
                 }

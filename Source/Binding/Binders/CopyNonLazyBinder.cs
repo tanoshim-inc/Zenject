@@ -10,17 +10,29 @@ namespace Zenject
 
         public NonLazyBinder CopyIntoAllSubContainers()
         {
-            BindInfo.CopyIntoAllSubContainers = true;
+            BindInfo.BindingInheritanceMethod = BindingInheritanceMethods.CopyIntoAll;
             return this;
         }
 
-        // Would these variations be useful?
-
         // Only copy the binding into children and not grandchildren
-        //public NonLazyBinder CopyIntoDirectSubContainers()
+        public NonLazyBinder CopyIntoDirectSubContainers()
+        {
+            BindInfo.BindingInheritanceMethod = BindingInheritanceMethods.CopyDirectOnly;
+            return this;
+        }
 
         // Do not apply the binding on the current container
-        //public NonLazyBinder MoveIntoAllSubContainers()
-        //public NonLazyBinder MoveIntoDirectSubContainers()
+        public NonLazyBinder MoveIntoAllSubContainers()
+        {
+            BindInfo.BindingInheritanceMethod = BindingInheritanceMethods.MoveIntoAll;
+            return this;
+        }
+
+        // Do not apply the binding on the current container
+        public NonLazyBinder MoveIntoDirectSubContainers()
+        {
+            BindInfo.BindingInheritanceMethod = BindingInheritanceMethods.MoveDirectOnly;
+            return this;
+        }
     }
 }

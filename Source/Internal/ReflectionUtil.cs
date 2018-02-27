@@ -100,7 +100,7 @@ namespace ModestTree.Util
 
         public static string ToDebugString(this MethodInfo method)
         {
-            return "{0}.{1}".Fmt(method.DeclaringType.Name(), method.Name);
+            return "{0}.{1}".Fmt(method.DeclaringType.PrettyName(), method.Name);
         }
 
         public static string ToDebugString(this Action action)

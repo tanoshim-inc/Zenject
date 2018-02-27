@@ -186,11 +186,11 @@ namespace Zenject
                     propertyName, parentType.FullName, string.Join(";", allFields.Select(f => f.Name).ToArray())));
             }
 
-			return (injectable, value) => writeableFields.ForEach(f => f.SetValue(injectable, value));
-		}
+            return (injectable, value) => writeableFields.ForEach(f => f.SetValue(injectable, value));
+        }
 #endif
 
-		static InjectableInfo CreateForMember(MemberInfo memInfo, Type parentType)
+        static InjectableInfo CreateForMember(MemberInfo memInfo, Type parentType)
         {
             var injectAttributes = memInfo.AllAttributes<InjectAttributeBase>().ToList();
 

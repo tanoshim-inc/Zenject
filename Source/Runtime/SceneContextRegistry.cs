@@ -14,6 +14,13 @@ namespace Zenject
             _map.Add(context.gameObject.scene, context);
         }
 
+        public SceneContext GetSceneContextForScene(string name)
+        {
+            var scene = SceneManager.GetSceneByName(name);
+            Assert.That(scene.IsValid(), "Could not find scene with name '{0}'", name);
+            return GetSceneContextForScene(scene);
+        }
+
         public SceneContext GetSceneContextForScene(Scene scene)
         {
             return _map[scene];
@@ -21,7 +28,12 @@ namespace Zenject
 
         public void Remove(SceneContext context)
         {
-            _map.RemoveWithConfirm(context.gameObject.scene);
+            bool removed = _map.Remove(context.gameObject.scene);
+
+            if (!removed)
+            {
+                Log.Warn("Failed to remove SceneContext from SceneContextRegistry");
+            }
         }
     }
 

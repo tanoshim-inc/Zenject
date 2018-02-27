@@ -119,11 +119,13 @@ namespace Zenject
             {
                 Assert.IsNotNull(installerPrefab, "Found null prefab in Context");
 
-#if UNITY_EDITOR
-                Assert.That(PrefabUtility.GetPrefabType(installerPrefab.gameObject) == PrefabType.Prefab,
-                    "Found non-prefab with name '{0}' in the InstallerPrefabs property of Context '{1}'.  You should use the property 'Installer' for this instead",
-                    installerPrefab.name, this.name);
-#endif
+                // We'd like to do this but this is actually a valid case sometimes
+                // (eg. loading an asset bundle with a scene containing a scene context when inside unity editor)
+//#if UNITY_EDITOR
+                //Assert.That(PrefabUtility.GetPrefabType(installerPrefab.gameObject) == PrefabType.Prefab,
+                    //"Found non-prefab with name '{0}' in the InstallerPrefabs property of Context '{1}'.  You should use the property 'Installer' for this instead",
+                    //installerPrefab.name, this.name);
+//#endif
                 Assert.That(installerPrefab.GetComponent<MonoInstaller>() != null,
                     "Expected to find component with type 'MonoInstaller' on given installer prefab '{0}'", installerPrefab.name);
             }
@@ -237,7 +239,7 @@ namespace Zenject
 
             if (binding.Components == null || binding.Components.IsEmpty())
             {
-                ModestTree.Log.Warn("Found empty list of components on ZenjectBinding on object '{0}'", binding.name);
+                Log.Warn("Found empty list of components on ZenjectBinding on object '{0}'", binding.name);
                 return;
             }
 
@@ -254,7 +256,7 @@ namespace Zenject
 
                 if (component == null)
                 {
-                    ModestTree.Log.Warn("Found null component in ZenjectBinding on object '{0}'", binding.name);
+                    Log.Warn("Found null component in ZenjectBinding on object '{0}'", binding.name);
                     continue;
                 }
 

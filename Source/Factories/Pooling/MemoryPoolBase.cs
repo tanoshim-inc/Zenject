@@ -18,9 +18,18 @@ namespace Zenject
     {
         public int InitialSize;
         public PoolExpandMethods ExpandMethod;
+
+        public MemoryPoolSettings(int initialSize, PoolExpandMethods expandMethod)
+        {
+            InitialSize = initialSize;
+            ExpandMethod = expandMethod;
+        }
+
+        public static readonly MemoryPoolSettings Default =
+            new MemoryPoolSettings(0, PoolExpandMethods.OneAtATime);
     }
 
-    public abstract class MemoryPoolBase<TContract> : IValidatable, IMemoryPool
+    public class MemoryPoolBase<TContract> : IValidatable, IMemoryPool
     {
         Stack<TContract> _inactiveItems;
         IFactory<TContract> _factory;
@@ -32,16 +41,17 @@ namespace Zenject
         void Construct(
             IFactory<TContract> factory,
             DiContainer container,
+            [InjectOptional]
             MemoryPoolSettings settings)
         {
-            _settings = settings;
+            _settings = settings ?? MemoryPoolSettings.Default;
             _factory = factory;
 
-            _inactiveItems = new Stack<TContract>(settings.InitialSize);
+            _inactiveItems = new Stack<TContract>(_settings.InitialSize);
 
             if (!container.IsValidating)
             {
-                for (int i = 0; i < settings.InitialSize; i++)
+                for (int i = 0; i < _settings.InitialSize; i++)
                 {
                     _inactiveItems.Push(AllocNew());
                 }
@@ -75,17 +85,19 @@ namespace Zenject
 
         public void Despawn(TContract item)
         {
-            if (_inactiveItems.Contains(item))
-            {
-                throw Assert.CreateException(
-                    "Tried to return an item to pool {0} twice", this.GetType());
-            }
+            Assert.That(!_inactiveItems.Contains(item),
+                "Tried to return an item to pool {0} twice", this.GetType());
 
             _activeCount--;
 
             _inactiveItems.Push(item);
 
-            OnDespawned(item);
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+            using (ProfileBlock.Start("{0}.OnDespawned", this.GetType()))
+#endif
+            {
+                OnDespawned(item);
+            }
         }
 
         TContract AllocNew()
@@ -93,11 +105,11 @@ namespace Zenject
             try
             {
                 var item = _factory.Create();
-                if (item == null)
-                {
-                    throw Assert.CreateException(
-                        "Factory '{0}' returned null value when creating via {1}!", _factory.GetType(), this.GetType());
-                }
+
+                // For debugging when new objects should not be re-created
+                //Log.Info("Created new object of type '{0}' in pool '{1}'.  Total instances: {2}", typeof(TContract), this.GetType(), this.NumTotal);
+
+                Assert.IsNotNull(item, "Factory '{0}' returned null value when creating via {1}!", _factory.GetType(), this.GetType());
                 OnCreated(item);
                 return item;
             }
@@ -105,7 +117,7 @@ namespace Zenject
             {
                 throw new ZenjectException(
                     "Error during construction of type '{0}' via {1}.Create method!".Fmt(
-                        typeof(TContract), this.GetType().Name()), e);
+                        typeof(TContract), this.GetType().PrettyName()), e);
             }
         }
 
@@ -124,18 +136,14 @@ namespace Zenject
 
         protected TContract GetInternal()
         {
-            TContract item;
-
             if (_inactiveItems.Count == 0)
             {
                 ExpandPool();
                 Assert.That(!_inactiveItems.IsEmpty());
             }
 
-            item = _inactiveItems.Pop();
-
+            var item = _inactiveItems.Pop();
             _activeCount++;
-
             OnSpawned(item);
             return item;
         }

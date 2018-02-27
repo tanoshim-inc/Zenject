@@ -217,7 +217,7 @@ namespace Zenject
 #endif
             {
                 Assert.That(concreteType.DerivesFromOrEqual(parentType),
-                    "Invalid type given during bind command.  Expected type '{0}' to derive from type '{1}'", concreteType, parentType.Name());
+                    "Invalid type given during bind command.  Expected type '{0}' to derive from type '{1}'", concreteType, parentType.PrettyName());
             }
         }
 
@@ -272,7 +272,7 @@ namespace Zenject
             if (!ZenUtilInternal.IsNull(instance))
             {
                 Assert.That(instance.GetType().DerivesFromOrEqual(baseType),
-                    "Invalid type given during bind command.  Expected type '{0}' to derive from type '{1}'", instance.GetType(), baseType.Name());
+                    "Invalid type given during bind command.  Expected type '{0}' to derive from type '{1}'", instance.GetType(), baseType.PrettyName());
             }
         }
     }

@@ -38,7 +38,7 @@ namespace Zenject
             catch (Exception e)
             {
                 throw new ZenjectException(
-                    "Error during construction of type '{0}' via {1}.Create method!".Fmt(typeof(TValue), this.GetType().Name()), e);
+                    "Error during construction of type '{0}' via {1}.Create method!".Fmt(typeof(TValue), this.GetType().PrettyName()), e);
             }
         }
 

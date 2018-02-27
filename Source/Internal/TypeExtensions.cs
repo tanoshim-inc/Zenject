@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace ModestTree
 {
     public static class TypeExtensions
     {
+        static readonly Dictionary<Type, string> _prettyNameCache = new Dictionary<Type, string>();
+
         public static bool DerivesFrom<T>(this Type a)
         {
             return DerivesFrom(a, typeof(T));
@@ -313,14 +316,76 @@ namespace ModestTree
             }
         }
 
-        public static string Name(this Type type)
+        public static string PrettyName(this Type type)
         {
-            if (type.IsArray)
+            string prettyName;
+
+            if (!_prettyNameCache.TryGetValue(type, out prettyName))
             {
-                return string.Format("{0}[]", type.GetElementType().Name());
+                prettyName = PrettyNameInternal(type);
+                _prettyNameCache.Add(type, prettyName);
             }
 
-            return (type.DeclaringType == null ? "" : type.DeclaringType.Name() + ".") + GetCSharpTypeName(type.Name);
+            return prettyName;
+        }
+
+        static string PrettyNameInternal(Type type)
+        {
+            var sb = new StringBuilder();
+
+            if (type.IsNested)
+            {
+                sb.Append(type.DeclaringType.PrettyName());
+                sb.Append(".");
+            }
+
+            if (type.IsArray)
+            {
+                sb.Append(type.GetElementType().PrettyName());
+                sb.Append("[]");
+            }
+            else
+            {
+                var name = GetCSharpTypeName(type.Name);
+
+                if (type.IsGenericType)
+                {
+                    var quoteIndex = name.IndexOf('`');
+
+                    if (quoteIndex != -1)
+                    {
+                        sb.Append(name.Substring(0, name.IndexOf('`')));
+                    }
+                    else
+                    {
+                        sb.Append(name);
+                    }
+
+                    sb.Append("<");
+
+                    if (type.IsGenericTypeDefinition())
+                    {
+                        var numArgs = type.GenericArguments().Count();
+
+                        if (numArgs > 0)
+                        {
+                            sb.Append(new String(',', numArgs - 1));
+                        }
+                    }
+                    else
+                    {
+                        sb.Append(string.Join(", ", type.GenericArguments().Select(t => t.PrettyName())));
+                    }
+
+                    sb.Append(">");
+                }
+                else
+                {
+                    sb.Append(name);
+                }
+            }
+
+            return sb.ToString();
         }
 
         static string GetCSharpTypeName(string typeName)

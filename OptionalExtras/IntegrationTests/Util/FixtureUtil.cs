@@ -50,7 +50,7 @@ namespace Zenject.Tests
 
             Assert.IsEqual(actualCount, expectedNumComponents,
                 "Expected to find '{0}' components of type '{1}' but instead found '{2}'"
-                .Fmt(expectedNumComponents, typeof(TComponent).Name(), actualCount));
+                .Fmt(expectedNumComponents, typeof(TComponent).PrettyName(), actualCount));
         }
 
         public static void AssertResolveCount<TContract>(
@@ -59,7 +59,7 @@ namespace Zenject.Tests
             var actualCount = container.ResolveAll<TContract>().Count;
             Assert.That(actualCount == expectedNum,
                 "Expected to find '{0}' instances of type '{1}' but instead found '{2}'",
-                expectedNum, typeof(TContract).Name(), actualCount);
+                expectedNum, typeof(TContract).PrettyName(), actualCount);
         }
 
         public static void CallFactoryCreateMethod<TValue, TFactory>(DiContainer container)

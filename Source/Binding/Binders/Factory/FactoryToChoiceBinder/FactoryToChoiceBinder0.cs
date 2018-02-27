@@ -19,6 +19,18 @@ namespace Zenject
             return this;
         }
 
+        public FactoryFromBinderUntyped To(Type concreteType)
+        {
+            BindInfo.ToChoice = ToChoices.Concrete;
+            BindInfo.ToTypes = new List<Type>()
+            {
+                concreteType
+            };
+
+            return new FactoryFromBinderUntyped(
+                concreteType, BindInfo, FactoryBindInfo);
+        }
+
         public FactoryFromBinder<TConcrete> To<TConcrete>()
             where TConcrete : TContract
         {

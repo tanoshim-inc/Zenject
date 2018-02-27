@@ -8,21 +8,15 @@ using UnityEngine;
 
 namespace Zenject
 {
-    public class FactoryFromBinderBase<TContract> : ArgConditionCopyNonLazyBinder
+    public class FactoryFromBinderBase : FactoryArgumentsBinder
     {
         public FactoryFromBinderBase(
-            BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
-            : base(bindInfo)
+            Type contractType, BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
+            : base(bindInfo, factoryBindInfo)
         {
-            FactoryBindInfo = factoryBindInfo;
-
+            ContractType = contractType;
             factoryBindInfo.ProviderFunc =
                 (container) => new TransientProvider(ContractType, container, BindInfo.Arguments, null, BindInfo.ContextInfo);
-        }
-
-        protected FactoryBindInfo FactoryBindInfo
-        {
-            get; private set;
         }
 
         protected Func<DiContainer, IProvider> ProviderFunc
@@ -33,7 +27,7 @@ namespace Zenject
 
         protected Type ContractType
         {
-            get { return typeof(TContract); }
+            get; private set;
         }
 
         public IEnumerable<Type> AllParentTypes
@@ -61,6 +55,16 @@ namespace Zenject
         public ConditionCopyNonLazyBinder FromResolve()
         {
             return FromResolve(null);
+        }
+
+        public ConditionCopyNonLazyBinder FromInstance(object instance)
+        {
+            BindingUtil.AssertInstanceDerivesFromOrEqual(instance, AllParentTypes);
+
+            ProviderFunc =
+                (container) => new InstanceProvider(ContractType, instance, container);
+
+            return this;
         }
 
         public ConditionCopyNonLazyBinder FromResolve(object subIdentifier)
@@ -212,6 +216,15 @@ namespace Zenject
             return this;
         }
 
+        public ConditionCopyNonLazyBinder FromResource(string resourcePath)
+        {
+            BindingUtil.AssertDerivesFromUnityObject(ContractType);
+
+            ProviderFunc =
+                (container) => new ResourceProvider(resourcePath, ContractType);
+
+            return this;
+        }
 #endif
     }
 }

@@ -4,17 +4,17 @@ using System.Collections.Generic;
 namespace Zenject
 {
     public class FactoryFromBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>
-        : FactoryFromBinderBase<TContract>
+        : FactoryFromBinderBase
     {
         public FactoryFromBinder(
             BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
-            : base(bindInfo, factoryBindInfo)
+            : base(typeof(TContract), bindInfo, factoryBindInfo)
         {
         }
 
         public ConditionCopyNonLazyBinder FromMethod(ModestTree.Util.Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TContract> method)
         {
-            ProviderFunc = 
+            ProviderFunc =
                 (container) => new MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>(method);
 
             return this;
@@ -23,7 +23,7 @@ namespace Zenject
         public ConditionCopyNonLazyBinder FromFactory<TSubFactory>()
             where TSubFactory : IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>
         {
-            ProviderFunc = 
+            ProviderFunc =
                 (container) => new FactoryProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TContract, TSubFactory>(container, new List<TypeValuePair>());
 
             return this;
