@@ -79,7 +79,7 @@ namespace Zenject
 
             var prefab = TryGetPrefab();
 
-            bool shouldMakeActive = false;
+            var prefabWasActive = false;
 
             if (prefab == null)
             {
@@ -88,28 +88,35 @@ namespace Zenject
             }
             else
             {
-                var wasActive = prefab.activeSelf;
+                prefabWasActive = prefab.activeSelf;
 
-                shouldMakeActive = wasActive;
-
-                if (wasActive)
+                GameObject gameObjectInstance;
+#if UNITY_EDITOR
+                if(prefabWasActive)
+                {
+                    // This ensures the prefab's Awake() methods don't fire (and, if in the editor, that the prefab file doesn't get modified)
+                    gameObjectInstance = GameObject.Instantiate(prefab, ZenUtilInternal.GetOrCreateInactivePrefabParent());
+                    gameObjectInstance.SetActive(false);
+                    gameObjectInstance.transform.SetParent(null, false);
+                }
+                else
+                {
+                    gameObjectInstance = GameObject.Instantiate(prefab);
+                }
+#else
+                if(prefabWasActive)
                 {
                     prefab.SetActive(false);
+                    gameObjectInstance = GameObject.Instantiate(prefab);
+                    prefab.SetActive(true);
                 }
+                else
+                {
+                    gameObjectInstance = GameObject.Instantiate(prefab);
+                }
+#endif
 
-                try
-                {
-                    _instance = GameObject.Instantiate(prefab).GetComponent<ProjectContext>();
-                }
-                finally
-                {
-                    if (wasActive)
-                    {
-                        // Always make sure to reset prefab state otherwise this change could be saved
-                        // persistently
-                        prefab.SetActive(true);
-                    }
-                }
+                _instance = gameObjectInstance.GetComponent<ProjectContext>();
 
                 Assert.IsNotNull(_instance,
                     "Could not find ProjectContext component on prefab 'Resources/{0}.prefab'", ProjectContextResourcePath);
@@ -119,7 +126,7 @@ namespace Zenject
             // ProjectContext.Instance while ProjectContext is initializing
             _instance.Initialize();
 
-            if (shouldMakeActive)
+            if (prefabWasActive)
             {
                 // We always instantiate it as disabled so that Awake and Start events are triggered after inject
                 _instance.gameObject.SetActive(true);
