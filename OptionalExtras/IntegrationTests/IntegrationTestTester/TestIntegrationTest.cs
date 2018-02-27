@@ -50,6 +50,8 @@ namespace Zenject.Tests
 
             PostInstall();
 
+            yield return null;
+
             Assert.That(Foo.WasInitialized);
 
             DestroyAll();
@@ -70,6 +72,7 @@ namespace Zenject.Tests
         {
             Assert.That(!ProjectContext.HasInstance);
             SkipInstall();
+            yield return null;
             Assert.That(ProjectContext.HasInstance);
             DestroyAll();
             Assert.That(!ProjectContext.HasInstance);

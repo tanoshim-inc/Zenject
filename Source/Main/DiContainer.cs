@@ -1229,7 +1229,7 @@ namespace Zenject
             Assert.That(prefab is Component, "Invalid type given for prefab. Given object name: '{0}'", prefab.name);
             return ((Component)prefab).gameObject;
         }
-        
+
         // Don't use this unless you know what you're doing
         // You probably want to use InstantiatePrefab instead
         // This one will only create the prefab and will not inject into it
@@ -1429,7 +1429,7 @@ namespace Zenject
 
 #endif
 
-            public T Instantiate<T>()
+        public T Instantiate<T>()
         {
             return Instantiate<T>(new object[0]);
         }
@@ -2887,4 +2887,3 @@ namespace Zenject
         }
     }
 }
-
