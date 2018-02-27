@@ -14,8 +14,9 @@ namespace Zenject.SpaceFighter
 
         public override void InstallBindings()
         {
-            Container.BindInterfacesTo<EnemySpawner>().AsSingle();
+            Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
 
+            Container.Bind<EnemyRegistry>().AsSingle();
             Container.BindMemoryPool<EnemyFacade, EnemyFacade.Pool>()
                 .WithInitialSize(10)
                 .FromSubContainerResolve()
@@ -34,7 +35,7 @@ namespace Zenject.SpaceFighter
                 .FromComponentInNewPrefab(_settings.ExplosionPrefab)
                 .UnderTransformGroup("Explosions");
 
-            Container.Bind<IAudioPlayer>().To<AudioPlayer>().AsSingle();
+            Container.Bind<AudioPlayer>().AsSingle();
 
             Container.BindInterfacesTo<GameRestartHandler>().AsSingle();
 

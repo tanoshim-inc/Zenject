@@ -7,7 +7,7 @@ namespace Zenject.SpaceFighter
     public class PlayerHealthWatcher : ITickable
     {
         readonly PlayerDiedSignal _playerDiedSignal;
-        readonly IAudioPlayer _audioPlayer;
+        readonly AudioPlayer _audioPlayer;
         readonly Settings _settings;
         readonly Explosion.Pool _explosionPool;
         readonly Player _player;
@@ -16,7 +16,7 @@ namespace Zenject.SpaceFighter
             Player player,
             Explosion.Pool explosionPool,
             Settings settings,
-            IAudioPlayer audioPlayer,
+            AudioPlayer audioPlayer,
             PlayerDiedSignal playerDiedSignal)
         {
             _playerDiedSignal = playerDiedSignal;

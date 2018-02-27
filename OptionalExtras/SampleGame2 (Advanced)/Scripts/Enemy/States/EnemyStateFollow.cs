@@ -11,13 +11,13 @@ namespace Zenject.SpaceFighter
         readonly EnemyTunables _tunables;
         readonly EnemyStateManager _stateManager;
         readonly Enemy _enemy;
-        readonly IPlayer _player;
+        readonly PlayerFacade _player;
 
         bool _strafeRight;
         float _lastStrafeChangeTime;
 
         public EnemyStateFollow(
-            IPlayer player,
+            PlayerFacade player,
             Enemy enemy,
             EnemyStateManager stateManager,
             EnemyTunables tunables,

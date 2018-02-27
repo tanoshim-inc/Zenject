@@ -10,13 +10,13 @@ namespace Zenject.SpaceFighter
         readonly EnemyFacade.Pool _selfFactory;
         readonly Settings _settings;
         readonly Explosion.Pool _explosionPool;
-        readonly IAudioPlayer _audioPlayer;
+        readonly AudioPlayer _audioPlayer;
         readonly Enemy _enemy;
         readonly EnemyFacade _facade;
 
         public EnemyDeathHandler(
             Enemy enemy,
-            IAudioPlayer audioPlayer,
+            AudioPlayer audioPlayer,
             Explosion.Pool explosionPool,
             Settings settings,
             EnemyFacade.Pool selfFactory,

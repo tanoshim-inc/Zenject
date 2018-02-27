@@ -6,14 +6,14 @@ namespace Zenject.SpaceFighter
 {
     public class PlayerDamageHandler
     {
-        readonly IAudioPlayer _audioPlayer;
+        readonly AudioPlayer _audioPlayer;
         readonly Settings _settings;
         readonly Player _player;
 
         public PlayerDamageHandler(
             Player player,
             Settings settings,
-            IAudioPlayer audioPlayer)
+            AudioPlayer audioPlayer)
         {
             _audioPlayer = audioPlayer;
             _settings = settings;

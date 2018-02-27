@@ -61,6 +61,25 @@ namespace Zenject.SpaceFighter
 
         public class Pool : MonoMemoryPool<float, float, EnemyFacade>
         {
+            readonly EnemyRegistry _registry;
+
+            public Pool(EnemyRegistry registry)
+            {
+                _registry = registry;
+            }
+
+            protected override void OnSpawned(EnemyFacade item)
+            {
+                base.OnSpawned(item);
+                _registry.Add(item);
+            }
+
+            protected override void OnDespawned(EnemyFacade item)
+            {
+                base.OnDespawned(item);
+                _registry.Remove(item);
+            }
+
             protected override void Reinitialize(float accuracy, float speed, EnemyFacade enemy)
             {
                 enemy._tunables.Accuracy = accuracy;
