@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ModestTree;
+#if ZEN_SIGNALS_ADD_UNIRX
+using UniRx;
+#endif
 
 namespace Zenject
 {
@@ -25,6 +28,12 @@ namespace Zenject
         [Inject(Optional = true, Id = "Late", Source = InjectSources.Local)]
         readonly List<ModestTree.Util.ValuePair<Type, int>> _latePriorities = null;
 
+#if ZEN_SIGNALS_ADD_UNIRX
+        readonly Subject _tickStream = new Subject();
+        readonly Subject _lateTickStream = new Subject();
+        readonly Subject _fixedTickStream = new Subject();
+#endif
+
         readonly TickablesTaskUpdater _updater = new TickablesTaskUpdater();
         readonly FixedTickablesTaskUpdater _fixedUpdater = new FixedTickablesTaskUpdater();
         readonly LateTickablesTaskUpdater _lateUpdater = new LateTickablesTaskUpdater();
@@ -35,6 +44,23 @@ namespace Zenject
         public TickableManager()
         {
         }
+
+#if ZEN_SIGNALS_ADD_UNIRX
+        public IObservableRx<Unit> TickStream
+        {
+            get { return _tickStream; }
+        }
+
+        public IObservableRx<Unit> LateTickStream
+        {
+            get { return _lateTickStream; }
+        }
+
+        public IObservableRx<Unit> FixedTickStream
+        {
+            get { return _fixedTickStream; }
+        }
+#endif
 
         public IEnumerable<ITickable> Tickables
         {
@@ -159,35 +185,47 @@ namespace Zenject
 
         public void Update()
         {
-            if(_isPaused)
+            if(IsPaused)
             {
                 return;
             }
 
             _updater.OnFrameStart();
             _updater.UpdateAll();
+
+#if ZEN_SIGNALS_ADD_UNIRX
+            _tickStream.OnNext();
+#endif
         }
 
         public void FixedUpdate()
         {
-            if(_isPaused)
+            if(IsPaused)
             {
                 return;
             }
 
             _fixedUpdater.OnFrameStart();
             _fixedUpdater.UpdateAll();
+
+#if ZEN_SIGNALS_ADD_UNIRX
+            _fixedTickStream.OnNext();
+#endif
         }
 
         public void LateUpdate()
         {
-            if(_isPaused)
+            if(IsPaused)
             {
                 return;
             }
 
             _lateUpdater.OnFrameStart();
             _lateUpdater.UpdateAll();
+
+#if ZEN_SIGNALS_ADD_UNIRX
+            _lateTickStream.OnNext();
+#endif
         }
     }
 }
