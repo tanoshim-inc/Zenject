@@ -104,9 +104,9 @@ namespace Zenject
 
             if (!_parentContainers.IsEmpty())
             {
-                foreach (var parent in _parentContainers)
+                for (int i = 0; i < _parentContainers.Count; i++)
                 {
-                    parent.FlushBindings();
+                    _parentContainers[i].FlushBindings();
                 }
 
 #if !NOT_UNITY3D
@@ -115,14 +115,40 @@ namespace Zenject
 
                 // Make sure to avoid duplicates which could happen if a parent container
                 // appears multiple times in the inheritance chain
-                foreach (var binding in _parentContainers.SelectMany(x => x._childBindings).Distinct())
+                foreach (var ancestorContainer in _ancestorContainers.Distinct())
                 {
-                    Assert.That(binding.CopyIntoAllSubContainers);
-                    _currentBindings.Enqueue(binding);
+                    foreach (var binding in ancestorContainer._childBindings)
+                    {
+                        if (ShouldInheritBinding(binding, ancestorContainer))
+                        {
+                            _currentBindings.Enqueue(binding);
+                        }
+                    }
                 }
 
                 FlushBindings();
+
+                // Inherited bindings should not be cached
+                _childBindings.Clear();
             }
+        }
+
+        bool ShouldInheritBinding(IBindingFinalizer binding, DiContainer ancestorContainer)
+        {
+            if (binding.BindingInheritanceMethod == BindingInheritanceMethods.CopyIntoAll
+                || binding.BindingInheritanceMethod == BindingInheritanceMethods.MoveIntoAll)
+            {
+                return true;
+            }
+
+            if ((binding.BindingInheritanceMethod == BindingInheritanceMethods.CopyDirectOnly
+                    || binding.BindingInheritanceMethod == BindingInheritanceMethods.MoveDirectOnly)
+                && _parentContainers.Contains(ancestorContainer))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public DiContainer(IEnumerable<DiContainer> parentContainers)
@@ -2040,7 +2066,7 @@ namespace Zenject
                     _isFinalizingBinding = false;
                 }
 
-                if (binding.CopyIntoAllSubContainers)
+                if (binding.BindingInheritanceMethod != BindingInheritanceMethods.None)
                 {
                     _childBindings.Add(binding);
                 }

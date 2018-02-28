@@ -13,9 +13,9 @@ namespace Zenject
             BindInfo = bindInfo;
         }
 
-        public bool CopyIntoAllSubContainers
+        public BindingInheritanceMethods BindingInheritanceMethod
         {
-            get { return BindInfo.CopyIntoAllSubContainers; }
+            get { return BindInfo.BindingInheritanceMethod; }
         }
 
         protected BindInfo BindInfo

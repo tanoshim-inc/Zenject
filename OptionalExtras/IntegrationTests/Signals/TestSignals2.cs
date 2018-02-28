@@ -214,6 +214,7 @@ namespace ZenjectSignalsAndSignals.Tests
             subscription.Dispose();
 
             Assert.Throws(() => signal.Fire());
+            yield break;
         }
 #endif
 

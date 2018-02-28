@@ -97,11 +97,6 @@ namespace Zenject
             set;
         }
 
-        public bool CopyIntoAllSubContainers
-        {
-            get { return BindingInheritanceMethod == BindingInheritanceMethods.CopyIntoAll; }
-        }
-
         public BindingInheritanceMethods BindingInheritanceMethod
         {
             get;

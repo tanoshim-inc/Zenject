@@ -11,9 +11,9 @@ namespace Zenject
             set { _subFinalizer = value; }
         }
 
-        public bool CopyIntoAllSubContainers
+        public BindingInheritanceMethods BindingInheritanceMethod
         {
-            get { return _subFinalizer.CopyIntoAllSubContainers; }
+            get { return _subFinalizer.BindingInheritanceMethod; }
         }
 
         public void FinalizeBinding(DiContainer container)
