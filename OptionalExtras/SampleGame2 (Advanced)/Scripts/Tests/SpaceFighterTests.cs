@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 using Zenject;
 using System.Collections;
 using UnityEngine.TestTools;
-using Zenject.Asteroids;
 using Zenject.SpaceFighter;
 using Assert = ModestTree.Assert;
 
@@ -65,20 +64,37 @@ namespace Zenject.SpaceFighter
         [UnityTest]
         public IEnumerator TestKillsPlayer()
         {
-            yield return LoadScene();
+            // Override settings to only spawn one enemy to test
+            StaticContext.Container.BindInstance(
+                new EnemySpawner.Settings()
+                {
+                    SpeedMin = 50,
+                    SpeedMax = 50,
+                    AccuracyMin = 1,
+                    AccuracyMax = 1,
+                    NumEnemiesIncreaseRate = 0,
+                    NumEnemiesStartAmount = 5,
+                });
 
-            Time.timeScale = 10;
+            yield return LoadScene();
 
             var playerDiedSignal = SceneContainer.Resolve<PlayerDiedSignal>();
 
             bool died = false;
             playerDiedSignal += () => died = true;
 
-            var elapsed = 0.0f;
+            var startTime = Time.realtimeSinceStartup;
 
-            while (!died && elapsed < 30.0f)
+            while (!died && Time.realtimeSinceStartup - startTime < 30.0f)
             {
-                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            startTime = Time.realtimeSinceStartup;
+
+            // Wait for death sequence to pass
+            while (Time.realtimeSinceStartup - startTime < 2.0f)
+            {
                 yield return null;
             }
 

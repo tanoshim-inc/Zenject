@@ -41,14 +41,34 @@ namespace Zenject
             get { return typeof(TValue); }
         }
 
+        public void ClearPool()
+        {
+            _stack.Clear();
+            NumTotal = 0;
+        }
+
+        public void ExpandPoolBy(int additionalSize)
+        {
+            for (int i = 0; i < additionalSize; i++)
+            {
+                _stack.Push(Alloc());
+            }
+        }
+
+        TValue Alloc()
+        {
+            var value = new TValue();
+            NumTotal++;
+            return value;
+        }
+
         protected TValue SpawnGetter()
         {
             TValue element;
 
             if (_stack.Count == 0)
             {
-                element = new TValue();
-                NumTotal++;
+                element = Alloc();
             }
             else
             {
@@ -58,9 +78,9 @@ namespace Zenject
             return element;
         }
 
-        protected PooledWrapper<TValue> SpawnWrapper(TValue instance)
+        protected DisposeWrapper<TValue> SpawnWrapper(TValue instance)
         {
-            return PooledWrapper<TValue>.Pool.Instance.Spawn(instance, this.Despawn);
+            return DisposeWrapper<TValue>.Pool.Spawn(instance, this.Despawn);
         }
 
         public void Despawn(TValue element)
@@ -107,7 +127,7 @@ namespace Zenject
             set { _onSpawnMethodGetter = x => () => value(x); }
         }
 
-        public PooledWrapper<TValue> SpawnWrapper()
+        public DisposeWrapper<TValue> SpawnWrapper()
         {
             return base.SpawnWrapper(Spawn());
         }
@@ -154,7 +174,7 @@ namespace Zenject
             set { _onSpawnMethodGetter = x => (p1) => value(p1, x); }
         }
 
-        public PooledWrapper<TValue> SpawnWrapper(TParam1 param)
+        public DisposeWrapper<TValue> SpawnWrapper(TParam1 param)
         {
             return base.SpawnWrapper(Spawn(param));
         }
@@ -201,7 +221,7 @@ namespace Zenject
             set { _onSpawnMethodGetter = (x) => (p1, p2) => value(p1, p2, x); }
         }
 
-        public PooledWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2)
+        public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2)
         {
             return base.SpawnWrapper(Spawn(p1, p2));
         }
@@ -249,7 +269,7 @@ namespace Zenject
             set { _onSpawnMethodGetter = (x) => (p1, p2, p3) => value(p1, p2, p3, x); }
         }
 
-        public PooledWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2, TParam3 p3)
+        public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2, TParam3 p3)
         {
             return base.SpawnWrapper(Spawn(p1, p2, p3));
         }

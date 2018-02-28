@@ -5,9 +5,13 @@ using Zenject;
 
 namespace Zenject
 {
-    public class PooledWrapper<TValue> : IDisposable
+    public class DisposeWrapper<TValue> : IDisposable
         where TValue : class, new()
     {
+        public static readonly NewableMemoryPool<TValue, Action<TValue>, DisposeWrapper<TValue>> Pool =
+            new NewableMemoryPool<TValue, Action<TValue>, DisposeWrapper<TValue>>(
+                x => x.OnSpawned, x => x.OnDespawned);
+
         Action<TValue> _despawnMethod;
         TValue _value;
 
@@ -16,15 +20,9 @@ namespace Zenject
             get { return _value; }
         }
 
-        // For use with using statement
-        void IDisposable.Dispose()
+        public void Dispose()
         {
-            Despawn();
-        }
-
-        public void Despawn()
-        {
-            Pool.Instance.Despawn(this);
+            Pool.Despawn(this);
         }
 
         void OnSpawned(TValue value, Action<TValue> despawnMethod)
@@ -41,21 +39,6 @@ namespace Zenject
             _despawnMethod(_value);
             _value = null;
             _despawnMethod = null;
-        }
-
-        public class Pool : NewableMemoryPool<TValue, Action<TValue>, PooledWrapper<TValue>>
-        {
-            static Pool _instance = new Pool();
-
-            public Pool()
-                : base(x => x.OnSpawned, x => x.OnDespawned)
-            {
-            }
-
-            public static Pool Instance
-            {
-                get { return _instance; }
-            }
         }
     }
 }

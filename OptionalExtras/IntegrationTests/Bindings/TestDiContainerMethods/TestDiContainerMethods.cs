@@ -281,7 +281,7 @@ namespace Zenject.Tests.Bindings
 
             var foo = go.GetComponentInChildren<Foo>();
 
-            Assert.IsEqual(foo.transform.position, new Vector3(50, 50, 50));
+            Assert.IsEqual(foo.transform.position, new Vector3(150, 150, 150));
             yield break;
         }
 

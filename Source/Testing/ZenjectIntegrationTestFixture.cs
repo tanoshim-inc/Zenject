@@ -48,6 +48,7 @@ namespace Zenject
         [SetUp]
         public void Setup()
         {
+            Assert.That(!StaticContext.HasContainer);
             // Only need to record this once for each set of tests
             if (_unityTestRunnerObjects == null)
             {
@@ -187,6 +188,8 @@ namespace Zenject
             _hasStartedInstall = false;
             _hasEndedInstall = false;
             _hasDestroyedAll = false;
+
+            StaticContext.Clear();
         }
     }
 #else
