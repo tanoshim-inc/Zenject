@@ -35,6 +35,17 @@ namespace Zenject.Tests.Injection
             Assert.IsNotNull(Container.Resolve<Qux>());
         }
 
+        [Test]
+        public void TestMultipleChooseLeastArguments()
+        {
+            Container.Bind<Bar>().AsSingle().NonLazy();
+            Container.Bind<Gorp>().AsSingle().NonLazy();
+
+            var gorp = Container.Resolve<Gorp>();
+
+            Assert.IsEqual(gorp.ChosenConstructor, 1);
+        }
+
         class Bar
         {
         }
@@ -61,6 +72,29 @@ namespace Zenject.Tests.Injection
             [Inject]
             public Qux(Bar val)
             {
+            }
+        }
+
+        class Gorp
+        {
+            public Gorp()
+            {
+                ChosenConstructor = 1;
+            }
+
+            public Gorp(Bar val)
+            {
+                ChosenConstructor = 2;
+            }
+
+            public Gorp(string p1, int p2)
+            {
+                ChosenConstructor = 3;
+            }
+
+            public int ChosenConstructor
+            {
+                get; private set;
             }
         }
     }
