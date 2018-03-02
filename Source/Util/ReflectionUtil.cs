@@ -1,51 +1,90 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 #if !NOT_UNITY3D
 using UnityEngine;
 #endif
 
-namespace ModestTree.Util
+namespace ModestTree
 {
     public static class ReflectionUtil
     {
-        public static bool IsGenericList(Type type)
+        public static Action<object, object> GetSetterDelegate(MemberInfo memberInfo)
         {
-            return type.IsGenericType()
-                && (type.GetGenericTypeDefinition() == typeof(List<>)
-                        || type.GetGenericTypeDefinition() == typeof(IList<>));
-        }
-
-        public static bool IsGenericList(Type type, out Type contentsType)
-        {
-            if (IsGenericList(type))
+            if (memberInfo is FieldInfo)
             {
-                contentsType = type.GenericArguments().Single();
-                return true;
+                var fieldInfo = (FieldInfo)memberInfo;
+                return (obj, value) => fieldInfo.SetValue(obj, value);
             }
 
-            contentsType = null;
-            return false;
+            if (memberInfo is PropertyInfo)
+            {
+                var propertyInfo = (PropertyInfo)memberInfo;
+                return (obj, value) => propertyInfo.SetValue(obj, value, null);
+            }
+
+            throw Assert.CreateException();
         }
 
-        public static IList CreateGenericList(Type elementType, object[] contentsAsObj)
+        public static Func<object, object> GetGetterDelegate(MemberInfo memberInfo)
+        {
+            if (memberInfo is FieldInfo)
+            {
+                var fieldInfo = (FieldInfo)memberInfo;
+                return (obj) => fieldInfo.GetValue(obj);
+            }
+
+            if (memberInfo is PropertyInfo)
+            {
+                var propertyInfo = (PropertyInfo)memberInfo;
+                return (obj) => propertyInfo.GetValue(obj);
+            }
+
+            throw Assert.CreateException();
+        }
+
+        public static Array CreateArray(Type elementType, IReadOnlyList<object> instances)
+        {
+            var array = Array.CreateInstance(elementType, instances.Count);
+
+            for (int i = 0; i < instances.Count; i++)
+            {
+                var instance = instances[i];
+
+                if (instance != null)
+                {
+                    Assert.That(instance.GetType().DerivesFromOrEqual(elementType),
+                        "Wrong type when creating array, expected something assignable from '"+ elementType +"', but found '" + instance.GetType() + "'");
+                }
+
+                array.SetValue(instance, i);
+            }
+
+            return array;
+        }
+
+        public static IList CreateGenericList(Type elementType, IReadOnlyList<object> instances)
         {
             var genericType = typeof(List<>).MakeGenericType(elementType);
 
             var list = (IList)Activator.CreateInstance(genericType);
 
-            foreach (var obj in contentsAsObj)
+            for (int i = 0; i < instances.Count; i++)
             {
-                if (obj != null)
+                var instance = instances[i];
+
+                if (instance != null)
                 {
-                    Assert.That(obj.GetType().DerivesFromOrEqual(elementType),
-                        "Wrong type when creating generic list, expected something assignable from '"+ elementType +"', but found '" + obj.GetType() + "'");
+                    Assert.That(instance.GetType().DerivesFromOrEqual(elementType),
+                        "Wrong type when creating generic list, expected something assignable from '"+ elementType +"', but found '" + instance.GetType() + "'");
                 }
 
-                list.Add(obj);
+                list.Add(instance);
             }
 
             return list;
@@ -148,7 +187,7 @@ namespace ModestTree.Util
 #endif
         }
 
-        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4, TParam5>(this ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TParam5> action)
+        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4, TParam5>(this Action<TParam1, TParam2, TParam3, TParam4, TParam5> action)
         {
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
             return action.ToString();
@@ -157,7 +196,7 @@ namespace ModestTree.Util
 #endif
         }
 
-        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6>(this ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> action)
+        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6>(this Action<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> action)
         {
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
             return action.ToString();

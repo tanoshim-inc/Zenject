@@ -47,7 +47,7 @@ namespace Zenject.Tests.Bindings
 
             using (var block = DisposeBlock.Spawn())
             {
-                var foo = Foo.Pool.Spawn("asdf").AttachedTo(block);
+                Foo.Pool.Spawn("asdf").AttachedTo(block);
 
                 Assert.IsEqual(Foo.Pool.NumTotal, 1);
                 Assert.IsEqual(Foo.Pool.NumActive, 1);

@@ -10,40 +10,58 @@ namespace Zenject.Tests.Injection
     [TestFixture]
     public class TestConstructorInjection : ZenjectUnitTestFixture
     {
-        class Test1
+        [Test]
+        public void TestResolve()
+        {
+            Container.Bind<Foo>().AsSingle().NonLazy();
+            Container.Bind<Bar>().AsSingle().NonLazy();
+
+            Assert.IsNotNull(Container.Resolve<Foo>());
+        }
+
+        [Test]
+        public void TestInstantiate()
+        {
+            Container.Bind<Foo>().AsSingle();
+            Assert.IsNotNull(Container.Instantiate<Foo>(new object[] { new Bar() }));
+        }
+
+        [Test]
+        public void TestMultipleWithOneTagged()
+        {
+            Container.Bind<Bar>().AsSingle().NonLazy();
+            Container.Bind<Qux>().AsSingle().NonLazy();
+
+            Assert.IsNotNull(Container.Resolve<Qux>());
+        }
+
+        class Bar
         {
         }
 
-        class Test2
+        class Foo
         {
-            public Test1 val;
-
-            public Test2(Test1 val)
+            public Foo(Bar bar)
             {
-                this.val = val;
+                Bar = bar;
+            }
+
+            public Bar Bar
+            {
+                get; private set;
             }
         }
 
-        [Test]
-        public void TestCase1()
+        class Qux
         {
-            Container.Bind<Test2>().AsSingle().NonLazy();
-            Container.Bind<Test1>().AsSingle().NonLazy();
+            public Qux()
+            {
+            }
 
-            var test1 = Container.Resolve<Test2>();
-
-            Assert.That(test1.val != null);
-        }
-
-        [Test]
-        public void TestConstructByFactory()
-        {
-            Container.Bind<Test2>().AsSingle();
-
-            var val = new Test1();
-            var test1 = Container.Instantiate<Test2>(new object[] { val });
-
-            Assert.That(test1.val == val);
+            [Inject]
+            public Qux(Bar val)
+            {
+            }
         }
     }
 }

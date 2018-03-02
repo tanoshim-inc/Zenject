@@ -551,6 +551,17 @@ namespace Zenject
 
         public IList ResolveAll(InjectContext context)
         {
+            using (var block = DisposeBlock.Spawn())
+            {
+                var buffer = ListPool<object>.Instance.SpawnWrapper()
+                    .AttachedTo(block).Value;
+                ResolveAllInternal(context, buffer);
+                return ReflectionUtil.CreateGenericList(context.MemberType, buffer);
+            }
+        }
+
+        void ResolveAllInternal(InjectContext context, List<object> buffer)
+        {
             Assert.IsNotNull(context);
             // Note that different types can map to the same provider (eg. a base type to a concrete class and a concrete class to itself)
 
@@ -574,12 +585,24 @@ namespace Zenject
                             "Could not find required dependency with type '{0}' \nObject graph:\n {1}", context.MemberType, context.GetObjectGraphString());
                     }
 
-                    return ReflectionUtil.CreateGenericList(context.MemberType, new object[] {});
+                    return;
                 }
 
-                var instances = matches.SelectMany(x => SafeGetInstances(x, context)).ToArray();
+                var allInstances = ListPool<object>.Instance.SpawnWrapper()
+                    .AttachedTo(block).Value;
 
-                if (instances.Length == 0 && !context.Optional)
+                for (int i = 0; i < matches.Count; i++)
+                {
+                    var match = matches[i];
+                    var instances = SafeGetInstances(match, context);
+
+                    for (int k = 0; k < instances.Count; k++)
+                    {
+                        allInstances.Add(instances[k]);
+                    }
+                }
+
+                if (allInstances.Count == 0 && !context.Optional)
                 {
                     throw Assert.CreateException(
                         "Could not find required dependency with type '{0}'.  Found providers but they returned zero results!", context.MemberType);
@@ -587,10 +610,18 @@ namespace Zenject
 
                 if (IsValidating)
                 {
-                    instances = instances.Select(x => x is ValidationMarker ? context.MemberType.GetDefaultValue() : x).ToArray();
+                    for (int i = 0; i < allInstances.Count; i++)
+                    {
+                        var instance = allInstances[i];
+
+                        if (instance is ValidationMarker)
+                        {
+                            allInstances[i] = context.MemberType.GetDefaultValue();
+                        }
+                    }
                 }
 
-                return ReflectionUtil.CreateGenericList(context.MemberType, instances);
+                buffer.AddRange(allInstances);
             }
         }
 
@@ -823,6 +854,8 @@ namespace Zenject
             // you can have some lookups recurse to parent containers
             Assert.IsNotNull(context);
 
+            var memberType = context.MemberType;
+
             ProviderPair providerPair;
 
             FlushBindings();
@@ -835,7 +868,7 @@ namespace Zenject
             // The problem is, we want the binding for Bind(typeof(Lazy<>)) to always match even
             // for members that are marked for a specific ID, so we need to discard the identifier
             // for this one particular case
-            if (context.MemberType.IsGenericType() && context.MemberType.GetGenericTypeDefinition() == typeof(Lazy<>))
+            if (memberType.IsGenericType() && memberType.GetGenericTypeDefinition() == typeof(Lazy<>))
             {
                 lookupContext = context.Clone();
                 lookupContext.Identifier = null;
@@ -851,7 +884,7 @@ namespace Zenject
 
                 throw Assert.CreateException(
                     "Found multiple matches when only one was expected for type '{0}'{1}. \nObject graph:\n {2}",
-                    context.MemberType,
+                    memberType,
                     (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                     context.GetObjectGraphString());
             }
@@ -860,10 +893,34 @@ namespace Zenject
             {
                 Assert.IsNull(providerPair);
 
-                // If it's a generic list then try matching multiple instances to its generic type
-                if (ReflectionUtil.IsGenericList(context.MemberType))
+                // If it's an array try matching to multiple values using its array type
+                if (memberType.IsArray && memberType.GetArrayRank() == 1)
                 {
-                    var subType = context.MemberType.GenericArguments().Single();
+                    var subType = memberType.GetElementType();
+
+                    var subContext = context.Clone();
+                    subContext.MemberType = subType;
+                    // By making this optional this means that all injected fields of type T[]
+                    // will pass validation, which could be error prone, but I think this is better
+                    // than always requiring that they explicitly mark their array types as optional
+                    subContext.Optional = true;
+
+                    using (var block = DisposeBlock.Spawn())
+                    {
+                        var instances = ListPool<object>.Instance.SpawnWrapper().AttachedTo(block).Value;
+                        ResolveAllInternal(subContext, instances);
+                        return ReflectionUtil.CreateArray(subContext.MemberType, instances);
+                    }
+                }
+
+                // If it's a generic list then try matching multiple instances to its generic type
+                if (memberType.IsGenericType()
+                    && (memberType.GetGenericTypeDefinition() == typeof(List<>)
+                        || memberType.GetGenericTypeDefinition() == typeof(IList<>)
+                        || memberType.GetGenericTypeDefinition() == typeof(IReadOnlyList<>)
+                        || memberType.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                {
+                    var subType = memberType.GenericArguments().Single();
 
                     var subContext = context.Clone();
                     subContext.MemberType = subType;
@@ -881,7 +938,7 @@ namespace Zenject
                 }
 
                 throw Assert.CreateException("Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
-                    context.MemberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                    memberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
                     (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                     context.GetObjectGraphString());
             }
@@ -901,7 +958,7 @@ namespace Zenject
                     }
 
                     throw Assert.CreateException("Provider returned zero instances when one was expected!  While resolving type '{0}'{1}. \nObject graph:\n{2}",
-                        context.MemberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                        memberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
                         (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                         context.GetObjectGraphString());
                 }
@@ -909,7 +966,7 @@ namespace Zenject
                 if (instances.Count() > 1)
                 {
                     throw Assert.CreateException("Provider returned multiple instances when only one was expected!  While resolving type '{0}'{1}. \nObject graph:\n{2}",
-                        context.MemberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                        memberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
                         (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                         context.GetObjectGraphString());
                 }
