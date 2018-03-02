@@ -49,7 +49,7 @@ namespace Zenject.Asteroids
             var speed = (_ship.Position - _lastPosition).magnitude / Time.deltaTime;
             var speedPx = Mathf.Clamp(speed / _settings.speedForMaxEmisssion, 0.0f, 1.0f);
 
-            _ship.ParticleEmitter.maxEmission = _settings.maxEmission * speedPx;
+            //_ship.ParticleEmitter.maxEmission = _settings.maxEmission * speedPx;
         }
 
         void Move()
@@ -74,12 +74,12 @@ namespace Zenject.Asteroids
         public override void Start()
         {
             _lastPosition = _ship.Position;
-            _ship.ParticleEmitter.emit = true;
+            _ship.ParticleEmitter.gameObject.SetActive(true);
         }
 
         public override void Dispose()
         {
-            _ship.ParticleEmitter.emit = false;
+            _ship.ParticleEmitter.gameObject.SetActive(false);
         }
 
         public override void OnTriggerEnter(Collider other)
