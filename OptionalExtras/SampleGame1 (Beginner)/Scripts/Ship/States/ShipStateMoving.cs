@@ -46,8 +46,9 @@ namespace Zenject.Asteroids
 
         void UpdateThruster()
         {
-            var speed = (_ship.Position - _lastPosition).magnitude / Time.deltaTime;
-            var speedPx = Mathf.Clamp(speed / _settings.speedForMaxEmisssion, 0.0f, 1.0f);
+            // Is this possible anymoer?
+            //var speed = (_ship.Position - _lastPosition).magnitude / Time.deltaTime;
+            //var speedPx = Mathf.Clamp(speed / _settings.speedForMaxEmisssion, 0.0f, 1.0f);
 
             //_ship.ParticleEmitter.maxEmission = _settings.maxEmission * speedPx;
         }
