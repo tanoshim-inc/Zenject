@@ -11,6 +11,7 @@ namespace Zenject.Tests.DecoratorTests
     {
         public Foo(Bar bar)
         {
+            Log.Trace("Created Foo");
         }
     }
 
@@ -18,7 +19,7 @@ namespace Zenject.Tests.DecoratorTests
     {
         public override void InstallBindings()
         {
-            Container.Bind<Foo>().AsSingle();
+            Container.Bind<Foo>().AsSingle().NonLazy();
         }
     }
 }

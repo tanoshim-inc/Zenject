@@ -1,3 +1,4 @@
+using ModestTree;
 using UnityEngine;
 using Zenject;
 
@@ -18,6 +19,7 @@ namespace Zenject.Tests.AutoLoadSceneTests
     {
         public Foo(Bar bar)
         {
+            Log.Trace("Created Foo");
         }
     }
 
@@ -25,7 +27,7 @@ namespace Zenject.Tests.AutoLoadSceneTests
     {
         public override void InstallBindings()
         {
-            Container.Bind<Foo>().AsSingle();
+            Container.Bind<Foo>().AsSingle().NonLazy();
         }
     }
 }

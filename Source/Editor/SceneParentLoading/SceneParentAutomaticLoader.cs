@@ -224,12 +224,12 @@ namespace Zenject.Internal
                 {
                     if (info.ContractName.Trim().IsEmpty())
                     {
-                        Log.Warn("Found empty contract name in default scene contract config");
+                        Log.Warn("Found empty contract name in default scene contract config at path '{0}'", AssetDatabase.GetAssetPath(config));
                         continue;
                     }
 
                     Assert.That(!map.ContainsKey(info.ContractName),
-                        "Found multiple default scenes for contract '{0}' in default scene contract configs at resource path 'Resources/{0}'!", DefaultSceneContractConfig.ResourcePath);
+                        "Found duplicate contract '{0}' in default scene contract config at '{1}'!  Default contract already specified", info.ContractName, AssetDatabase.GetAssetPath(config));
 
                     map.Add(info.ContractName, AssetDatabase.GetAssetPath(info.Scene));
                 }
