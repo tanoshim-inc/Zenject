@@ -75,6 +75,48 @@ namespace Zenject.Internal
             Dictionary<string, LoadedSceneInfo> contractMap,
             Dictionary<string, string> defaultContractsMap)
         {
+            if (sceneInfo.SceneContext != null)
+            {
+                Assert.IsNull(sceneInfo.DecoratorContext);
+                ProcessSceneParents(sceneInfo, contractMap, defaultContractsMap);
+            }
+            else
+            {
+                Assert.IsNotNull(sceneInfo.DecoratorContext);
+                ProcessSceneDecorators(sceneInfo, contractMap, defaultContractsMap);
+            }
+        }
+
+        static void ProcessSceneDecorators(
+            LoadedSceneInfo sceneInfo,
+            Dictionary<string, LoadedSceneInfo> contractMap,
+            Dictionary<string, string> defaultContractsMap)
+        {
+            var decoratedContractName = sceneInfo.DecoratorContext.DecoratedContractName;
+
+            LoadedSceneInfo decoratedSceneInfo;
+
+            if (contractMap.TryGetValue(decoratedContractName, out decoratedSceneInfo))
+            {
+                ValidateDecoratedSceneMatch(sceneInfo, decoratedSceneInfo);
+                return;
+            }
+
+            decoratedSceneInfo = LoadDefaultSceneForContract(
+                sceneInfo, decoratedContractName, defaultContractsMap);
+
+            EditorSceneManager.MoveSceneAfter(decoratedSceneInfo.Scene, sceneInfo.Scene);
+
+            ValidateDecoratedSceneMatch(sceneInfo, decoratedSceneInfo);
+
+            ProcessScene(decoratedSceneInfo, contractMap, defaultContractsMap);
+        }
+
+        static void ProcessSceneParents(
+            LoadedSceneInfo sceneInfo,
+            Dictionary<string, LoadedSceneInfo> contractMap,
+            Dictionary<string, string> defaultContractsMap)
+        {
             foreach (var parentContractName in sceneInfo.SceneContext.ParentContractNames)
             {
                 LoadedSceneInfo parentInfo;
@@ -85,16 +127,7 @@ namespace Zenject.Internal
                     continue;
                 }
 
-                string parentScenePath;
-
-                if (!defaultContractsMap.TryGetValue(parentContractName, out parentScenePath))
-                {
-                    throw Assert.CreateException(
-                        "Could not fill parent contract '{0}' for scene '{1}'.  No scenes with that contract name are loaded, and could not find a match in any default scene contract configs to auto load one either."
-                        .Fmt(parentContractName, sceneInfo.Scene.name));
-                }
-
-                parentInfo = OpenParentScene(sceneInfo, parentScenePath);
+                parentInfo = LoadDefaultSceneForContract(sceneInfo, parentContractName, defaultContractsMap);
 
                 AddToContractMap(contractMap, parentInfo);
 
@@ -106,28 +139,48 @@ namespace Zenject.Internal
             }
         }
 
-        static LoadedSceneInfo OpenParentScene(LoadedSceneInfo sceneInfo, string parentScenePath)
+        static LoadedSceneInfo LoadDefaultSceneForContract(
+            LoadedSceneInfo sceneInfo, string contractName, Dictionary<string, string> defaultContractsMap)
         {
-            Scene parentScene;
+            string scenePath;
+
+            if (!defaultContractsMap.TryGetValue(contractName, out scenePath))
+            {
+                throw Assert.CreateException(
+                    "Could not fill contract '{0}' for scene '{1}'.  No scenes with that contract name are loaded, and could not find a match in any default scene contract configs to auto load one either."
+                    .Fmt(contractName, sceneInfo.Scene.name));
+            }
+
+            Scene scene;
 
             try
             {
-                parentScene = EditorSceneManager.OpenScene(
-                    parentScenePath, OpenSceneMode.Additive);
+                scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
             }
             catch (Exception e)
             {
                 throw new ZenjectException(
-                    "Error while attempting to load parent contracts for scene '{0}'".Fmt(sceneInfo.Scene.name), e);
+                    "Error while attempting to load contracts for scene '{0}'".Fmt(sceneInfo.Scene.name), e);
             }
 
-            var sceneContext = ZenUnityEditorUtil.GetSceneContextForScene(parentScene);
+            return CreateLoadedSceneInfo(scene);
+        }
 
-            return new LoadedSceneInfo()
+        static void ValidateDecoratedSceneMatch(
+            LoadedSceneInfo decoratorInfo, LoadedSceneInfo decoratedInfo)
+        {
+            var decoratorIndex = GetSceneIndex(decoratorInfo.Scene);
+            var decoratedIndex = GetSceneIndex(decoratedInfo.Scene);
+            var activeIndex = GetSceneIndex(EditorSceneManager.GetActiveScene());
+
+            Assert.That(decoratorIndex < decoratedIndex,
+                "Decorator scene '{0}' must be loaded before decorated scene '{1}'.  Please drag the decorator scene to be placed above the other scene in the scene hierarchy.",
+                decoratorInfo.Scene.name, decoratedInfo.Scene.name);
+
+            if (activeIndex > decoratorIndex)
             {
-                Scene = parentScene,
-                SceneContext = sceneContext
-            };
+                EditorSceneManager.SetActiveScene(decoratorInfo.Scene);
+            }
         }
 
         static void ValidateParentChildMatch(
@@ -185,6 +238,45 @@ namespace Zenject.Internal
             return map;
         }
 
+        static LoadedSceneInfo CreateLoadedSceneInfo(Scene scene)
+        {
+            var info = TryCreateLoadedSceneInfo(scene);
+            Assert.IsNotNull(info, "Expected scene '{0}' to be a zenject scene", scene.name);
+            return info;
+        }
+
+        static LoadedSceneInfo TryCreateLoadedSceneInfo(Scene scene)
+        {
+            var sceneContext = ZenUnityEditorUtil.TryGetSceneContextForScene(scene);
+            var decoratorContext = ZenUnityEditorUtil.TryGetDecoratorContextForScene(scene);
+
+            if (sceneContext == null && decoratorContext == null)
+            {
+                return null;
+            }
+
+            var info = new LoadedSceneInfo()
+            {
+                Scene = scene
+            };
+
+            if (sceneContext != null)
+            {
+                Assert.IsNull(decoratorContext,
+                "Found both SceneContext and SceneDecoratorContext in scene '{0}'", scene.name);
+
+                info.SceneContext = sceneContext;
+            }
+            else
+            {
+                Assert.IsNotNull(decoratorContext);
+
+                info.DecoratorContext = decoratorContext;
+            }
+
+            return info;
+        }
+
         static List<LoadedSceneInfo> GetLoadedZenjectSceneInfos()
         {
             var result = new List<LoadedSceneInfo>();
@@ -192,22 +284,10 @@ namespace Zenject.Internal
             for (int i = 0; i < EditorSceneManager.sceneCount; i++)
             {
                 var scene = EditorSceneManager.GetSceneAt(i);
+                var info = TryCreateLoadedSceneInfo(scene);
 
-                if (!scene.isLoaded)
+                if (info != null)
                 {
-                    continue;
-                }
-
-                var sceneContext = ZenUnityEditorUtil.TryGetSceneContextForScene(scene);
-
-                if (sceneContext != null)
-                {
-                    var info = new LoadedSceneInfo()
-                    {
-                        SceneContext = sceneContext,
-                        Scene = scene
-                    };
-
                     result.Add(info);
                 }
             }
@@ -215,15 +295,14 @@ namespace Zenject.Internal
             return result;
         }
 
-        public class LoadedSceneInfo
-        {
-            public SceneContext SceneContext;
-            public Scene Scene;
-        }
-
         static void AddToContractMap(
             Dictionary<string, LoadedSceneInfo> contractMap, LoadedSceneInfo info)
         {
+            if (info.SceneContext == null)
+            {
+                return;
+            }
+
             foreach (var contractName in info.SceneContext.ContractNames)
             {
                 LoadedSceneInfo currentInfo;
@@ -237,6 +316,13 @@ namespace Zenject.Internal
 
                 contractMap.Add(contractName, info);
             }
+        }
+
+        public class LoadedSceneInfo
+        {
+            public SceneContext SceneContext;
+            public SceneDecoratorContext DecoratorContext;
+            public Scene Scene;
         }
     }
 }
