@@ -38,8 +38,8 @@ namespace Zenject.Tests.Bindings
         {
             var foo = new Foo();
 
-            Container.Bind<IFoo>().FromInstance(foo).AsCached().NonLazy();
-            Container.Bind<Foo>().FromInstance(foo).AsCached().NonLazy();
+            Container.Bind<IFoo>().FromInstance(foo).AsSingle().NonLazy();
+            Container.Bind<Foo>().FromInstance(foo).AsSingle().NonLazy();
 
             Assert.IsEqual(Container.Resolve<Foo>(), Container.Resolve<IFoo>());
             Assert.IsEqual(Container.Resolve<Foo>(), foo);

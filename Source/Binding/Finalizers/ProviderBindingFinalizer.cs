@@ -101,7 +101,18 @@ namespace Zenject
         {
             foreach (var contractType in BindInfo.ContractTypes)
             {
-                RegisterProvider(container, contractType, providerFunc(container, contractType));
+                var provider = providerFunc(container, contractType);
+
+                if (BindInfo.MarkAsUniqueSingleton)
+                {
+                    container.SingletonMarkRegistry.MarkSingleton(contractType);
+                }
+                else if (BindInfo.MarkAsCreationBinding)
+                {
+                    container.SingletonMarkRegistry.MarkNonSingleton(contractType);
+                }
+
+                RegisterProvider(container, contractType, provider);
             }
         }
 
@@ -110,6 +121,15 @@ namespace Zenject
         {
             foreach (var contractType in BindInfo.ContractTypes)
             {
+                if (BindInfo.MarkAsUniqueSingleton)
+                {
+                    container.SingletonMarkRegistry.MarkSingleton(contractType);
+                }
+                else if (BindInfo.MarkAsCreationBinding)
+                {
+                    container.SingletonMarkRegistry.MarkNonSingleton(contractType);
+                }
+
                 RegisterProvider(container, contractType, provider);
             }
         }
@@ -128,8 +148,7 @@ namespace Zenject
                 {
                     if (ValidateBindTypes(concreteType, contractType))
                     {
-                        RegisterProvider(
-                            container, contractType, providerFunc(contractType, concreteType));
+                        RegisterProvider(container, contractType, providerFunc(contractType, concreteType));
                     }
                 }
             }
@@ -187,15 +206,34 @@ namespace Zenject
             Assert.That(!BindInfo.ContractTypes.IsEmpty());
             Assert.That(!concreteTypes.IsEmpty());
 
-            var providerMap = concreteTypes.ToDictionary(x => x, x => providerFunc(container, x));
-
-            foreach (var contractType in BindInfo.ContractTypes)
+            using (var block = DisposeBlock.Spawn())
             {
+                var providerMap = DictionaryPool<Type, IProvider>.Instance.SpawnWrapper().AttachedTo(block).Value;
+
                 foreach (var concreteType in concreteTypes)
                 {
-                    if (ValidateBindTypes(concreteType, contractType))
+                    var provider = providerFunc(container, concreteType);
+
+                    providerMap[concreteType] = provider;
+
+                    if (BindInfo.MarkAsUniqueSingleton)
                     {
-                        RegisterProvider(container, contractType, providerMap[concreteType]);
+                        container.SingletonMarkRegistry.MarkSingleton(concreteType);
+                    }
+                    else if (BindInfo.MarkAsCreationBinding)
+                    {
+                        container.SingletonMarkRegistry.MarkNonSingleton(concreteType);
+                    }
+                }
+
+                foreach (var contractType in BindInfo.ContractTypes)
+                {
+                    foreach (var concreteType in concreteTypes)
+                    {
+                        if (ValidateBindTypes(concreteType, contractType))
+                        {
+                            RegisterProvider(container, contractType, providerMap[concreteType]);
+                        }
                     }
                 }
             }

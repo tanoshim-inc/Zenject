@@ -106,7 +106,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind(typeof(Foo), typeof(Bar)).FromComponentInNewPrefab(FooPrefab)
-                .WithGameObjectName("Foo").AsCached().NonLazy();
+                .WithGameObjectName("Foo").AsSingle().NonLazy();
 
             PostInstall();
 
@@ -122,7 +122,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             // They have required arguments
-            Container.Bind(typeof(Gorp), typeof(Qux)).FromComponentInNewPrefab(GorpAndQuxPrefab).AsCached().NonLazy();
+            Container.Bind(typeof(Gorp), typeof(Qux)).FromComponentInNewPrefab(GorpAndQuxPrefab).AsSingle().NonLazy();
 
             Assert.Throws(() => PostInstall());
             yield break;
@@ -133,7 +133,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind(typeof(Gorp), typeof(Qux))
-                .FromComponentInNewPrefab(GorpAndQuxPrefab).WithGameObjectName("Gorp").AsCached()
+                .FromComponentInNewPrefab(GorpAndQuxPrefab).WithGameObjectName("Gorp").AsSingle()
                 .WithArguments(5, "test1").NonLazy();
 
             Assert.Throws(() => PostInstall());
@@ -145,7 +145,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind<Gorp>().FromComponentInNewPrefab(GorpPrefab)
-                .WithGameObjectName("Gorp").AsCached()
+                .WithGameObjectName("Gorp").AsSingle()
                 .WithArguments("test1").NonLazy();
 
             PostInstall();
@@ -191,7 +191,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             // Jim and Bob both depend on each other
-            Container.Bind(typeof(Jim), typeof(Bob)).FromComponentInNewPrefab(JimAndBobPrefab).AsCached().NonLazy();
+            Container.Bind(typeof(Jim), typeof(Bob)).FromComponentInNewPrefab(JimAndBobPrefab).AsSingle().NonLazy();
             Container.BindInterfacesTo<JimAndBobRunner>().AsSingle().NonLazy();
 
             PostInstall();

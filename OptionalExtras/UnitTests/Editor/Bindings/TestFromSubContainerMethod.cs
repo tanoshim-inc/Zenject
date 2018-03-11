@@ -38,24 +38,15 @@ namespace Zenject.Tests.Bindings
         [Test]
         public void TestMethodSelfCached()
         {
-            Container.Bind<Foo>().FromSubContainerResolve().ByMethod(InstallFooFacade).AsCached().NonLazy();
+            Container.Bind<Foo>().FromSubContainerResolve().ByMethod(InstallFooFacade).AsSingle().NonLazy();
 
             Assert.IsNotNull(Container.Resolve<Foo>().Bar);
         }
 
         [Test]
-        public void TestMethodSelfSingleMultipleContracts()
-        {
-            Container.Bind<Foo>().FromSubContainerResolve().ByMethod(InstallFooFacade).AsSingle().NonLazy();
-            Container.Bind<Bar>().FromSubContainerResolve().ByMethod(InstallFooFacade).AsSingle().NonLazy();
-
-            Assert.IsEqual(Container.Resolve<Foo>().Bar, Container.Resolve<Bar>());
-        }
-
-        [Test]
         public void TestMethodSelfCachedMultipleContracts()
         {
-            Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByMethod(InstallFooFacade).AsCached().NonLazy();
+            Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByMethod(InstallFooFacade).AsSingle().NonLazy();
 
             Assert.IsEqual(Container.Resolve<Foo>().Bar, Container.Resolve<Bar>());
         }
@@ -80,24 +71,15 @@ namespace Zenject.Tests.Bindings
         public void TestMethodConcreteCached()
         {
             Container.Bind<IFoo>().To<Foo>()
-                .FromSubContainerResolve().ByMethod(InstallFooFacade).AsCached().NonLazy();
+                .FromSubContainerResolve().ByMethod(InstallFooFacade).AsSingle().NonLazy();
 
             Assert.IsNotNull(Container.Resolve<IFoo>().Bar);
         }
 
         [Test]
-        public void TestMethodConcreteSingleMultipleContracts()
-        {
-            Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve().ByMethod(InstallFooFacade).AsSingle().NonLazy();
-            Container.Bind<Bar>().FromSubContainerResolve().ByMethod(InstallFooFacade).AsSingle().NonLazy();
-
-            Assert.IsEqual(Container.Resolve<IFoo>().Bar, Container.Resolve<Bar>());
-        }
-
-        [Test]
         public void TestMethodConcreteCachedMultipleContracts()
         {
-            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromSubContainerResolve().ByMethod(InstallFooFacade).AsCached().NonLazy();
+            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromSubContainerResolve().ByMethod(InstallFooFacade).AsSingle().NonLazy();
 
             Assert.IsEqual(Container.Resolve<IFoo>(), Container.Resolve<Foo>());
         }

@@ -9,7 +9,10 @@ namespace Zenject
         readonly IProvider _creator;
 
         List<object> _instances;
+
+#if !ZEN_MULTITHREADING
         bool _isCreatingInstance;
+#endif
 
         public CachedProvider(IProvider creator)
         {
@@ -40,9 +43,9 @@ namespace Zenject
                     "Found circular dependency when creating type '{0}'. Object graph: {1}",
                     _creator.GetInstanceType(context), context.GetObjectGraphString());
             }
-#endif
 
             _isCreatingInstance = true;
+#endif
 
             var runner = _creator.GetAllInstancesWithInjectSplit(context, args);
 
@@ -51,7 +54,10 @@ namespace Zenject
 
             _instances = runner.Current;
             Assert.IsNotNull(_instances);
+
+#if !ZEN_MULTITHREADING
             _isCreatingInstance = false;
+#endif
 
             yield return _instances;
 

@@ -8,8 +8,8 @@ namespace Zenject
     public class FactoryFromBinder<TContract> : FactoryFromBinderBase
     {
         public FactoryFromBinder(
-            BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
-            : base(typeof(TContract), bindInfo, factoryBindInfo)
+            DiContainer container, BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
+            : base(container, typeof(TContract), bindInfo, factoryBindInfo)
         {
         }
 
@@ -35,27 +35,17 @@ namespace Zenject
             return this;
         }
 
-        public ArgConditionCopyNonLazyBinder FromFactory<TSubFactory>()
-            where TSubFactory : IFactory<TContract>
+        public ArgConditionCopyNonLazyBinder FromIFactory(
+            Action<ConcreteBinderGeneric<IFactory<TContract>>> factoryBindGenerator)
         {
+            Guid factoryId;
+            factoryBindGenerator(
+                CreateIFactoryBinder<IFactory<TContract>>(out factoryId));
+
             ProviderFunc =
-                (container) => new FactoryProvider<TContract, TSubFactory>(
-                    container, BindInfo.Arguments);
+                (container) => { return new IFactoryProvider<TContract>(container, factoryId); };
 
             return new ArgConditionCopyNonLazyBinder(BindInfo);
-        }
-
-        public ConditionCopyNonLazyBinder FromIFactoryResolve()
-        {
-            return FromIFactoryResolve(null);
-        }
-
-        public ConditionCopyNonLazyBinder FromIFactoryResolve(object subIdentifier)
-        {
-            ProviderFunc =
-                (container) => new IFactoryResolveProvider<TContract>(container, subIdentifier);
-
-            return new ConditionCopyNonLazyBinder(BindInfo);
         }
 
         public FactorySubContainerBinder<TContract> FromSubContainerResolve()
@@ -66,7 +56,7 @@ namespace Zenject
         public FactorySubContainerBinder<TContract> FromSubContainerResolve(object subIdentifier)
         {
             return new FactorySubContainerBinder<TContract>(
-                BindInfo, FactoryBindInfo, subIdentifier);
+                BindContainer, BindInfo, FactoryBindInfo, subIdentifier);
         }
 
 #if !NOT_UNITY3D

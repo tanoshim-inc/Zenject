@@ -45,7 +45,7 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestCached()
         {
             PreInstall();
-            Container.Bind<Texture>().FromResource(ResourcePath).AsCached();
+            Container.Bind<Texture>().FromResource(ResourcePath).AsSingle();
 
             Container.Bind<Runner>().FromNewComponentOnNewGameObject().AsSingle().WithArguments(1).NonLazy();
 

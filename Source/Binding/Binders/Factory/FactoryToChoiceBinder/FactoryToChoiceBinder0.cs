@@ -7,8 +7,8 @@ namespace Zenject
     public class FactoryToChoiceBinder<TContract> : FactoryFromBinder<TContract>
     {
         public FactoryToChoiceBinder(
-            BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
-            : base(bindInfo, factoryBindInfo)
+            DiContainer container, BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
+            : base(container, bindInfo, factoryBindInfo)
         {
         }
 
@@ -28,7 +28,7 @@ namespace Zenject
             };
 
             return new FactoryFromBinderUntyped(
-                concreteType, BindInfo, FactoryBindInfo);
+                BindContainer, concreteType, BindInfo, FactoryBindInfo);
         }
 
         public FactoryFromBinder<TConcrete> To<TConcrete>()
@@ -40,7 +40,7 @@ namespace Zenject
                 typeof(TConcrete)
             };
 
-            return new FactoryFromBinder<TConcrete>(BindInfo, FactoryBindInfo);
+            return new FactoryFromBinder<TConcrete>(BindContainer, BindInfo, FactoryBindInfo);
         }
     }
 }

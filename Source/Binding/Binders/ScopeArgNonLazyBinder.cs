@@ -1,3 +1,4 @@
+using System;
 using ModestTree;
 
 namespace Zenject
@@ -9,23 +10,17 @@ namespace Zenject
         {
         }
 
-        public ArgNonLazyBinder AsSingle()
+        public ArgNonLazyBinder AsCached()
         {
-            return AsSingle(null);
-        }
-
-        public ArgNonLazyBinder AsSingle(object concreteIdentifier)
-        {
-            Assert.IsNull(BindInfo.ConcreteIdentifier);
-
             BindInfo.Scope = ScopeTypes.Singleton;
-            BindInfo.ConcreteIdentifier = concreteIdentifier;
             return this;
         }
 
-        public ArgNonLazyBinder AsCached()
+        //[Obsolete("AsSingle has been deprecated in favour of AsCached and will be removed in future versions.  Note that you should fix any runtime/validation errors first before replacing AsSingle with AsCached.  See upgrade guide for details.")]
+        public ArgNonLazyBinder AsSingle()
         {
-            BindInfo.Scope = ScopeTypes.Cached;
+            BindInfo.Scope = ScopeTypes.Singleton;
+            BindInfo.MarkAsUniqueSingleton = true;
             return this;
         }
 
@@ -37,4 +32,3 @@ namespace Zenject
         }
     }
 }
-

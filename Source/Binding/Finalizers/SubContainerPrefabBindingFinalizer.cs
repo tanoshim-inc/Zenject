@@ -39,21 +39,10 @@ namespace Zenject
 
         void FinalizeBindingConcrete(DiContainer container, List<Type> concreteTypes)
         {
-            switch (GetScope())
+            var scope = GetScope();
+
+            switch (scope)
             {
-                case ScopeTypes.Singleton:
-                {
-                    RegisterProvidersForAllContractsPerConcreteType(
-                        container,
-                        concreteTypes,
-                        (_, concreteType) => container.SingletonProviderCreator.CreateProviderForSubContainerPrefab(
-                            concreteType,
-                            BindInfo.ConcreteIdentifier,
-                            _gameObjectBindInfo,
-                            _prefab,
-                            _subIdentifier));
-                    break;
-                }
                 case ScopeTypes.Transient:
                 {
                     RegisterProvidersForAllContractsPerConcreteType(
@@ -65,7 +54,7 @@ namespace Zenject
                                 container, new PrefabProvider(_prefab), _gameObjectBindInfo)));
                     break;
                 }
-                case ScopeTypes.Cached:
+                case ScopeTypes.Singleton:
                 {
                     var containerCreator = new SubContainerCreatorCached(
                         new SubContainerCreatorByNewPrefab(
@@ -88,20 +77,10 @@ namespace Zenject
 
         void FinalizeBindingSelf(DiContainer container)
         {
-            switch (GetScope())
+            var scope = GetScope();
+
+            switch (scope)
             {
-                case ScopeTypes.Singleton:
-                {
-                    RegisterProviderPerContract(
-                        container,
-                        (_, contractType) => container.SingletonProviderCreator.CreateProviderForSubContainerPrefab(
-                            contractType,
-                            BindInfo.ConcreteIdentifier,
-                            _gameObjectBindInfo,
-                            _prefab,
-                            _subIdentifier));
-                    break;
-                }
                 case ScopeTypes.Transient:
                 {
                     RegisterProviderPerContract(
@@ -112,7 +91,7 @@ namespace Zenject
                                 container, new PrefabProvider(_prefab), _gameObjectBindInfo)));
                     break;
                 }
-                case ScopeTypes.Cached:
+                case ScopeTypes.Singleton:
                 {
                     var containerCreator = new SubContainerCreatorCached(
                         new SubContainerCreatorByNewPrefab(

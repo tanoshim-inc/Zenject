@@ -17,7 +17,6 @@ namespace Zenject
         Type _objectType;
         InjectContext _parentContext;
         object _objectInstance;
-        object _concreteIdentifier;
         string _memberName;
         bool _optional;
         InjectSources _sourceType;
@@ -58,7 +57,6 @@ namespace Zenject
             _objectType = null;
             _parentContext = null;
             _objectInstance = null;
-            _concreteIdentifier = null;
             _memberName = "";
             _bindingId.Identifier = null;
             _bindingId.Type = null;
@@ -123,21 +121,6 @@ namespace Zenject
         {
             get { return _bindingId.Identifier; }
             set { _bindingId.Identifier = value; }
-        }
-
-        // ConcreteIdentifier - most of the time this is null
-        // It will match 'foo' in this example:
-        //      ... In an installer somewhere:
-        //          Container.Bind<Foo>().ToSingle("foo");
-        //          Container.Bind<ITickable>().ToSingle<Foo>("foo");
-        //      ...
-        // This allows you to create When() conditionals like this:
-        //      ...
-        //          Container.BindInstance("some text").When(c => c.ConcreteIdentifier == "foo");
-        public object ConcreteIdentifier
-        {
-            get { return _concreteIdentifier; }
-            set { _concreteIdentifier = value; }
         }
 
         // The constructor parameter name, or field name, or property name
@@ -245,7 +228,6 @@ namespace Zenject
             subContext.MemberType = memberType;
 
             // Clear these
-            subContext.ConcreteIdentifier = null;
             subContext.MemberName = "";
             subContext.FallBackValue = null;
 
@@ -267,7 +249,6 @@ namespace Zenject
             clone.ParentContext = this.ParentContext;
             clone.ObjectInstance = this.ObjectInstance;
             clone.Identifier = this.Identifier;
-            clone.ConcreteIdentifier = this.ConcreteIdentifier;
             clone.MemberType = this.MemberType;
             clone.MemberName = this.MemberName;
             clone.Optional = this.Optional;

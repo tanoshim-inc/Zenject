@@ -80,69 +80,14 @@ namespace Zenject.Tests.Bindings
         {
             var foo = new Foo();
 
-            Container.Bind<Foo>().FromMethodMultiple((ctx) => new[] { foo }).AsCached().NonLazy();
+            Container.Bind<Foo>().FromMethodMultiple((ctx) => new[] { foo }).AsSingle().NonLazy();
 
             Assert.IsEqual(Container.Resolve<Foo>(), foo);
-        }
-
-        [Test]
-        public void TestSingleConflict()
-        {
-            Container.Bind<Foo>().FromMethodMultiple((ctx) => new[] { new Foo() }).AsSingle().NonLazy();
-            Container.Bind<Foo>().AsSingle().NonLazy();
-
-            Assert.Throws(() => Container.FlushBindings());
-        }
-
-        [Test]
-        public void TestSingle2()
-        {
-            var foo = new Foo();
-            Func<InjectContext, IEnumerable<Foo>> method = (ctx) => new[] { foo };
-
-            Container.Bind<Foo>().FromMethodMultiple(method).AsSingle().NonLazy();
-            Container.Bind<IFoo>().To<Foo>().FromMethodMultiple(method).AsSingle().NonLazy();
-
-            Assert.IsEqual(Container.Resolve<Foo>(), Container.Resolve<Foo>());
-            Assert.IsEqual(Container.Resolve<Foo>(), Container.Resolve<IFoo>());
-            Assert.IsEqual(Container.Resolve<Foo>(), foo);
-        }
-
-        [Test]
-        public void TestSingle3()
-        {
-            Container.Bind<Foo>().FromMethodMultiple(CreateFoos).AsSingle().NonLazy();
-            Container.Bind<IFoo>().To<Foo>().FromMethodMultiple(CreateFoos).AsSingle().NonLazy();
-
-            Assert.IsEqual(Container.Resolve<Foo>(), Container.Resolve<Foo>());
-            Assert.IsEqual(Container.Resolve<Foo>(), Container.Resolve<IFoo>());
         }
 
         IEnumerable<Foo> CreateFoos(InjectContext ctx)
         {
             yield return new Foo();
-        }
-
-        [Test]
-        public void TestSingle4()
-        {
-            int numCalls = 0;
-
-            Func<InjectContext, IEnumerable<Foo>> method = (ctx) =>
-                {
-                    numCalls++;
-                    return new[] { new Foo() };
-                };
-
-            Container.Bind<Foo>().FromMethodMultiple(method).AsSingle().NonLazy();
-            Container.Bind<IFoo>().To<Foo>().FromMethodMultiple(method).AsSingle().NonLazy();
-
-            Container.Resolve<Foo>();
-            Container.Resolve<Foo>();
-            Container.Resolve<Foo>();
-            Container.Resolve<IFoo>();
-
-            Assert.IsEqual(numCalls, 1);
         }
 
         [Test]
@@ -170,7 +115,7 @@ namespace Zenject.Tests.Bindings
         [Test]
         public void TestCached2()
         {
-            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromMethodMultiple((ctx) => new[] { new Foo() }).AsCached().NonLazy();
+            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromMethodMultiple((ctx) => new[] { new Foo() }).AsSingle().NonLazy();
 
             Assert.IsEqual(Container.Resolve<Foo>(), Container.Resolve<Foo>());
             Assert.IsEqual(Container.Resolve<Foo>(), Container.Resolve<IFoo>());

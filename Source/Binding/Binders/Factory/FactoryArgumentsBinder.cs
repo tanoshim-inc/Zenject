@@ -8,10 +8,16 @@ namespace Zenject
     public class FactoryArgumentsBinder : ArgConditionCopyNonLazyBinder
     {
         public FactoryArgumentsBinder(
-            BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
+            DiContainer container, BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
             : base(bindInfo)
         {
             FactoryBindInfo = factoryBindInfo;
+            BindContainer = container;
+        }
+
+        protected DiContainer BindContainer
+        {
+            get; private set;
         }
 
         protected FactoryBindInfo FactoryBindInfo

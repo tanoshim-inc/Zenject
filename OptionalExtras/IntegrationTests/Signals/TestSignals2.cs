@@ -90,11 +90,11 @@ namespace ZenjectSignalsAndSignals.Tests
             Bar.TriggeredCount = 0;
             Bar.InstanceCount = 0;
 
-            Container.Bind<Bar>().AsCached();
+            Container.Bind<Bar>().AsSingle();
 
             Container.DeclareSignal<DoSomethingSignal>();
             Container.BindSignal<DoSomethingSignal>()
-                .To<Bar>(x => x.Execute).AsCached();
+                .To<Bar>(x => x.Execute).AsSingle();
 
             PostInstall();
 
@@ -151,7 +151,7 @@ namespace ZenjectSignalsAndSignals.Tests
             CommonInstall();
             Container.DeclareSignal<DoSomethingSignal>().RequireHandler();
             Container.BindSignal<DoSomethingSignal>()
-                .To<Bar>(x => x.Execute).AsCached();
+                .To<Bar>(x => x.Execute).AsSingle();
 
             PostInstall();
 
@@ -293,7 +293,7 @@ namespace ZenjectSignalsAndSignals.Tests
 
             Container.DeclareSignal<DoSomethingSignal>();
             Container.BindSignal<DoSomethingSignal>()
-                .To<Bar>(x => x.Execute).AsCached();
+                .To<Bar>(x => x.Execute).AsSingle();
 
             PostInstall();
 

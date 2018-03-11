@@ -19,25 +19,6 @@ namespace Zenject.Tests.BindFeatures
         }
 
         [Test]
-        public void TestSingleSameArgument()
-        {
-            Container.Bind<IFoo>().To<Foo>().AsSingle().WithArguments(3).NonLazy();
-            Container.Bind<Foo>().AsSingle().WithArguments(3).NonLazy();
-
-            Assert.IsNotNull(Container.Resolve<IFoo>());
-            Assert.IsEqual(Container.Resolve<IFoo>(), Container.Resolve<Foo>());
-        }
-
-        [Test]
-        public void TestSingleDifferentArguments()
-        {
-            Container.Bind<IFoo>().To<Foo>().AsSingle().WithArguments(3);
-            Container.Bind<Foo>().AsSingle().WithArguments(2);
-
-            Assert.Throws(() => Container.FlushBindings());
-        }
-
-        [Test]
         public void TestNullValues()
         {
             Container.Bind<Foo>().AsSingle().WithArguments(3, (string)null);

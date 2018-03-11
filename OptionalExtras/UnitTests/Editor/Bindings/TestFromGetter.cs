@@ -32,36 +32,12 @@ namespace Zenject.Tests.Bindings
         public void TestCached()
         {
             Container.Bind<Foo>().AsSingle().NonLazy();
-            Container.Bind<Bar>().FromResolveGetter<Foo>(x => x.Bar).AsCached().NonLazy();
+            Container.Bind<Bar>().FromResolveGetter<Foo>(x => x.Bar).AsSingle().NonLazy();
 
             Foo.NumCalls = 0;
 
             Container.Resolve<Bar>();
             Container.Resolve<Bar>();
-            Container.Resolve<Bar>();
-
-            Assert.IsEqual(Foo.NumCalls, 1);
-        }
-
-        [Test]
-        public void TestSingle()
-        {
-            Container.Bind<Foo>().AsSingle().NonLazy();
-
-            Container.Bind<Bar>().FromResolveGetter<Foo>(BarGetter).AsSingle().NonLazy();
-
-            // Not sure why I need to specify the "<Bar,"
-            Container.Bind<IBar>().To<Bar>().FromResolveGetter<Foo>(BarGetter).AsSingle().NonLazy();
-
-            Foo.NumCalls = 0;
-
-            Assert.IsEqual(Container.Resolve<Bar>(), Foo.StaticBar);
-            Assert.IsEqual(Container.Resolve<IBar>(), Foo.StaticBar);
-
-            Container.Resolve<Bar>();
-            Container.Resolve<Bar>();
-            Container.Resolve<IBar>();
-            Container.Resolve<IBar>();
             Container.Resolve<Bar>();
 
             Assert.IsEqual(Foo.NumCalls, 1);

@@ -83,7 +83,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind<Bob>()
-                .FromNewScriptableObjectResource(PathPrefix + "Bob").AsCached().NonLazy();
+                .FromNewScriptableObjectResource(PathPrefix + "Bob").AsSingle().NonLazy();
 
             Assert.Throws(() => PostInstall());
             yield break;
@@ -94,7 +94,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind<Bob>()
-                .FromNewScriptableObjectResource(PathPrefix + "Bob").AsCached()
+                .FromNewScriptableObjectResource(PathPrefix + "Bob").AsSingle()
                 .WithArguments("test1").NonLazy();
 
             PostInstall();

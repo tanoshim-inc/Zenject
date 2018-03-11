@@ -89,7 +89,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind(typeof(Foo), typeof(Bar)).FromComponentInNewPrefabResource(PathPrefix + "Foo")
-                .WithGameObjectName("Foo").AsCached().NonLazy();
+                .WithGameObjectName("Foo").AsSingle().NonLazy();
 
             PostInstall();
 
@@ -105,7 +105,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             // They have required arguments
-            Container.Bind(typeof(Gorp), typeof(Qux)).FromComponentInNewPrefabResource(PathPrefix + "GorpAndQux").AsCached().NonLazy();
+            Container.Bind(typeof(Gorp), typeof(Qux)).FromComponentInNewPrefabResource(PathPrefix + "GorpAndQux").AsSingle().NonLazy();
 
             Assert.Throws(() => PostInstall());
             yield break;
@@ -116,7 +116,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind(typeof(Gorp))
-                .FromComponentInNewPrefabResource(PathPrefix + "Gorp").WithGameObjectName("Gorp").AsCached()
+                .FromComponentInNewPrefabResource(PathPrefix + "Gorp").WithGameObjectName("Gorp").AsSingle()
                 .WithArguments("test1").NonLazy();
 
             PostInstall();
@@ -162,7 +162,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             // Jim and Bob both depend on each other
-            Container.Bind(typeof(Jim), typeof(Bob)).FromComponentInNewPrefabResource(PathPrefix + "JimAndBob").AsCached().NonLazy();
+            Container.Bind(typeof(Jim), typeof(Bob)).FromComponentInNewPrefabResource(PathPrefix + "JimAndBob").AsSingle().NonLazy();
 
             Container.BindInterfacesTo<JimAndBobRunner>().AsSingle().NonLazy();
 

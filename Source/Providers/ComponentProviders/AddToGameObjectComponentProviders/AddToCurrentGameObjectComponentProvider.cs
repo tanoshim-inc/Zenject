@@ -11,18 +11,16 @@ namespace Zenject
 {
     public class AddToCurrentGameObjectComponentProvider : IProvider
     {
-        readonly object _concreteIdentifier;
         readonly Type _componentType;
         readonly DiContainer _container;
         readonly List<TypeValuePair> _extraArguments;
 
         public AddToCurrentGameObjectComponentProvider(
             DiContainer container, Type componentType,
-            object concreteIdentifier, List<TypeValuePair> extraArguments)
+            List<TypeValuePair> extraArguments)
         {
             Assert.That(componentType.DerivesFrom<Component>());
 
-            _concreteIdentifier = concreteIdentifier;
             _extraArguments = extraArguments;
             _componentType = componentType;
             _container = container;
@@ -36,11 +34,6 @@ namespace Zenject
         protected Type ComponentType
         {
             get { return _componentType; }
-        }
-
-        protected object ConcreteIdentifier
-        {
-            get { return _concreteIdentifier; }
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -85,7 +78,6 @@ namespace Zenject
             {
                 ExtraArgs = _extraArguments.Concat(args).ToList(),
                 Context = context,
-                ConcreteIdentifier = _concreteIdentifier,
             };
 
             _container.InjectExplicit(instance, _componentType, injectArgs);

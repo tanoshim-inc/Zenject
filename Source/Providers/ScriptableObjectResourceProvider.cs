@@ -14,18 +14,16 @@ namespace Zenject
         readonly Type _resourceType;
         readonly string _resourcePath;
         readonly List<TypeValuePair> _extraArguments;
-        readonly object _concreteIdentifier;
         readonly bool _createNew;
 
         public ScriptableObjectResourceProvider(
             string resourcePath, Type resourceType,
-            DiContainer container, object concreteIdentifier, List<TypeValuePair> extraArguments,
+            DiContainer container, List<TypeValuePair> extraArguments,
             bool createNew)
         {
             _container = container;
             Assert.DerivesFromOrEqual<ScriptableObject>(resourceType);
 
-            _concreteIdentifier = concreteIdentifier;
             _extraArguments = extraArguments;
             _resourceType = resourceType;
             _resourcePath = resourcePath;
@@ -64,7 +62,6 @@ namespace Zenject
             {
                 ExtraArgs = _extraArguments.Concat(args).ToList(),
                 Context = context,
-                ConcreteIdentifier = _concreteIdentifier,
             };
 
             foreach (var obj in objects)

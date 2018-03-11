@@ -39,7 +39,6 @@ namespace Zenject.Tests.Bindings
         public void TestCached()
         {
             Container.Bind<Foo>().AsTransient().NonLazy();
-
             Container.Bind<IFoo>().To<Foo>().FromResolve().AsCached().NonLazy();
 
             Assert.IsNotEqual(Container.Resolve<Foo>(), Container.Resolve<Foo>());
@@ -134,21 +133,6 @@ namespace Zenject.Tests.Bindings
             Assert.IsEqual(Container.ResolveAll<IFoo>().Count, 2);
             Assert.IsEqual(Container.ResolveAll<IBar>().Count, 2);
             Assert.That(!Enumerable.SequenceEqual(Container.ResolveAll<IFoo>().Cast<object>(), Container.ResolveAll<IBar>().Cast<object>()));
-        }
-
-        [Test]
-        public void TestResolveManySingle()
-        {
-            Container.Bind<Foo>().AsTransient().NonLazy();
-            Container.Bind<Foo>().AsTransient().NonLazy();
-
-            // This is a bit weird since it's a singleton but matching multiple... but valid
-            Container.Bind<IFoo>().To<Foo>().FromResolve().AsSingle().NonLazy();
-            Container.Bind<IBar>().To<Foo>().FromResolve().AsSingle().NonLazy();
-
-            Assert.IsEqual(Container.ResolveAll<IFoo>().Count, 2);
-            Assert.IsEqual(Container.ResolveAll<IBar>().Count, 2);
-            Assert.That(Enumerable.SequenceEqual(Container.ResolveAll<IFoo>().Cast<object>(), Container.ResolveAll<IBar>().Cast<object>()));
         }
 
         interface IBar

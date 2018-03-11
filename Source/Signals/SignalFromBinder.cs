@@ -24,13 +24,6 @@ namespace Zenject
 
         //////////////// FromBinderGeneric ////////////////
 
-        public ScopeArgNonLazyBinder FromFactory<TFactory>()
-            where TFactory : IFactory<TContract>
-        {
-            _subBinder.FromFactory<TFactory>();
-            return this;
-        }
-
         public ScopeArgNonLazyBinder FromMethod(Func<InjectContext, TContract> method)
         {
             _subBinder.FromMethod(method);
@@ -101,12 +94,6 @@ namespace Zenject
         // TODO
         //public SubContainerBinder FromSubContainerResolve()
         //public SubContainerBinder FromSubContainerResolve(object subIdentifier)
-
-        public ScopeArgNonLazyBinder FromFactory(Type factoryType)
-        {
-            _subBinder.FromFactory(factoryType);
-            return this;
-        }
 
 #if !NOT_UNITY3D
 

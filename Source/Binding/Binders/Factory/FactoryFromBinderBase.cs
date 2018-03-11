@@ -11,12 +11,12 @@ namespace Zenject
     public class FactoryFromBinderBase : FactoryArgumentsBinder
     {
         public FactoryFromBinderBase(
-            Type contractType, BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
-            : base(bindInfo, factoryBindInfo)
+            DiContainer bindContainer, Type contractType, BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
+            : base(bindContainer, bindInfo, factoryBindInfo)
         {
             ContractType = contractType;
             factoryBindInfo.ProviderFunc =
-                (container) => new TransientProvider(ContractType, container, BindInfo.Arguments, null, BindInfo.ContextInfo);
+                (container) => new TransientProvider(ContractType, container, BindInfo.Arguments, BindInfo.ContextInfo);
         }
 
         protected Func<DiContainer, IProvider> ProviderFunc
@@ -77,6 +77,18 @@ namespace Zenject
             return this;
         }
 
+        protected ConcreteBinderGeneric<T> CreateIFactoryBinder<T>(out Guid factoryId)
+        {
+            // Use a random ID so that our provider is the only one that can find it and so it doesn't
+            // conflict with anything else
+            factoryId = Guid.NewGuid();
+            return new ConcreteIdBinderGeneric<T>(
+                BindContainer,
+                // Very important here that we call StartBinding with false otherwise our placeholder
+                // factory binding will be finalized early
+                new BindInfo(typeof(T)), BindContainer.StartBinding(false)).WithId(factoryId);
+        }
+
 #if !NOT_UNITY3D
 
         public ConditionCopyNonLazyBinder FromNewComponentOn(GameObject gameObject)
@@ -88,7 +100,7 @@ namespace Zenject
             ProviderFunc =
                 (container) => new AddToExistingGameObjectComponentProvider(
                     gameObject, container, ContractType,
-                    null, new List<TypeValuePair>());
+                    new List<TypeValuePair>());
 
             return this;
         }
@@ -102,7 +114,7 @@ namespace Zenject
             ProviderFunc =
                 (container) => new AddToExistingGameObjectComponentProviderGetter(
                     gameObjectGetter, container, ContractType,
-                    null, new List<TypeValuePair>());
+                    new List<TypeValuePair>());
 
             return this;
         }
@@ -116,7 +128,7 @@ namespace Zenject
 
             ProviderFunc =
                 (container) => new AddToNewGameObjectComponentProvider(
-                    container, ContractType, null,
+                    container, ContractType,
                     new List<TypeValuePair>(), gameObjectInfo);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
@@ -199,7 +211,7 @@ namespace Zenject
 
             ProviderFunc =
                 (container) => new ScriptableObjectResourceProvider(
-                    resourcePath, ContractType, container, null, new List<TypeValuePair>(), true);
+                    resourcePath, ContractType, container, new List<TypeValuePair>(), true);
 
             return this;
         }
@@ -211,7 +223,7 @@ namespace Zenject
 
             ProviderFunc =
                 (container) => new ScriptableObjectResourceProvider(
-                    resourcePath, ContractType, container, null, new List<TypeValuePair>(), false);
+                    resourcePath, ContractType, container, new List<TypeValuePair>(), false);
 
             return this;
         }

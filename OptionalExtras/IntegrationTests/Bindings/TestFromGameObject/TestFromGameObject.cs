@@ -60,8 +60,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestCached1()
         {
             PreInstall();
-            Container.Bind<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsCached().NonLazy();
-            Container.Bind<IFoo>().To<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsCached().NonLazy();
+            Container.Bind<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsSingle().NonLazy();
+            Container.Bind<IFoo>().To<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -75,7 +75,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>()
-                .FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsCached().NonLazy();
+                .FromNewComponentOnNewGameObject().WithGameObjectName(GameObjName).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -119,7 +119,7 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type>() {typeof(Foo), typeof(Bar)}).FromNewComponentOnNewGameObject()
-                .WithGameObjectName(GameObjName).AsCached().NonLazy();
+                .WithGameObjectName(GameObjName).AsSingle().NonLazy();
 
             PostInstall();
 

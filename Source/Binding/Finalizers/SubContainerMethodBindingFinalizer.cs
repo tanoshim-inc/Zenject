@@ -32,21 +32,10 @@ namespace Zenject
 
         void FinalizeBindingConcrete(DiContainer container, List<Type> concreteTypes)
         {
-            switch (GetScope())
+            var scope = GetScope();
+
+            switch (scope)
             {
-                case ScopeTypes.Singleton:
-                {
-                    RegisterProvidersForAllContractsPerConcreteType(
-                        container,
-                        concreteTypes,
-                        (_, concreteType) =>
-                            container.SingletonProviderCreator.CreateProviderForSubContainerMethod(
-                                concreteType,
-                                BindInfo.ConcreteIdentifier,
-                                _installMethod,
-                                _subIdentifier));
-                    break;
-                }
                 case ScopeTypes.Transient:
                 {
                     // Note: each contract/concrete pair gets its own container here
@@ -58,7 +47,7 @@ namespace Zenject
                             new SubContainerCreatorByMethod(container, _installMethod)));
                     break;
                 }
-                case ScopeTypes.Cached:
+                case ScopeTypes.Singleton:
                 {
                     var creator = new SubContainerCreatorCached(
                         new SubContainerCreatorByMethod(container, _installMethod));
@@ -80,19 +69,10 @@ namespace Zenject
 
         void FinalizeBindingSelf(DiContainer container)
         {
-            switch (GetScope())
+            var scope = GetScope();
+
+            switch (scope)
             {
-                case ScopeTypes.Singleton:
-                {
-                    RegisterProviderPerContract(
-                        container,
-                        (_, contractType) => container.SingletonProviderCreator.CreateProviderForSubContainerMethod(
-                            contractType,
-                            BindInfo.ConcreteIdentifier,
-                            _installMethod,
-                            _subIdentifier));
-                    break;
-                }
                 case ScopeTypes.Transient:
                 {
                     RegisterProviderPerContract(
@@ -103,7 +83,7 @@ namespace Zenject
                                 container, _installMethod)));
                     break;
                 }
-                case ScopeTypes.Cached:
+                case ScopeTypes.Singleton:
                 {
                     var containerCreator = new SubContainerCreatorCached(
                         new SubContainerCreatorByMethod(container, _installMethod));

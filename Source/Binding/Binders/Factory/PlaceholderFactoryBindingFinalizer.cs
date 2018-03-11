@@ -33,7 +33,6 @@ namespace Zenject
                             InjectUtil.CreateArgListExplicit(
                                 provider,
                                 new InjectContext(container, typeof(TContract)))).ToList(),
-                        null,
                         BindInfo.ContextInfo)));
         }
     }

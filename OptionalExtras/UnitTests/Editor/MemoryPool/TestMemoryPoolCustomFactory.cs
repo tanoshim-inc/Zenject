@@ -12,7 +12,7 @@ namespace Zenject.Tests.Bindings
         [Test]
         public void TestFromBinding()
         {
-            Container.BindMemoryPool<Qux, Qux.Pool>().FromFactory<CustomFactory>();
+            Container.BindMemoryPool<Qux, Qux.Pool>().FromIFactory(b => b.To<CustomFactory>().AsCached());
 
             var pool = Container.Resolve<Qux.Pool>();
 

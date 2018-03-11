@@ -6,8 +6,8 @@ namespace Zenject
     public class FactoryFromBinder<TParam1, TContract> : FactoryFromBinderBase
     {
         public FactoryFromBinder(
-            BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
-            : base(typeof(TContract), bindInfo, factoryBindInfo)
+            DiContainer container, BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
+            : base(container, typeof(TContract), bindInfo, factoryBindInfo)
         {
         }
 
@@ -19,26 +19,17 @@ namespace Zenject
             return this;
         }
 
-        public ConditionCopyNonLazyBinder FromFactory<TSubFactory>()
-            where TSubFactory : IFactory<TParam1, TContract>
+        public ArgConditionCopyNonLazyBinder FromIFactory(
+            Action<ConcreteBinderGeneric<IFactory<TParam1, TContract>>> factoryBindGenerator)
         {
+            Guid factoryId;
+            factoryBindGenerator(
+                CreateIFactoryBinder<IFactory<TParam1, TContract>>(out factoryId));
+
             ProviderFunc =
-                (container) => new FactoryProvider<TParam1, TContract, TSubFactory>(container, new List<TypeValuePair>());
+                (container) => { return new IFactoryProvider<TParam1, TContract>(container, factoryId); };
 
-            return this;
-        }
-
-        public ConditionCopyNonLazyBinder FromIFactoryResolve()
-        {
-            return FromIFactoryResolve(null);
-        }
-
-        public ConditionCopyNonLazyBinder FromIFactoryResolve(object subIdentifier)
-        {
-            ProviderFunc =
-                (container) => new IFactoryResolveProvider<TParam1, TContract>(container, subIdentifier);
-
-            return new ConditionCopyNonLazyBinder(BindInfo);
+            return new ArgConditionCopyNonLazyBinder(BindInfo);
         }
 
         public FactorySubContainerBinder<TParam1, TContract> FromSubContainerResolve()
@@ -49,7 +40,7 @@ namespace Zenject
         public FactorySubContainerBinder<TParam1, TContract> FromSubContainerResolve(object subIdentifier)
         {
             return new FactorySubContainerBinder<TParam1, TContract>(
-                BindInfo, FactoryBindInfo, subIdentifier);
+                BindContainer, BindInfo, FactoryBindInfo, subIdentifier);
         }
     }
 }

@@ -7,8 +7,8 @@ namespace Zenject
         : FactorySubContainerBinderBase<TContract>
     {
         public FactorySubContainerBinder(
-            BindInfo bindInfo, FactoryBindInfo factoryBindInfo, object subIdentifier)
-            : base(bindInfo, factoryBindInfo, subIdentifier)
+            DiContainer bindContainer, BindInfo bindInfo, FactoryBindInfo factoryBindInfo, object subIdentifier)
+            : base(bindContainer, bindInfo, factoryBindInfo, subIdentifier)
         {
         }
 

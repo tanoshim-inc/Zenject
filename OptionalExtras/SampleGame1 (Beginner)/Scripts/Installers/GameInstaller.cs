@@ -42,17 +42,18 @@ namespace Zenject.Asteroids
             // Binding to any of these interfaces is also necessary to have the method defined in that interface be
             // called on the implementing class as follows:
             // Binding to ITickable or IFixedTickable will result in Tick() or FixedTick() being called like Update() or FixedUpdate().
-            // Binding to IInitializable means that Initialize() will be called on startup.
+            // Binding to IInitializable means that Initialize() will be called on startup during Unity's Start event.
             // Binding to IDisposable means that Dispose() will be called when the app closes, the scene changes,
-            // or the composition root object is destroyed.
+            // or the scene context is destroyed.
 
             // Any time you use To<Foo>().AsSingle, what that means is that the DiContainer will only ever instantiate
             // one instance of the type given inside the To<> (in this example, Foo). So in this case, any classes that take ITickable,
             // IFixedTickable, or AsteroidManager as inputs will receive the same instance of AsteroidManager.
             // We create multiple bindings for ITickable, so any dependencies that reference this type must be lists of ITickable.
-            Container.Bind<ITickable>().To<AsteroidManager>().AsSingle();
-            Container.Bind<IFixedTickable>().To<AsteroidManager>().AsSingle();
-            Container.Bind<AsteroidManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<AsteroidManager>().AsSingle();
+
+            // Note that the above binding is equivalent to the following:
+            //Container.Bind(typeof(ITickable), typeof(IFixedTickable), typeof(AsteroidManager)).To<AsteroidManager>.AsSingle();
 
             // The above three lines are also identical to just doing this instead:
             // Container.BindInterfacesAndSelfTo<AsteroidManager>();
@@ -117,3 +118,4 @@ namespace Zenject.Asteroids
         }
     }
 }
+

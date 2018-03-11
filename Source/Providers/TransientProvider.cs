@@ -9,12 +9,11 @@ namespace Zenject
     {
         readonly DiContainer _container;
         readonly Type _concreteType;
-        readonly object _concreteIdentifier;
         readonly List<TypeValuePair> _extraArguments;
 
         public TransientProvider(
             Type concreteType, DiContainer container,
-            List<TypeValuePair> extraArguments, object concreteIdentifier, string bindingContext)
+            List<TypeValuePair> extraArguments, string bindingContext)
         {
             Assert.That(!concreteType.IsAbstract(),
                 "Expected non-abstract type for given binding but instead found type '{0}'{1}",
@@ -22,14 +21,13 @@ namespace Zenject
 
             _container = container;
             _concreteType = concreteType;
-            _concreteIdentifier = concreteIdentifier;
             _extraArguments = extraArguments;
         }
 
         public TransientProvider(
             Type concreteType, DiContainer container,
             List<TypeValuePair> extraArguments)
-            : this(concreteType, container, extraArguments, null, null)
+            : this(concreteType, container, extraArguments, null)
         {
         }
 
@@ -56,7 +54,6 @@ namespace Zenject
             {
                 ExtraArgs = _extraArguments.Concat(args).ToList(),
                 Context = context,
-                ConcreteIdentifier = _concreteIdentifier,
             };
 
             var instance = _container.InstantiateExplicit(

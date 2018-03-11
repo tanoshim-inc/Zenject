@@ -8,7 +8,6 @@ namespace Zenject
         Unset,
         Transient,
         Singleton,
-        Cached,
     }
 
     public enum ToChoices
@@ -44,9 +43,14 @@ namespace Zenject
             ToChoice = ToChoices.Self;
             BindingInheritanceMethod = BindingInheritanceMethods.None;
             OnlyBindIfNotBound = false;
+            SaveProvider = false;
+            ProviderIdentifier = null;
 
             // Change this to true if you want all dependencies to be created at the start
             NonLazy = false;
+
+            MarkAsUniqueSingleton = false;
+            MarkAsCreationBinding = true;
 
             Scope = ScopeTypes.Unset;
             InvalidBindResponse = InvalidBindResponses.Assert;
@@ -65,6 +69,30 @@ namespace Zenject
         public BindInfo()
             : this(new List<Type>())
         {
+        }
+
+        public bool MarkAsCreationBinding
+        {
+            get;
+            set;
+        }
+
+        public bool MarkAsUniqueSingleton
+        {
+            get;
+            set;
+        }
+
+        public object ProviderIdentifier
+        {
+            get;
+            set;
+        }
+
+        public bool SaveProvider
+        {
+            get;
+            set;
         }
 
         public bool OnlyBindIfNotBound
@@ -135,13 +163,6 @@ namespace Zenject
         }
 
         public ScopeTypes Scope
-        {
-            get;
-            set;
-        }
-
-        // Note: This only makes sense for ScopeTypes.Singleton
-        public object ConcreteIdentifier
         {
             get;
             set;

@@ -18,24 +18,22 @@ namespace Zenject
     {
         public List<TypeValuePair> ExtraArgs;
         public InjectContext Context;
-        public object ConcreteIdentifier;
     }
 
     // Responsibilities:
     // - Expose methods to configure object graph via BindX() methods
     // - Look up bound values via Resolve() method
     // - Instantiate new values via InstantiateX() methods
-    public class DiContainer : IInstantiator
+    public class DiContainer
     {
         readonly Dictionary<BindingId, List<ProviderInfo>> _providers = new Dictionary<BindingId, List<ProviderInfo>>();
         readonly List<DiContainer> _parentContainers = new List<DiContainer>();
         readonly List<DiContainer> _ancestorContainers = new List<DiContainer>();
         readonly Stack<LookupId> _resolvesInProgress = new Stack<LookupId>();
 
-        readonly SingletonProviderCreator _singletonProviderCreator;
-        readonly SingletonMarkRegistry _singletonMarkRegistry;
         readonly LazyInstanceInjector _lazyInjector;
 
+        readonly SingletonMarkRegistry _singletonMarkRegistry = new SingletonMarkRegistry();
         readonly Queue<IBindingFinalizer> _currentBindings = new Queue<IBindingFinalizer>();
         readonly List<IBindingFinalizer> _childBindings = new List<IBindingFinalizer>();
 
@@ -54,9 +52,7 @@ namespace Zenject
         {
             _isValidating = isValidating;
 
-            _singletonMarkRegistry = new SingletonMarkRegistry();
             _lazyInjector = new LazyInstanceInjector(this);
-            _singletonProviderCreator = new SingletonProviderCreator(this, _singletonMarkRegistry);
 
             ShouldCheckForInstallWarning = true;
 
@@ -65,9 +61,14 @@ namespace Zenject
             Assert.That(_currentBindings.IsEmpty());
         }
 
+        internal SingletonMarkRegistry SingletonMarkRegistry
+        {
+            get { return _singletonMarkRegistry; }
+        }
+
         void InstallDefaultBindings()
         {
-            Bind(typeof(DiContainer), typeof(IInstantiator)).FromInstance(this);
+            Bind<DiContainer>().FromInstance(this);
             Bind(typeof(Lazy<>)).FromMethodUntyped(CreateLazyBinding).Lazy();
         }
 
@@ -182,16 +183,6 @@ namespace Zenject
         {
             get;
             set;
-        }
-
-        internal SingletonMarkRegistry SingletonMarkRegistry
-        {
-            get { return _singletonMarkRegistry; }
-        }
-
-        internal SingletonProviderCreator SingletonProviderCreator
-        {
-            get { return _singletonProviderCreator; }
         }
 
 #if !NOT_UNITY3D
@@ -1128,7 +1119,7 @@ namespace Zenject
                         args.ExtraArgs, injectInfo.MemberType, out value))
                     {
                         using (var context = injectInfo.SpawnInjectContext(
-                            this, args.Context, null, args.ConcreteIdentifier))
+                            this, args.Context, null))
                         {
                             value = Resolve(context);
                         }
@@ -1207,7 +1198,6 @@ namespace Zenject
                 {
                     ExtraArgs = extraArgs,
                     Context = new InjectContext(this, injectableType, null),
-                    ConcreteIdentifier = null,
                 });
         }
 
@@ -1287,7 +1277,7 @@ namespace Zenject
                 else
                 {
                     using (var context = injectInfo.SpawnInjectContext(
-                        this, args.Context, injectable, args.ConcreteIdentifier))
+                        this, args.Context, injectable))
                     {
                         value = Resolve(context);
                     }
@@ -1328,7 +1318,7 @@ namespace Zenject
                         if (!InjectUtil.PopValueWithType(args.ExtraArgs, injectInfo.MemberType, out value))
                         {
                             using (var context = injectInfo.SpawnInjectContext(
-                                this, args.Context, injectable, args.ConcreteIdentifier))
+                                this, args.Context, injectable))
                             {
                                 value = Resolve(context);
                             }
@@ -1620,6 +1610,10 @@ namespace Zenject
 
 #endif
 
+        // Use this method to create any non-monobehaviour
+        // Any fields marked [Inject] will be set using the bindings on the container
+        // Any methods marked with a [Inject] will be called
+        // Any constructor parameters will be filled in with values from the container
         public T Instantiate<T>()
         {
             return Instantiate<T>(new object[0]);
@@ -1960,7 +1954,6 @@ namespace Zenject
                 {
                     ExtraArgs = InjectUtil.CreateArgList(extraArgs),
                     Context = new InjectContext(this, componentType, null),
-                    ConcreteIdentifier = null,
                 });
         }
 
@@ -2277,12 +2270,15 @@ namespace Zenject
             }
         }
 
-        public BindFinalizerWrapper StartBinding()
+        public BindFinalizerWrapper StartBinding(bool flush = true)
         {
             Assert.That(!_isFinalizingBinding,
                 "Attempted to start a binding during a binding finalizer.  This is not allowed, since binding finalizers should directly use AddProvider instead, to allow for bindings to be inherited properly without duplicates");
 
-            FlushBindings();
+            if (flush)
+            {
+                FlushBindings();
+            }
 
             var bindingFinalizer = new BindFinalizerWrapper();
             _currentBindings.Enqueue(bindingFinalizer);
@@ -2326,7 +2322,7 @@ namespace Zenject
             Assert.That(bindInfo.ContractTypes.Contains(typeof(TContract)));
 
             return new ConcreteIdBinderGeneric<TContract>(
-                bindInfo, StartBinding());
+                this, bindInfo, StartBinding());
         }
 
         // Non-generic version of Bind<> for cases where you only have the runtime type
@@ -2353,7 +2349,7 @@ namespace Zenject
             Assert.That(bindInfo.ContractTypes.All(x => !x.DerivesFrom<IPlaceholderFactory>()),
                 "You should not use Container.Bind for factory classes.  Use Container.BindFactory instead.");
 
-            return new ConcreteIdBinderNonGeneric(bindInfo, StartBinding());
+            return new ConcreteIdBinderNonGeneric(this, bindInfo, StartBinding());
         }
 
 #if !(UNITY_WSA && ENABLE_DOTNET)
@@ -2374,7 +2370,7 @@ namespace Zenject
             // (though of course it would be more efficient to use BindInterfacesTo in this case)
             bindInfo.InvalidBindResponse = InvalidBindResponses.Skip;
 
-            return new ConcreteIdBinderNonGeneric(bindInfo, StartBinding());
+            return new ConcreteIdBinderNonGeneric(this, bindInfo, StartBinding());
         }
 #endif
 
@@ -2440,7 +2436,7 @@ namespace Zenject
             var binding = StartBinding();
 
             binding.SubFinalizer = new ScopableBindingFinalizer(
-                bindInfo, SingletonTypes.FromInstance, instance,
+                bindInfo,
                 (container, type) => new InstanceProvider(type, instance, container));
 
             return new IdScopeConditionCopyNonLazyBinder(bindInfo);
@@ -2470,7 +2466,7 @@ namespace Zenject
                 bindInfo, factoryBindInfo);
 
             return new FactoryToChoiceIdBinder<TContract>(
-                bindInfo, factoryBindInfo);
+                this, bindInfo, factoryBindInfo);
         }
 
         public FactoryToChoiceIdBinder<TContract> BindIFactory<TContract>()
@@ -2484,7 +2480,7 @@ namespace Zenject
             return BindFactoryInternal<TContract, TFactory, TFactory>();
         }
 
-        public FactoryToChoiceIdBinder<TContract> BindFactoryContract<TContract, TFactoryContract, TFactoryConcrete>()
+        public FactoryToChoiceIdBinder<TContract> BindFactoryInterface<TContract, TFactoryConcrete, TFactoryContract>()
             where TFactoryConcrete : Factory<TContract>, TFactoryContract
             where TFactoryContract : IFactory
         {
@@ -2499,10 +2495,10 @@ namespace Zenject
         public MemoryPoolInitialSizeBinder<TItemContract> BindMemoryPool<TItemContract, TPool>()
             where TPool : IMemoryPool
         {
-            return BindMemoryPool<TItemContract, TPool, TPool>();
+            return BindMemoryPoolInterface<TItemContract, TPool, TPool>();
         }
 
-        public MemoryPoolInitialSizeBinder<TItemContract> BindMemoryPool<TItemContract, TPoolConcrete, TPoolContract>(bool includeConcreteType = false)
+        public MemoryPoolInitialSizeBinder<TItemContract> BindMemoryPoolInterface<TItemContract, TPoolConcrete, TPoolContract>(bool includeConcreteType = false)
             where TPoolConcrete : TPoolContract, IMemoryPool
             where TPoolContract : IMemoryPool
         {
@@ -2527,7 +2523,7 @@ namespace Zenject
                 bindInfo, factoryBindInfo, poolBindInfo);
 
             return new MemoryPoolInitialSizeBinder<TItemContract>(
-                bindInfo, factoryBindInfo, poolBindInfo);
+                this, bindInfo, factoryBindInfo, poolBindInfo);
         }
 
         FactoryToChoiceIdBinder<TParam1, TContract> BindFactoryInternal<TParam1, TContract, TFactoryContract, TFactoryConcrete>()
@@ -2541,7 +2537,7 @@ namespace Zenject
                 bindInfo, factoryBindInfo);
 
             return new FactoryToChoiceIdBinder<TParam1, TContract>(
-                bindInfo, factoryBindInfo);
+                this, bindInfo, factoryBindInfo);
         }
 
         public FactoryToChoiceIdBinder<TParam1, TContract> BindIFactory<TParam1, TContract>()
@@ -2557,7 +2553,7 @@ namespace Zenject
                 TParam1, TContract, TFactory, TFactory>();
         }
 
-        public FactoryToChoiceIdBinder<TParam1, TContract> BindFactoryContract<TParam1, TContract, TFactoryContract, TFactoryConcrete>()
+        public FactoryToChoiceIdBinder<TParam1, TContract> BindFactoryInterface<TParam1, TContract, TFactoryConcrete, TFactoryContract>()
             where TFactoryConcrete : Factory<TParam1, TContract>, TFactoryContract
             where TFactoryContract : IFactory
         {
@@ -2575,7 +2571,7 @@ namespace Zenject
                 bindInfo, factoryBindInfo);
 
             return new FactoryToChoiceIdBinder<TParam1, TParam2, TContract>(
-                bindInfo, factoryBindInfo);
+                this, bindInfo, factoryBindInfo);
         }
 
         public FactoryToChoiceIdBinder<TParam1, TParam2, TContract> BindIFactory<TParam1, TParam2, TContract>()
@@ -2591,7 +2587,7 @@ namespace Zenject
                 TParam1, TParam2, TContract, TFactory, TFactory>();
         }
 
-        public FactoryToChoiceIdBinder<TParam1, TParam2, TContract> BindFactoryContract<TParam1, TParam2, TContract, TFactoryContract, TFactoryConcrete>()
+        public FactoryToChoiceIdBinder<TParam1, TParam2, TContract> BindFactoryInterface<TParam1, TParam2, TContract, TFactoryConcrete, TFactoryContract>()
             where TFactoryConcrete : Factory<TParam1, TParam2, TContract>, TFactoryContract
             where TFactoryContract : IFactory
         {
@@ -2609,7 +2605,7 @@ namespace Zenject
                 bindInfo, factoryBindInfo);
 
             return new FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TContract>(
-                bindInfo, factoryBindInfo);
+                this, bindInfo, factoryBindInfo);
         }
 
         public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TContract> BindIFactory<TParam1, TParam2, TParam3, TContract>()
@@ -2625,7 +2621,7 @@ namespace Zenject
                 TParam1, TParam2, TParam3, TContract, TFactory, TFactory>();
         }
 
-        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TContract> BindFactoryContract<TParam1, TParam2, TParam3, TContract, TFactoryContract, TFactoryConcrete>()
+        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TContract> BindFactoryInterface<TParam1, TParam2, TParam3, TContract, TFactoryConcrete, TFactoryContract>()
             where TFactoryConcrete : Factory<TParam1, TParam2, TParam3, TContract>, TFactoryContract
             where TFactoryContract : IFactory
         {
@@ -2643,7 +2639,7 @@ namespace Zenject
                 bindInfo, factoryBindInfo);
 
             return new FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TContract>(
-                bindInfo, factoryBindInfo);
+                this, bindInfo, factoryBindInfo);
         }
 
         public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TContract> BindIFactory<TParam1, TParam2, TParam3, TParam4, TContract>()
@@ -2659,7 +2655,7 @@ namespace Zenject
                 TParam1, TParam2, TParam3, TParam4, TContract, TFactory, TFactory>();
         }
 
-        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TContract> BindFactoryContract<TParam1, TParam2, TParam3, TParam4, TContract, TFactoryContract, TFactoryConcrete>()
+        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TContract> BindFactoryInterface<TParam1, TParam2, TParam3, TParam4, TContract, TFactoryConcrete, TFactoryContract>()
             where TFactoryConcrete : Factory<TParam1, TParam2, TParam3, TParam4, TContract>, TFactoryContract
             where TFactoryContract : IFactory
         {
@@ -2677,7 +2673,7 @@ namespace Zenject
                 bindInfo, factoryBindInfo);
 
             return new FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>(
-                bindInfo, factoryBindInfo);
+                this, bindInfo, factoryBindInfo);
         }
 
         public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TContract> BindIFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>()
@@ -2693,7 +2689,7 @@ namespace Zenject
                 TParam1, TParam2, TParam3, TParam4, TParam5, TContract, TFactory, TFactory>();
         }
 
-        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TContract> BindFactoryContract<TParam1, TParam2, TParam3, TParam4, TParam5, TContract, TFactoryContract, TFactoryConcrete>()
+        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TContract> BindFactoryInterface<TParam1, TParam2, TParam3, TParam4, TParam5, TContract, TFactoryConcrete, TFactoryContract>()
             where TFactoryConcrete : Factory<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>, TFactoryContract
             where TFactoryContract : IFactory
         {
@@ -2711,7 +2707,7 @@ namespace Zenject
                 bindInfo, factoryBindInfo);
 
             return new FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>(
-                bindInfo, factoryBindInfo);
+                this, bindInfo, factoryBindInfo);
         }
 
         public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract> BindIFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>()
@@ -2727,7 +2723,7 @@ namespace Zenject
                 TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract, TFactory, TFactory>();
         }
 
-        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract> BindFactoryContract<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract, TFactoryContract, TFactoryConcrete>()
+        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract> BindFactoryInterface<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract, TFactoryConcrete, TFactoryContract>()
             where TFactoryConcrete : Factory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>, TFactoryContract
             where TFactoryContract : IFactory
         {
@@ -2772,7 +2768,6 @@ namespace Zenject
                 {
                     ExtraArgs = extraArgs,
                     Context = new InjectContext(this, concreteType, null),
-                    ConcreteIdentifier = null,
                 });
         }
 

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using ModestTree;
-using ModestTree.Util;
 
 namespace Zenject
 {
@@ -117,12 +116,12 @@ namespace Zenject
 
     public class StaticMethodWithInstanceSignalHandler<TParam1, TParam2, TParam3, TParam4, THandler> : InstanceMethodSignalHandlerBase<THandler>
     {
-        readonly ModestTree.Util.Action<THandler, TParam1, TParam2, TParam3, TParam4> _method;
+        readonly Action<THandler, TParam1, TParam2, TParam3, TParam4> _method;
 
         [Inject]
         public StaticMethodWithInstanceSignalHandler(
             BindingId signalId, SignalManager manager, InjectContext lookupContext,
-            ModestTree.Util.Action<THandler, TParam1, TParam2, TParam3, TParam4> method)
+            Action<THandler, TParam1, TParam2, TParam3, TParam4> method)
             : base(signalId, manager, lookupContext)
         {
             _method = method;

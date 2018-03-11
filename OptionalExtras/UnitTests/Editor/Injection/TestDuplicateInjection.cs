@@ -25,10 +25,10 @@ namespace Zenject.Tests.Injection
         [Test]
         public void TestCaseDuplicateInjection()
         {
-            Container.Bind<Test0>().AsSingle().NonLazy();
-            Container.Bind<Test0>().AsSingle().NonLazy();
+            Container.Bind<Test0>().AsCached();
+            Container.Bind<Test0>().AsCached();
 
-            Container.Bind<Test1>().AsSingle().NonLazy();
+            Container.Bind<Test1>().AsSingle();
 
             Assert.Throws(
                 delegate { Container.Resolve<Test1>(); });

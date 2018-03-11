@@ -6,16 +6,16 @@ namespace Zenject
     public class FromBinderNonGeneric : FromBinder
     {
         public FromBinderNonGeneric(
-            BindInfo bindInfo,
+            DiContainer bindContainer, BindInfo bindInfo,
             BindFinalizerWrapper finalizerWrapper)
-            : base(bindInfo, finalizerWrapper)
+            : base(bindContainer, bindInfo, finalizerWrapper)
         {
         }
 
-        public ScopeArgConditionCopyNonLazyBinder FromFactory<TConcrete, TFactory>()
-            where TFactory : IFactory<TConcrete>
+        public ScopeArgConditionCopyNonLazyBinder FromIFactory<TContract>(
+            Action<ConcreteBinderGeneric<IFactory<TContract>>> factoryBindGenerator)
         {
-            return FromFactoryBase<TConcrete, TFactory>();
+            return FromIFactoryBase<TContract>(factoryBindGenerator);
         }
 
         public ScopeArgConditionCopyNonLazyBinder FromMethod<TConcrete>(Func<InjectContext, TConcrete> method)

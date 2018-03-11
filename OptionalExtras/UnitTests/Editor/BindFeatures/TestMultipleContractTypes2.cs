@@ -64,6 +64,7 @@ namespace Zenject.Tests.BindFeatures
             Container.BindInterfacesTo<Foo>().AsSingle().NonLazy();
 
             Assert.IsNull(Container.TryResolve<Foo>());
+
             Assert.IsNotNull(Container.Resolve<IFoo>());
             Assert.IsNotNull(Container.Resolve<IQux>());
         }

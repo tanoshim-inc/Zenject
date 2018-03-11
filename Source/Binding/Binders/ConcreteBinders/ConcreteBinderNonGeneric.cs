@@ -8,9 +8,9 @@ namespace Zenject
     public class ConcreteBinderNonGeneric : FromBinderNonGeneric
     {
         public ConcreteBinderNonGeneric(
-            BindInfo bindInfo,
+            DiContainer bindContainer, BindInfo bindInfo,
             BindFinalizerWrapper finalizerWrapper)
-            : base(bindInfo, finalizerWrapper)
+            : base(bindContainer, bindInfo, finalizerWrapper)
         {
             ToSelf();
         }
@@ -22,9 +22,8 @@ namespace Zenject
 
             BindInfo.RequireExplicitScope = true;
             SubFinalizer = new ScopableBindingFinalizer(
-                BindInfo, SingletonTypes.FromNew, null,
-                (container, type) => new TransientProvider(
-                    type, container, BindInfo.Arguments, BindInfo.ConcreteIdentifier, BindInfo.ContextInfo));
+                BindInfo, (container, type) => new TransientProvider(
+                    type, container, BindInfo.Arguments, BindInfo.ContextInfo));
 
             return this;
         }

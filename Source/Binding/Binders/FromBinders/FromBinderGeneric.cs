@@ -12,17 +12,18 @@ namespace Zenject
     public class FromBinderGeneric<TContract> : FromBinder
     {
         public FromBinderGeneric(
+            DiContainer bindContainer,
             BindInfo bindInfo,
             BindFinalizerWrapper finalizerWrapper)
-            : base(bindInfo, finalizerWrapper)
+            : base(bindContainer, bindInfo, finalizerWrapper)
         {
             BindingUtil.AssertIsDerivedFromTypes(typeof(TContract), BindInfo.ContractTypes);
         }
 
-        public ScopeArgConditionCopyNonLazyBinder FromFactory<TFactory>()
-            where TFactory : IFactory<TContract>
+        public ScopeArgConditionCopyNonLazyBinder FromIFactory(
+            Action<ConcreteBinderGeneric<IFactory<TContract>>> factoryBindGenerator)
         {
-            return FromFactoryBase<TContract, TFactory>();
+            return FromIFactoryBase<TContract>(factoryBindGenerator);
         }
 
         public ScopeArgConditionCopyNonLazyBinder FromMethod(Func<TContract> method)

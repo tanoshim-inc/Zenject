@@ -57,7 +57,7 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSelfCached()
         {
             PreInstall();
-            Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsCached().NonLazy();
+            Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -85,7 +85,7 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSelfCachedMultipleContracts()
         {
             PreInstall();
-            Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsCached().NonLazy();
+            Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -140,7 +140,7 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestConcreteCached()
         {
             PreInstall();
-            Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsCached().NonLazy();
+            Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -168,7 +168,7 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestConcreteCachedMultipleContracts()
         {
             PreInstall();
-            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsCached().NonLazy();
+            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
 
