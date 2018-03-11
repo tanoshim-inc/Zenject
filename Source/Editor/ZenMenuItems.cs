@@ -9,7 +9,7 @@ using UnityEditor.SceneManagement;
 using System.Linq;
 using UnityEngine.SceneManagement;
 
-namespace Zenject
+namespace Zenject.Internal
 {
     public static class ZenMenuItems
     {
@@ -72,6 +72,17 @@ namespace Zenject
             }
 
             CreateProjectContextInternal("Assets/Resources");
+        }
+
+        [MenuItem("Assets/Create/Zenject/Default Scene Contract Config", false, 80)]
+        public static void CreateDefaultSceneContractConfig()
+        {
+            var folderPath = ZenUnityEditorUtil.GetCurrentDirectoryAssetPathFromSelection();
+
+            var config = ScriptableObject.CreateInstance<DefaultSceneContractConfig>();
+
+            ZenUnityEditorUtil.SaveScriptableObjectAsset(
+                Path.Combine(folderPath, DefaultSceneContractConfig.ResourcePath + ".asset"), config);
         }
 
         [MenuItem("Assets/Create/Zenject/Scriptable Object Installer", false, 1)]
@@ -284,45 +295,18 @@ namespace Zenject
         [MenuItem("Edit/Zenject/Validate All Active Scenes")]
         public static void ValidateAllActiveScenes()
         {
-            ValidateWrapper(() =>
+            ZenUnityEditorUtil.SaveThenRunPreserveSceneSetup(() =>
                 {
                     var numValidated = ZenUnityEditorUtil.ValidateAllActiveScenes();
                     ModestTree.Log.Info("Validated all '{0}' active scenes successfully", numValidated);
                 });
         }
 
-        static bool ValidateWrapper(Action action)
-        {
-            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
-            {
-                var originalSceneSetup = EditorSceneManager.GetSceneManagerSetup();
-
-                try
-                {
-                    action();
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    ModestTree.Log.ErrorException(e);
-                    return false;
-                }
-                finally
-                {
-                    EditorSceneManager.RestoreSceneManagerSetup(originalSceneSetup);
-                }
-            }
-            else
-            {
-                Debug.Log("Validation cancelled - All scenes must be saved first for validation to take place");
-                return false;
-            }
-        }
-
         static bool ValidateCurrentSceneInternal()
         {
-            return ValidateWrapper(() =>
+            return ZenUnityEditorUtil.SaveThenRunPreserveSceneSetup(() =>
                 {
+                    SceneParentAutomaticLoader.ValidateMultiSceneSetupAndLoadDefaultSceneParents();
                     ZenUnityEditorUtil.ValidateCurrentSceneSetup();
                     ModestTree.Log.Info("All scenes validated successfully");
                 });
