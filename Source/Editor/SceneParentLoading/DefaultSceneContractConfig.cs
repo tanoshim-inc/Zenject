@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
-namespace Zenject
+namespace Zenject.Internal
 {
     public class DefaultSceneContractConfig : ScriptableObject
     {
@@ -14,7 +15,8 @@ namespace Zenject
         public class ContractInfo
         {
             public string ContractName;
-            public string ScenePath;
+            public SceneAsset Scene;
         }
     }
+
 }

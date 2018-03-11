@@ -231,7 +231,7 @@ namespace Zenject.Internal
                     Assert.That(!map.ContainsKey(info.ContractName),
                         "Found multiple default scenes for contract '{0}' in default scene contract configs at resource path 'Resources/{0}'!", DefaultSceneContractConfig.ResourcePath);
 
-                    map.Add(info.ContractName, info.ScenePath);
+                    map.Add(info.ContractName, AssetDatabase.GetAssetPath(info.Scene));
                 }
             }
 

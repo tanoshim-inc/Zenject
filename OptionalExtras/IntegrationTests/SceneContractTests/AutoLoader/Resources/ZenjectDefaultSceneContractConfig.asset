@@ -13,6 +13,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultContracts:
   - ContractName: 1
-    ScenePath: Assets\Mtm.Zenject-IntegrationTests\SceneContractTests\AutoLoader\Scene1.unity
+    Scene: {fileID: 102900000, guid: 842c1766cf27f1e469d9d41b9f829ab7, type: 3}
   - ContractName: 2
-    ScenePath: Assets\Mtm.Zenject-IntegrationTests\SceneContractTests\AutoLoader\Scene2.unity
+    Scene: {fileID: 102900000, guid: e290c5ee5cba76840b3564b4fc30737c, type: 3}
