@@ -11,15 +11,17 @@ namespace Zenject
         readonly object _identifier;
         readonly Func<TObj, TResult> _method;
         readonly bool _matchAll;
+        readonly InjectSources _sourceType;
 
         public GetterProvider(
             object identifier, Func<TObj, TResult> method,
-            DiContainer container, bool matchAll)
+            DiContainer container, InjectSources sourceType, bool matchAll)
         {
             _container = container;
             _identifier = identifier;
             _method = method;
             _matchAll = matchAll;
+            _sourceType = sourceType;
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -33,6 +35,7 @@ namespace Zenject
                 typeof(TObj), _identifier);
 
             subContext.Optional = false;
+            subContext.SourceType = _sourceType;
 
             return subContext;
         }

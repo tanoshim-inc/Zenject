@@ -73,7 +73,12 @@ namespace Zenject
 
         public ScopeConditionCopyNonLazyBinder FromResolve(object subIdentifier)
         {
-            return FromResolveInternal(subIdentifier, false);
+            return FromResolve(subIdentifier, InjectSources.Any);
+        }
+
+        public ScopeConditionCopyNonLazyBinder FromResolve(object subIdentifier, InjectSources source)
+        {
+            return FromResolveInternal(subIdentifier, false, source);
         }
 
         public ScopeConditionCopyNonLazyBinder FromResolveAll()
@@ -83,10 +88,15 @@ namespace Zenject
 
         public ScopeConditionCopyNonLazyBinder FromResolveAll(object subIdentifier)
         {
-            return FromResolveInternal(subIdentifier, true);
+            return FromResolveAll(subIdentifier, InjectSources.Any);
         }
 
-        ScopeConditionCopyNonLazyBinder FromResolveInternal(object subIdentifier, bool matchAll)
+        public ScopeConditionCopyNonLazyBinder FromResolveAll(object subIdentifier, InjectSources source)
+        {
+            return FromResolveInternal(subIdentifier, true, source);
+        }
+
+        ScopeConditionCopyNonLazyBinder FromResolveInternal(object subIdentifier, bool matchAll, InjectSources source)
         {
             BindInfo.RequireExplicitScope = false;
             // Don't know how it's created so can't assume here that it violates AsSingle
@@ -95,7 +105,7 @@ namespace Zenject
             SubFinalizer = new ScopableBindingFinalizer(
                 BindInfo,
                 (container, type) => new ResolveProvider(
-                    type, container, subIdentifier, false, InjectSources.Any, matchAll));
+                    type, container, subIdentifier, false, source, matchAll));
 
             return new ScopeConditionCopyNonLazyBinder(BindInfo);
         }
@@ -368,7 +378,7 @@ namespace Zenject
         }
 
         protected ScopeConditionCopyNonLazyBinder FromResolveGetterBase<TObj, TResult>(
-            object identifier, Func<TObj, TResult> method, bool matchMultiple)
+            object identifier, Func<TObj, TResult> method, InjectSources source, bool matchMultiple)
         {
             BindingUtil.AssertIsDerivedFromTypes(typeof(TResult), AllParentTypes);
 
@@ -377,7 +387,7 @@ namespace Zenject
             BindInfo.MarkAsCreationBinding = false;
             SubFinalizer = new ScopableBindingFinalizer(
                 BindInfo,
-                (container, type) => new GetterProvider<TObj, TResult>(identifier, method, container, matchMultiple));
+                (container, type) => new GetterProvider<TObj, TResult>(identifier, method, container, source, matchMultiple));
 
             return new ScopeConditionCopyNonLazyBinder(BindInfo);
         }

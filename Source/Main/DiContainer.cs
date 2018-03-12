@@ -1619,6 +1619,8 @@ namespace Zenject
             return Instantiate<T>(new object[0]);
         }
 
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public T Instantiate<T>(IEnumerable<object> extraArgs)
         {
             var result = Instantiate(typeof(T), extraArgs);
@@ -1637,6 +1639,8 @@ namespace Zenject
             return Instantiate(concreteType, new object[0]);
         }
 
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public object Instantiate(
             Type concreteType, IEnumerable<object> extraArgs)
         {
@@ -1660,6 +1664,8 @@ namespace Zenject
         // Add new component to existing game object and fill in its dependencies
         // This is the same as AddComponent except the [Inject] fields will be filled in
         // NOTE: Gameobject here is not a prefab prototype, it is an instance
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public TContract InstantiateComponent<TContract>(
             GameObject gameObject, IEnumerable<object> extraArgs)
             where TContract : Component
@@ -1679,6 +1685,8 @@ namespace Zenject
         // Add new component to existing game object and fill in its dependencies
         // This is the same as AddComponent except the [Inject] fields will be filled in
         // NOTE: Gameobject here is not a prefab prototype, it is an instance
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public Component InstantiateComponent(
             Type componentType, GameObject gameObject, IEnumerable<object> extraArgs)
         {
@@ -1692,6 +1700,8 @@ namespace Zenject
             return InstantiateComponentOnNewGameObject<T>(typeof(T).Name);
         }
 
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public T InstantiateComponentOnNewGameObject<T>(IEnumerable<object> extraArgs)
             where T : Component
         {
@@ -1704,6 +1714,8 @@ namespace Zenject
             return InstantiateComponentOnNewGameObject<T>(gameObjectName, new object[0]);
         }
 
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public T InstantiateComponentOnNewGameObject<T>(
             string gameObjectName, IEnumerable<object> extraArgs)
             where T : Component
@@ -1794,6 +1806,8 @@ namespace Zenject
 
         // Same as InstantiatePrefab but returns a component after it's initialized
         // and optionally allows extra arguments for the given component type
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public T InstantiatePrefabForComponent<T>(
             UnityEngine.Object prefab, IEnumerable<object> extraArgs)
         {
@@ -1808,6 +1822,8 @@ namespace Zenject
                 typeof(T), prefab, parentTransform, new object[0]);
         }
 
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public T InstantiatePrefabForComponent<T>(
             UnityEngine.Object prefab, Transform parentTransform, IEnumerable<object> extraArgs)
         {
@@ -1817,6 +1833,8 @@ namespace Zenject
 
         // Same as InstantiatePrefab but returns a component after it's initialized
         // and optionally allows extra arguments for the given component type
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public object InstantiatePrefabForComponent(
             Type concreteType, UnityEngine.Object prefab,
             Transform parentTransform, IEnumerable<object> extraArgs)
@@ -1826,6 +1844,8 @@ namespace Zenject
                 new GameObjectCreationParameters() { ParentTransform = parentTransform });
         }
 
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public object InstantiatePrefabForComponent(
             Type concreteType, UnityEngine.Object prefab,
             IEnumerable<object> extraArgs, GameObjectCreationParameters creationInfo)
@@ -1845,6 +1865,8 @@ namespace Zenject
 
         // Same as InstantiatePrefabResource but returns a component after it's initialized
         // and optionally allows extra arguments for the given component type
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public T InstantiatePrefabResourceForComponent<T>(
             string resourcePath, IEnumerable<object> extraArgs)
         {
@@ -1859,6 +1881,8 @@ namespace Zenject
                 typeof(T), resourcePath, parentTransform, new object[0]);
         }
 
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public T InstantiatePrefabResourceForComponent<T>(
             string resourcePath, Transform parentTransform, IEnumerable<object> extraArgs)
         {
@@ -1868,6 +1892,8 @@ namespace Zenject
 
         // Same as InstantiatePrefabResource but returns a component after it's initialized
         // and optionally allows extra arguments for the given component type
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public object InstantiatePrefabResourceForComponent(
             Type concreteType, string resourcePath, Transform parentTransform,
             IEnumerable<object> extraArgs)
@@ -1887,6 +1913,8 @@ namespace Zenject
             return InstantiateScriptableObjectResource<T>(resourcePath, new object[0]);
         }
 
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public T InstantiateScriptableObjectResource<T>(
             string resourcePath, IEnumerable<object> extraArgs)
             where T : ScriptableObject
@@ -1902,6 +1930,8 @@ namespace Zenject
                 scriptableObjectType, resourcePath, new object[0]);
         }
 
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public object InstantiateScriptableObjectResource(
             Type scriptableObjectType, string resourcePath, IEnumerable<object> extraArgs)
         {
@@ -1935,6 +1965,8 @@ namespace Zenject
         // Same as InjectGameObject except it will also search the game object for the
         // given component, and also optionally allow passing extra inject arguments into the
         // given component
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public T InjectGameObjectForComponent<T>(
             GameObject gameObject, IEnumerable<object> extraArgs)
             where T : Component
@@ -1945,6 +1977,8 @@ namespace Zenject
         // Same as InjectGameObject except it will also search the game object for the
         // given component, and also optionally allow passing extra inject arguments into the
         // given component
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public object InjectGameObjectForComponent(
             GameObject gameObject, Type componentType, IEnumerable<object> extraArgs)
         {
@@ -2004,6 +2038,8 @@ namespace Zenject
         }
 
         // Same as Inject(injectable) except allows adding extra values to be injected
+        // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
+        // the argument list to avoid errors converting to IEnumerable<object>
         public void Inject(object injectable, IEnumerable<object> extraArgs)
         {
             InjectExplicit(

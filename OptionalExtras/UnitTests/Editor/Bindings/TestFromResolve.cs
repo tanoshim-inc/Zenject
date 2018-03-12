@@ -137,6 +137,57 @@ namespace Zenject.Tests.Bindings
             Assert.That(!Enumerable.SequenceEqual(Container.ResolveAll<IFoo>().Cast<object>(), Container.ResolveAll<IBar>().Cast<object>()));
         }
 
+        [Test]
+        public void TestResolveSingleLocal()
+        {
+            var foo1 = new Foo();
+            var foo2 = new Foo();
+
+            Container.Bind<Foo>().FromInstance(foo1);
+
+            var subContainer = Container.CreateSubContainer();
+            subContainer.Bind<Foo>().FromInstance(foo2);
+
+            subContainer.Bind<IFoo>().To<Foo>().FromResolve();
+
+            Assert.IsEqual(subContainer.Resolve<IFoo>(), foo2);
+        }
+
+        [Test]
+        public void TestInjectSource1()
+        {
+            var foo1 = new Foo();
+            var foo2 = new Foo();
+
+            Container.Bind<Foo>().FromInstance(foo1);
+
+            var subContainer = Container.CreateSubContainer();
+            subContainer.Bind<Foo>().FromInstance(foo2);
+
+            subContainer.Bind<IFoo>().To<Foo>().FromResolve(null, InjectSources.Parent);
+
+            Assert.IsEqual(subContainer.Resolve<IFoo>(), foo1);
+        }
+
+        [Test]
+        public void TestInjectSource2()
+        {
+            var foo1 = new Foo();
+            var foo2 = new Foo();
+            var foo3 = new Foo();
+
+            Container.Bind<Foo>().FromInstance(foo1);
+
+            var subContainer = Container.CreateSubContainer();
+            subContainer.Bind<Foo>().FromInstance(foo2);
+            subContainer.Bind<Foo>().FromInstance(foo3);
+
+            subContainer.Bind<IFoo>().To<Foo>().FromResolveAll(null, InjectSources.Local);
+
+            Assert.Throws(() => subContainer.Resolve<IFoo>());
+            Assert.That(Enumerable.SequenceEqual(subContainer.ResolveAll<IFoo>(), new [] { foo2, foo3, }));
+        }
+
         interface IBar
         {
         }

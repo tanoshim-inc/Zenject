@@ -40,6 +40,62 @@ namespace Zenject.Tests.Bindings
             Assert.IsEqual(Container.ResolveAll<Bar>().Count, 2);
         }
 
+        [Test]
+        public void TestInjectSource1()
+        {
+            Container.Bind<Foo>().AsCached();
+            Container.Bind<Foo>().AsCached();
+
+            var subContainer = Container.CreateSubContainer();
+            subContainer.Bind<Foo>().AsCached();
+
+            subContainer.Bind<Bar>().FromResolveAllGetter<Foo>(x => x.Bar);
+
+            Assert.IsEqual(subContainer.ResolveAll<Bar>().Count, 3);
+        }
+
+        [Test]
+        public void TestInjectSource2()
+        {
+            Container.Bind<Foo>().AsCached();
+            Container.Bind<Foo>().AsCached();
+
+            var subContainer = Container.CreateSubContainer();
+            subContainer.Bind<Foo>().AsCached();
+
+            subContainer.Bind<Bar>().FromResolveAllGetter<Foo>(null, x => x.Bar, InjectSources.Local);
+
+            Assert.IsEqual(subContainer.ResolveAll<Bar>().Count, 1);
+        }
+
+        [Test]
+        public void TestInjectSource3()
+        {
+            Container.Bind<Foo>().AsCached();
+            Container.Bind<Foo>().AsCached();
+
+            var subContainer = Container.CreateSubContainer();
+            subContainer.Bind<Foo>().AsCached();
+
+            subContainer.Bind<Bar>().FromResolveGetter<Foo>(null, x => x.Bar);
+
+            Assert.IsNotNull(subContainer.Resolve<Bar>());
+        }
+
+        [Test]
+        public void TestInjectSource4()
+        {
+            Container.Bind<Foo>().AsCached();
+
+            var subContainer = Container.CreateSubContainer();
+            subContainer.Bind<Foo>().AsCached();
+            subContainer.Bind<Foo>().AsCached();
+
+            subContainer.Bind<Bar>().FromResolveGetter<Foo>(null, x => x.Bar, InjectSources.Parent);
+
+            Assert.IsEqual(subContainer.ResolveAll<Bar>().Count, 1);
+        }
+
         interface IBar
         {
         }

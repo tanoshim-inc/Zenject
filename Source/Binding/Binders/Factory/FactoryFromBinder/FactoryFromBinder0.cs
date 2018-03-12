@@ -21,8 +21,14 @@ namespace Zenject
         public ConditionCopyNonLazyBinder FromResolveGetter<TObj>(
             object subIdentifier, Func<TObj, TContract> method)
         {
+            return FromResolveGetter<TObj>(subIdentifier, method, InjectSources.Any);
+        }
+
+        public ConditionCopyNonLazyBinder FromResolveGetter<TObj>(
+            object subIdentifier, Func<TObj, TContract> method, InjectSources source)
+        {
             FactoryBindInfo.ProviderFunc =
-                (container) => new GetterProvider<TObj, TContract>(subIdentifier, method, container, false);
+                (container) => new GetterProvider<TObj, TContract>(subIdentifier, method, container, source, false);
 
             return this;
         }
