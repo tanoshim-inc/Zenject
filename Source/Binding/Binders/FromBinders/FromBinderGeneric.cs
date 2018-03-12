@@ -48,7 +48,17 @@ namespace Zenject
 
         public ScopeConditionCopyNonLazyBinder FromResolveGetter<TObj>(object identifier, Func<TObj, TContract> method)
         {
-            return FromResolveGetterBase<TObj, TContract>(identifier, method);
+            return FromResolveGetterBase<TObj, TContract>(identifier, method, false);
+        }
+
+        public ScopeConditionCopyNonLazyBinder FromResolveAllGetter<TObj>(Func<TObj, TContract> method)
+        {
+            return FromResolveAllGetter<TObj>(null, method);
+        }
+
+        public ScopeConditionCopyNonLazyBinder FromResolveAllGetter<TObj>(object identifier, Func<TObj, TContract> method)
+        {
+            return FromResolveGetterBase<TObj, TContract>(identifier, method, true);
         }
 
         public ScopeConditionCopyNonLazyBinder FromInstance(TContract instance)

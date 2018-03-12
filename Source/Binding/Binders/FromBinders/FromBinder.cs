@@ -73,6 +73,21 @@ namespace Zenject
 
         public ScopeConditionCopyNonLazyBinder FromResolve(object subIdentifier)
         {
+            return FromResolveInternal(subIdentifier, false);
+        }
+
+        public ScopeConditionCopyNonLazyBinder FromResolveAll()
+        {
+            return FromResolveAll(null);
+        }
+
+        public ScopeConditionCopyNonLazyBinder FromResolveAll(object subIdentifier)
+        {
+            return FromResolveInternal(subIdentifier, true);
+        }
+
+        ScopeConditionCopyNonLazyBinder FromResolveInternal(object subIdentifier, bool matchAll)
+        {
             BindInfo.RequireExplicitScope = false;
             // Don't know how it's created so can't assume here that it violates AsSingle
             BindInfo.MarkAsCreationBinding = false;
@@ -80,7 +95,7 @@ namespace Zenject
             SubFinalizer = new ScopableBindingFinalizer(
                 BindInfo,
                 (container, type) => new ResolveProvider(
-                    type, container, subIdentifier, false, InjectSources.Any));
+                    type, container, subIdentifier, false, InjectSources.Any, matchAll));
 
             return new ScopeConditionCopyNonLazyBinder(BindInfo);
         }
@@ -353,7 +368,7 @@ namespace Zenject
         }
 
         protected ScopeConditionCopyNonLazyBinder FromResolveGetterBase<TObj, TResult>(
-            object identifier, Func<TObj, TResult> method)
+            object identifier, Func<TObj, TResult> method, bool matchMultiple)
         {
             BindingUtil.AssertIsDerivedFromTypes(typeof(TResult), AllParentTypes);
 
@@ -362,7 +377,7 @@ namespace Zenject
             BindInfo.MarkAsCreationBinding = false;
             SubFinalizer = new ScopableBindingFinalizer(
                 BindInfo,
-                (container, type) => new GetterProvider<TObj, TResult>(identifier, method, container));
+                (container, type) => new GetterProvider<TObj, TResult>(identifier, method, container, matchMultiple));
 
             return new ScopeConditionCopyNonLazyBinder(BindInfo);
         }

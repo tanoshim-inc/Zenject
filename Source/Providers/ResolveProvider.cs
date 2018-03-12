@@ -12,16 +12,18 @@ namespace Zenject
         readonly Type _contractType;
         readonly bool _isOptional;
         readonly InjectSources _source;
+        readonly bool _matchAll;
 
         public ResolveProvider(
             Type contractType, DiContainer container, object identifier,
-            bool isOptional, InjectSources source)
+            bool isOptional, InjectSources source, bool matchAll)
         {
             _contractType = contractType;
             _identifier = identifier;
             _container = container;
             _isOptional = isOptional;
             _source = source;
+            _matchAll = matchAll;
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -36,7 +38,17 @@ namespace Zenject
 
             Assert.That(_contractType.DerivesFromOrEqual(context.MemberType));
 
-            yield return _container.ResolveAll(GetSubContext(context)).Cast<object>().ToList();
+            if (_matchAll)
+            {
+                yield return _container.ResolveAll(GetSubContext(context)).Cast<object>().ToList();
+            }
+            else
+            {
+                yield return new List<object>()
+                {
+                    _container.Resolve(GetSubContext(context))
+                };
+            }
         }
 
         InjectContext GetSubContext(InjectContext parent)

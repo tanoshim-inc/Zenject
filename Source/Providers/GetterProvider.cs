@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ModestTree;
 
 namespace Zenject
@@ -9,14 +10,16 @@ namespace Zenject
         readonly DiContainer _container;
         readonly object _identifier;
         readonly Func<TObj, TResult> _method;
+        readonly bool _matchAll;
 
         public GetterProvider(
             object identifier, Func<TObj, TResult> method,
-            DiContainer container)
+            DiContainer container, bool matchAll)
         {
             _container = container;
             _identifier = identifier;
             _method = method;
+            _matchAll = matchAll;
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -45,14 +48,29 @@ namespace Zenject
             if (_container.IsValidating)
             {
                 // All we can do is validate that the getter object can be resolved
-                _container.Resolve(GetSubContext(context));
+                if (_matchAll)
+                {
+                    _container.ResolveAll(GetSubContext(context));
+                }
+                else
+                {
+                    _container.Resolve(GetSubContext(context));
+                }
 
                 yield return new List<object>() { new ValidationMarker(typeof(TResult)) };
             }
             else
             {
-                yield return new List<object>() { _method(
-                    (TObj)_container.Resolve(GetSubContext(context))) };
+                if (_matchAll)
+                {
+                    yield return _container.ResolveAll(GetSubContext(context))
+                        .Cast<TObj>().Select(x => _method(x)).Cast<object>().ToList();
+                }
+                else
+                {
+                    yield return new List<object>() { _method(
+                        (TObj)_container.Resolve(GetSubContext(context))) };
+                }
             }
         }
     }

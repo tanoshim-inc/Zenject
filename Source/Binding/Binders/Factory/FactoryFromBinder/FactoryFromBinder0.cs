@@ -22,7 +22,7 @@ namespace Zenject
             object subIdentifier, Func<TObj, TContract> method)
         {
             FactoryBindInfo.ProviderFunc =
-                (container) => new GetterProvider<TObj, TContract>(subIdentifier, method, container);
+                (container) => new GetterProvider<TObj, TContract>(subIdentifier, method, container, false);
 
             return this;
         }

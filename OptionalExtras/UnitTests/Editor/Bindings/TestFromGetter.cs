@@ -13,39 +13,31 @@ namespace Zenject.Tests.Bindings
         [Test]
         public void TestTransient()
         {
-            Container.Bind<Foo>().AsSingle().NonLazy();
-            Container.Bind<Bar>().FromResolveGetter<Foo>(x => x.Bar).AsTransient().NonLazy();
+            Container.Bind<Foo>().AsSingle();
+            Container.Bind<Bar>().FromResolveGetter<Foo>(x => x.Bar);
 
             Assert.IsNotNull(Container.Resolve<Bar>());
             Assert.IsEqual(Container.Resolve<Bar>(), Container.Resolve<Foo>().Bar);
-
-            Foo.NumCalls = 0;
-
-            Container.Resolve<Bar>();
-            Container.Resolve<Bar>();
-            Container.Resolve<Bar>();
-
-            Assert.IsEqual(Foo.NumCalls, 3);
         }
 
         [Test]
-        public void TestCached()
+        public void TestSingleFailure()
         {
-            Container.Bind<Foo>().AsSingle().NonLazy();
-            Container.Bind<Bar>().FromResolveGetter<Foo>(x => x.Bar).AsSingle().NonLazy();
+            Container.Bind<Foo>().AsCached();
+            Container.Bind<Foo>().AsCached();
+            Container.Bind<Bar>().FromResolveGetter<Foo>(x => x.Bar).AsSingle();
 
-            Foo.NumCalls = 0;
-
-            Container.Resolve<Bar>();
-            Container.Resolve<Bar>();
-            Container.Resolve<Bar>();
-
-            Assert.IsEqual(Foo.NumCalls, 1);
+            Assert.Throws(() => Container.Resolve<Bar>());
         }
 
-        Bar BarGetter(Foo foo)
+        [Test]
+        public void TestMultiple()
         {
-            return foo.Bar;
+            Container.Bind<Foo>().AsCached();
+            Container.Bind<Foo>().AsCached();
+            Container.Bind<Bar>().FromResolveAllGetter<Foo>(x => x.Bar).AsSingle();
+
+            Assert.IsEqual(Container.ResolveAll<Bar>().Count, 2);
         }
 
         interface IBar
@@ -58,21 +50,14 @@ namespace Zenject.Tests.Bindings
 
         class Foo
         {
-            public static int NumCalls = 0;
-            public static Bar StaticBar;
-
             public Foo()
             {
-                StaticBar = new Bar();
+                Bar = new Bar();
             }
 
             public Bar Bar
             {
-                get
-                {
-                    NumCalls++;
-                    return StaticBar;
-                }
+                get; private set;
             }
         }
     }
