@@ -227,23 +227,40 @@ namespace Zenject
         public void ResolveDependencyRoots()
         {
             FlushBindings();
-            foreach (var bindinPair in _providers)
+
+            var rootBindings = new List<BindingId>();
+            var rootProviders = new List<ProviderInfo>();
+
+            foreach (var bindingPair in _providers)
             {
-                foreach (var provider in bindinPair.Value)
+                foreach (var provider in bindingPair.Value)
                 {
                     if (provider.NonLazy)
                     {
-                        var context = new InjectContext(
-                            this, bindinPair.Key.Type, bindinPair.Key.Identifier);
-                        context.SourceType = InjectSources.Local;
-                        context.Optional = true;
-
-                        var matches = SafeGetInstances(
-                            new ProviderPair(provider, this), context);
-
-                        Assert.That(matches.Count() > 0);
+                        // Save them to a list instead of resolving for them here to account
+                        // for the rare case where one of the resolves does another binding
+                        // and therefore change _providers causing an exception
+                        rootBindings.Add(bindingPair.Key);
+                        rootProviders.Add(provider);
                     }
                 }
+            }
+
+            Assert.IsEqual(rootProviders.Count, rootBindings.Count);
+
+            for (int i = 0; i < rootProviders.Count; i++)
+            {
+                var bindId = rootBindings[i];
+                var providerInfo = rootProviders[i];
+
+                var context = new InjectContext(this, bindId.Type, bindId.Identifier);
+                context.SourceType = InjectSources.Local;
+                context.Optional = true;
+
+                var matches = SafeGetInstances(
+                    new ProviderPair(providerInfo, this), context);
+
+                Assert.That(matches.Count() > 0);
             }
         }
 
