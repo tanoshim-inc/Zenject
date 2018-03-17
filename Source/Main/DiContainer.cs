@@ -2306,7 +2306,7 @@ namespace Zenject
             }
         }
 
-        public BindFinalizerWrapper StartBinding(bool flush = true)
+        public BindFinalizerWrapper StartBinding(string errorContext = null, bool flush = true)
         {
             Assert.That(!_isFinalizingBinding,
                 "Attempted to start a binding during a binding finalizer.  This is not allowed, since binding finalizers should directly use AddProvider instead, to allow for bindings to be inherited properly without duplicates");
@@ -2316,7 +2316,7 @@ namespace Zenject
                 FlushBindings();
             }
 
-            var bindingFinalizer = new BindFinalizerWrapper();
+            var bindingFinalizer = new BindFinalizerWrapper(errorContext);
             _currentBindings.Enqueue(bindingFinalizer);
             return bindingFinalizer;
         }
@@ -2347,18 +2347,26 @@ namespace Zenject
         // Note that this can include open generic types as well such as List<>
         public ConcreteIdBinderGeneric<TContract> Bind<TContract>()
         {
-            return Bind<TContract>(
-                new BindInfo(typeof(TContract)));
+            return Bind<TContract>(new BindInfo());
         }
 
-        internal ConcreteIdBinderGeneric<TContract> Bind<TContract>(BindInfo bindInfo)
+        // For zenject extensions like signals
+        public ConcreteIdBinderGeneric<TContract> Bind<TContract>(BindInfo bindInfo)
+        {
+            return Bind<TContract>(bindInfo, StartBinding());
+        }
+
+        public ConcreteIdBinderGeneric<TContract> Bind<TContract>(
+            BindInfo bindInfo, BindFinalizerWrapper finalizerWrapper)
         {
             Assert.That(!typeof(TContract).DerivesFrom<IPlaceholderFactory>(),
                 "You should not use Container.Bind for factory classes.  Use Container.BindFactory instead.");
-            Assert.That(bindInfo.ContractTypes.Contains(typeof(TContract)));
+
+            Assert.That(!bindInfo.ContractTypes.Contains(typeof(TContract)));
+            bindInfo.ContractTypes.Add(typeof(TContract));
 
             return new ConcreteIdBinderGeneric<TContract>(
-                this, bindInfo, StartBinding());
+                this, bindInfo, finalizerWrapper);
         }
 
         // Non-generic version of Bind<> for cases where you only have the runtime type
@@ -2376,8 +2384,10 @@ namespace Zenject
         ConcreteIdBinderNonGeneric BindInternal(
             IEnumerable<Type> contractTypes, string contextInfo)
         {
-            return BindInternal(
-                new BindInfo(contractTypes.ToList(), contextInfo));
+            var bindInfo = new BindInfo();
+            bindInfo.ContractTypes.AddRange(contractTypes);
+            bindInfo.ContextInfo = contextInfo;
+            return BindInternal(bindInfo);
         }
 
         ConcreteIdBinderNonGeneric BindInternal(BindInfo bindInfo)
@@ -2400,7 +2410,8 @@ namespace Zenject
             Assert.That(contractTypesList.All(x => !x.DerivesFrom<IPlaceholderFactory>()),
                 "You should not use Container.Bind for factory classes.  Use Container.BindFactory instead.");
 
-            var bindInfo = new BindInfo(contractTypesList);
+            var bindInfo = new BindInfo();
+            bindInfo.ContractTypes.AddRange(contractTypesList);
 
             // This is nice because it allows us to do things like Bind(all interfaces).To<Foo>()
             // (though of course it would be more efficient to use BindInterfacesTo in this case)
@@ -2433,8 +2444,10 @@ namespace Zenject
 
         public FromBinderNonGeneric BindInterfacesTo(Type type)
         {
-            var bindInfo = new BindInfo(
-                type.Interfaces().ToList(), "BindInterfacesTo({0})".Fmt(type));
+            var bindInfo = new BindInfo();
+
+            bindInfo.ContractTypes.AddRange(type.Interfaces());
+            bindInfo.ContextInfo = "BindInterfacesTo({0})".Fmt(type);
 
             // Almost always, you don't want to use the default AsTransient so make them type it
             bindInfo.RequireExplicitScope = true;
@@ -2449,8 +2462,12 @@ namespace Zenject
 
         public FromBinderNonGeneric BindInterfacesAndSelfTo(Type type)
         {
-            var bindInfo = new BindInfo(
-                type.Interfaces().Concat(new[] { type }).ToList(), "BindInterfacesAndSelfTo({0})".Fmt(type));
+            var bindInfo = new BindInfo();
+
+            bindInfo.ContractTypes.AddRange(type.Interfaces());
+            bindInfo.ContractTypes.Add(type);
+
+            bindInfo.ContextInfo = "BindInterfacesAndSelfTo({0})".Fmt(type);
 
             // Almost always, you don't want to use the default AsTransient so make them type it
             bindInfo.RequireExplicitScope = true;
@@ -2468,7 +2485,9 @@ namespace Zenject
         //
         public IdScopeConditionCopyNonLazyBinder BindInstance<TContract>(TContract instance)
         {
-            var bindInfo = new BindInfo(typeof(TContract));
+            var bindInfo = new BindInfo();
+            bindInfo.ContractTypes.Add(typeof(TContract));
+
             var binding = StartBinding();
 
             binding.SubFinalizer = new ScopableBindingFinalizer(
@@ -2495,7 +2514,9 @@ namespace Zenject
             where TFactoryConcrete : TFactoryContract, IFactory
             where TFactoryContract : IFactory
         {
-            var bindInfo = new BindInfo(typeof(TFactoryContract));
+            var bindInfo = new BindInfo();
+            bindInfo.ContractTypes.Add(typeof(TFactoryContract));
+
             var factoryBindInfo = new FactoryBindInfo(typeof(TFactoryConcrete));
 
             StartBinding().SubFinalizer = new PlaceholderFactoryBindingFinalizer<TContract>(
@@ -2545,7 +2566,9 @@ namespace Zenject
                 contractTypes.Add(typeof(TPoolConcrete));
             }
 
-            var bindInfo = new BindInfo(contractTypes);
+            var bindInfo = new BindInfo();
+
+            bindInfo.ContractTypes.AddRange(contractTypes);
 
             // This interface is used in the optional class PoolCleanupChecker
             // And also allow people to manually call DespawnAll() for all IMemoryPool
@@ -2566,7 +2589,10 @@ namespace Zenject
             where TFactoryConcrete : TFactoryContract, IFactory
             where TFactoryContract : IFactory
         {
-            var bindInfo = new BindInfo(typeof(TFactoryContract));
+            var bindInfo = new BindInfo();
+
+            bindInfo.ContractTypes.Add(typeof(TFactoryContract));
+
             var factoryBindInfo = new FactoryBindInfo(typeof(TFactoryConcrete));
 
             StartBinding().SubFinalizer = new PlaceholderFactoryBindingFinalizer<TContract>(
@@ -2600,7 +2626,10 @@ namespace Zenject
             where TFactoryConcrete : TFactoryContract, IFactory
             where TFactoryContract : IFactory
         {
-            var bindInfo = new BindInfo(typeof(TFactoryContract));
+            var bindInfo = new BindInfo();
+
+            bindInfo.ContractTypes.Add(typeof(TFactoryContract));
+
             var factoryBindInfo = new FactoryBindInfo(typeof(TFactoryConcrete));
 
             StartBinding().SubFinalizer = new PlaceholderFactoryBindingFinalizer<TContract>(
@@ -2634,7 +2663,10 @@ namespace Zenject
             where TFactoryConcrete : TFactoryContract, IFactory
             where TFactoryContract : IFactory
         {
-            var bindInfo = new BindInfo(typeof(TFactoryContract));
+            var bindInfo = new BindInfo();
+
+            bindInfo.ContractTypes.Add(typeof(TFactoryContract));
+
             var factoryBindInfo = new FactoryBindInfo(typeof(TFactoryConcrete));
 
             StartBinding().SubFinalizer = new PlaceholderFactoryBindingFinalizer<TContract>(
@@ -2668,7 +2700,10 @@ namespace Zenject
             where TFactoryConcrete : TFactoryContract, IFactory
             where TFactoryContract : IFactory
         {
-            var bindInfo = new BindInfo(typeof(TFactoryContract));
+            var bindInfo = new BindInfo();
+
+            bindInfo.ContractTypes.Add(typeof(TFactoryContract));
+
             var factoryBindInfo = new FactoryBindInfo(typeof(TFactoryConcrete));
 
             StartBinding().SubFinalizer = new PlaceholderFactoryBindingFinalizer<TContract>(
@@ -2702,7 +2737,10 @@ namespace Zenject
             where TFactoryConcrete : TFactoryContract, IFactory
             where TFactoryContract : IFactory
         {
-            var bindInfo = new BindInfo(typeof(TFactoryContract));
+            var bindInfo = new BindInfo();
+
+            bindInfo.ContractTypes.Add(typeof(TFactoryContract));
+
             var factoryBindInfo = new FactoryBindInfo(typeof(TFactoryConcrete));
 
             StartBinding().SubFinalizer = new PlaceholderFactoryBindingFinalizer<TContract>(
@@ -2736,7 +2774,10 @@ namespace Zenject
             where TFactoryConcrete : TFactoryContract, IFactory
             where TFactoryContract : IFactory
         {
-            var bindInfo = new BindInfo(typeof(TFactoryContract));
+            var bindInfo = new BindInfo();
+
+            bindInfo.ContractTypes.Add(typeof(TFactoryContract));
+
             var factoryBindInfo = new FactoryBindInfo(typeof(TFactoryConcrete));
 
             StartBinding().SubFinalizer = new PlaceholderFactoryBindingFinalizer<TContract>(

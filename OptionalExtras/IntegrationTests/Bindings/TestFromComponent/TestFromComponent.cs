@@ -70,8 +70,7 @@ namespace Zenject.Tests.Bindings
 
             Container.BindInstance(gameObject).WithId("Foo");
 
-            Container.Bind<Foo>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
-            Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
+            Container.Bind(typeof(IFoo), typeof(Foo)).To<Foo>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -87,8 +86,8 @@ namespace Zenject.Tests.Bindings
 
             Container.BindInstance(gameObject).WithId("Foo");
 
-            Container.Bind<Foo>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
-            Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
+            Container.Bind<Foo>().FromNewComponentOn(gameObject).AsCached().NonLazy();
+            Container.Bind<IFoo>().To<Foo>().FromNewComponentOn(gameObject).AsCached().NonLazy();
 
             PostInstall();
 
@@ -123,26 +122,7 @@ namespace Zenject.Tests.Bindings
 
             Container.Bind(typeof(IFoo), typeof(IBar))
                 .To(new List<Type>() { typeof(Foo), typeof(Bar) })
-                .FromNewComponentOn(gameObject).AsSingle().NonLazy();
-
-            PostInstall();
-
-            FixtureUtil.AssertComponentCount<Foo>(1);
-            FixtureUtil.AssertComponentCount<Bar>(1);
-            yield break;
-        }
-
-        [UnityTest]
-        public IEnumerator TestSingleMultipleConcrete()
-        {
-            PreInstall();
-            var gameObject = Container.CreateEmptyGameObject("Foo");
-
-            Container.BindInstance(gameObject).WithId("Foo");
-
-            Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type>() { typeof(Foo), typeof(Bar) })
-                .FromNewComponentOn(gameObject).AsSingle().NonLazy();
-            Container.Bind<IFoo2>().To<Foo>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
+                .FromNewComponentOn(gameObject).AsCached().NonLazy();
 
             PostInstall();
 

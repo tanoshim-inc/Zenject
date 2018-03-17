@@ -33,11 +33,11 @@ namespace Zenject
 
     public class BindInfo
     {
-        public BindInfo(List<Type> contractTypes, string contextInfo)
+        public BindInfo()
         {
-            ContextInfo = contextInfo;
+            ContextInfo = null;
             Identifier = null;
-            ContractTypes = contractTypes;
+            ContractTypes = new List<Type>();
             ToTypes = new List<Type>();
             Arguments = new List<TypeValuePair>();
             ToChoice = ToChoices.Self;
@@ -54,21 +54,6 @@ namespace Zenject
 
             Scope = ScopeTypes.Unset;
             InvalidBindResponse = InvalidBindResponses.Assert;
-        }
-
-        public BindInfo(List<Type> contractTypes)
-            : this(contractTypes, null)
-        {
-        }
-
-        public BindInfo(Type contractType)
-            : this(new List<Type>() { contractType } )
-        {
-        }
-
-        public BindInfo()
-            : this(new List<Type>())
-        {
         }
 
         public bool MarkAsCreationBinding
@@ -104,7 +89,7 @@ namespace Zenject
         public string ContextInfo
         {
             get;
-            private set;
+            set;
         }
 
         public bool RequireExplicitScope

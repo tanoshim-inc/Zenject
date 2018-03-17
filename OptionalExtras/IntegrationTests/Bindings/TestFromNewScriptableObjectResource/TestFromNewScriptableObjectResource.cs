@@ -52,8 +52,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
             Foo.InstanceCount = 0;
 
-            Container.Bind<IFoo>().To<Foo>().FromNewScriptableObjectResource(PathPrefix + "Foo").AsSingle();
-            Container.Bind<Foo>().FromNewScriptableObjectResource(PathPrefix + "Foo").AsSingle();
+            Container.Bind(typeof(IFoo), typeof(Foo)).To<Foo>().FromNewScriptableObjectResource(PathPrefix + "Foo").AsSingle();
 
             PostInstall();
 

@@ -133,10 +133,16 @@ namespace Zenject
             // Use a random ID so that our provider is the only one that can find it and so it doesn't
             // conflict with anything else
             var factoryId = Guid.NewGuid();
-            var subBinder = new ConcreteIdBinderGeneric<IFactory<TContract>>(
+
+            var subBindInfo = new BindInfo();
+
+            var subBinder = BindContainer.Bind<IFactory<TContract>>(
+                subBindInfo,
                 // Very important here that we call StartBinding with false otherwise our placeholder
                 // factory binding will be finalized early
-                BindContainer, new BindInfo(typeof(IFactory<TContract>)), BindContainer.StartBinding(false)).WithId(factoryId);
+                BindContainer.StartBinding(null, false))
+                .WithId(factoryId);
+
             factoryBindGenerator(subBinder);
 
             // This is kind of like a look up method like FromMethod so don't enforce specifying scope
@@ -149,7 +155,10 @@ namespace Zenject
                 BindInfo,
                 (container, type) => new IFactoryProvider<TContract>(container, factoryId));
 
-            return new ScopeArgConditionCopyNonLazyBinder(BindInfo);
+            var binder = new ScopeArgConditionCopyNonLazyBinder(BindInfo);
+            // Needed for example if the user uses MoveIntoDirectSubContainers
+            binder.SecondaryCopyBindInfo = subBindInfo;
+            return binder;
         }
 
 #if !NOT_UNITY3D

@@ -201,18 +201,8 @@ namespace Zenject
 
             _container.Bind<ZenjectSceneLoader>().AsSingle();
 
-            // Note that adding GuiRenderableManager here doesn't instantiate it by default
-            // You still have to add GuiRenderer manually
-            // We could add the contents of GuiRenderer into MonoKernel, but this adds
-            // undesirable per-frame allocations.  See comment in IGuiRenderable.cs for usage
-            //
-            // Short answer is if you want to use IGuiRenderable then
-            // you need to include the following in project context installer:
-            // `Container.Bind<GuiRenderer>().FromNewComponentOnNewGameObject().AsSingle().CopyIntoAllSubContainers().NonLazy();`
-            _container.Bind(typeof(TickableManager), typeof(InitializableManager), typeof(DisposableManager), typeof(GuiRenderableManager))
-                .ToSelf().AsSingle().CopyIntoAllSubContainers();
+            StandardInterfacesRootInstaller.Install(_container);
 
-            _container.Bind<SignalManager>().AsSingle();
             _container.Bind<Context>().FromInstance(this);
 
             _container.Bind(typeof(ProjectKernel), typeof(MonoKernel))

@@ -60,44 +60,11 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSingle()
         {
             PreInstall();
-            Container.Bind<IFoo>().To<Foo>().FromComponentInNewPrefab(FooPrefab).AsSingle().NonLazy();
-            Container.Bind<Foo>().FromComponentInNewPrefab(FooPrefab).AsSingle().NonLazy();
+            Container.Bind(typeof(IFoo), typeof(Foo)).To<Foo>().FromComponentInNewPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
 
             FixtureUtil.AssertComponentCount<Foo>(1);
-            yield break;
-        }
-
-        [UnityTest]
-        public IEnumerator TestSingle2()
-        {
-            PreInstall();
-            // For ToPrefab, the 'AsSingle' applies to the prefab and not the type, so this is valid
-            Container.Bind<IFoo>().To<Foo>().FromComponentInNewPrefab(FooPrefab).AsSingle().NonLazy();
-            Container.Bind<Foo>().FromComponentInNewPrefab(FooPrefab2).AsSingle().NonLazy();
-            Container.Bind<Foo>().FromMethod(ctx => ctx.Container.CreateEmptyGameObject("Foo").AddComponent<Foo>()).NonLazy();
-
-            PostInstall();
-
-            FixtureUtil.AssertComponentCount<Foo>(3);
-            FixtureUtil.AssertNumGameObjects(3);
-            yield break;
-        }
-
-        [UnityTest]
-        public IEnumerator TestSingleIdentifiers()
-        {
-            PreInstall();
-            Container.Bind<Foo>().FromComponentInNewPrefab(FooPrefab).WithGameObjectName("Foo").AsSingle().NonLazy();
-            Container.Bind<Bar>().FromComponentInNewPrefab(FooPrefab).WithGameObjectName("Foo").AsSingle().NonLazy();
-
-            PostInstall();
-
-            FixtureUtil.AssertNumGameObjects(1);
-            FixtureUtil.AssertComponentCount<Foo>(1);
-            FixtureUtil.AssertComponentCount<Bar>(1);
-            FixtureUtil.AssertNumGameObjectsWithName("Foo", 1);
             yield break;
         }
 

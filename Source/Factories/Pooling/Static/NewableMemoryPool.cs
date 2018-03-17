@@ -101,6 +101,8 @@ namespace Zenject
         }
     }
 
+    // Zero parameters
+
     public class NewableMemoryPool<TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TValue>
         where TValue : class, new()
     {
@@ -144,6 +146,8 @@ namespace Zenject
             return item;
         }
     }
+
+    // One parameter
 
     public class NewableMemoryPool<TParam1, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TValue>
         where TValue : class, new()
@@ -192,6 +196,8 @@ namespace Zenject
         }
     }
 
+    // Two parameter
+
     public class NewableMemoryPool<TParam1, TParam2, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TValue>
         where TValue : class, new()
     {
@@ -239,6 +245,8 @@ namespace Zenject
         }
     }
 
+    // Three parameters
+
     public class NewableMemoryPool<TParam1, TParam2, TParam3, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TValue>
         where TValue : class, new()
     {
@@ -281,6 +289,106 @@ namespace Zenject
             if (_onSpawnMethodGetter != null)
             {
                 _onSpawnMethodGetter(item)(p1, p2, p3);
+            }
+
+            return item;
+        }
+    }
+
+    // Four parameters
+
+    public class NewableMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue>
+        where TValue : class, new()
+    {
+        Func<TValue, Action<TParam1, TParam2, TParam3, TParam4>> _onSpawnMethodGetter;
+
+        public NewableMemoryPool()
+        {
+        }
+
+        public NewableMemoryPool(
+            Func<TValue, Action<TParam1, TParam2, TParam3, TParam4>> onSpawnMethodGetter,
+            Func<TValue, Action> onDespawnedMethodGetter)
+        {
+            // What's the point of having a param otherwise?
+            Assert.IsNotNull(onSpawnMethodGetter);
+
+            _onSpawnMethodGetter = onSpawnMethodGetter;
+            OnDespawnedMethodGetter = onDespawnedMethodGetter;
+        }
+
+        public Func<TValue, Action<TParam1, TParam2, TParam3, TParam4>> OnSpawnMethodGetter
+        {
+            set { _onSpawnMethodGetter = value; }
+        }
+
+        public Action<TParam1, TParam2, TParam3, TParam4, TValue> OnSpawnMethod
+        {
+            set { _onSpawnMethodGetter = (x) => (p1, p2, p3, p4) => value(p1, p2, p3, p4, x); }
+        }
+
+        public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4)
+        {
+            return base.SpawnWrapper(Spawn(p1, p2, p3, p4));
+        }
+
+        public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4)
+        {
+            var item = SpawnGetter();
+
+            if (_onSpawnMethodGetter != null)
+            {
+                _onSpawnMethodGetter(item)(p1, p2, p3, p4);
+            }
+
+            return item;
+        }
+    }
+
+    // Five parameters
+
+    public class NewableMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue>
+        where TValue : class, new()
+    {
+        Func<TValue, Action<TParam1, TParam2, TParam3, TParam4, TParam5>> _onSpawnMethodGetter;
+
+        public NewableMemoryPool()
+        {
+        }
+
+        public NewableMemoryPool(
+            Func<TValue, Action<TParam1, TParam2, TParam3, TParam4, TParam5>> onSpawnMethodGetter,
+            Func<TValue, Action> onDespawnedMethodGetter)
+        {
+            // What's the point of having a param otherwise?
+            Assert.IsNotNull(onSpawnMethodGetter);
+
+            _onSpawnMethodGetter = onSpawnMethodGetter;
+            OnDespawnedMethodGetter = onDespawnedMethodGetter;
+        }
+
+        public Func<TValue, Action<TParam1, TParam2, TParam3, TParam4, TParam5>> OnSpawnMethodGetter
+        {
+            set { _onSpawnMethodGetter = value; }
+        }
+
+        public Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> OnSpawnMethod
+        {
+            set { _onSpawnMethodGetter = (x) => (p1, p2, p3, p4, p5) => value(p1, p2, p3, p4, p5, x); }
+        }
+
+        public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5)
+        {
+            return base.SpawnWrapper(Spawn(p1, p2, p3, p4, p5));
+        }
+
+        public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5)
+        {
+            var item = SpawnGetter();
+
+            if (_onSpawnMethodGetter != null)
+            {
+                _onSpawnMethodGetter(item)(p1, p2, p3, p4, p5);
             }
 
             return item;

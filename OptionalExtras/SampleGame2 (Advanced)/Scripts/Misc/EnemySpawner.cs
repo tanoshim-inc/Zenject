@@ -10,11 +10,11 @@ namespace Zenject.SpaceFighter
 {
     public class EnemySpawner : ITickable, IInitializable
     {
+        readonly SignalBus _signalBus;
         readonly LevelBoundary _levelBoundary;
         readonly EnemyFacade.Pool _enemyFactory;
         readonly Settings _settings;
 
-        EnemyKilledSignal _enemyKilledSignal;
         float _desiredNumEnemies;
         int _enemyCount;
         float _lastSpawnTime;
@@ -23,9 +23,9 @@ namespace Zenject.SpaceFighter
             Settings settings,
             EnemyFacade.Pool enemyFactory,
             LevelBoundary levelBoundary,
-            EnemyKilledSignal enemyKilledSignal)
+            SignalBus signalBus)
         {
-            _enemyKilledSignal = enemyKilledSignal;
+            _signalBus = signalBus;
             _levelBoundary = levelBoundary;
             _enemyFactory = enemyFactory;
             _settings = settings;
@@ -35,7 +35,7 @@ namespace Zenject.SpaceFighter
 
         public void Initialize()
         {
-            _enemyKilledSignal += OnEnemyKilled;
+            _signalBus.Subscribe<EnemyKilledSignal>(OnEnemyKilled);
         }
 
         void OnEnemyKilled()

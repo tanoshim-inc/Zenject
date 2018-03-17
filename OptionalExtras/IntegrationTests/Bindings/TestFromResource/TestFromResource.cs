@@ -57,8 +57,7 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSingle()
         {
             PreInstall();
-            Container.Bind<Texture>().FromResource(ResourcePath).AsSingle();
-            Container.Bind<Texture>().FromResource(ResourcePath).AsSingle();
+            Container.Bind(typeof(Texture), typeof(Texture)).To<Texture>().FromResource(ResourcePath).AsSingle();
 
             Container.Bind<Runner>().FromNewComponentOnNewGameObject().AsSingle().WithArguments(2).NonLazy();
 

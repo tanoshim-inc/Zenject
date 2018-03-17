@@ -2,11 +2,11 @@ using System;
 
 namespace Zenject.SpaceFighter
 {
-    public class PlayerDiedSignal : Signal<PlayerDiedSignal>
+    public class PlayerDiedSignal : ISignal
     {
     }
 
-    public class EnemyKilledSignal : Signal<EnemyKilledSignal>
+    public class EnemyKilledSignal : ISignal
     {
     }
 }

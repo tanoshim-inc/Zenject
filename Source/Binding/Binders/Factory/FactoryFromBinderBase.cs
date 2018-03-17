@@ -82,11 +82,13 @@ namespace Zenject
             // Use a random ID so that our provider is the only one that can find it and so it doesn't
             // conflict with anything else
             factoryId = Guid.NewGuid();
-            return new ConcreteIdBinderGeneric<T>(
-                BindContainer,
+
+            return BindContainer.Bind<T>(
+                new BindInfo(),
                 // Very important here that we call StartBinding with false otherwise our placeholder
                 // factory binding will be finalized early
-                new BindInfo(typeof(T)), BindContainer.StartBinding(false)).WithId(factoryId);
+                BindContainer.StartBinding(null, false))
+                .WithId(factoryId);
         }
 
 #if !NOT_UNITY3D

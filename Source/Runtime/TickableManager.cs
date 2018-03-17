@@ -29,9 +29,9 @@ namespace Zenject
         readonly List<ModestTree.Util.ValuePair<Type, int>> _latePriorities = null;
 
 #if ZEN_SIGNALS_ADD_UNIRX
-        readonly Subject _tickStream = new Subject();
-        readonly Subject _lateTickStream = new Subject();
-        readonly Subject _fixedTickStream = new Subject();
+        readonly Subject<Unit> _tickStream = new Subject<Unit>();
+        readonly Subject<Unit> _lateTickStream = new Subject<Unit>();
+        readonly Subject<Unit> _fixedTickStream = new Subject<Unit>();
 #endif
 
         readonly TickablesTaskUpdater _updater = new TickablesTaskUpdater();
@@ -46,17 +46,17 @@ namespace Zenject
         }
 
 #if ZEN_SIGNALS_ADD_UNIRX
-        public IObservableRx<Unit> TickStream
+        public IObservable<Unit> TickStream
         {
             get { return _tickStream; }
         }
 
-        public IObservableRx<Unit> LateTickStream
+        public IObservable<Unit> LateTickStream
         {
             get { return _lateTickStream; }
         }
 
-        public IObservableRx<Unit> FixedTickStream
+        public IObservable<Unit> FixedTickStream
         {
             get { return _fixedTickStream; }
         }
@@ -194,7 +194,7 @@ namespace Zenject
             _updater.UpdateAll();
 
 #if ZEN_SIGNALS_ADD_UNIRX
-            _tickStream.OnNext();
+            _tickStream.OnNext(Unit.Default);
 #endif
         }
 
@@ -209,7 +209,7 @@ namespace Zenject
             _fixedUpdater.UpdateAll();
 
 #if ZEN_SIGNALS_ADD_UNIRX
-            _fixedTickStream.OnNext();
+            _fixedTickStream.OnNext(Unit.Default);
 #endif
         }
 
@@ -224,7 +224,7 @@ namespace Zenject
             _lateUpdater.UpdateAll();
 
 #if ZEN_SIGNALS_ADD_UNIRX
-            _lateTickStream.OnNext();
+            _lateTickStream.OnNext(Unit.Default);
 #endif
         }
     }

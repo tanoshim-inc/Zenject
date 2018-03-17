@@ -78,10 +78,11 @@ namespace Zenject.SpaceFighter
 
             yield return LoadScene();
 
-            var playerDiedSignal = SceneContainer.Resolve<PlayerDiedSignal>();
+            var signalBus = SceneContainer.Resolve<SignalBus>();
 
             bool died = false;
-            playerDiedSignal += () => died = true;
+
+            signalBus.Subscribe<PlayerDiedSignal>(() => died = true);
 
             var startTime = Time.realtimeSinceStartup;
 

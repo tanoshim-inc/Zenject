@@ -16,7 +16,7 @@ namespace Zenject.Asteroids
 
     public class ShipStateDead : ShipState
     {
-        readonly ShipCrashedSignal _shipCrashedSignal;
+        readonly SignalBus _signalBus;
         readonly BrokenShipFactory _brokenShipFactory;
         readonly ExplosionFactory _explosionFactory;
         readonly Settings _settings;
@@ -29,9 +29,9 @@ namespace Zenject.Asteroids
             Settings settings, Ship ship,
             ExplosionFactory explosionFactory,
             BrokenShipFactory brokenShipFactory,
-            ShipCrashedSignal shipCrashedSignal)
+            SignalBus signalBus)
         {
-            _shipCrashedSignal = shipCrashedSignal;
+            _signalBus = signalBus;
             _brokenShipFactory = brokenShipFactory;
             _explosionFactory = explosionFactory;
             _settings = settings;
@@ -57,7 +57,7 @@ namespace Zenject.Asteroids
                 rigidBody.AddForce(randomDir * _settings.explosionForce);
             }
 
-            _shipCrashedSignal.Fire();
+            _signalBus.Fire<ShipCrashedSignal>();
         }
 
         public override void Dispose()

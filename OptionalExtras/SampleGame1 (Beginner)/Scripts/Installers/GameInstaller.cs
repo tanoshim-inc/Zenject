@@ -79,6 +79,8 @@ namespace Zenject.Asteroids
 
             Container.Bind<ExplosionFactory>().AsSingle().WithArguments(_settings.ExplosionPrefab);
             Container.Bind<BrokenShipFactory>().AsSingle().WithArguments(_settings.BrokenShipPrefab);
+
+            SignalRootInstaller.Install(Container);
         }
 
         void InstallShip()

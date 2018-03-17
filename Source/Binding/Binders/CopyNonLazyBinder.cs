@@ -8,31 +8,46 @@ namespace Zenject
         {
         }
 
+        public BindInfo SecondaryCopyBindInfo
+        {
+            get; set;
+        }
+
         public NonLazyBinder CopyIntoAllSubContainers()
         {
-            BindInfo.BindingInheritanceMethod = BindingInheritanceMethods.CopyIntoAll;
+            SetInheritanceMethod(BindingInheritanceMethods.CopyIntoAll);
             return this;
         }
 
         // Only copy the binding into children and not grandchildren
         public NonLazyBinder CopyIntoDirectSubContainers()
         {
-            BindInfo.BindingInheritanceMethod = BindingInheritanceMethods.CopyDirectOnly;
+            SetInheritanceMethod(BindingInheritanceMethods.CopyDirectOnly);
             return this;
         }
 
         // Do not apply the binding on the current container
         public NonLazyBinder MoveIntoAllSubContainers()
         {
-            BindInfo.BindingInheritanceMethod = BindingInheritanceMethods.MoveIntoAll;
+            SetInheritanceMethod(BindingInheritanceMethods.MoveIntoAll);
             return this;
         }
 
         // Do not apply the binding on the current container
         public NonLazyBinder MoveIntoDirectSubContainers()
         {
-            BindInfo.BindingInheritanceMethod = BindingInheritanceMethods.MoveDirectOnly;
+            SetInheritanceMethod(BindingInheritanceMethods.MoveDirectOnly);
             return this;
+        }
+
+        void SetInheritanceMethod(BindingInheritanceMethods method)
+        {
+            BindInfo.BindingInheritanceMethod = method;
+
+            if (SecondaryCopyBindInfo != null)
+            {
+                SecondaryCopyBindInfo.BindingInheritanceMethod = method;
+            }
         }
     }
 }

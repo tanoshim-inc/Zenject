@@ -70,8 +70,7 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSelfSingleMultipleContracts()
         {
             PreInstall();
-            Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
-            Container.Bind<Bar>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
+            Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -153,8 +152,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestConcreteSingleMultipleContracts()
         {
             PreInstall();
-            Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
-            Container.Bind<Bar>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
+            Container.Bind(typeof(IFoo), typeof(Bar)).To(typeof(Foo), typeof(Bar))
+                .FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
 

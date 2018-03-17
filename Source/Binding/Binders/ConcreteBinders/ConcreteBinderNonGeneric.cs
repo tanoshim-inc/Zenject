@@ -40,10 +40,18 @@ namespace Zenject
 
         public FromBinderNonGeneric To(IEnumerable<Type> concreteTypes)
         {
-            BindingUtil.AssertIsDerivedFromTypes(concreteTypes, BindInfo.ContractTypes, BindInfo.InvalidBindResponse);
-
             BindInfo.ToChoice = ToChoices.Concrete;
             BindInfo.ToTypes = concreteTypes.ToList();
+
+            if (BindInfo.ToTypes.Count > 1 && BindInfo.ContractTypes.Count > 1)
+            {
+                // Be more lenient in this case to behave similar to convention based bindings
+                BindInfo.InvalidBindResponse = InvalidBindResponses.Skip;
+            }
+            else
+            {
+                BindingUtil.AssertIsDerivedFromTypes(concreteTypes, BindInfo.ContractTypes, BindInfo.InvalidBindResponse);
+            }
 
             return this;
         }

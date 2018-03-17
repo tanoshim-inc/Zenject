@@ -30,6 +30,30 @@ namespace Zenject.Tests.Bindings
         }
 
         [Test]
+        public void TestMoveIntoSubcontainers()
+        {
+            FooFactory.InstanceCount = 0;
+
+            Container.Bind<Foo>().FromIFactory(b => b.To<FooFactory>().AsCached()).MoveIntoDirectSubContainers();
+
+            Assert.That(Container.AllContracts.Where(x => x.Type == typeof(IFactory<Foo>)).IsEmpty());
+
+            Assert.IsNull(Container.TryResolve<Foo>());
+
+            var subContainer = Container.CreateSubContainer();
+
+            Assert.IsEqual(subContainer.Resolve<Foo>(), StaticFoo);
+
+            Assert.That(Container.AllContracts.Where(x => x.Type == typeof(IFactory<Foo>)).Count() == 1);
+
+            subContainer.Resolve<Foo>();
+            subContainer.Resolve<Foo>();
+            subContainer.Resolve<Foo>();
+
+            Assert.IsEqual(FooFactory.InstanceCount, 1);
+        }
+
+        [Test]
         public void Test2()
         {
             FooFactory.InstanceCount = 0;
