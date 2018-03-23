@@ -1,3 +1,4 @@
+
 // In order to run this, install dotMemoryPeek through nuget and then change this to 1
 #if false
 
@@ -32,13 +33,13 @@ namespace Zenject.Tests.Other
         {
             Container.Bind<IFoo>().To<Foo1>().AsSingle();
 
-            IFoo foo;
+            Container.Resolve<IFoo>();
 
-            foo = Container.Resolve<IFoo>();
+            Log.Info("Starting memory check");
 
             var point1 = dotMemory.Check();
 
-            foo = Container.Resolve<IFoo>();
+            Container.Resolve<IFoo>();
 
             dotMemory.Check(memory =>
                 {
@@ -47,10 +48,13 @@ namespace Zenject.Tests.Other
 
                     if (bytesAllocated != 0)
                     {
-                        Log.Trace("Found unnecessary memory allocations ({0} kb) in Container.Resolve. Allocated Types: {1}",
-                            (float)bytesAllocated / 1024f, traffic.GroupByType().Select(x => x.TypeFullyQualifiedName).Join(", "));
+                        Log.Info("Found unnecessary memory allocations ({0} kb) in Container.Resolve. Allocated Types: \n{1}",
+                            (float)bytesAllocated / 1024f, traffic.GroupByType().OrderByDescending(x => x.AllocatedMemoryInfo.SizeInBytes)
+                            .Select(x => "{0} bytes: ({1})".Fmt(x.AllocatedMemoryInfo.SizeInBytes, x.Type.PrettyName())).Join("\n"));
                     }
                 });
+
+            Log.Info("Done memory check");
         }
     }
 }

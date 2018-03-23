@@ -9,11 +9,12 @@ namespace Zenject
     {
         readonly Stack<TValue> _stack = new Stack<TValue>();
 
+        Action<TValue> _onDespawnedMethod;
         Func<TValue, Action> _onDespawnedMethodGetter;
 
         public Action<TValue> OnDespawnedMethod
         {
-            set { _onDespawnedMethodGetter = x => () => value(x); }
+            set { _onDespawnedMethod = value; }
         }
 
         public Func<TValue, Action> OnDespawnedMethodGetter
@@ -87,7 +88,12 @@ namespace Zenject
         {
             if (_onDespawnedMethodGetter != null)
             {
+                Assert.IsNull(_onDespawnedMethod);
                 _onDespawnedMethodGetter(element)();
+            }
+            else if (_onDespawnedMethod != null)
+            {
+                _onDespawnedMethod(element);
             }
 
             if (_stack.Count > 0 && ReferenceEquals(_stack.Peek(), element))
@@ -107,6 +113,7 @@ namespace Zenject
         where TValue : class, new()
     {
         Func<TValue, Action> _onSpawnMethodGetter;
+        Action<TValue> _onSpawnMethod;
 
         public NewableMemoryPool()
         {
@@ -126,7 +133,7 @@ namespace Zenject
 
         public Action<TValue> OnSpawnMethod
         {
-            set { _onSpawnMethodGetter = x => () => value(x); }
+            set { _onSpawnMethod = value; }
         }
 
         public DisposeWrapper<TValue> SpawnWrapper()
@@ -140,7 +147,12 @@ namespace Zenject
 
             if (_onSpawnMethodGetter != null)
             {
+                Assert.IsNull(_onSpawnMethod);
                 _onSpawnMethodGetter(item)();
+            }
+            else if (_onSpawnMethod != null)
+            {
+                _onSpawnMethod(item);
             }
 
             return item;
@@ -153,6 +165,7 @@ namespace Zenject
         where TValue : class, new()
     {
         Func<TValue, Action<TParam1>> _onSpawnMethodGetter;
+        Action<TParam1, TValue> _onSpawnMethod;
 
         public NewableMemoryPool()
         {
@@ -175,7 +188,7 @@ namespace Zenject
 
         public Action<TParam1, TValue> OnSpawnMethod
         {
-            set { _onSpawnMethodGetter = x => (p1) => value(p1, x); }
+            set { _onSpawnMethod = value; }
         }
 
         public DisposeWrapper<TValue> SpawnWrapper(TParam1 param)
@@ -189,7 +202,12 @@ namespace Zenject
 
             if (_onSpawnMethodGetter != null)
             {
+                Assert.IsNull(_onSpawnMethod);
                 _onSpawnMethodGetter(item)(param);
+            }
+            else if (_onSpawnMethod != null)
+            {
+                _onSpawnMethod(param, item);
             }
 
             return item;
@@ -202,6 +220,7 @@ namespace Zenject
         where TValue : class, new()
     {
         Func<TValue, Action<TParam1, TParam2>> _onSpawnMethodGetter;
+        Action<TParam1, TParam2, TValue> _onSpawnMethod;
 
         public NewableMemoryPool()
         {
@@ -224,7 +243,7 @@ namespace Zenject
 
         public Action<TParam1, TParam2, TValue> OnSpawnMethod
         {
-            set { _onSpawnMethodGetter = (x) => (p1, p2) => value(p1, p2, x); }
+            set { _onSpawnMethod = value; }
         }
 
         public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2)
@@ -238,7 +257,12 @@ namespace Zenject
 
             if (_onSpawnMethodGetter != null)
             {
+                Assert.IsNull(_onSpawnMethod);
                 _onSpawnMethodGetter(item)(p1, p2);
+            }
+            else if (_onSpawnMethod != null)
+            {
+                _onSpawnMethod(p1, p2, item);
             }
 
             return item;
@@ -251,6 +275,7 @@ namespace Zenject
         where TValue : class, new()
     {
         Func<TValue, Action<TParam1, TParam2, TParam3>> _onSpawnMethodGetter;
+        Action<TParam1, TParam2, TParam3, TValue> _onSpawnMethod;
 
         public NewableMemoryPool()
         {
@@ -274,7 +299,7 @@ namespace Zenject
 
         public Action<TParam1, TParam2, TParam3, TValue> OnSpawnMethod
         {
-            set { _onSpawnMethodGetter = (x) => (p1, p2, p3) => value(p1, p2, p3, x); }
+            set { _onSpawnMethod = value; }
         }
 
         public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2, TParam3 p3)
@@ -288,7 +313,12 @@ namespace Zenject
 
             if (_onSpawnMethodGetter != null)
             {
+                Assert.IsNull(_onSpawnMethod);
                 _onSpawnMethodGetter(item)(p1, p2, p3);
+            }
+            else if (_onSpawnMethod != null)
+            {
+                _onSpawnMethod(p1, p2, p3, item);
             }
 
             return item;
@@ -301,6 +331,7 @@ namespace Zenject
         where TValue : class, new()
     {
         Func<TValue, Action<TParam1, TParam2, TParam3, TParam4>> _onSpawnMethodGetter;
+        Action<TParam1, TParam2, TParam3, TParam4, TValue> _onSpawnMethod;
 
         public NewableMemoryPool()
         {
@@ -324,7 +355,7 @@ namespace Zenject
 
         public Action<TParam1, TParam2, TParam3, TParam4, TValue> OnSpawnMethod
         {
-            set { _onSpawnMethodGetter = (x) => (p1, p2, p3, p4) => value(p1, p2, p3, p4, x); }
+            set { _onSpawnMethod = value; }
         }
 
         public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4)
@@ -338,7 +369,12 @@ namespace Zenject
 
             if (_onSpawnMethodGetter != null)
             {
+                Assert.IsNull(_onSpawnMethod);
                 _onSpawnMethodGetter(item)(p1, p2, p3, p4);
+            }
+            else if (_onSpawnMethod != null)
+            {
+                _onSpawnMethod(p1, p2, p3, p4, item);
             }
 
             return item;
@@ -351,6 +387,7 @@ namespace Zenject
         where TValue : class, new()
     {
         Func<TValue, Action<TParam1, TParam2, TParam3, TParam4, TParam5>> _onSpawnMethodGetter;
+        Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> _onSpawnMethod;
 
         public NewableMemoryPool()
         {
@@ -374,7 +411,7 @@ namespace Zenject
 
         public Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> OnSpawnMethod
         {
-            set { _onSpawnMethodGetter = (x) => (p1, p2, p3, p4, p5) => value(p1, p2, p3, p4, p5, x); }
+            set { _onSpawnMethod = value; }
         }
 
         public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5)
@@ -388,7 +425,12 @@ namespace Zenject
 
             if (_onSpawnMethodGetter != null)
             {
+                Assert.IsNull(_onSpawnMethod);
                 _onSpawnMethodGetter(item)(p1, p2, p3, p4, p5);
+            }
+            else if (_onSpawnMethod != null)
+            {
+                _onSpawnMethod(p1, p2, p3, p4, p5, item);
             }
 
             return item;
