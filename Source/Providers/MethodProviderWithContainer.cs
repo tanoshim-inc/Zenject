@@ -20,21 +20,23 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEmpty(args);
             Assert.IsNotNull(context);
 
             Assert.That(typeof(TValue).DerivesFromOrEqual(context.MemberType));
 
+            injectAction = null;
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                return new List<object>() { new ValidationMarker(typeof(TValue)) };
             }
             else
             {
-                yield return new List<object>() { _method(context.Container) };
+                return new List<object>() { _method(context.Container) };
             }
         }
     }
@@ -55,7 +57,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 1);
             Assert.IsNotNull(context);
@@ -63,14 +66,15 @@ namespace Zenject
             Assert.That(typeof(TValue).DerivesFromOrEqual(context.MemberType));
             Assert.That(args[0].Type.DerivesFromOrEqual(typeof(TParam1)));
 
+            injectAction = null;
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                return new List<object>() { new ValidationMarker(typeof(TValue)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     _method(
                         context.Container,
@@ -96,7 +100,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 2);
             Assert.IsNotNull(context);
@@ -105,14 +110,15 @@ namespace Zenject
             Assert.That(args[0].Type.DerivesFromOrEqual(typeof(TParam1)));
             Assert.That(args[1].Type.DerivesFromOrEqual(typeof(TParam2)));
 
+            injectAction = null;
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                return new List<object>() { new ValidationMarker(typeof(TValue)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     _method(
                         context.Container,
@@ -139,7 +145,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 3);
             Assert.IsNotNull(context);
@@ -149,14 +156,15 @@ namespace Zenject
             Assert.That(args[1].Type.DerivesFromOrEqual(typeof(TParam2)));
             Assert.That(args[2].Type.DerivesFromOrEqual(typeof(TParam3)));
 
+            injectAction = null;
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                return new List<object>() { new ValidationMarker(typeof(TValue)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     _method(
                         context.Container,
@@ -184,7 +192,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 4);
             Assert.IsNotNull(context);
@@ -195,14 +204,15 @@ namespace Zenject
             Assert.That(args[2].Type.DerivesFromOrEqual(typeof(TParam3)));
             Assert.That(args[3].Type.DerivesFromOrEqual(typeof(TParam4)));
 
+            injectAction = null;
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                return new List<object>() { new ValidationMarker(typeof(TValue)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     _method(
                         context.Container,
@@ -231,7 +241,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 5);
             Assert.IsNotNull(context);
@@ -243,14 +254,15 @@ namespace Zenject
             Assert.That(args[3].Type.DerivesFromOrEqual(typeof(TParam4)));
             Assert.That(args[4].Type.DerivesFromOrEqual(typeof(TParam5)));
 
+            injectAction = null;
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                return new List<object>() { new ValidationMarker(typeof(TValue)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     _method(
                         context.Container,
@@ -280,7 +292,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 10);
             Assert.IsNotNull(context);
@@ -297,14 +310,15 @@ namespace Zenject
             Assert.That(args[8].Type.DerivesFromOrEqual(typeof(TParam9)));
             Assert.That(args[9].Type.DerivesFromOrEqual(typeof(TParam10)));
 
+            injectAction = null;
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                return new List<object>() { new ValidationMarker(typeof(TValue)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     _method(
                         context.Container,

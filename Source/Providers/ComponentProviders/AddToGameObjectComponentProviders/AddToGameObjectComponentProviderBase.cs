@@ -45,7 +45,8 @@ namespace Zenject
             return _componentType;
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsNotNull(context);
 
@@ -85,27 +86,27 @@ namespace Zenject
                 instance = new ValidationMarker(_componentType);
             }
 
-            // Note that we don't just use InstantiateComponentOnNewGameObjectExplicit here
-            // because then circular references don't work
-            yield return new List<object>() { instance };
-
-            try
+            injectAction = () =>
             {
-                var injectArgs = new InjectArgs()
+                try
                 {
-                    ExtraArgs = _extraArguments.Concat(args).ToList(),
-                    Context = context,
-                };
+                    var injectArgs = new InjectArgs()
+                    {
+                        ExtraArgs = _extraArguments.Concat(args).ToList(),
+                        Context = context,
+                    };
 
-                _container.InjectExplicit(instance, _componentType, injectArgs);
-            }
-            finally
-            {
-                if (wasActive && ShouldToggleActive)
-                {
-                    gameObj.SetActive(true);
+                    _container.InjectExplicit(instance, _componentType, injectArgs);
                 }
-            }
+                finally
+                {
+                    if (wasActive && ShouldToggleActive)
+                    {
+                        gameObj.SetActive(true);
+                    }
+                }
+            };
+            return new List<object>() { instance };
         }
 
         protected abstract GameObject GetGameObject(InjectContext context);

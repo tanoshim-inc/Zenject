@@ -40,13 +40,15 @@ namespace Zenject
             return subContext;
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEmpty(args);
             Assert.IsNotNull(context);
 
             Assert.That(typeof(TResult).DerivesFromOrEqual(context.MemberType));
+
+            injectAction = null;
 
             if (_container.IsValidating)
             {
@@ -60,20 +62,18 @@ namespace Zenject
                     _container.Resolve(GetSubContext(context));
                 }
 
-                yield return new List<object>() { new ValidationMarker(typeof(TResult)) };
+                return new List<object>() { new ValidationMarker(typeof(TResult)) };
+            }
+
+            if (_matchAll)
+            {
+                return _container.ResolveAll(GetSubContext(context))
+                    .Cast<TObj>().Select(x => _method(x)).Cast<object>().ToList();
             }
             else
             {
-                if (_matchAll)
-                {
-                    yield return _container.ResolveAll(GetSubContext(context))
-                        .Cast<TObj>().Select(x => _method(x)).Cast<object>().ToList();
-                }
-                else
-                {
-                    yield return new List<object>() { _method(
-                        (TObj)_container.Resolve(GetSubContext(context))) };
-                }
+                return new List<object>() { _method(
+                    (TObj)_container.Resolve(GetSubContext(context))) };
             }
         }
     }

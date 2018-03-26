@@ -42,7 +42,8 @@ namespace Zenject
             return _concreteType;
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsNotNull(context);
 
@@ -59,10 +60,8 @@ namespace Zenject
             var instance = _container.InstantiateExplicit(
                 instanceType, autoInject, injectArgs);
 
-            // Return before property/field/method injection to allow circular dependencies
-            yield return new List<object>() { instance };
-
-            _container.InjectExplicit(instance, instanceType, injectArgs);
+            injectAction = () => _container.InjectExplicit(instance, instanceType, injectArgs);
+            return new List<object>() { instance };
         }
 
         Type GetTypeToCreate(Type contractType)

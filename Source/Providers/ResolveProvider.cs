@@ -31,20 +31,22 @@ namespace Zenject
             return _contractType;
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEmpty(args);
             Assert.IsNotNull(context);
 
             Assert.That(_contractType.DerivesFromOrEqual(context.MemberType));
 
+            injectAction = null;
             if (_matchAll)
             {
-                yield return _container.ResolveAll(GetSubContext(context)).Cast<object>().ToList();
+                return _container.ResolveAll(GetSubContext(context)).Cast<object>().ToList();
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     _container.Resolve(GetSubContext(context))
                 };

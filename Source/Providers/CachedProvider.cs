@@ -24,14 +24,15 @@ namespace Zenject
             return _creator.GetInstanceType(context);
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsNotNull(context);
 
             if (_instances != null)
             {
-                yield return _instances;
-                yield break;
+                injectAction = null;
+                return _instances;
             }
 
 #if !ZEN_MULTITHREADING
@@ -46,26 +47,14 @@ namespace Zenject
 
             _isCreatingInstance = true;
 #endif
-
-            var runner = _creator.GetAllInstancesWithInjectSplit(context, args);
-
-            // First get instance
-            bool hasMore = runner.MoveNext();
-
-            _instances = runner.Current;
+            
+            _instances = _creator.GetAllInstancesWithInjectSplit(context, args, out injectAction);
             Assert.IsNotNull(_instances);
 
 #if !ZEN_MULTITHREADING
             _isCreatingInstance = false;
 #endif
-
-            yield return _instances;
-
-            // Now do injection
-            while (hasMore)
-            {
-                hasMore = runner.MoveNext();
-            }
+            return _instances;
         }
     }
 }

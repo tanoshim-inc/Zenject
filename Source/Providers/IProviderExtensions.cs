@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ModestTree;
 
@@ -5,11 +6,11 @@ namespace Zenject
 {
     public static class IProviderExtensions
     {
-        public static IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
-            this IProvider creator, InjectContext context)
+        public static List<object> GetAllInstancesWithInjectSplit(
+            this IProvider creator, InjectContext context, out Action injectAction)
         {
             return creator.GetAllInstancesWithInjectSplit(
-                context, new List<TypeValuePair>());
+                context, new List<TypeValuePair>(), out injectAction);
         }
 
         public static List<object> GetAllInstances(
@@ -23,20 +24,12 @@ namespace Zenject
         {
             Assert.IsNotNull(context);
 
-            var runner = creator.GetAllInstancesWithInjectSplit(context, args);
-
-            // First get instance
-            bool hasMore = runner.MoveNext();
-
-            var instances = runner.Current;
+            Action injectAction;
+            var instances = creator.GetAllInstancesWithInjectSplit(context, args, out injectAction);
 
             Assert.IsNotNull(instances, "Null value returned from creator '{0}'", creator.GetType());
 
-            // Now do injection
-            while (hasMore)
-            {
-                hasMore = runner.MoveNext();
-            }
+            injectAction?.Invoke();
 
             return instances;
         }
