@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -257,9 +257,9 @@ namespace Zenject
                             context.SourceType = InjectSources.Local;
                             context.Optional = true;
 
-                            var providerPair = ProviderPair.Pool.Spawn(provider, this).AttachedTo(block);
+                            var providerPair = new ProviderPair(provider, this);
                             var matches = SafeGetInstances(providerPair, context);
-                            Assert.That(matches.Count() > 0);
+                            Assert.That(matches.Any());
                         }
                     }
                 }
@@ -367,8 +367,7 @@ namespace Zenject
                 _providers.Add(bindingId, new List<ProviderInfo> { info });
             }
         }
-
-        // NOTE: You need to despawn the ProviderPair's added here
+        
         void GetProviderMatches(
             InjectContext context, List<ProviderPair> buffer)
         {
@@ -392,38 +391,116 @@ namespace Zenject
                     {
                         buffer.Add(match);
                     }
-                    else
-                    {
-                        block.Add(match);
-                    }
                 }
             }
         }
 
-        void GetAllContainersToLookup(
-            InjectSources sourceType, List<DiContainer> buffer)
+        ProviderPair? GetSingleProviderMatch(InjectContext context)
+        {
+            Assert.IsNotNull(context);
+            var bindingId = context.BindingId;
+            var sourceType = context.SourceType;
+
+            ForAllContainersToLookup(sourceType, container => container.FlushBindings());
+
+            ProviderPair? selected = null;
+            int selectedDistance = Int32.MaxValue;
+            bool selectedHasCondition = false;
+            bool ambiguousSelection = false;
+            ForAllContainersToLookup(sourceType, container =>
+            {
+                int curDistance = GetContainerHeirarchyDistance(container);
+                if (curDistance > selectedDistance)
+                {
+                    // If matching provider was already found lower in the hierarchy => don't search for a new one, 
+                    // because there can't be a better or equal provider in this container.
+                    return;
+                }
+                var localProviders = container.GetLocalProviders(bindingId);
+                foreach (var provider in localProviders)
+                {
+                    bool curHasCondition = provider.Condition != null;
+
+                    if (curHasCondition && !provider.Condition(context))
+                    {
+                        // The condition is not satisfied
+                        continue;
+                    }
+
+                    // The distance can't decrease becuase we are iterating over the containers with increasing distance.
+                    // The distance can't increase because  we skip the container if the distance is greater than selected
+                    // So the distances are equal and only the condition can help resolving the amiguity.
+                    Assert.That(selected == null || selectedDistance == curDistance);
+
+                    if (curHasCondition)
+                    {
+                        if (selectedHasCondition)
+                        {
+                            // both providers have condition and are on equal depth
+                            ambiguousSelection = true;
+                        }
+                        else
+                        {
+                            // ambiguity is resolved because a provider with condition was found.
+                            ambiguousSelection = false;
+                        }
+                    }
+                    else
+                    {
+                        if (selected != null && !selectedHasCondition)
+                        {
+                            // both providers don't have a condition and are on equal depth
+                            ambiguousSelection = true;
+                        }
+                    }
+
+                    if (ambiguousSelection)
+                    {
+                        continue;
+                    }
+
+                    selectedDistance = curDistance;
+                    selectedHasCondition = curHasCondition;
+                    selected = new ProviderPair(provider, container);
+                }
+            });
+
+            if (ambiguousSelection)
+            {
+                throw Assert.CreateException(
+                    "Found multiple matches when only one was expected for type '{0}'{1}. \nObject graph:\n {2}",
+                    context.MemberType,
+                    (context.ObjectType == null
+                        ? ""
+                        : " while building object with type '{0}'".Fmt(context.ObjectType)),
+                    context.GetObjectGraphString());
+            }
+            return selected;
+        }
+
+        void ForAllContainersToLookup(InjectSources sourceType, Action<DiContainer> action)
         {
             switch (sourceType)
             {
                 case InjectSources.Local:
                 {
-                    buffer.Add(this);
+                    action(this);
                     break;
                 }
                 case InjectSources.Parent:
                 {
                     for (int i = 0; i < _parentContainers.Count; i++)
                     {
-                        buffer.Add(_parentContainers[i]);
+                        action(_parentContainers[i]);
                     }
                     break;
                 }
                 case InjectSources.Any:
                 {
-                    buffer.Add(this);
+                    action(this);
                     for (int i = 0; i < _ancestorContainers.Count; i++)
                     {
-                        buffer.Add(_ancestorContainers[i]);
+                        action(_ancestorContainers[i]);
                     }
                     break;
                 }
@@ -431,7 +508,7 @@ namespace Zenject
                 {
                     for (int i = 0; i < _ancestorContainers.Count; i++)
                     {
-                        buffer.Add(_ancestorContainers[i]);
+                        action(_ancestorContainers[i]);
                     }
                     break;
                 }
@@ -470,41 +547,33 @@ namespace Zenject
 
         void GetLocalProviderPairs(BindingId bindingId, List<ProviderPair> buffer)
         {
-            using (var block = DisposeBlock.Spawn())
+            buffer.AddRange(GetLocalProviders(bindingId).Select(x => new ProviderPair(x, this)));
+        }
+
+        List<ProviderInfo> GetLocalProviders(BindingId bindingId)
+        {
+            List<ProviderInfo> localProviders;
+
+            if (_providers.TryGetValue(bindingId, out localProviders))
             {
-                var providers = ListPool<ProviderInfo>.Instance.SpawnWrapper()
-                    .AttachedTo(block).Value;
-
-                GetLocalProviders(bindingId, providers);
-
-                for (int i = 0; i < providers.Count; i++)
-                {
-                    var provider = providers[i];
-                    buffer.Add(ProviderPair.Pool.Spawn(provider, this));
-                }
+                return localProviders;
             }
+
+            // If we are asking for a List<int>, we should also match for any localProviders that are bound to the open generic type List<>
+            // Currently it only matches one and not the other - not totally sure if this is better than returning both
+            if (bindingId.Type.IsGenericType() && _providers.TryGetValue(new BindingId(bindingId.Type.GetGenericTypeDefinition(), bindingId.Identifier), out localProviders))
+            {
+                return localProviders;
+            }
+
+            return new List<ProviderInfo>();
         }
 
         void GetProvidersForContract(
             BindingId bindingId, InjectSources sourceType, List<ProviderPair> buffer)
         {
-            using (var block = DisposeBlock.Spawn())
-            {
-                var containers = ListPool<DiContainer>.Instance.SpawnWrapper()
-                    .AttachedTo(block).Value;
-
-                GetAllContainersToLookup(sourceType, containers);
-
-                for (int i = 0; i < containers.Count; i++)
-                {
-                    containers[i].FlushBindings();
-                }
-
-                for (int i = 0; i < containers.Count; i++)
-                {
-                    containers[i].GetLocalProviderPairs(bindingId, buffer);
-                }
-            }
+            ForAllContainersToLookup(sourceType, container => container.FlushBindings());
+            ForAllContainersToLookup(sourceType, container => container.GetLocalProviderPairs(bindingId, buffer));
         }
 
         void GetLocalProviders(BindingId bindingId, List<ProviderInfo> buffer)
@@ -565,8 +634,6 @@ namespace Zenject
                     .AttachedTo(block).Value;
 
                 GetProviderMatches(context, matches);
-
-                block.AddRange(matches);
 
                 if (matches.IsEmpty())
                 {
@@ -689,27 +756,12 @@ namespace Zenject
         {
             Assert.IsNotNull(context);
 
-            ProviderPair provider;
-
             FlushBindings();
 
-            var result = TryGetUniqueProvider(context, out provider);
+            var providerPair = TryGetUniqueProvider(context);
 
-            if (result == ProviderLookupResult.Multiple)
+            if (providerPair == null)
             {
-                Assert.IsNull(provider);
-
-                throw Assert.CreateException(
-                    "Found multiple matches when only one was expected for type '{0}'{1}. \nObject graph:\n {2}",
-                    context.MemberType,
-                    (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
-                    context.GetObjectGraphString());
-            }
-
-            if (result != ProviderLookupResult.Success)
-            {
-                Assert.IsNull(provider);
-
                 throw Assert.CreateException(
                     "Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
                     context.MemberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
@@ -717,12 +769,7 @@ namespace Zenject
                     context.GetObjectGraphString());
             }
 
-            Assert.IsNotNull(provider);
-
-            using (provider)
-            {
-                return provider.ProviderInfo.Provider.GetInstanceType(context);
-            }
+            return providerPair.Value.ProviderInfo.Provider.GetInstanceType(context);
         }
 
         public List<Type> ResolveTypeAll(Type type)
@@ -753,8 +800,6 @@ namespace Zenject
 
                 GetProviderMatches(context, matches);
 
-                block.AddRange(matches);
-
                 if (matches.Count > 0 )
                 {
                     return matches.Select(
@@ -766,77 +811,16 @@ namespace Zenject
             }
         }
 
-        // Try looking up a single provider for a given context
-        // Note that this method should not throw zenject exceptions
-        ProviderLookupResult TryGetUniqueProvider(
-            InjectContext context, out ProviderPair providerPair)
+        /// <summary>
+        /// Try looking up a single provider for a given context
+        /// </summary>
+        /// <returns>Provider pair if found, null otherwise</returns>
+        /// <exception cref="ZenjectException">If there is unresolvable ambiguity</exception>
+        ProviderPair? TryGetUniqueProvider(InjectContext context)
         {
             Assert.IsNotNull(context);
-
-            using (var block = DisposeBlock.Spawn())
-            {
-                var matches = ListPool<ProviderPair>.Instance.SpawnWrapper()
-                    .AttachedTo(block).Value;
-
-                GetProviderMatches(context, matches);
-
-                block.AddRange(matches);
-
-                ProviderLookupResult lookupResult;
-
-                // Note that different types can map to the same provider (eg. a base type to a concrete class and a concrete class to itself)
-                if (matches.IsEmpty())
-                {
-                    providerPair = null;
-                    lookupResult = ProviderLookupResult.None;
-                }
-                else
-                {
-                    lookupResult = ProviderLookupResult.Success;
-
-                    if (matches.Count > 1)
-                    {
-                        // If we find multiple matches and we are looking for just one, then
-                        // try to intelligently choose one from the list before giving up
-
-                        // First try picking the most 'local' dependencies
-                        // This will bias towards bindings for the lower level specific containers rather than the global high level container
-                        // This will, for example, allow you to just ask for a DiContainer dependency without needing to specify [Inject(Source = InjectSources.Local)]
-                        // (otherwise it would always match for a list of DiContainer's for all parent containers)
-                        var sortedProviders = matches.Select(x => new { Pair = x, Distance = GetContainerHeirarchyDistance(x.Container) }).OrderBy(x => x.Distance).ToList();
-
-                        sortedProviders.RemoveAll(x => x.Distance != sortedProviders[0].Distance);
-
-                        if (sortedProviders.Count == 1)
-                        {
-                            // We have one match that is the closest
-                            providerPair = sortedProviders[0].Pair;
-                        }
-                        else
-                        {
-                            // Try choosing the one with a condition before giving up and throwing an exception
-                            // This is nice because it allows us to bind a default and then override with conditions
-                            providerPair = sortedProviders.Where(x => x.Pair.ProviderInfo.Condition != null).Select(x => x.Pair).OnlyOrDefault();
-
-                            if (providerPair == null)
-                            {
-                                lookupResult = ProviderLookupResult.Multiple;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        providerPair = matches.Single();
-                    }
-                }
-
-                if (providerPair != null)
-                {
-                    block.Remove(providerPair);
-                }
-
-                return lookupResult;
-            }
+            var result = GetSingleProviderMatch(context);
+            return result;
         }
 
         public object Resolve(InjectContext context)
@@ -846,8 +830,6 @@ namespace Zenject
             Assert.IsNotNull(context);
 
             var memberType = context.MemberType;
-
-            ProviderPair providerPair;
 
             FlushBindings();
             CheckForInstallWarning(context);
@@ -867,23 +849,10 @@ namespace Zenject
                 lookupContext.Optional = false;
             }
 
-            var result = TryGetUniqueProvider(lookupContext, out providerPair);
+            var providerPair = TryGetUniqueProvider(lookupContext);
 
-            if (result == ProviderLookupResult.Multiple)
+            if (providerPair == null)
             {
-                Assert.IsNull(providerPair);
-
-                throw Assert.CreateException(
-                    "Found multiple matches when only one was expected for type '{0}'{1}. \nObject graph:\n {2}",
-                    memberType,
-                    (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
-                    context.GetObjectGraphString());
-            }
-
-            if (result == ProviderLookupResult.None)
-            {
-                Assert.IsNull(providerPair);
-
                 // If it's an array try matching to multiple values using its array type
                 if (memberType.IsArray && memberType.GetArrayRank() == 1)
                 {
@@ -933,13 +902,9 @@ namespace Zenject
                     (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                     context.GetObjectGraphString());
             }
-
-            Assert.That(result == ProviderLookupResult.Success);
-            Assert.IsNotNull(providerPair);
-
-            using (providerPair)
+            else
             {
-                var instances = SafeGetInstances(providerPair, context);
+                var instances = SafeGetInstances(providerPair.Value, context);
 
                 if (instances.IsEmpty())
                 {
@@ -948,17 +913,27 @@ namespace Zenject
                         return context.FallBackValue;
                     }
 
-                    throw Assert.CreateException("Provider returned zero instances when one was expected!  While resolving type '{0}'{1}. \nObject graph:\n{2}",
-                        memberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
-                        (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
+                    throw Assert.CreateException(
+                        "Provider returned zero instances when one was expected!  While resolving type '{0}'{1}. \nObject graph:\n{2}",
+                        memberType.ToString() + (context.Identifier == null
+                            ? ""
+                            : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                        (context.ObjectType == null
+                            ? ""
+                            : " while building object with type '{0}'".Fmt(context.ObjectType)),
                         context.GetObjectGraphString());
                 }
 
                 if (instances.Count() > 1)
                 {
-                    throw Assert.CreateException("Provider returned multiple instances when only one was expected!  While resolving type '{0}'{1}. \nObject graph:\n{2}",
-                        memberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
-                        (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
+                    throw Assert.CreateException(
+                        "Provider returned multiple instances when only one was expected!  While resolving type '{0}'{1}. \nObject graph:\n{2}",
+                        memberType.ToString() + (context.Identifier == null
+                            ? ""
+                            : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                        (context.ObjectType == null
+                            ? ""
+                            : " while building object with type '{0}'".Fmt(context.ObjectType)),
                         context.GetObjectGraphString());
                 }
 
@@ -974,36 +949,36 @@ namespace Zenject
 
             if (ChecksForCircularDependencies)
             {
-                using (var lookupId = LookupId.Pool.Spawn(provider, context.BindingId))
+                var lookupId = new LookupId(provider, context.BindingId);
+
+                // Use the container associated with the provider to address some rare cases
+                // which would otherwise result in an infinite loop.  Like this:
+                // Container.Bind<ICharacter>().FromComponentInNewPrefab(Prefab).AsTransient()
+                // With the prefab being a GameObjectContext containing a script that has a
+                // ICharacter dependency.  In this case, we would otherwise use the _resolvesInProgress
+                // associated with the GameObjectContext container, which will allow the recursive
+                // lookup, which will trigger another GameObjectContext and container (since it is
+                // transient) and the process continues indefinitely
+
+                var providerContainer = providerPair.Container;
+
+                //TODO: optimize
+                if (providerContainer._resolvesInProgress.Where(x => x.Equals(lookupId)).HasAtLeast(2))
                 {
-                    // Use the container associated with the provider to address some rare cases
-                    // which would otherwise result in an infinite loop.  Like this:
-                    // Container.Bind<ICharacter>().FromComponentInNewPrefab(Prefab).AsTransient()
-                    // With the prefab being a GameObjectContext containing a script that has a
-                    // ICharacter dependency.  In this case, we would otherwise use the _resolvesInProgress
-                    // associated with the GameObjectContext container, which will allow the recursive
-                    // lookup, which will trigger another GameObjectContext and container (since it is
-                    // transient) and the process continues indefinitely
+                    // Allow one before giving up so that you can do circular dependencies via postinject or fields
+                    throw Assert.CreateException(
+                        "Circular dependency detected! \nObject graph:\n {0}", context.GetObjectGraphString());
+                }
 
-                    var providerContainer = providerPair.Container;
-
-                    if (providerContainer._resolvesInProgress.Where(x => x.Equals(lookupId)).Count() > 1)
-                    {
-                        // Allow one before giving up so that you can do circular dependencies via postinject or fields
-                        throw Assert.CreateException(
-                            "Circular dependency detected! \nObject graph:\n {0}", context.GetObjectGraphString());
-                    }
-
-                    providerContainer._resolvesInProgress.Push(lookupId);
-                    try
-                    {
-                        return provider.GetAllInstances(context);
-                    }
-                    finally
-                    {
-                        Assert.That(providerContainer._resolvesInProgress.Peek().Equals(lookupId));
-                        providerContainer._resolvesInProgress.Pop();
-                    }
+                providerContainer._resolvesInProgress.Push(lookupId);
+                try
+                {
+                    return provider.GetAllInstances(context);
+                }
+                finally
+                {
+                    Assert.That(providerContainer._resolvesInProgress.Peek().Equals(lookupId));
+                    providerContainer._resolvesInProgress.Pop();
                 }
             }
             else
@@ -2266,8 +2241,6 @@ namespace Zenject
 
                 GetProviderMatches(context, matches);
 
-                block.AddRange(matches);
-
                 return matches.Count > 0;
             }
         }
@@ -3117,31 +3090,8 @@ namespace Zenject
 
         ////////////// Types ////////////////
 
-        class ProviderPair : IDisposable
+        struct ProviderPair
         {
-            public static readonly NewableMemoryPool<ProviderInfo, DiContainer, ProviderPair> Pool =
-                new NewableMemoryPool<ProviderInfo, DiContainer, ProviderPair>(
-                    x => x.OnSpawned, x => x.OnDespawned);
-
-            void OnDespawned()
-            {
-                ProviderInfo = null;
-                Container = null;
-            }
-
-            void OnSpawned(
-                ProviderInfo providerInfo,
-                DiContainer container)
-            {
-                ProviderInfo = providerInfo;
-                Container = container;
-            }
-
-            public void Dispose()
-            {
-                Pool.Despawn(this);
-            }
-
             public ProviderInfo ProviderInfo
             {
                 get;
@@ -3153,39 +3103,16 @@ namespace Zenject
                 get;
                 private set;
             }
+
+            public ProviderPair(ProviderInfo info, DiContainer container)
+            {
+                ProviderInfo = info;
+                Container = container;
+            }
         }
 
-        public enum ProviderLookupResult
+        struct LookupId
         {
-            Success,
-            Multiple,
-            None
-        }
-
-        class LookupId : IDisposable
-        {
-            public static readonly NewableMemoryPool<IProvider, BindingId, LookupId> Pool =
-                new NewableMemoryPool<IProvider, BindingId, LookupId>(
-                    x => x.OnSpawned, x => x.OnDespawned);
-
-            public void Dispose()
-            {
-                Pool.Despawn(this);
-            }
-
-            void OnDespawned()
-            {
-                Provider = null;
-                BindingId = null;
-            }
-
-            void OnSpawned(
-                IProvider provider, BindingId bindingId)
-            {
-                Provider = provider;
-                BindingId = bindingId;
-            }
-
             public IProvider Provider
             {
                 get; private set;
@@ -3194,6 +3121,12 @@ namespace Zenject
             public BindingId BindingId
             {
                 get; private set;
+            }
+
+            public LookupId(IProvider provider, BindingId bindingId)
+            {
+                Provider = provider;
+                BindingId = bindingId;
             }
         }
 
