@@ -29,7 +29,9 @@ namespace Zenject
         readonly Dictionary<BindingId, List<ProviderInfo>> _providers = new Dictionary<BindingId, List<ProviderInfo>>();
         readonly List<DiContainer> _parentContainers = new List<DiContainer>();
         readonly List<DiContainer> _ancestorContainers = new List<DiContainer>();
-        readonly Stack<LookupId> _resolvesInProgress = new Stack<LookupId>();
+
+        readonly HashSet<LookupId> _resolvesInProgress = new HashSet<LookupId>();
+        readonly HashSet<LookupId> _resolvesTwiceInProgress = new HashSet<LookupId>();
 
         readonly LazyInstanceInjector _lazyInjector;
 
@@ -961,24 +963,38 @@ namespace Zenject
                 // transient) and the process continues indefinitely
 
                 var providerContainer = providerPair.Container;
-
-                //TODO: optimize
-                if (providerContainer._resolvesInProgress.Where(x => x.Equals(lookupId)).HasAtLeast(2))
+                
+                if (providerContainer._resolvesTwiceInProgress.Contains(lookupId))
                 {
                     // Allow one before giving up so that you can do circular dependencies via postinject or fields
                     throw Assert.CreateException(
                         "Circular dependency detected! \nObject graph:\n {0}", context.GetObjectGraphString());
                 }
 
-                providerContainer._resolvesInProgress.Push(lookupId);
+
+                bool twice = false;
+                if (!providerContainer._resolvesInProgress.Add(lookupId))
+                {
+                    bool added = providerContainer._resolvesTwiceInProgress.Add(lookupId);
+                    Assert.That(added);
+                    twice = true;
+                }
                 try
                 {
                     return provider.GetAllInstances(context);
                 }
                 finally
                 {
-                    Assert.That(providerContainer._resolvesInProgress.Peek().Equals(lookupId));
-                    providerContainer._resolvesInProgress.Pop();
+                    if (twice)
+                    {
+                        bool removed = providerContainer._resolvesTwiceInProgress.Remove(lookupId);
+                        Assert.That(removed);
+                    }
+                    else
+                    {
+                        bool removed = providerContainer._resolvesInProgress.Remove(lookupId);
+                        Assert.That(removed);
+                    }
                 }
             }
             else
@@ -3092,17 +3108,9 @@ namespace Zenject
 
         struct ProviderPair
         {
-            public ProviderInfo ProviderInfo
-            {
-                get;
-                private set;
-            }
+            public readonly ProviderInfo ProviderInfo;
 
-            public DiContainer Container
-            {
-                get;
-                private set;
-            }
+            public readonly DiContainer Container;
 
             public ProviderPair(ProviderInfo info, DiContainer container)
             {
@@ -3113,20 +3121,24 @@ namespace Zenject
 
         struct LookupId
         {
-            public IProvider Provider
-            {
-                get; private set;
-            }
-
-            public BindingId BindingId
-            {
-                get; private set;
-            }
+            public readonly IProvider Provider;
+            public readonly BindingId BindingId;
 
             public LookupId(IProvider provider, BindingId bindingId)
             {
+                Assert.IsNotNull(provider);
+                Assert.IsNotNull(bindingId);
+
                 Provider = provider;
                 BindingId = bindingId;
+            }
+
+            public override int GetHashCode()
+            {
+                int hash = 17;
+                hash = hash * 23 + Provider.GetHashCode();
+                hash = hash * 23 + BindingId.GetHashCode();
+                return hash;
             }
         }
 
@@ -3139,23 +3151,11 @@ namespace Zenject
                 NonLazy = nonLazy;
             }
 
-            public bool NonLazy
-            {
-                get;
-                private set;
-            }
+            public readonly bool NonLazy;
 
-            public IProvider Provider
-            {
-                get;
-                private set;
-            }
+            public readonly IProvider Provider;
 
-            public BindingCondition Condition
-            {
-                get;
-                private set;
-            }
+            public readonly BindingCondition Condition;
         }
     }
 }
