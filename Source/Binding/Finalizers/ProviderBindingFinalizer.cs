@@ -206,10 +206,9 @@ namespace Zenject
             Assert.That(!BindInfo.ContractTypes.IsEmpty());
             Assert.That(!concreteTypes.IsEmpty());
 
-            using (var block = DisposeBlock.Spawn())
+            var providerMap = DictionaryPool<Type, IProvider>.Instance.Spawn();
+            try
             {
-                var providerMap = DictionaryPool<Type, IProvider>.Instance.SpawnWrapper().AttachedTo(block).Value;
-
                 foreach (var concreteType in concreteTypes)
                 {
                     var provider = providerFunc(container, concreteType);
@@ -236,6 +235,10 @@ namespace Zenject
                         }
                     }
                 }
+            }
+            finally
+            {
+                DictionaryPool<Type, IProvider>.Instance.Despawn(providerMap);
             }
         }
     }
