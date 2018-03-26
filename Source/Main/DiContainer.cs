@@ -27,8 +27,8 @@ namespace Zenject
     public class DiContainer
     {
         readonly Dictionary<BindingId, List<ProviderInfo>> _providers = new Dictionary<BindingId, List<ProviderInfo>>();
-        readonly List<DiContainer> _parentContainers = new List<DiContainer>();
-        readonly List<DiContainer> _ancestorContainers = new List<DiContainer>();
+        readonly DiContainer[] _parentContainers = new DiContainer[0];
+        readonly DiContainer[] _ancestorContainers = new DiContainer[0];
 
         readonly HashSet<LookupId> _resolvesInProgress = new HashSet<LookupId>();
         readonly HashSet<LookupId> _resolvesTwiceInProgress = new HashSet<LookupId>();
@@ -102,12 +102,12 @@ namespace Zenject
         public DiContainer(IEnumerable<DiContainer> parentContainers, bool isValidating)
             : this(isValidating)
         {
-            _parentContainers = parentContainers.ToList();
-            _ancestorContainers = FlattenInheritanceChain();
+            _parentContainers = parentContainers.ToArray();
+            _ancestorContainers = FlattenInheritanceChain().ToArray();
 
             if (!_parentContainers.IsEmpty())
             {
-                for (int i = 0; i < _parentContainers.Count; i++)
+                for (int i = 0; i < _parentContainers.Length; i++)
                 {
                     _parentContainers[i].FlushBindings();
                 }
@@ -491,26 +491,26 @@ namespace Zenject
                 }
                 case InjectSources.Parent:
                 {
-                    for (int i = 0; i < _parentContainers.Count; i++)
+                    foreach (var parentContainer in _parentContainers)
                     {
-                        action(_parentContainers[i]);
+                        action(parentContainer);
                     }
                     break;
                 }
                 case InjectSources.Any:
                 {
                     action(this);
-                    for (int i = 0; i < _ancestorContainers.Count; i++)
+                    foreach (var ancestor in _ancestorContainers)
                     {
-                        action(_ancestorContainers[i]);
+                        action(ancestor);
                     }
                     break;
                 }
                 case InjectSources.AnyParent:
                 {
-                    for (int i = 0; i < _ancestorContainers.Count; i++)
+                    foreach (var ancestor in _ancestorContainers)
                     {
-                        action(_ancestorContainers[i]);
+                        action(ancestor);
                     }
                     break;
                 }
@@ -534,7 +534,7 @@ namespace Zenject
             {
                 var current = containerQueue.Dequeue();
 
-                foreach (var parent in current.ParentContainers)
+                foreach (var parent in current._parentContainers)
                 {
                     if (!processed.Contains(parent))
                     {
@@ -2264,7 +2264,7 @@ namespace Zenject
         // Do not use this - it is for internal use only
         public void FlushBindings()
         {
-            while (!_currentBindings.IsEmpty())
+            while (_currentBindings.Count > 0)
             {
                 var binding = _currentBindings.Dequeue();
 
