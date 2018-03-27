@@ -9,6 +9,8 @@ namespace ModestTree
     public static class TypeExtensions
     {
         static readonly Dictionary<Type, string> _prettyNameCache = new Dictionary<Type, string>();
+        static readonly Dictionary<Type, bool> _isClosedGenericType = new Dictionary<Type, bool>();
+        static readonly Dictionary<Type, bool> _isOpenGenericType = new Dictionary<Type, bool>();
 
         public static bool DerivesFrom<T>(this Type a)
         {
@@ -254,15 +256,27 @@ namespace ModestTree
                 yield return ancestor;
             }
         }
-
+        
         public static bool IsClosedGenericType(this Type type)
         {
-            return type.IsGenericType() && type != type.GetGenericTypeDefinition();
+            bool result;
+            if (!_isClosedGenericType.TryGetValue(type, out result))
+            {
+                result = type.IsGenericType() && type != type.GetGenericTypeDefinition();
+                _isClosedGenericType[type] = result;
+            }
+            return result;
         }
 
         public static bool IsOpenGenericType(this Type type)
         {
-            return type.IsGenericType() && type == type.GetGenericTypeDefinition();
+            bool result;
+            if (!_isOpenGenericType.TryGetValue(type, out result))
+            {
+                result = type.IsGenericType() && type == type.GetGenericTypeDefinition();
+                _isOpenGenericType[type] = result;
+            }
+            return result;
         }
 
         // Returns all instance fields, including private and public and also those in base classes
