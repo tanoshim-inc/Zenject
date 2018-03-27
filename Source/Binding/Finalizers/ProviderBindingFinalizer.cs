@@ -157,7 +157,9 @@ namespace Zenject
         // Returns true if the bind should continue, false to skip
         bool ValidateBindTypes(Type concreteType, Type contractType)
         {
-            if (concreteType.IsOpenGenericType() != contractType.IsOpenGenericType())
+            bool isConcreteOpenGenericType = concreteType.IsOpenGenericType();
+            bool isContractOpenGenericType = contractType.IsOpenGenericType();
+            if (isConcreteOpenGenericType != isContractOpenGenericType)
             {
                 return false;
             }
@@ -165,9 +167,9 @@ namespace Zenject
 #if !(UNITY_WSA && ENABLE_DOTNET)
             // TODO: Is it possible to do this on WSA?
 
-            if (contractType.IsOpenGenericType())
+            if (isContractOpenGenericType)
             {
-                Assert.That(concreteType.IsOpenGenericType());
+                Assert.That(isConcreteOpenGenericType);
 
                 if (TypeExtensions.IsAssignableToGenericType(concreteType, contractType))
                 {
