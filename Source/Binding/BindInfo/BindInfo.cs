@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Zenject
 {
@@ -56,107 +57,49 @@ namespace Zenject
             InvalidBindResponse = InvalidBindResponses.Assert;
         }
 
-        public bool MarkAsCreationBinding
+        [Conditional("UNITY_EDITOR")]
+        public void SetContextInfo(string contextInfo)
         {
-            get;
-            set;
+            ContextInfo = contextInfo;
         }
 
-        public bool MarkAsUniqueSingleton
-        {
-            get;
-            set;
-        }
+        public bool MarkAsCreationBinding;
 
-        public object ProviderIdentifier
-        {
-            get;
-            set;
-        }
+        public bool MarkAsUniqueSingleton;
 
-        public bool SaveProvider
-        {
-            get;
-            set;
-        }
+        public object ProviderIdentifier;
 
-        public bool OnlyBindIfNotBound
-        {
-            get;
-            set;
-        }
+        public bool SaveProvider;
+
+        public bool OnlyBindIfNotBound;
+
+        public bool RequireExplicitScope;
+
+        public object Identifier;
+
+        public List<Type> ContractTypes;
+
+        public BindingInheritanceMethods BindingInheritanceMethod;
+
+        public InvalidBindResponses InvalidBindResponse;
+
+        public bool NonLazy;
+
+        public BindingCondition Condition;
+
+        public ToChoices ToChoice;
 
         public string ContextInfo
         {
             get;
-            set;
-        }
-
-        public bool RequireExplicitScope
-        {
-            get;
-            set;
-        }
-
-        public object Identifier
-        {
-            get;
-            set;
-        }
-
-        public List<Type> ContractTypes
-        {
-            get;
-            set;
-        }
-
-        public BindingInheritanceMethods BindingInheritanceMethod
-        {
-            get;
-            set;
-        }
-
-        public InvalidBindResponses InvalidBindResponse
-        {
-            get;
-            set;
-        }
-
-        public bool NonLazy
-        {
-            get;
-            set;
-        }
-
-        public BindingCondition Condition
-        {
-            get;
-            set;
-        }
-
-        public ToChoices ToChoice
-        {
-            get;
-            set;
+            private set;
         }
 
         // Only relevant with ToChoices.Concrete
-        public List<Type> ToTypes
-        {
-            get;
-            set;
-        }
+        public List<Type> ToTypes;
 
-        public ScopeTypes Scope
-        {
-            get;
-            set;
-        }
+        public ScopeTypes Scope;
 
-        public List<TypeValuePair> Arguments
-        {
-            get;
-            set;
-        }
+        public List<TypeValuePair> Arguments;
     }
 }

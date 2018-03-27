@@ -2376,7 +2376,7 @@ namespace Zenject
         {
             var bindInfo = new BindInfo();
             bindInfo.ContractTypes.AddRange(contractTypes);
-            bindInfo.ContextInfo = contextInfo;
+            bindInfo.SetContextInfo(contextInfo);
             return BindInternal(bindInfo);
         }
 
@@ -2437,7 +2437,7 @@ namespace Zenject
             var bindInfo = new BindInfo();
 
             bindInfo.ContractTypes.AddRange(type.Interfaces());
-            bindInfo.ContextInfo = "BindInterfacesTo({0})".Fmt(type);
+            bindInfo.SetContextInfo("BindInterfacesTo({0})".Fmt(type));
 
             // Almost always, you don't want to use the default AsTransient so make them type it
             bindInfo.RequireExplicitScope = true;
@@ -2457,7 +2457,7 @@ namespace Zenject
             bindInfo.ContractTypes.AddRange(type.Interfaces());
             bindInfo.ContractTypes.Add(type);
 
-            bindInfo.ContextInfo = "BindInterfacesAndSelfTo({0})".Fmt(type);
+            bindInfo.SetContextInfo("BindInterfacesAndSelfTo({0})".Fmt(type));
 
             // Almost always, you don't want to use the default AsTransient so make them type it
             bindInfo.RequireExplicitScope = true;

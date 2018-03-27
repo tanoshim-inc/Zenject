@@ -41,7 +41,7 @@ namespace Zenject
 
         public void FinalizeBinding(DiContainer container)
         {
-            if (BindInfo.ContractTypes.IsEmpty())
+            if (BindInfo.ContractTypes.Count == 0)
             {
                 // We could assert her instead but it is nice when used with things like
                 // BindInterfaces() (and there aren't any interfaces) to allow
