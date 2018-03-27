@@ -360,13 +360,14 @@ namespace Zenject
         {
             var info = new ProviderInfo(provider, condition, nonLazy);
 
-            if (_providers.ContainsKey(bindingId))
+            List<ProviderInfo> providerInfos;
+            if (!_providers.TryGetValue(bindingId, out providerInfos))
             {
-                _providers[bindingId].Add(info);
+                _providers.Add(bindingId, new List<ProviderInfo> { info });
             }
             else
             {
-                _providers.Add(bindingId, new List<ProviderInfo> { info });
+                providerInfos.Add(info);
             }
         }
         
