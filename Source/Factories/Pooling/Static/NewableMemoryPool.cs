@@ -4,7 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    public class NewableMemoryPoolBase<TValue> : IMemoryPool
+    public abstract class NewableMemoryPoolBase<TValue> : IDespawnableMemoryPool<TValue>
         where TValue : class, new()
     {
         readonly Stack<TValue> _stack = new Stack<TValue>();
@@ -81,7 +81,7 @@ namespace Zenject
 
         protected DisposeWrapper<TValue> SpawnWrapper(TValue instance)
         {
-            return DisposeWrapper<TValue>.Pool.Spawn(instance, this.Despawn);
+            return DisposeWrapper<TValue>.Pool.Spawn(instance, this);
         }
 
         public void Despawn(TValue element)

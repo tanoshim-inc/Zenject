@@ -10,18 +10,12 @@ namespace ModestTree
 
         public ListPool()
         {
-            OnSpawnMethod = OnSpawned;
             OnDespawnedMethod = OnDespawned;
         }
 
         public static ListPool<T> Instance
         {
             get { return _instance; }
-        }
-
-        void OnSpawned(List<T> list)
-        {
-            Assert.That(list.IsEmpty());
         }
 
         void OnDespawned(List<T> list)

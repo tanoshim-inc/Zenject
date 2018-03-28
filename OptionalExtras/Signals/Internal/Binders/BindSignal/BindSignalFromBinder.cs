@@ -19,7 +19,12 @@ namespace Zenject
             _container = container;
         }
 
-        public SignalCopyBinder FromObject(Action<ConcreteBinderGeneric<TObject>> objectBindCallback)
+        public SignalCopyBinder FromResolve()
+        {
+            return From(x => x.FromResolve().AsCached());
+        }
+
+        public SignalCopyBinder From(Action<ConcreteBinderGeneric<TObject>> objectBindCallback)
         {
             Assert.IsNull(_finalizerWrapper.SubFinalizer);
             _finalizerWrapper.SubFinalizer = new NullBindingFinalizer();

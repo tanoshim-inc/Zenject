@@ -14,45 +14,43 @@ namespace Zenject
         }
     }
 
-    public interface IMemoryPool<TValue> : IMemoryPool
+    public interface IDespawnableMemoryPool<TValue> : IMemoryPool
+    {
+        void Despawn(TValue item);
+    }
+
+    public interface IMemoryPool<TValue> : IDespawnableMemoryPool<TValue>
     {
         TValue Spawn();
-        void Despawn(TValue item);
     }
 
-    public interface IMemoryPool<in TParam1, TValue> : IMemoryPool
+    public interface IMemoryPool<in TParam1, TValue> : IDespawnableMemoryPool<TValue>
     {
         TValue Spawn(TParam1 param);
-        void Despawn(TValue item);
     }
 
-    public interface IMemoryPool<in TParam1, in TParam2, TValue> : IMemoryPool
+    public interface IMemoryPool<in TParam1, in TParam2, TValue> : IDespawnableMemoryPool<TValue>
     {
         TValue Spawn(TParam1 param1, TParam2 param2);
-        void Despawn(TValue item);
     }
 
-    public interface IMemoryPool<in TParam1, in TParam2, in TParam3, TValue> : IMemoryPool
+    public interface IMemoryPool<in TParam1, in TParam2, in TParam3, TValue> : IDespawnableMemoryPool<TValue>
     {
         TValue Spawn(TParam1 param1, TParam2 param2, TParam3 param3);
-        void Despawn(TValue item);
     }
 
-    public interface IMemoryPool<in TParam1, in TParam2, in TParam3, in TParam4, TValue> : IMemoryPool
+    public interface IMemoryPool<in TParam1, in TParam2, in TParam3, in TParam4, TValue> : IDespawnableMemoryPool<TValue>
     {
         TValue Spawn(TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4);
-        void Despawn(TValue item);
     }
 
-    public interface IMemoryPool<in TParam1, in TParam2, in TParam3, in TParam4, in TParam5, TValue> : IMemoryPool
+    public interface IMemoryPool<in TParam1, in TParam2, in TParam3, in TParam4, in TParam5, TValue> : IDespawnableMemoryPool<TValue>
     {
         TValue Spawn(TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5);
-        void Despawn(TValue item);
     }
 
-    public interface IMemoryPool<in TParam1, in TParam2, in TParam3, in TParam4, in TParam5, in TParam6, TValue> : IMemoryPool
+    public interface IMemoryPool<in TParam1, in TParam2, in TParam3, in TParam4, in TParam5, in TParam6, TValue> : IDespawnableMemoryPool<TValue>
     {
         TValue Spawn(TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5, TParam6 param6);
-        void Despawn(TValue item);
     }
 }

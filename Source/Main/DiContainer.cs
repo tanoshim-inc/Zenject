@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -367,7 +367,7 @@ namespace Zenject
                 _providers.Add(bindingId, new List<ProviderInfo> { info });
             }
         }
-        
+
         void GetProviderMatches(
             InjectContext context, List<ProviderPair> buffer)
         {
@@ -398,6 +398,7 @@ namespace Zenject
         ProviderPair? GetSingleProviderMatch(InjectContext context)
         {
             Assert.IsNotNull(context);
+
             var bindingId = context.BindingId;
             var sourceType = context.SourceType;
 
@@ -406,17 +407,22 @@ namespace Zenject
             ProviderPair? selected = null;
             int selectedDistance = Int32.MaxValue;
             bool selectedHasCondition = false;
+
             bool ambiguousSelection = false;
+
             ForAllContainersToLookup(sourceType, container =>
             {
                 int curDistance = GetContainerHeirarchyDistance(container);
+
                 if (curDistance > selectedDistance)
                 {
-                    // If matching provider was already found lower in the hierarchy => don't search for a new one, 
+                    // If matching provider was already found lower in the hierarchy => don't search for a new one,
                     // because there can't be a better or equal provider in this container.
                     return;
                 }
+
                 var localProviders = container.GetLocalProviders(bindingId);
+
                 foreach (var provider in localProviders)
                 {
                     bool curHasCondition = provider.Condition != null;
@@ -427,29 +433,35 @@ namespace Zenject
                         continue;
                     }
 
-                    // The distance can't decrease becuase we are iterating over the containers with increasing distance.
+                    // The distance can't decrease because we are iterating over the containers with increasing distance.
                     // The distance can't increase because  we skip the container if the distance is greater than selected
                     // So the distances are equal and only the condition can help resolving the amiguity.
                     Assert.That(selected == null || selectedDistance == curDistance);
 
-                    if (curHasCondition)
+                    if (selected != null)
                     {
-                        if (selectedHasCondition)
+                        if (curHasCondition)
                         {
-                            // both providers have condition and are on equal depth
-                            ambiguousSelection = true;
+                            if (selectedHasCondition)
+                            {
+                                // Both have conditions - ambiguous
+                                ambiguousSelection = true;
+                            }
+                            else
+                            {
+                                // ambiguity is resolved because a provider with condition was found.
+                                ambiguousSelection = false;
+                            }
                         }
                         else
                         {
-                            // ambiguity is resolved because a provider with condition was found.
-                            ambiguousSelection = false;
-                        }
-                    }
-                    else
-                    {
-                        if (selected != null && !selectedHasCondition)
-                        {
-                            // both providers don't have a condition and are on equal depth
+                            if (selectedHasCondition)
+                            {
+                                // Selected wins because it has a condition so skip it
+                                continue;
+                            }
+
+                            // Both do not have conditions - ambiguous
                             ambiguousSelection = true;
                         }
                     }
@@ -475,6 +487,7 @@ namespace Zenject
                         : " while building object with type '{0}'".Fmt(context.ObjectType)),
                     context.GetObjectGraphString());
             }
+
             return selected;
         }
 
@@ -550,6 +563,13 @@ namespace Zenject
             buffer.AddRange(GetLocalProviders(bindingId).Select(x => new ProviderPair(x, this)));
         }
 
+        void GetProvidersForContract(
+            BindingId bindingId, InjectSources sourceType, List<ProviderPair> buffer)
+        {
+            ForAllContainersToLookup(sourceType, container => container.FlushBindings());
+            ForAllContainersToLookup(sourceType, container => container.GetLocalProviderPairs(bindingId, buffer));
+        }
+
         List<ProviderInfo> GetLocalProviders(BindingId bindingId)
         {
             List<ProviderInfo> localProviders;
@@ -567,13 +587,6 @@ namespace Zenject
             }
 
             return new List<ProviderInfo>();
-        }
-
-        void GetProvidersForContract(
-            BindingId bindingId, InjectSources sourceType, List<ProviderPair> buffer)
-        {
-            ForAllContainersToLookup(sourceType, container => container.FlushBindings());
-            ForAllContainersToLookup(sourceType, container => container.GetLocalProviderPairs(bindingId, buffer));
         }
 
         void GetLocalProviders(BindingId bindingId, List<ProviderInfo> buffer)
@@ -763,7 +776,7 @@ namespace Zenject
             if (providerPair == null)
             {
                 throw Assert.CreateException(
-                    "Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
+                    "Unable to resolve unique match for type '{0}'{1}. \nObject graph:\n{2}",
                     context.MemberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
                     (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                     context.GetObjectGraphString());

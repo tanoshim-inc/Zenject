@@ -44,7 +44,7 @@ namespace Zenject.Tests.Bindings
 
             Assert.IsEqual(subContainer.Resolve<Foo>(), StaticFoo);
 
-            Assert.That(Container.AllContracts.Where(x => x.Type == typeof(IFactory<Foo>)).Count() == 1);
+            Assert.That(subContainer.AllContracts.Where(x => x.Type == typeof(IFactory<Foo>)).Count() == 1);
 
             subContainer.Resolve<Foo>();
             subContainer.Resolve<Foo>();

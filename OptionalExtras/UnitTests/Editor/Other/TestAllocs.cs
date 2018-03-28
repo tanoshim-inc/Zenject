@@ -33,13 +33,13 @@ namespace Zenject.Tests.Other
         {
             Container.Bind<IFoo>().To<Foo1>().AsSingle();
 
-            Container.Resolve<IFoo>();
+            Container.TryResolve<IFoo>();
 
             Log.Info("Starting memory check");
 
             var point1 = dotMemory.Check();
 
-            Container.Resolve<IFoo>();
+            Container.TryResolve<IFoo>();
 
             dotMemory.Check(memory =>
                 {
