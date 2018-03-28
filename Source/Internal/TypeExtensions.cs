@@ -12,6 +12,7 @@ namespace ModestTree
         static readonly Dictionary<Type, bool> _isClosedGenericType = new Dictionary<Type, bool>();
         static readonly Dictionary<Type, bool> _isOpenGenericType = new Dictionary<Type, bool>();
         static readonly Dictionary<Type, bool> _isValueType = new Dictionary<Type, bool>();
+        static readonly Dictionary<Type, Type[]> _interfaces = new Dictionary<Type, Type[]>();
 
         public static bool DerivesFrom<T>(this Type a)
         {
@@ -42,7 +43,7 @@ namespace ModestTree
         // TODO: Is it possible to do this on WSA?
         public static bool IsAssignableToGenericType(Type givenType, Type genericType)
         {
-            var interfaceTypes = givenType.GetInterfaces();
+            var interfaceTypes = givenType.Interfaces();
 
             foreach (var it in interfaceTypes)
             {
@@ -206,11 +207,17 @@ namespace ModestTree
 
         public static Type[] Interfaces(this Type type)
         {
+            Type[] result;
+            if (!_interfaces.TryGetValue(type, out result))
+            {
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
-            return type.GetTypeInfo().ImplementedInterfaces.ToArray();
+                result = type.GetTypeInfo().ImplementedInterfaces.ToArray();
 #else
-            return type.GetInterfaces();
+                result = type.GetInterfaces();
 #endif
+                _interfaces.Add(type, result);
+            }
+            return result;
         }
 
         public static ConstructorInfo[] Constructors(this Type type)
