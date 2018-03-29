@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,9 +27,11 @@ namespace Zenject
     public class DiContainer
     {
         readonly Dictionary<BindingId, List<ProviderInfo>> _providers = new Dictionary<BindingId, List<ProviderInfo>>();
-        readonly List<DiContainer> _parentContainers = new List<DiContainer>();
-        readonly List<DiContainer> _ancestorContainers = new List<DiContainer>();
-        readonly Stack<LookupId> _resolvesInProgress = new Stack<LookupId>();
+        readonly DiContainer[] _parentContainers = new DiContainer[0];
+        readonly DiContainer[] _ancestorContainers = new DiContainer[0];
+
+        readonly HashSet<LookupId> _resolvesInProgress = new HashSet<LookupId>();
+        readonly HashSet<LookupId> _resolvesTwiceInProgress = new HashSet<LookupId>();
 
         readonly LazyInstanceInjector _lazyInjector;
 
@@ -100,12 +102,12 @@ namespace Zenject
         public DiContainer(IEnumerable<DiContainer> parentContainers, bool isValidating)
             : this(isValidating)
         {
-            _parentContainers = parentContainers.ToList();
-            _ancestorContainers = FlattenInheritanceChain();
+            _parentContainers = parentContainers.ToArray();
+            _ancestorContainers = FlattenInheritanceChain().ToArray();
 
             if (!_parentContainers.IsEmpty())
             {
-                for (int i = 0; i < _parentContainers.Count; i++)
+                for (int i = 0; i < _parentContainers.Length; i++)
                 {
                     _parentContainers[i].FlushBindings();
                 }
@@ -358,16 +360,17 @@ namespace Zenject
         {
             var info = new ProviderInfo(provider, condition, nonLazy);
 
-            if (_providers.ContainsKey(bindingId))
-            {
-                _providers[bindingId].Add(info);
-            }
-            else
+            List<ProviderInfo> providerInfos;
+            if (!_providers.TryGetValue(bindingId, out providerInfos))
             {
                 _providers.Add(bindingId, new List<ProviderInfo> { info });
             }
+            else
+            {
+                providerInfos.Add(info);
+            }
         }
-
+        
         void GetProviderMatches(
             InjectContext context, List<ProviderPair> buffer)
         {
@@ -398,7 +401,6 @@ namespace Zenject
         ProviderPair? GetSingleProviderMatch(InjectContext context)
         {
             Assert.IsNotNull(context);
-
             var bindingId = context.BindingId;
             var sourceType = context.SourceType;
 
@@ -407,22 +409,17 @@ namespace Zenject
             ProviderPair? selected = null;
             int selectedDistance = Int32.MaxValue;
             bool selectedHasCondition = false;
-
             bool ambiguousSelection = false;
-
             ForAllContainersToLookup(sourceType, container =>
             {
                 int curDistance = GetContainerHeirarchyDistance(container);
-
                 if (curDistance > selectedDistance)
                 {
-                    // If matching provider was already found lower in the hierarchy => don't search for a new one,
+                    // If matching provider was already found lower in the hierarchy => don't search for a new one, 
                     // because there can't be a better or equal provider in this container.
                     return;
                 }
-
                 var localProviders = container.GetLocalProviders(bindingId);
-
                 foreach (var provider in localProviders)
                 {
                     bool curHasCondition = provider.Condition != null;
@@ -433,35 +430,29 @@ namespace Zenject
                         continue;
                     }
 
-                    // The distance can't decrease because we are iterating over the containers with increasing distance.
+                    // The distance can't decrease becuase we are iterating over the containers with increasing distance.
                     // The distance can't increase because  we skip the container if the distance is greater than selected
                     // So the distances are equal and only the condition can help resolving the amiguity.
                     Assert.That(selected == null || selectedDistance == curDistance);
 
-                    if (selected != null)
+                    if (curHasCondition)
                     {
-                        if (curHasCondition)
+                        if (selectedHasCondition)
                         {
-                            if (selectedHasCondition)
-                            {
-                                // Both have conditions - ambiguous
-                                ambiguousSelection = true;
-                            }
-                            else
-                            {
-                                // ambiguity is resolved because a provider with condition was found.
-                                ambiguousSelection = false;
-                            }
+                            // both providers have condition and are on equal depth
+                            ambiguousSelection = true;
                         }
                         else
                         {
-                            if (selectedHasCondition)
-                            {
-                                // Selected wins because it has a condition so skip it
-                                continue;
-                            }
-
-                            // Both do not have conditions - ambiguous
+                            // ambiguity is resolved because a provider with condition was found.
+                            ambiguousSelection = false;
+                        }
+                    }
+                    else
+                    {
+                        if (selected != null && !selectedHasCondition)
+                        {
+                            // both providers don't have a condition and are on equal depth
                             ambiguousSelection = true;
                         }
                     }
@@ -487,7 +478,6 @@ namespace Zenject
                         : " while building object with type '{0}'".Fmt(context.ObjectType)),
                     context.GetObjectGraphString());
             }
-
             return selected;
         }
 
@@ -502,26 +492,26 @@ namespace Zenject
                 }
                 case InjectSources.Parent:
                 {
-                    for (int i = 0; i < _parentContainers.Count; i++)
+                    foreach (var parentContainer in _parentContainers)
                     {
-                        action(_parentContainers[i]);
+                        action(parentContainer);
                     }
                     break;
                 }
                 case InjectSources.Any:
                 {
                     action(this);
-                    for (int i = 0; i < _ancestorContainers.Count; i++)
+                    foreach (var ancestor in _ancestorContainers)
                     {
-                        action(_ancestorContainers[i]);
+                        action(ancestor);
                     }
                     break;
                 }
                 case InjectSources.AnyParent:
                 {
-                    for (int i = 0; i < _ancestorContainers.Count; i++)
+                    foreach (var ancestor in _ancestorContainers)
                     {
-                        action(_ancestorContainers[i]);
+                        action(ancestor);
                     }
                     break;
                 }
@@ -545,7 +535,7 @@ namespace Zenject
             {
                 var current = containerQueue.Dequeue();
 
-                foreach (var parent in current.ParentContainers)
+                foreach (var parent in current._parentContainers)
                 {
                     if (!processed.Contains(parent))
                     {
@@ -561,13 +551,6 @@ namespace Zenject
         void GetLocalProviderPairs(BindingId bindingId, List<ProviderPair> buffer)
         {
             buffer.AddRange(GetLocalProviders(bindingId).Select(x => new ProviderPair(x, this)));
-        }
-
-        void GetProvidersForContract(
-            BindingId bindingId, InjectSources sourceType, List<ProviderPair> buffer)
-        {
-            ForAllContainersToLookup(sourceType, container => container.FlushBindings());
-            ForAllContainersToLookup(sourceType, container => container.GetLocalProviderPairs(bindingId, buffer));
         }
 
         List<ProviderInfo> GetLocalProviders(BindingId bindingId)
@@ -587,6 +570,13 @@ namespace Zenject
             }
 
             return new List<ProviderInfo>();
+        }
+
+        void GetProvidersForContract(
+            BindingId bindingId, InjectSources sourceType, List<ProviderPair> buffer)
+        {
+            ForAllContainersToLookup(sourceType, container => container.FlushBindings());
+            ForAllContainersToLookup(sourceType, container => container.GetLocalProviderPairs(bindingId, buffer));
         }
 
         void GetLocalProviders(BindingId bindingId, List<ProviderInfo> buffer)
@@ -776,7 +766,7 @@ namespace Zenject
             if (providerPair == null)
             {
                 throw Assert.CreateException(
-                    "Unable to resolve unique match for type '{0}'{1}. \nObject graph:\n{2}",
+                    "Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
                     context.MemberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
                     (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                     context.GetObjectGraphString());
@@ -974,24 +964,38 @@ namespace Zenject
                 // transient) and the process continues indefinitely
 
                 var providerContainer = providerPair.Container;
-
-                //TODO: optimize
-                if (providerContainer._resolvesInProgress.Where(x => x.Equals(lookupId)).HasAtLeast(2))
+                
+                if (providerContainer._resolvesTwiceInProgress.Contains(lookupId))
                 {
                     // Allow one before giving up so that you can do circular dependencies via postinject or fields
                     throw Assert.CreateException(
                         "Circular dependency detected! \nObject graph:\n {0}", context.GetObjectGraphString());
                 }
 
-                providerContainer._resolvesInProgress.Push(lookupId);
+
+                bool twice = false;
+                if (!providerContainer._resolvesInProgress.Add(lookupId))
+                {
+                    bool added = providerContainer._resolvesTwiceInProgress.Add(lookupId);
+                    Assert.That(added);
+                    twice = true;
+                }
                 try
                 {
                     return provider.GetAllInstances(context);
                 }
                 finally
                 {
-                    Assert.That(providerContainer._resolvesInProgress.Peek().Equals(lookupId));
-                    providerContainer._resolvesInProgress.Pop();
+                    if (twice)
+                    {
+                        bool removed = providerContainer._resolvesTwiceInProgress.Remove(lookupId);
+                        Assert.That(removed);
+                    }
+                    else
+                    {
+                        bool removed = providerContainer._resolvesInProgress.Remove(lookupId);
+                        Assert.That(removed);
+                    }
                 }
             }
             else
@@ -2261,7 +2265,7 @@ namespace Zenject
         // Do not use this - it is for internal use only
         public void FlushBindings()
         {
-            while (!_currentBindings.IsEmpty())
+            while (_currentBindings.Count > 0)
             {
                 var binding = _currentBindings.Dequeue();
 
@@ -2372,7 +2376,7 @@ namespace Zenject
         {
             var bindInfo = new BindInfo();
             bindInfo.ContractTypes.AddRange(contractTypes);
-            bindInfo.ContextInfo = contextInfo;
+            bindInfo.SetContextInfo(contextInfo);
             return BindInternal(bindInfo);
         }
 
@@ -2433,7 +2437,7 @@ namespace Zenject
             var bindInfo = new BindInfo();
 
             bindInfo.ContractTypes.AddRange(type.Interfaces());
-            bindInfo.ContextInfo = "BindInterfacesTo({0})".Fmt(type);
+            bindInfo.SetContextInfo("BindInterfacesTo({0})".Fmt(type));
 
             // Almost always, you don't want to use the default AsTransient so make them type it
             bindInfo.RequireExplicitScope = true;
@@ -2453,7 +2457,7 @@ namespace Zenject
             bindInfo.ContractTypes.AddRange(type.Interfaces());
             bindInfo.ContractTypes.Add(type);
 
-            bindInfo.ContextInfo = "BindInterfacesAndSelfTo({0})".Fmt(type);
+            bindInfo.SetContextInfo("BindInterfacesAndSelfTo({0})".Fmt(type));
 
             // Almost always, you don't want to use the default AsTransient so make them type it
             bindInfo.RequireExplicitScope = true;
@@ -3105,17 +3109,9 @@ namespace Zenject
 
         struct ProviderPair
         {
-            public ProviderInfo ProviderInfo
-            {
-                get;
-                private set;
-            }
+            public readonly ProviderInfo ProviderInfo;
 
-            public DiContainer Container
-            {
-                get;
-                private set;
-            }
+            public readonly DiContainer Container;
 
             public ProviderPair(ProviderInfo info, DiContainer container)
             {
@@ -3126,20 +3122,24 @@ namespace Zenject
 
         struct LookupId
         {
-            public IProvider Provider
-            {
-                get; private set;
-            }
-
-            public BindingId BindingId
-            {
-                get; private set;
-            }
+            public readonly IProvider Provider;
+            public readonly BindingId BindingId;
 
             public LookupId(IProvider provider, BindingId bindingId)
             {
+                Assert.IsNotNull(provider);
+                Assert.IsNotNull(bindingId);
+
                 Provider = provider;
                 BindingId = bindingId;
+            }
+
+            public override int GetHashCode()
+            {
+                int hash = 17;
+                hash = hash * 23 + Provider.GetHashCode();
+                hash = hash * 23 + BindingId.GetHashCode();
+                return hash;
             }
         }
 
@@ -3152,23 +3152,11 @@ namespace Zenject
                 NonLazy = nonLazy;
             }
 
-            public bool NonLazy
-            {
-                get;
-                private set;
-            }
+            public readonly bool NonLazy;
 
-            public IProvider Provider
-            {
-                get;
-                private set;
-            }
+            public readonly IProvider Provider;
 
-            public BindingCondition Condition
-            {
-                get;
-                private set;
-            }
+            public readonly BindingCondition Condition;
         }
     }
 }

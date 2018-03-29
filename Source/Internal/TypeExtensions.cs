@@ -9,6 +9,10 @@ namespace ModestTree
     public static class TypeExtensions
     {
         static readonly Dictionary<Type, string> _prettyNameCache = new Dictionary<Type, string>();
+        static readonly Dictionary<Type, bool> _isClosedGenericType = new Dictionary<Type, bool>();
+        static readonly Dictionary<Type, bool> _isOpenGenericType = new Dictionary<Type, bool>();
+        static readonly Dictionary<Type, bool> _isValueType = new Dictionary<Type, bool>();
+        static readonly Dictionary<Type, Type[]> _interfaces = new Dictionary<Type, Type[]>();
 
         public static bool DerivesFrom<T>(this Type a)
         {
@@ -39,7 +43,7 @@ namespace ModestTree
         // TODO: Is it possible to do this on WSA?
         public static bool IsAssignableToGenericType(Type givenType, Type genericType)
         {
-            var interfaceTypes = givenType.GetInterfaces();
+            var interfaceTypes = givenType.Interfaces();
 
             foreach (var it in interfaceTypes)
             {
@@ -76,11 +80,17 @@ namespace ModestTree
 
         public static bool IsValueType(this Type type)
         {
+            bool result;
+            if (!_isValueType.TryGetValue(type, out result))
+            {
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
-            return type.GetTypeInfo().IsValueType;
+                result = type.GetTypeInfo().IsValueType;
 #else
-            return type.IsValueType;
+                result = type.IsValueType;
 #endif
+                _isValueType[type] = result;
+            }
+            return result;
         }
 
         public static MethodInfo[] DeclaredInstanceMethods(this Type type)
@@ -197,11 +207,17 @@ namespace ModestTree
 
         public static Type[] Interfaces(this Type type)
         {
+            Type[] result;
+            if (!_interfaces.TryGetValue(type, out result))
+            {
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
-            return type.GetTypeInfo().ImplementedInterfaces.ToArray();
+                result = type.GetTypeInfo().ImplementedInterfaces.ToArray();
 #else
-            return type.GetInterfaces();
+                result = type.GetInterfaces();
 #endif
+                _interfaces.Add(type, result);
+            }
+            return result;
         }
 
         public static ConstructorInfo[] Constructors(this Type type)
@@ -254,15 +270,27 @@ namespace ModestTree
                 yield return ancestor;
             }
         }
-
+        
         public static bool IsClosedGenericType(this Type type)
         {
-            return type.IsGenericType() && type != type.GetGenericTypeDefinition();
+            bool result;
+            if (!_isClosedGenericType.TryGetValue(type, out result))
+            {
+                result = type.IsGenericType() && type != type.GetGenericTypeDefinition();
+                _isClosedGenericType[type] = result;
+            }
+            return result;
         }
 
         public static bool IsOpenGenericType(this Type type)
         {
-            return type.IsGenericType() && type == type.GetGenericTypeDefinition();
+            bool result;
+            if (!_isOpenGenericType.TryGetValue(type, out result))
+            {
+                result = type.IsGenericType() && type == type.GetGenericTypeDefinition();
+                _isOpenGenericType[type] = result;
+            }
+            return result;
         }
 
         // Returns all instance fields, including private and public and also those in base classes

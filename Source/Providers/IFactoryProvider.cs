@@ -30,8 +30,8 @@ namespace Zenject
             return typeof(TContract);
         }
 
-        public abstract IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args);
+        public abstract List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction);
     }
 
     // Zero parameters
@@ -44,8 +44,8 @@ namespace Zenject
         {
         }
 
-        public override IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args)
+        public override List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.That(args.IsEmpty());
 
@@ -56,6 +56,7 @@ namespace Zenject
             // Do this even when validating in case it has its own dependencies
             var factory = Container.ResolveId(typeof(IFactory<TContract>), FactoryId);
 
+            injectAction = null;
             if (Container.IsValidating)
             {
                 // In case users define a custom IFactory that needs to be validated
@@ -66,11 +67,11 @@ namespace Zenject
 
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                yield return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                return new List<object>() { new ValidationMarker(typeof(TContract)) };
             }
             else
             {
-                yield return new List<object>() { ((IFactory<TContract>)factory).Create() };
+                return new List<object>() { ((IFactory<TContract>)factory).Create() };
             }
         }
     }
@@ -84,8 +85,8 @@ namespace Zenject
         {
         }
 
-        public override IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args)
+        public override List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 1);
             Assert.IsNotNull(context);
@@ -96,6 +97,7 @@ namespace Zenject
             // Do this even when validating in case it has its own dependencies
             var factory = Container.ResolveId(typeof(IFactory<TParam1, TContract>), FactoryId);
 
+            injectAction = null;
             if (Container.IsValidating)
             {
                 // In case users define a custom IFactory that needs to be validated
@@ -106,11 +108,11 @@ namespace Zenject
 
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                yield return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                return new List<object>() { new ValidationMarker(typeof(TContract)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     ((IFactory<TParam1, TContract>)factory).Create((TParam1)args[0].Value)
                 };
@@ -127,8 +129,8 @@ namespace Zenject
         {
         }
 
-        public override IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args)
+        public override List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 2);
             Assert.IsNotNull(context);
@@ -140,6 +142,7 @@ namespace Zenject
             // Do this even when validating in case it has its own dependencies
             var factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TContract>), FactoryId);
 
+            injectAction = null;
             if (Container.IsValidating)
             {
                 // In case users define a custom IFactory that needs to be validated
@@ -150,11 +153,11 @@ namespace Zenject
 
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                yield return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                return new List<object>() { new ValidationMarker(typeof(TContract)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     ((IFactory<TParam1, TParam2, TContract>)factory).Create(
                         (TParam1)args[0].Value,
@@ -173,8 +176,8 @@ namespace Zenject
         {
         }
 
-        public override IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args)
+        public override List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 3);
             Assert.IsNotNull(context);
@@ -187,6 +190,7 @@ namespace Zenject
             // Do this even when validating in case it has its own dependencies
             var factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TContract>), FactoryId);
 
+            injectAction = null;
             if (Container.IsValidating)
             {
                 // In case users define a custom IFactory that needs to be validated
@@ -197,11 +201,11 @@ namespace Zenject
 
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                yield return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                return new List<object>() { new ValidationMarker(typeof(TContract)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     ((IFactory<TParam1, TParam2, TParam3, TContract>)factory).Create(
                         (TParam1)args[0].Value,
@@ -221,8 +225,8 @@ namespace Zenject
         {
         }
 
-        public override IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args)
+        public override List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 4);
             Assert.IsNotNull(context);
@@ -236,6 +240,7 @@ namespace Zenject
             // Do this even when validating in case it has its own dependencies
             var factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TParam4, TContract>), FactoryId);
 
+            injectAction = null;
             if (Container.IsValidating)
             {
                 // In case users define a custom IFactory that needs to be validated
@@ -246,11 +251,11 @@ namespace Zenject
 
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                yield return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                return new List<object>() { new ValidationMarker(typeof(TContract)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     ((IFactory<TParam1, TParam2, TParam3, TParam4, TContract>)factory).Create(
                         (TParam1)args[0].Value,
@@ -271,8 +276,8 @@ namespace Zenject
         {
         }
 
-        public override IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args)
+        public override List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 5);
             Assert.IsNotNull(context);
@@ -287,6 +292,7 @@ namespace Zenject
             // Do this even when validating in case it has its own dependencies
             var factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>), FactoryId);
 
+            injectAction = null;
             if (Container.IsValidating)
             {
                 // In case users define a custom IFactory that needs to be validated
@@ -297,11 +303,11 @@ namespace Zenject
 
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                yield return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                return new List<object>() { new ValidationMarker(typeof(TContract)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     ((IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>)factory).Create(
                         (TParam1)args[0].Value,
@@ -323,8 +329,8 @@ namespace Zenject
         {
         }
 
-        public override IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args)
+        public override List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsEqual(args.Count, 10);
             Assert.IsNotNull(context);
@@ -344,6 +350,7 @@ namespace Zenject
             // Do this even when validating in case it has its own dependencies
             var factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>), FactoryId);
 
+            injectAction = null;
             if (Container.IsValidating)
             {
                 // In case users define a custom IFactory that needs to be validated
@@ -354,11 +361,11 @@ namespace Zenject
 
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                yield return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                return new List<object>() { new ValidationMarker(typeof(TContract)) };
             }
             else
             {
-                yield return new List<object>()
+                return new List<object>()
                 {
                     ((IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>)factory).Create(
                         (TParam1)args[0].Value,

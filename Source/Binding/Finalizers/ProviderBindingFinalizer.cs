@@ -41,7 +41,7 @@ namespace Zenject
 
         public void FinalizeBinding(DiContainer container)
         {
-            if (BindInfo.ContractTypes.IsEmpty())
+            if (BindInfo.ContractTypes.Count == 0)
             {
                 // We could assert her instead but it is nice when used with things like
                 // BindInterfaces() (and there aren't any interfaces) to allow
@@ -157,7 +157,9 @@ namespace Zenject
         // Returns true if the bind should continue, false to skip
         bool ValidateBindTypes(Type concreteType, Type contractType)
         {
-            if (concreteType.IsOpenGenericType() != contractType.IsOpenGenericType())
+            bool isConcreteOpenGenericType = concreteType.IsOpenGenericType();
+            bool isContractOpenGenericType = contractType.IsOpenGenericType();
+            if (isConcreteOpenGenericType != isContractOpenGenericType)
             {
                 return false;
             }
@@ -165,9 +167,9 @@ namespace Zenject
 #if !(UNITY_WSA && ENABLE_DOTNET)
             // TODO: Is it possible to do this on WSA?
 
-            if (contractType.IsOpenGenericType())
+            if (isContractOpenGenericType)
             {
-                Assert.That(concreteType.IsOpenGenericType());
+                Assert.That(isConcreteOpenGenericType);
 
                 if (TypeExtensions.IsAssignableToGenericType(concreteType, contractType))
                 {
@@ -206,10 +208,9 @@ namespace Zenject
             Assert.That(!BindInfo.ContractTypes.IsEmpty());
             Assert.That(!concreteTypes.IsEmpty());
 
-            using (var block = DisposeBlock.Spawn())
+            var providerMap = DictionaryPool<Type, IProvider>.Instance.Spawn();
+            try
             {
-                var providerMap = DictionaryPool<Type, IProvider>.Instance.SpawnWrapper().AttachedTo(block).Value;
-
                 foreach (var concreteType in concreteTypes)
                 {
                     var provider = providerFunc(container, concreteType);
@@ -236,6 +237,10 @@ namespace Zenject
                         }
                     }
                 }
+            }
+            finally
+            {
+                DictionaryPool<Type, IProvider>.Instance.Despawn(providerMap);
             }
         }
     }

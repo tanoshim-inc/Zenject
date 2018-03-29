@@ -40,7 +40,8 @@ namespace Zenject
             return subContext;
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsNotNull(context);
 
@@ -48,7 +49,8 @@ namespace Zenject
 
             var subContext = CreateSubContext(context, subContainer);
 
-            yield return subContainer.ResolveAll(subContext).Cast<object>().ToList();
+            injectAction = null;
+            return subContainer.ResolveAll(subContext).Cast<object>().ToList();
         }
     }
 }

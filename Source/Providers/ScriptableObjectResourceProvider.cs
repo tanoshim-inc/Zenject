@@ -35,8 +35,8 @@ namespace Zenject
             return _resourceType;
         }
 
-        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args)
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
             Assert.IsNotNull(context);
 
@@ -55,20 +55,23 @@ namespace Zenject
 
             Assert.That(!objects.IsEmpty(),
                 "Could not find resource at path '{0}' with type '{1}'", _resourcePath, _resourceType);
-
-            yield return objects;
-
+            
             var injectArgs = new InjectArgs()
             {
                 ExtraArgs = _extraArguments.Concat(args).ToList(),
                 Context = context,
             };
 
-            foreach (var obj in objects)
+            injectAction = () =>
             {
-                _container.InjectExplicit(
-                    obj, _resourceType, injectArgs);
-            }
+                foreach (var obj in objects)
+                {
+                    _container.InjectExplicit(
+                        obj, _resourceType, injectArgs);
+                }
+            };
+
+            return objects;
         }
     }
 }

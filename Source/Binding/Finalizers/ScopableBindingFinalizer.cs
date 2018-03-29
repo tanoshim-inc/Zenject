@@ -30,7 +30,7 @@ namespace Zenject
 
         void FinalizeBindingConcrete(DiContainer container, List<Type> concreteTypes)
         {
-            if (concreteTypes.IsEmpty())
+            if (concreteTypes.Count == 0)
             {
                 // This can be common when using convention based bindings
                 return;
