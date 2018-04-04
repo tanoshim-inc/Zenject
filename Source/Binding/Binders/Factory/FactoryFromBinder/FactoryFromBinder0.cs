@@ -41,6 +41,13 @@ namespace Zenject
             return this;
         }
 
+        // Shortcut for FromIFactory and also for backwards compatibility
+        public ArgConditionCopyNonLazyBinder FromFactory<TSubFactory>()
+            where TSubFactory : IFactory<TContract>
+        {
+            return FromIFactory(x => x.To<TSubFactory>().AsCached());
+        }
+
         public ArgConditionCopyNonLazyBinder FromIFactory(
             Action<ConcreteBinderGeneric<IFactory<TContract>>> factoryBindGenerator)
         {
