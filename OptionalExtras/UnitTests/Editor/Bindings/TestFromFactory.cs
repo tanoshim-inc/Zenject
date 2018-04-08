@@ -30,6 +30,22 @@ namespace Zenject.Tests.Bindings
         }
 
         [Test]
+        public void TestOldVersion()
+        {
+            FooFactory.InstanceCount = 0;
+
+            Container.Bind<Foo>().FromFactory<FooFactory>();
+
+            Assert.IsEqual(Container.Resolve<Foo>(), StaticFoo);
+
+            Container.Resolve<Foo>();
+            Container.Resolve<Foo>();
+            Container.Resolve<Foo>();
+
+            Assert.IsEqual(FooFactory.InstanceCount, 1);
+        }
+
+        [Test]
         public void TestMoveIntoSubcontainers()
         {
             FooFactory.InstanceCount = 0;
