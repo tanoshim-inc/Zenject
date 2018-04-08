@@ -3,20 +3,20 @@ using ModestTree;
 
 namespace Zenject
 {
-    public class ScopeArgConditionCopyNonLazyBinder : ArgConditionCopyNonLazyBinder
+    public class ScopeConcreteIdArgConditionCopyNonLazyBinder : ConcreteIdArgConditionCopyNonLazyBinder
     {
-        public ScopeArgConditionCopyNonLazyBinder(BindInfo bindInfo)
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo bindInfo)
             : base(bindInfo)
         {
         }
 
-        public ArgConditionCopyNonLazyBinder AsCached()
+        public ConcreteIdArgConditionCopyNonLazyBinder AsCached()
         {
             BindInfo.Scope = ScopeTypes.Singleton;
             return this;
         }
 
-        public ArgConditionCopyNonLazyBinder AsSingle()
+        public ConcreteIdArgConditionCopyNonLazyBinder AsSingle()
         {
             BindInfo.Scope = ScopeTypes.Singleton;
             BindInfo.MarkAsUniqueSingleton = true;
@@ -24,7 +24,7 @@ namespace Zenject
         }
 
         // Note that this is the default so it's not necessary to call this
-        public ArgConditionCopyNonLazyBinder AsTransient()
+        public ConcreteIdArgConditionCopyNonLazyBinder AsTransient()
         {
             BindInfo.Scope = ScopeTypes.Transient;
             return this;

@@ -38,6 +38,7 @@ namespace Zenject
         {
             ContextInfo = null;
             Identifier = null;
+            ConcreteIdentifier = null;
             ContractTypes = new List<Type>();
             ToTypes = new List<Type>();
             Arguments = new List<TypeValuePair>();
@@ -45,7 +46,6 @@ namespace Zenject
             BindingInheritanceMethod = BindingInheritanceMethods.None;
             OnlyBindIfNotBound = false;
             SaveProvider = false;
-            ProviderIdentifier = null;
 
             // Change this to true if you want all dependencies to be created at the start
             NonLazy = false;
@@ -67,7 +67,7 @@ namespace Zenject
 
         public bool MarkAsUniqueSingleton;
 
-        public object ProviderIdentifier;
+        public object ConcreteIdentifier;
 
         public bool SaveProvider;
 

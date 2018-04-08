@@ -18,6 +18,7 @@ namespace Zenject
     {
         public List<TypeValuePair> ExtraArgs;
         public InjectContext Context;
+        public object ConcreteIdentifier;
     }
 
     // Responsibilities:
@@ -370,7 +371,7 @@ namespace Zenject
                 providerInfos.Add(info);
             }
         }
-        
+
         void GetProviderMatches(
             InjectContext context, List<ProviderPair> buffer)
         {
@@ -415,7 +416,7 @@ namespace Zenject
                 int curDistance = GetContainerHeirarchyDistance(container);
                 if (curDistance > selectedDistance)
                 {
-                    // If matching provider was already found lower in the hierarchy => don't search for a new one, 
+                    // If matching provider was already found lower in the hierarchy => don't search for a new one,
                     // because there can't be a better or equal provider in this container.
                     return;
                 }
@@ -964,7 +965,7 @@ namespace Zenject
                 // transient) and the process continues indefinitely
 
                 var providerContainer = providerPair.Container;
-                
+
                 if (providerContainer._resolvesTwiceInProgress.Contains(lookupId))
                 {
                     // Allow one before giving up so that you can do circular dependencies via postinject or fields
@@ -1111,7 +1112,7 @@ namespace Zenject
                         args.ExtraArgs, injectInfo.MemberType, out value))
                     {
                         using (var context = injectInfo.SpawnInjectContext(
-                            this, args.Context, null))
+                            this, args.Context, null, args.ConcreteIdentifier))
                         {
                             value = Resolve(context);
                         }
@@ -1269,7 +1270,7 @@ namespace Zenject
                 else
                 {
                     using (var context = injectInfo.SpawnInjectContext(
-                        this, args.Context, injectable))
+                        this, args.Context, injectable, args.ConcreteIdentifier))
                     {
                         value = Resolve(context);
                     }
@@ -1310,7 +1311,7 @@ namespace Zenject
                         if (!InjectUtil.PopValueWithType(args.ExtraArgs, injectInfo.MemberType, out value))
                         {
                             using (var context = injectInfo.SpawnInjectContext(
-                                this, args.Context, injectable))
+                                this, args.Context, injectable, args.ConcreteIdentifier))
                             {
                                 value = Resolve(context);
                             }

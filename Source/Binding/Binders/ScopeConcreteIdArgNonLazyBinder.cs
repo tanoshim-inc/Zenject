@@ -3,21 +3,21 @@ using ModestTree;
 
 namespace Zenject
 {
-    public class ScopeArgNonLazyBinder : ArgNonLazyBinder
+    public class ScopeConcreteIdArgNonLazyBinder : ConcreteIdArgNonLazyBinder
     {
-        public ScopeArgNonLazyBinder(BindInfo bindInfo)
+        public ScopeConcreteIdArgNonLazyBinder(BindInfo bindInfo)
             : base(bindInfo)
         {
         }
 
-        public ArgNonLazyBinder AsCached()
+        public ConcreteIdArgNonLazyBinder AsCached()
         {
             BindInfo.Scope = ScopeTypes.Singleton;
             return this;
         }
 
         //[Obsolete("AsSingle has been deprecated in favour of AsCached and will be removed in future versions.  Note that you should fix any runtime/validation errors first before replacing AsSingle with AsCached.  See upgrade guide for details.")]
-        public ArgNonLazyBinder AsSingle()
+        public ConcreteIdArgNonLazyBinder AsSingle()
         {
             BindInfo.Scope = ScopeTypes.Singleton;
             BindInfo.MarkAsUniqueSingleton = true;
@@ -25,7 +25,7 @@ namespace Zenject
         }
 
         // Note that this is the default so it's not necessary to call this
-        public ArgNonLazyBinder AsTransient()
+        public ConcreteIdArgNonLazyBinder AsTransient()
         {
             BindInfo.Scope = ScopeTypes.Transient;
             return this;

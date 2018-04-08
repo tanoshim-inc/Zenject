@@ -79,6 +79,7 @@ namespace Zenject
                     {
                         ExtraArgs = allArgs,
                         Context = context,
+                        ConcreteIdentifier = null
                     };
 
                     _container.InjectGameObjectForComponentExplicit(

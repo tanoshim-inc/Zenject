@@ -13,7 +13,7 @@ namespace Zenject
 
         public ConditionCopyNonLazyBinder FromMethod(Func<DiContainer, TParam1, TParam2, TContract> method)
         {
-            ProviderFunc = 
+            ProviderFunc =
                 (container) => new MethodProviderWithContainer<TParam1, TParam2, TContract>(method);
 
             return this;

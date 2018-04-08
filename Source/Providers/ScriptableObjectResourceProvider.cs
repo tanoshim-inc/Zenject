@@ -15,11 +15,12 @@ namespace Zenject
         readonly string _resourcePath;
         readonly List<TypeValuePair> _extraArguments;
         readonly bool _createNew;
+        readonly object _concreteIdentifier;
 
         public ScriptableObjectResourceProvider(
             string resourcePath, Type resourceType,
             DiContainer container, List<TypeValuePair> extraArguments,
-            bool createNew)
+            bool createNew, object concreteIdentifier)
         {
             _container = container;
             Assert.DerivesFromOrEqual<ScriptableObject>(resourceType);
@@ -28,6 +29,7 @@ namespace Zenject
             _resourceType = resourceType;
             _resourcePath = resourcePath;
             _createNew = createNew;
+            _concreteIdentifier = concreteIdentifier;
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -55,11 +57,12 @@ namespace Zenject
 
             Assert.That(!objects.IsEmpty(),
                 "Could not find resource at path '{0}' with type '{1}'", _resourcePath, _resourceType);
-            
+
             var injectArgs = new InjectArgs()
             {
                 ExtraArgs = _extraArguments.Concat(args).ToList(),
                 Context = context,
+                ConcreteIdentifier = _concreteIdentifier,
             };
 
             injectAction = () =>

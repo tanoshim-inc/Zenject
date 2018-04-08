@@ -16,7 +16,8 @@ namespace Zenject
         {
             ContractType = contractType;
             factoryBindInfo.ProviderFunc =
-                (container) => new TransientProvider(ContractType, container, BindInfo.Arguments, BindInfo.ContextInfo);
+                (container) => new TransientProvider(
+                    ContractType, container, BindInfo.Arguments, BindInfo.ContextInfo, BindInfo.ConcreteIdentifier);
         }
 
         protected Func<DiContainer, IProvider> ProviderFunc
@@ -102,7 +103,7 @@ namespace Zenject
             ProviderFunc =
                 (container) => new AddToExistingGameObjectComponentProvider(
                     gameObject, container, ContractType,
-                    new List<TypeValuePair>());
+                    new List<TypeValuePair>(), BindInfo.ConcreteIdentifier);
 
             return this;
         }
@@ -116,7 +117,7 @@ namespace Zenject
             ProviderFunc =
                 (container) => new AddToExistingGameObjectComponentProviderGetter(
                     gameObjectGetter, container, ContractType,
-                    new List<TypeValuePair>());
+                    new List<TypeValuePair>(), BindInfo.ConcreteIdentifier);
 
             return this;
         }
@@ -131,7 +132,7 @@ namespace Zenject
             ProviderFunc =
                 (container) => new AddToNewGameObjectComponentProvider(
                     container, ContractType,
-                    new List<TypeValuePair>(), gameObjectInfo);
+                    new List<TypeValuePair>(), gameObjectInfo, BindInfo.ConcreteIdentifier);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
@@ -213,7 +214,7 @@ namespace Zenject
 
             ProviderFunc =
                 (container) => new ScriptableObjectResourceProvider(
-                    resourcePath, ContractType, container, new List<TypeValuePair>(), true);
+                    resourcePath, ContractType, container, new List<TypeValuePair>(), true, null);
 
             return this;
         }
@@ -225,7 +226,7 @@ namespace Zenject
 
             ProviderFunc =
                 (container) => new ScriptableObjectResourceProvider(
-                    resourcePath, ContractType, container, new List<TypeValuePair>(), false);
+                    resourcePath, ContractType, container, new List<TypeValuePair>(), false, null);
 
             return this;
         }

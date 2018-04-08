@@ -13,8 +13,8 @@ namespace Zenject
 
         public AddToNewGameObjectComponentProvider(
             DiContainer container, Type componentType,
-            List<TypeValuePair> extraArguments, GameObjectCreationParameters gameObjectBindInfo)
-            : base(container, componentType, extraArguments)
+            List<TypeValuePair> extraArguments, GameObjectCreationParameters gameObjectBindInfo, object concreteIdentifier)
+            : base(container, componentType, extraArguments, concreteIdentifier)
         {
             _gameObjectBindInfo = gameObjectBindInfo;
         }

@@ -21,6 +21,7 @@ namespace Zenject
         bool _optional;
         InjectSources _sourceType;
         object _fallBackValue;
+        object _concreteIdentifier;
         DiContainer _container;
 
         public InjectContext()
@@ -152,6 +153,12 @@ namespace Zenject
             set { _sourceType = value; }
         }
 
+        public object ConcreteIdentifier
+        {
+            get { return _concreteIdentifier; }
+            set { _concreteIdentifier = value; }
+        }
+
         // When optional, this is used to provide the value
         public object FallBackValue
         {
@@ -228,6 +235,7 @@ namespace Zenject
             subContext.MemberType = memberType;
 
             // Clear these
+            subContext.ConcreteIdentifier = null;
             subContext.MemberName = "";
             subContext.FallBackValue = null;
 
@@ -247,6 +255,7 @@ namespace Zenject
 
             clone.ObjectType = this.ObjectType;
             clone.ParentContext = this.ParentContext;
+            clone.ConcreteIdentifier = this.ConcreteIdentifier;
             clone.ObjectInstance = this.ObjectInstance;
             clone.Identifier = this.Identifier;
             clone.MemberType = this.MemberType;

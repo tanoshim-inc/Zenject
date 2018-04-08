@@ -13,16 +13,18 @@ namespace Zenject
         readonly Type _componentType;
         readonly DiContainer _container;
         readonly List<TypeValuePair> _extraArguments;
+        readonly object _concreteIdentifier;
 
         public AddToGameObjectComponentProviderBase(
             DiContainer container, Type componentType,
-            List<TypeValuePair> extraArguments)
+            List<TypeValuePair> extraArguments, object concreteIdentifier)
         {
             Assert.That(componentType.DerivesFrom<Component>());
 
             _extraArguments = extraArguments;
             _componentType = componentType;
             _container = container;
+            _concreteIdentifier = concreteIdentifier;
         }
 
         protected DiContainer Container
@@ -94,6 +96,7 @@ namespace Zenject
                     {
                         ExtraArgs = _extraArguments.Concat(args).ToList(),
                         Context = context,
+                        ConcreteIdentifier = _concreteIdentifier
                     };
 
                     _container.InjectExplicit(instance, _componentType, injectArgs);

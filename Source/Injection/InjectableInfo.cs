@@ -38,7 +38,7 @@ namespace Zenject
         }
 
         public InjectContext SpawnInjectContext(
-            DiContainer container, InjectContext currentContext, object targetInstance)
+            DiContainer container, InjectContext currentContext, object targetInstance, object concreteIdentifier)
         {
             var context = InjectContext.Pool.Spawn(container, MemberType);
 
@@ -50,6 +50,7 @@ namespace Zenject
             context.Optional = Optional;
             context.SourceType = SourceType;
             context.FallBackValue = DefaultValue;
+            context.ConcreteIdentifier = concreteIdentifier;
 
             return context;
         }
