@@ -25,7 +25,7 @@ namespace Zenject
     // - Expose methods to configure object graph via BindX() methods
     // - Look up bound values via Resolve() method
     // - Instantiate new values via InstantiateX() methods
-    public class DiContainer
+    public class DiContainer : IInstantiator
     {
         readonly Dictionary<BindingId, List<ProviderInfo>> _providers = new Dictionary<BindingId, List<ProviderInfo>>();
         readonly DiContainer[] _parentContainers = new DiContainer[0];
@@ -1777,6 +1777,18 @@ namespace Zenject
             return InstantiatePrefabResource(resourcePath, new GameObjectCreationParameters() { ParentTransform = parentTransform });
         }
 
+        public GameObject InstantiatePrefabResource(
+            string resourcePath, Vector3 position, Quaternion rotation, Transform parentTransform)
+        {
+            return InstantiatePrefabResource(
+                resourcePath, new GameObjectCreationParameters
+                {
+                    ParentTransform = parentTransform,
+                    Position = position,
+                    Rotation = rotation
+                });
+        }
+
         // Create a new game object from a resource path and fill in dependencies for all children
         public GameObject InstantiatePrefabResource(
             string resourcePath, GameObjectCreationParameters creationInfo)
@@ -1822,6 +1834,30 @@ namespace Zenject
         {
             return (T)InstantiatePrefabForComponent(
                 typeof(T), prefab, parentTransform, extraArgs);
+        }
+
+        public T InstantiatePrefabForComponent<T>(
+            UnityEngine.Object prefab, Vector3 position, Quaternion rotation, Transform parentTransform)
+        {
+            return (T)InstantiatePrefabForComponent(
+                typeof(T), prefab, new object[0], new GameObjectCreationParameters
+                {
+                    ParentTransform = parentTransform,
+                    Position = position,
+                    Rotation = rotation
+                });
+        }
+
+        public T InstantiatePrefabForComponent<T>(
+            UnityEngine.Object prefab, Vector3 position, Quaternion rotation, Transform parentTransform, IEnumerable<object> extraArgs)
+        {
+            return (T)InstantiatePrefabForComponent(
+                typeof(T), prefab, extraArgs, new GameObjectCreationParameters
+                {
+                    ParentTransform = parentTransform,
+                    Position = position,
+                    Rotation = rotation
+                });
         }
 
         // Same as InstantiatePrefab but returns a component after it's initialized
@@ -1881,6 +1917,26 @@ namespace Zenject
         {
             return (T)InstantiatePrefabResourceForComponent(
                 typeof(T), resourcePath, parentTransform, extraArgs);
+        }
+
+        public T InstantiatePrefabResourceForComponent<T>(
+            string resourcePath, Vector3 position, Quaternion rotation, Transform parentTransform)
+        {
+            return InstantiatePrefabResourceForComponent<T>(resourcePath, position, rotation, parentTransform, new object[0]);
+        }
+
+        public T InstantiatePrefabResourceForComponent<T>(
+            string resourcePath, Vector3 position, Quaternion rotation, Transform parentTransform, IEnumerable<object> extraArgs)
+        {
+            var argsList = InjectUtil.CreateArgList(extraArgs);
+            var creationParameters = new GameObjectCreationParameters
+            {
+                ParentTransform = parentTransform,
+                Position = position,
+                Rotation = rotation
+            };
+            return (T)InstantiatePrefabResourceForComponentExplicit(
+                typeof(T), resourcePath, argsList, creationParameters);
         }
 
         // Same as InstantiatePrefabResource but returns a component after it's initialized
