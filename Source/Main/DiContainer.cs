@@ -245,27 +245,37 @@ namespace Zenject
         public void ResolveDependencyRoots()
         {
             FlushBindings();
+            var rootBindings = new List<BindingId>();
+            var rootProviders = new List<ProviderInfo>();
+
             foreach (var bindingPair in _providers)
             {
                 foreach (var provider in bindingPair.Value)
                 {
                     if (provider.NonLazy)
                     {
-                        using (var block = DisposeBlock.Spawn())
-                        {
-                            var context = InjectContext.Pool.Spawn(this, bindingPair.Key.Type)
-                                .AttachedTo(block);
-
-                            context.Identifier = bindingPair.Key.Identifier;
-                            context.SourceType = InjectSources.Local;
-                            context.Optional = true;
-
-                            var providerPair = new ProviderPair(provider, this);
-                            var matches = SafeGetInstances(providerPair, context);
-                            Assert.That(matches.Any());
-                        }
+                        // Save them to a list instead of resolving for them here to account
+                        // for the rare case where one of the resolves does another binding
+                        // and therefore changes _providers, causing an exception.
+                        rootBindings.Add(bindingPair.Key);
+                        rootProviders.Add(provider);
                     }
                 }
+            }
+
+            Assert.IsEqual(rootProviders.Count, rootBindings.Count);
+
+            for (int i = 0; i < rootProviders.Count; i++)
+            {
+                var bindId = rootBindings[i];
+                var providerInfo = rootProviders[i];
+
+                var context = new InjectContext(this, bindId.Type, bindId.Identifier);
+                context.SourceType = InjectSources.Local;
+                context.Optional = true;
+
+                var matches = SafeGetInstances(new ProviderPair(providerInfo, this), context);
+                Assert.That(matches.Any());
             }
         }
 
@@ -427,12 +437,12 @@ namespace Zenject
 
                     if (curHasCondition && !provider.Condition(context))
                     {
-                        // The condition is not satisfied
+                        // The condition is not satisfied.
                         continue;
                     }
 
                     // The distance can't decrease becuase we are iterating over the containers with increasing distance.
-                    // The distance can't increase because  we skip the container if the distance is greater than selected
+                    // The distance can't increase because  we skip the container if the distance is greater than selected.
                     // So the distances are equal and only the condition can help resolving the amiguity.
                     Assert.That(selected == null || selectedDistance == curDistance);
 
@@ -440,20 +450,25 @@ namespace Zenject
                     {
                         if (selectedHasCondition)
                         {
-                            // both providers have condition and are on equal depth
+                            // Both providers have condition and are on equal depth.
                             ambiguousSelection = true;
                         }
                         else
                         {
-                            // ambiguity is resolved because a provider with condition was found.
+                            // Ambiguity is resolved because a provider with condition was found.
                             ambiguousSelection = false;
                         }
                     }
                     else
                     {
+                        if (selectedHasCondition)
+                        {
+                            // Selected provider is better because it has condition.
+                            continue;
+                        }
                         if (selected != null && !selectedHasCondition)
                         {
-                            // both providers don't have a condition and are on equal depth
+                            // Both providers don't have a condition and are on equal depth.
                             ambiguousSelection = true;
                         }
                     }
