@@ -276,12 +276,19 @@ namespace Zenject
                 var bindId = rootBindings[i];
                 var providerInfo = rootProviders[i];
 
-                var context = new InjectContext(this, bindId.Type, bindId.Identifier);
-                context.SourceType = InjectSources.Local;
-                context.Optional = true;
+                using (var block = DisposeBlock.Spawn())
+                {
+                    var context = InjectContext.Pool.Spawn(this, bindId.Type)
+                        .AttachedTo(block);
 
-                var matches = SafeGetInstances(new ProviderPair(providerInfo, this), context);
-                Assert.That(matches.Any());
+                    context.Identifier = bindId.Identifier;
+                    context.SourceType = InjectSources.Local;
+                    context.Optional = true;
+
+                    var providerPair = new ProviderPair(providerInfo, this);
+                    var matches = SafeGetInstances(providerPair, context);
+                    Assert.That(matches.Any());
+                }
             }
         }
 
