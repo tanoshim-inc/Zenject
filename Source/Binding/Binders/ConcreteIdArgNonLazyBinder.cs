@@ -12,8 +12,7 @@ namespace Zenject
 
         public ArgNonLazyBinder WithConcreteId(object id)
         {
-            throw Assert.CreateException("TODO");
-            //BindInfo.ConcreteIdentifier = id;
+            BindInfo.ConcreteIdentifier = id;
             return this;
         }
     }
