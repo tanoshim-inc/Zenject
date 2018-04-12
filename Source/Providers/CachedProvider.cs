@@ -24,9 +24,11 @@ namespace Zenject
             get { return _instances == null ? 0 : _instances.Count; }
         }
 
+        // This method can be called if you want to clear the memory for an AsSingle instance,
+        // See isssue https://github.com/modesttree/Zenject/issues/441
         public void ClearCache()
         {
-            _instances.Clear();
+            _instances = null;
         }
 
         public Type GetInstanceType(InjectContext context)
