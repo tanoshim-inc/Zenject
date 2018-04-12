@@ -19,6 +19,16 @@ namespace Zenject
             _creator = creator;
         }
 
+        public int NumInstances
+        {
+            get { return _instances == null ? 0 : _instances.Count; }
+        }
+
+        public void ClearCache()
+        {
+            _instances.Clear();
+        }
+
         public Type GetInstanceType(InjectContext context)
         {
             return _creator.GetInstanceType(context);
@@ -47,7 +57,7 @@ namespace Zenject
 
             _isCreatingInstance = true;
 #endif
-            
+
             _instances = _creator.GetAllInstancesWithInjectSplit(context, args, out injectAction);
             Assert.IsNotNull(_instances);
 

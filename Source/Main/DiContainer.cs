@@ -69,6 +69,12 @@ namespace Zenject
             get { return _singletonMarkRegistry; }
         }
 
+        public IEnumerable<IProvider> AllProviders
+        {
+            // Distinct is necessary since the same providers can be used with multiple contracts
+            get { return _providers.Values.SelectMany(x => x).Select(x => x.Provider).Distinct(); }
+        }
+
         void InstallDefaultBindings()
         {
             Bind<DiContainer>().FromInstance(this);
