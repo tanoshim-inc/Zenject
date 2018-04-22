@@ -42,7 +42,8 @@ namespace Zenject.Internal
             }
         }
 
-        // Don't use this
+        // Feel free to call this method from an editor script, or a unit test, etc.
+        // An exception will be thrown if any validation errors are encountered
         public static void ValidateCurrentSceneSetup()
         {
             bool encounteredError = false;
@@ -84,7 +85,8 @@ namespace Zenject.Internal
             }
         }
 
-        // Don't use this
+        // NOTE: An exception will be thrown if any validation errors are encountered
+        // Returns the number of scenes that successfully validated
         public static int ValidateAllActiveScenes()
         {
             var activeScenePaths = UnityEditor.EditorBuildSettings.scenes.Where(x => x.enabled)
@@ -123,7 +125,7 @@ namespace Zenject.Internal
         {
             var sceneContext = TryGetSceneContextForScene(scene);
 
-            Assert.IsNotNull(sceneContext, 
+            Assert.IsNotNull(sceneContext,
                 "Could not find scene context for scene '{0}'", scene.name);
 
             return sceneContext;
@@ -149,7 +151,7 @@ namespace Zenject.Internal
         {
             var decoratorContext = TryGetDecoratorContextForScene(scene);
 
-            Assert.IsNotNull(decoratorContext, 
+            Assert.IsNotNull(decoratorContext,
                 "Could not find decorator context for scene '{0}'", scene.name);
 
             return decoratorContext;
