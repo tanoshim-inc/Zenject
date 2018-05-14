@@ -133,7 +133,7 @@ namespace Zenject
                     "Validation for factory '{0}' failed".Fmt(this.GetType()), e);
             }
         }
-        
+
         /// <summary>
         /// Shrinks the MemoryPool down to a maximum of maxInactive inactive items
         /// </summary>
@@ -143,7 +143,6 @@ namespace Zenject
             for (var i = _inactiveItems.Count - 1; i >= maxInactive && i >= 0; --i)
                 _inactiveItems.Pop();
         }
-
 
         protected TContract GetInternal()
         {
