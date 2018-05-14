@@ -478,7 +478,7 @@ namespace ModestTree
         {
             Attribute[] allAttributes;
 #if NETFX_CORE 
-            allAttributes = provider.GetType().GetTypeInfo().GetCustomAttributes<Attribute>().ToArray(); 
+            allAttributes = provider.GetCustomAttributes<Attribute>(true).ToArray(); 
 #else  
             allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
 #endif
@@ -516,7 +516,7 @@ namespace ModestTree
         {
             Attribute[] allAttributes;
 #if NETFX_CORE 
-            allAttributes = provider.GetType().GetTypeInfo().GetCustomAttributes<Attribute>().ToArray(); 
+            allAttributes = provider.GetCustomAttributes<Attribute>(true).ToArray(); 
 #else  
             allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
 #endif
