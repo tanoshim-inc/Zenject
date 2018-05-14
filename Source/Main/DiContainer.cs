@@ -302,7 +302,9 @@ namespace Zenject
         {
             Assert.That(IsValidating);
 
-#if !NOT_UNITY3D
+            FlushBindings();
+
+#if !NOT_UNITY3D && !ZEN_TESTS_OUTSIDE_UNITY
             Assert.That(Application.isEditor);
 #endif
 

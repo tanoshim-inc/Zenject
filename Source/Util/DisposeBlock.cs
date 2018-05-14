@@ -17,24 +17,23 @@ namespace Zenject
     public class DisposeBlock : IDisposable
     {
         static readonly NewableMemoryPool<DisposeBlock> _pool =
-            new NewableMemoryPool<DisposeBlock>(
-                x => x.OnSpawned, x => x.OnDespawned);
+            new NewableMemoryPool<DisposeBlock>(OnSpawned, OnDespawned);
 
         readonly List<IDisposable> _disposables = new List<IDisposable>();
 
-        void OnSpawned()
+        static void OnSpawned(DisposeBlock that)
         {
-            Assert.That(_disposables.Count == 0);
+            Assert.That(that._disposables.Count == 0);
         }
 
-        void OnDespawned()
+        static void OnDespawned(DisposeBlock that)
         {
             // Dispose in reverse order since usually that makes the most sense
-            for (int i = _disposables.Count - 1; i >= 0; i--)
+            for (int i = that._disposables.Count - 1; i >= 0; i--)
             {
-                _disposables[i].Dispose();
+                that._disposables[i].Dispose();
             }
-            _disposables.Clear();
+            that._disposables.Clear();
         }
 
         public void AddRange<T>(IList<T> disposables)

@@ -6,8 +6,7 @@ namespace Zenject
     public class SignalSubscription : IDisposable
     {
         public static readonly NewableMemoryPool<Action<object>, SignalDeclaration, SignalSubscription> Pool =
-            new NewableMemoryPool<Action<object>, SignalDeclaration, SignalSubscription>(
-                x => x.OnSpawned, x => x.OnDespawned);
+            new NewableMemoryPool<Action<object>, SignalDeclaration, SignalSubscription>(OnSpawned, OnDespawned);
 
         Action<object> _callback;
         SignalDeclaration _declaration;
@@ -16,6 +15,27 @@ namespace Zenject
         public SignalSubscription()
         {
             SetDefaults();
+        }
+
+        static void OnDespawned(SignalSubscription that)
+        {
+            if (that._declaration != null)
+            {
+                that._declaration.Remove(that);
+            }
+
+            that.SetDefaults();
+        }
+
+        static void OnSpawned(Action<object> callback, SignalDeclaration declaration, SignalSubscription that)
+        {
+            Assert.IsNull(that._callback);
+            that._callback = callback;
+            that._declaration = declaration;
+            // Cache this in case OnDeclarationDespawned is called
+            that._signalType = declaration.SignalType;
+
+            declaration.Add(that);
         }
 
         public Type SignalType
@@ -35,30 +55,10 @@ namespace Zenject
             Pool.Despawn(this);
         }
 
-        void OnSpawned(Action<object> callback, SignalDeclaration declaration)
-        {
-            Assert.IsNull(_callback);
-            _callback = callback;
-            _declaration = declaration;
-            // Cache this in case OnDeclarationDespawned is called
-            _signalType = declaration.SignalType;
-
-            declaration.Add(this);
-        }
-
         // See comment in SignalDeclaration for why this exists
         public void OnDeclarationDespawned()
         {
             _declaration = null;
-        }
-
-        void OnDespawned()
-        {
-            if (_declaration != null)
-            {
-                _declaration.Remove(this);
-            }
-            SetDefaults();
         }
 
         public void Invoke(ISignal signal)

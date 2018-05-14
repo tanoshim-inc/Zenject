@@ -9,8 +9,7 @@ namespace Zenject
         where TValue : class, new()
     {
         public static readonly NewableMemoryPool<TValue, IDespawnableMemoryPool<TValue>, DisposeWrapper<TValue>> Pool =
-            new NewableMemoryPool<TValue, IDespawnableMemoryPool<TValue>, DisposeWrapper<TValue>>(
-                x => x.OnSpawned, x => x.OnDespawned);
+            new NewableMemoryPool<TValue, IDespawnableMemoryPool<TValue>, DisposeWrapper<TValue>>(OnSpawned, OnDespawned);
 
         IDespawnableMemoryPool<TValue> _wrappedPool;
         TValue _value;
@@ -25,21 +24,21 @@ namespace Zenject
             Pool.Despawn(this);
         }
 
-        void OnSpawned(TValue value, IDespawnableMemoryPool<TValue> wrappedPool)
+        static void OnSpawned(TValue value, IDespawnableMemoryPool<TValue> wrappedPool, DisposeWrapper<TValue> that)
         {
             Assert.IsNotNull(wrappedPool);
             Assert.IsNotNull(value);
 
-            _wrappedPool = wrappedPool;
-            _value = value;
+            that._wrappedPool = wrappedPool;
+            that._value = value;
         }
 
-        void OnDespawned()
+        static void OnDespawned(DisposeWrapper<TValue> that)
         {
-            _wrappedPool.Despawn(_value);
+            that._wrappedPool.Despawn(that._value);
 
-            _value = null;
-            _wrappedPool = null;
+            that._value = null;
+            that._wrappedPool = null;
         }
     }
 }

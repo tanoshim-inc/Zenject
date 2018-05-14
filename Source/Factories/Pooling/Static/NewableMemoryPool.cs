@@ -10,16 +10,15 @@ namespace Zenject
         readonly Stack<TValue> _stack = new Stack<TValue>();
 
         Action<TValue> _onDespawnedMethod;
-        Func<TValue, Action> _onDespawnedMethodGetter;
+
+        public NewableMemoryPoolBase(Action<TValue> onDespawnedMethod)
+        {
+            _onDespawnedMethod = onDespawnedMethod;
+        }
 
         public Action<TValue> OnDespawnedMethod
         {
             set { _onDespawnedMethod = value; }
-        }
-
-        public Func<TValue, Action> OnDespawnedMethodGetter
-        {
-            set { _onDespawnedMethodGetter = value; }
         }
 
         public int NumTotal
@@ -63,7 +62,7 @@ namespace Zenject
             return value;
         }
 
-        protected TValue SpawnGetter()
+        protected TValue SpawnInternal()
         {
             TValue element;
 
@@ -86,19 +85,14 @@ namespace Zenject
 
         public void Despawn(TValue element)
         {
-            if (_onDespawnedMethodGetter != null)
-            {
-                Assert.IsNull(_onDespawnedMethod);
-                _onDespawnedMethodGetter(element)();
-            }
-            else if (_onDespawnedMethod != null)
+            if (_onDespawnedMethod != null)
             {
                 _onDespawnedMethod(element);
             }
 
             if (_stack.Count > 0 && ReferenceEquals(_stack.Peek(), element))
             {
-                ModestTree.Log.Error("Getter error. Trying to destroy object that is already released to pool.");
+                ModestTree.Log.Error("Despawn error. Trying to destroy object that is already released to pool.");
             }
 
             Assert.That(!_stack.Contains(element), "Attempted to despawn element twice!");
@@ -112,23 +106,13 @@ namespace Zenject
     public class NewableMemoryPool<TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TValue>
         where TValue : class, new()
     {
-        Func<TValue, Action> _onSpawnMethodGetter;
         Action<TValue> _onSpawnMethod;
 
-        public NewableMemoryPool()
-        {
-        }
-
         public NewableMemoryPool(
-            Func<TValue, Action> onSpawnMethodGetter, Func<TValue, Action> onDespawnedMethodGetter = null)
+            Action<TValue> onSpawnMethod = null, Action<TValue> onDespawnedMethod = null)
+            : base(onDespawnedMethod)
         {
-            OnDespawnedMethodGetter = onDespawnedMethodGetter;
-            _onSpawnMethodGetter = onSpawnMethodGetter;
-        }
-
-        public Func<TValue, Action> OnSpawnMethodGetter
-        {
-            set { _onSpawnMethodGetter = value; }
+            _onSpawnMethod = onSpawnMethod;
         }
 
         public Action<TValue> OnSpawnMethod
@@ -143,14 +127,9 @@ namespace Zenject
 
         public TValue Spawn()
         {
-            var item = SpawnGetter();
+            var item = SpawnInternal();
 
-            if (_onSpawnMethodGetter != null)
-            {
-                Assert.IsNull(_onSpawnMethod);
-                _onSpawnMethodGetter(item)();
-            }
-            else if (_onSpawnMethod != null)
+            if (_onSpawnMethod != null)
             {
                 _onSpawnMethod(item);
             }
@@ -164,26 +143,15 @@ namespace Zenject
     public class NewableMemoryPool<TParam1, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TValue>
         where TValue : class, new()
     {
-        Func<TValue, Action<TParam1>> _onSpawnMethodGetter;
         Action<TParam1, TValue> _onSpawnMethod;
 
-        public NewableMemoryPool()
-        {
-        }
-
         public NewableMemoryPool(
-            Func<TValue, Action<TParam1>> onSpawnMethodGetter, Func<TValue, Action> onDespawnedMethodGetter = null)
+            Action<TParam1, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
+            : base(onDespawnedMethod)
         {
             // What's the point of having a param otherwise?
-            Assert.IsNotNull(onSpawnMethodGetter);
-
-            OnDespawnedMethodGetter = onDespawnedMethodGetter;
-            _onSpawnMethodGetter = onSpawnMethodGetter;
-        }
-
-        public Func<TValue, Action<TParam1>> OnSpawnMethodGetter
-        {
-            set { _onSpawnMethodGetter = value; }
+            Assert.IsNotNull(onSpawnMethod);
+            _onSpawnMethod = onSpawnMethod;
         }
 
         public Action<TParam1, TValue> OnSpawnMethod
@@ -198,14 +166,9 @@ namespace Zenject
 
         public TValue Spawn(TParam1 param)
         {
-            var item = SpawnGetter();
+            var item = SpawnInternal();
 
-            if (_onSpawnMethodGetter != null)
-            {
-                Assert.IsNull(_onSpawnMethod);
-                _onSpawnMethodGetter(item)(param);
-            }
-            else if (_onSpawnMethod != null)
+            if (_onSpawnMethod != null)
             {
                 _onSpawnMethod(param, item);
             }
@@ -219,26 +182,15 @@ namespace Zenject
     public class NewableMemoryPool<TParam1, TParam2, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TValue>
         where TValue : class, new()
     {
-        Func<TValue, Action<TParam1, TParam2>> _onSpawnMethodGetter;
         Action<TParam1, TParam2, TValue> _onSpawnMethod;
 
-        public NewableMemoryPool()
-        {
-        }
-
         public NewableMemoryPool(
-            Func<TValue, Action<TParam1, TParam2>> onSpawnMethodGetter,
-            Func<TValue, Action> onDespawnedMethodGetter)
+            Action<TParam1, TParam2, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
+            : base(onDespawnedMethod)
         {
             // What's the point of having a param otherwise?
-            Assert.IsNotNull(onSpawnMethodGetter);
-            _onSpawnMethodGetter = onSpawnMethodGetter;
-            OnDespawnedMethodGetter = onDespawnedMethodGetter;
-        }
-
-        public Func<TValue, Action<TParam1, TParam2>> OnSpawnMethodGetter
-        {
-            set { _onSpawnMethodGetter = value; }
+            Assert.IsNotNull(onSpawnMethod);
+            _onSpawnMethod = onSpawnMethod;
         }
 
         public Action<TParam1, TParam2, TValue> OnSpawnMethod
@@ -253,14 +205,9 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2)
         {
-            var item = SpawnGetter();
+            var item = SpawnInternal();
 
-            if (_onSpawnMethodGetter != null)
-            {
-                Assert.IsNull(_onSpawnMethod);
-                _onSpawnMethodGetter(item)(p1, p2);
-            }
-            else if (_onSpawnMethod != null)
+            if (_onSpawnMethod != null)
             {
                 _onSpawnMethod(p1, p2, item);
             }
@@ -274,27 +221,15 @@ namespace Zenject
     public class NewableMemoryPool<TParam1, TParam2, TParam3, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TValue>
         where TValue : class, new()
     {
-        Func<TValue, Action<TParam1, TParam2, TParam3>> _onSpawnMethodGetter;
         Action<TParam1, TParam2, TParam3, TValue> _onSpawnMethod;
 
-        public NewableMemoryPool()
-        {
-        }
-
         public NewableMemoryPool(
-            Func<TValue, Action<TParam1, TParam2, TParam3>> onSpawnMethodGetter,
-            Func<TValue, Action> onDespawnedMethodGetter)
+            Action<TParam1, TParam2, TParam3, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
+            : base(onDespawnedMethod)
         {
             // What's the point of having a param otherwise?
-            Assert.IsNotNull(onSpawnMethodGetter);
-
-            _onSpawnMethodGetter = onSpawnMethodGetter;
-            OnDespawnedMethodGetter = onDespawnedMethodGetter;
-        }
-
-        public Func<TValue, Action<TParam1, TParam2, TParam3>> OnSpawnMethodGetter
-        {
-            set { _onSpawnMethodGetter = value; }
+            Assert.IsNotNull(onSpawnMethod);
+            _onSpawnMethod = onSpawnMethod;
         }
 
         public Action<TParam1, TParam2, TParam3, TValue> OnSpawnMethod
@@ -309,14 +244,9 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3)
         {
-            var item = SpawnGetter();
+            var item = SpawnInternal();
 
-            if (_onSpawnMethodGetter != null)
-            {
-                Assert.IsNull(_onSpawnMethod);
-                _onSpawnMethodGetter(item)(p1, p2, p3);
-            }
-            else if (_onSpawnMethod != null)
+            if (_onSpawnMethod != null)
             {
                 _onSpawnMethod(p1, p2, p3, item);
             }
@@ -330,27 +260,15 @@ namespace Zenject
     public class NewableMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue>
         where TValue : class, new()
     {
-        Func<TValue, Action<TParam1, TParam2, TParam3, TParam4>> _onSpawnMethodGetter;
         Action<TParam1, TParam2, TParam3, TParam4, TValue> _onSpawnMethod;
 
-        public NewableMemoryPool()
-        {
-        }
-
         public NewableMemoryPool(
-            Func<TValue, Action<TParam1, TParam2, TParam3, TParam4>> onSpawnMethodGetter,
-            Func<TValue, Action> onDespawnedMethodGetter)
+            Action<TParam1, TParam2, TParam3, TParam4, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
+            : base(onDespawnedMethod)
         {
             // What's the point of having a param otherwise?
-            Assert.IsNotNull(onSpawnMethodGetter);
-
-            _onSpawnMethodGetter = onSpawnMethodGetter;
-            OnDespawnedMethodGetter = onDespawnedMethodGetter;
-        }
-
-        public Func<TValue, Action<TParam1, TParam2, TParam3, TParam4>> OnSpawnMethodGetter
-        {
-            set { _onSpawnMethodGetter = value; }
+            Assert.IsNotNull(onSpawnMethod);
+            _onSpawnMethod = onSpawnMethod;
         }
 
         public Action<TParam1, TParam2, TParam3, TParam4, TValue> OnSpawnMethod
@@ -365,14 +283,9 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4)
         {
-            var item = SpawnGetter();
+            var item = SpawnInternal();
 
-            if (_onSpawnMethodGetter != null)
-            {
-                Assert.IsNull(_onSpawnMethod);
-                _onSpawnMethodGetter(item)(p1, p2, p3, p4);
-            }
-            else if (_onSpawnMethod != null)
+            if (_onSpawnMethod != null)
             {
                 _onSpawnMethod(p1, p2, p3, p4, item);
             }
@@ -386,27 +299,15 @@ namespace Zenject
     public class NewableMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue>
         where TValue : class, new()
     {
-        Func<TValue, Action<TParam1, TParam2, TParam3, TParam4, TParam5>> _onSpawnMethodGetter;
         Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> _onSpawnMethod;
 
-        public NewableMemoryPool()
-        {
-        }
-
         public NewableMemoryPool(
-            Func<TValue, Action<TParam1, TParam2, TParam3, TParam4, TParam5>> onSpawnMethodGetter,
-            Func<TValue, Action> onDespawnedMethodGetter)
+            Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
+            : base(onDespawnedMethod)
         {
             // What's the point of having a param otherwise?
-            Assert.IsNotNull(onSpawnMethodGetter);
-
-            _onSpawnMethodGetter = onSpawnMethodGetter;
-            OnDespawnedMethodGetter = onDespawnedMethodGetter;
-        }
-
-        public Func<TValue, Action<TParam1, TParam2, TParam3, TParam4, TParam5>> OnSpawnMethodGetter
-        {
-            set { _onSpawnMethodGetter = value; }
+            Assert.IsNotNull(onSpawnMethod);
+            _onSpawnMethod = onSpawnMethod;
         }
 
         public Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> OnSpawnMethod
@@ -421,14 +322,9 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5)
         {
-            var item = SpawnGetter();
+            var item = SpawnInternal();
 
-            if (_onSpawnMethodGetter != null)
-            {
-                Assert.IsNull(_onSpawnMethod);
-                _onSpawnMethodGetter(item)(p1, p2, p3, p4, p5);
-            }
-            else if (_onSpawnMethod != null)
+            if (_onSpawnMethod != null)
             {
                 _onSpawnMethod(p1, p2, p3, p4, p5, item);
             }

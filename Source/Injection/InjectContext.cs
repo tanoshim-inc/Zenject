@@ -9,8 +9,7 @@ namespace Zenject
     public class InjectContext : IDisposable
     {
         public static readonly NewableMemoryPool<DiContainer, Type, InjectContext> Pool =
-            new NewableMemoryPool<DiContainer, Type, InjectContext>(
-                x => x.OnSpawned, x => x.OnDespawned);
+            new NewableMemoryPool<DiContainer, Type, InjectContext>(OnSpawned, OnDespawned);
 
         readonly BindingId _bindingId = new BindingId();
 
@@ -27,6 +26,19 @@ namespace Zenject
         public InjectContext()
         {
             SetDefaults();
+        }
+
+        static void OnSpawned(DiContainer container, Type memberType, InjectContext that)
+        {
+            Assert.IsNull(that._container);
+
+            that._container = container;
+            that._bindingId.Type = memberType;
+        }
+
+        static void OnDespawned(InjectContext that)
+        {
+            that.SetDefaults();
         }
 
         public InjectContext(DiContainer container, Type memberType)
@@ -65,19 +77,6 @@ namespace Zenject
             _sourceType = InjectSources.Any;
             _fallBackValue = null;
             _container = null;
-        }
-
-        void OnSpawned(DiContainer container, Type memberType)
-        {
-            Assert.IsNull(_container);
-
-            _container = container;
-            _bindingId.Type = memberType;
-        }
-
-        void OnDespawned()
-        {
-            SetDefaults();
         }
 
         public BindingId BindingId

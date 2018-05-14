@@ -12,22 +12,21 @@ namespace Zenject.Tests.Bindings
         class Foo : IDisposable
         {
             public static readonly NewableMemoryPool<string, Foo> Pool =
-                new NewableMemoryPool<string, Foo>(
-                    x => x.OnSpawned, x => x.OnDespawned);
+                new NewableMemoryPool<string, Foo>(OnSpawned, OnDespawned);
 
             public void Dispose()
             {
                 Pool.Despawn(this);
             }
 
-            void OnDespawned()
+            static void OnDespawned(Foo that)
             {
-                Value = null;
+                that.Value = null;
             }
 
-            void OnSpawned(string value)
+            static void OnSpawned(string value, Foo that)
             {
-                Value = value;
+                that.Value = value;
             }
 
             public string Value
