@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using Zenject;
 using System.Collections;
 using UnityEngine;
@@ -15,3 +17,5 @@ namespace Zenject.Tests
         }
     }
 }
+
+#endif

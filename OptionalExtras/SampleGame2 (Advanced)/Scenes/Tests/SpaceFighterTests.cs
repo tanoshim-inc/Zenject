@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System.Linq;
 using ModestTree;
 using NUnit.Framework;
@@ -99,4 +101,4 @@ namespace Zenject.SpaceFighter
     }
 }
 
-
+#endif

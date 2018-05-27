@@ -29,7 +29,10 @@ namespace Zenject
 
             Assert.IsNotNull(instances, "Null value returned from creator '{0}'", creator.GetType());
 
-            injectAction?.Invoke();
+            if (injectAction != null)
+            {
+                injectAction.Invoke();
+            }
 
             return instances;
         }
