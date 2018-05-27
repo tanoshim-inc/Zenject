@@ -287,7 +287,8 @@ namespace Zenject
 
                     var providerPair = new ProviderPair(providerInfo, this);
                     var matches = SafeGetInstances(providerPair, context);
-                    Assert.That(matches.Any());
+                    // Zero matches might actually be valid in some cases
+                    //Assert.That(matches.Any());
                 }
             }
         }

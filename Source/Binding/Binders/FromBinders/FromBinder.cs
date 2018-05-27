@@ -110,12 +110,28 @@ namespace Zenject
             return new ScopeConditionCopyNonLazyBinder(BindInfo);
         }
 
+        public SubContainerBinder FromSubContainerResolveAll()
+        {
+            return FromSubContainerResolveAll(null);
+        }
+
+        public SubContainerBinder FromSubContainerResolveAll(object subIdentifier)
+        {
+            return FromSubContainerResolveInternal(subIdentifier, true);
+        }
+
         public SubContainerBinder FromSubContainerResolve()
         {
             return FromSubContainerResolve(null);
         }
 
         public SubContainerBinder FromSubContainerResolve(object subIdentifier)
+        {
+            return FromSubContainerResolveInternal(subIdentifier, false);
+        }
+
+        SubContainerBinder FromSubContainerResolveInternal(
+            object subIdentifier, bool resolveAll)
         {
             // It's unlikely they will want to create the whole subcontainer with each binding
             // (aka transient) which is the default so require that they specify it
@@ -124,7 +140,7 @@ namespace Zenject
             BindInfo.MarkAsCreationBinding = false;
 
             return new SubContainerBinder(
-                BindInfo, FinalizerWrapper, subIdentifier);
+                BindInfo, FinalizerWrapper, subIdentifier, resolveAll);
         }
 
         protected ScopeConcreteIdArgConditionCopyNonLazyBinder FromIFactoryBase<TContract>(

@@ -8,13 +8,15 @@ namespace Zenject
     {
         readonly object _subIdentifier;
         readonly Action<DiContainer> _installMethod;
+        readonly bool _resolveAll;
 
         public SubContainerMethodBindingFinalizer(
-            BindInfo bindInfo, Action<DiContainer> installMethod, object subIdentifier)
+            BindInfo bindInfo, Action<DiContainer> installMethod, object subIdentifier, bool resolveAll)
             : base(bindInfo)
         {
             _subIdentifier = subIdentifier;
             _installMethod = installMethod;
+            _resolveAll = resolveAll;
         }
 
         protected override void OnFinalizeBinding(DiContainer container)
@@ -44,7 +46,7 @@ namespace Zenject
                         concreteTypes,
                         (contractType, concreteType) => new SubContainerDependencyProvider(
                             concreteType, _subIdentifier,
-                            new SubContainerCreatorByMethod(container, _installMethod)));
+                            new SubContainerCreatorByMethod(container, _installMethod), _resolveAll));
                     break;
                 }
                 case ScopeTypes.Singleton:
@@ -57,7 +59,7 @@ namespace Zenject
                         container,
                         concreteTypes,
                         (_, concreteType) => new SubContainerDependencyProvider(
-                            concreteType, _subIdentifier, creator));
+                            concreteType, _subIdentifier, creator, _resolveAll));
                     break;
                 }
                 default:
@@ -80,7 +82,7 @@ namespace Zenject
                         (_, contractType) => new SubContainerDependencyProvider(
                             contractType, _subIdentifier,
                             new SubContainerCreatorByMethod(
-                                container, _installMethod)));
+                                container, _installMethod), _resolveAll));
                     break;
                 }
                 case ScopeTypes.Singleton:
@@ -92,7 +94,7 @@ namespace Zenject
                         container,
                         (_, contractType) =>
                             new SubContainerDependencyProvider(
-                                contractType, _subIdentifier, containerCreator));
+                                contractType, _subIdentifier, containerCreator, _resolveAll));
                     break;
                 }
                 default:

@@ -16,7 +16,7 @@ namespace Zenject
             ProviderFunc =
                 (container) => new SubContainerDependencyProvider(
                     ContractType, SubIdentifier,
-                    new SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10>(container, installerMethod));
+                    new SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10>(container, installerMethod), false);
 
             return new ConditionCopyNonLazyBinder(BindInfo);
         }
@@ -34,7 +34,7 @@ namespace Zenject
                     ContractType, SubIdentifier,
                     new SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10>( container,
                         new PrefabProvider(prefab),
-                        gameObjectInfo, installerMethod));
+                        gameObjectInfo, installerMethod), false);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
@@ -51,7 +51,7 @@ namespace Zenject
                     ContractType, SubIdentifier,
                     new SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10>( container,
                         new PrefabProviderResource(resourcePath),
-                        gameObjectInfo, installerMethod));
+                        gameObjectInfo, installerMethod), false);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }

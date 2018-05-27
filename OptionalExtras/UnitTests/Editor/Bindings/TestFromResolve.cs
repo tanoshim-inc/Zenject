@@ -58,6 +58,14 @@ namespace Zenject.Tests.Bindings
         }
 
         [Test]
+        public void TestNoMatch()
+        {
+            Container.Bind<IFoo>().To<Foo>().FromResolve();
+
+            Assert.Throws(() => Container.Resolve<IFoo>());
+        }
+
+        [Test]
         public void TestSingleFailure()
         {
             Container.Bind<Foo>().AsCached();

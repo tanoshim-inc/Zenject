@@ -35,7 +35,7 @@ namespace Zenject
                         installerType,
                         container,
                         new PrefabProvider(prefab),
-                        gameObjectInfo));
+                        gameObjectInfo), false);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
@@ -60,7 +60,7 @@ namespace Zenject
                         installerType,
                         container,
                         new PrefabProviderResource(resourcePath),
-                        gameObjectInfo));
+                        gameObjectInfo), false);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }

@@ -18,7 +18,7 @@ namespace Zenject
                 (container) => new SubContainerDependencyProvider(
                     ContractType, SubIdentifier,
                     new SubContainerCreatorByMethod(
-                        container, installerMethod));
+                        container, installerMethod), false);
 
             return new ConditionCopyNonLazyBinder(BindInfo);
         }
@@ -38,7 +38,7 @@ namespace Zenject
                     new SubContainerCreatorByNewPrefabMethod(
                         container,
                         new PrefabProvider(prefab),
-                        gameObjectInfo, installerMethod));
+                        gameObjectInfo, installerMethod), false);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
@@ -56,7 +56,7 @@ namespace Zenject
                     new SubContainerCreatorByNewPrefabMethod(
                         container,
                         new PrefabProviderResource(resourcePath),
-                        gameObjectInfo, installerMethod));
+                        gameObjectInfo, installerMethod), false);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
@@ -73,7 +73,7 @@ namespace Zenject
                     new SubContainerCreatorByNewPrefab(
                         container,
                         new PrefabProvider(prefab),
-                        gameObjectInfo));
+                        gameObjectInfo), false);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
@@ -90,7 +90,7 @@ namespace Zenject
                     new SubContainerCreatorByNewPrefab(
                         container,
                         new PrefabProviderResource(resourcePath),
-                        gameObjectInfo));
+                        gameObjectInfo), false);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
