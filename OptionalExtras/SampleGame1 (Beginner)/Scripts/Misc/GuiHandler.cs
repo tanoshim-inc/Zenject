@@ -19,9 +19,6 @@ namespace Zenject.Asteroids
         GUIStyle _instructionsStyle;
 
         [SerializeField]
-        GUIStyle _gameOverStyle;
-
-        [SerializeField]
         GUIStyle _timeStyle;
 
         [SerializeField]

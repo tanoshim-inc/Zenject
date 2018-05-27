@@ -14,12 +14,6 @@ namespace Zenject.SpaceFighter
         [SerializeField]
         ParticleSystem _particleSystem;
 
-        [SerializeField]
-        AudioClip _sound;
-
-        [SerializeField]
-        float _soundVolume;
-
         float _startTime;
 
         [Inject]

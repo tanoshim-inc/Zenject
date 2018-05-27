@@ -6,7 +6,6 @@ namespace Zenject
     public class BindSignalToBinder<TSignal>
         where TSignal : ISignal
     {
-        BindInfo _bindInfo;
         DiContainer _container;
         BindFinalizerWrapper _finalizerWrapper;
 
