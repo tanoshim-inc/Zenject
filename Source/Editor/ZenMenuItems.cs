@@ -204,6 +204,130 @@ namespace Zenject.Internal
                 + "\n}");
         }
 
+        [MenuItem("Assets/Create/Zenject/Scene Test Fixture", false, 60)]
+        public static void CreateSceneReference()
+        {
+            var selectedSceneAssetPath = ZenUnityEditorUtil.GetSelectedAssetPathsInProjectsTab()
+                .Where(x => x.EndsWith(".unity")).OnlyOrDefault();
+
+            if (selectedSceneAssetPath == null)
+            {
+                EditorUtility.DisplayDialog("Error",
+                    "Must right click on a scene in the project pane to add a Scene Test Fixture. Please try again.", "Ok");
+                return;
+            }
+
+            var sceneName = Path.GetFileNameWithoutExtension(selectedSceneAssetPath);
+
+            var outputDir = ZenUnityEditorUtil.GetCurrentDirectoryAssetPathFromSelection() + "/Tests";
+
+            if (!Directory.Exists(outputDir))
+            {
+                Directory.CreateDirectory(outputDir);
+            }
+
+            var newAssetPath = AddCSharpClassTemplate("Scene Test Fixture", "{0}SceneTests".Fmt(sceneName), false,
+                  "using Zenject;"
+                + "\nusing System.Collections;"
+                + "\nusing UnityEngine;"
+                + "\nusing UnityEngine.TestTools;"
+                + "\n"
+                + "\npublic class CLASS_NAME : SceneTestFixture"
+                + "\n{"
+                + "\n    [UnityTest]"
+                + "\n    public IEnumerator TestScene()"
+                + "\n    {"
+                + "\n        yield return LoadScene();"
+                + "\n"
+                + "\n        // TODO: Add assertions here now that the scene has started"
+                + "\n        // Or you can just uncomment to simply wait some time to make sure the scene plays without errors"
+                + "\n        //yield return new WaitForSeconds(1.0f);"
+                + "\n"
+                + "\n        // Note that you can use SceneContainer.Resolve to look up objects that you need for assertions"
+                + "\n    }"
+                + "\n}", outputDir);
+
+            if (newAssetPath == null)
+            {
+                // Cancelled
+                return;
+            }
+
+            var newAssetAbsolutePath = Path.GetDirectoryName(ZenUnityEditorUtil.ConvertAssetPathToAbsolutePath(newAssetPath));
+            var fixtureName = Path.GetFileNameWithoutExtension(newAssetPath);
+
+            var outputDirectory = "{0}/Resources/{1}".Fmt(
+                newAssetAbsolutePath, SceneTestFixture.SettingsResourcePathParentName);
+
+            if (!Directory.Exists(outputDirectory))
+            {
+                Directory.CreateDirectory(outputDirectory);
+            }
+
+            var sceneRef = ScriptableObject.CreateInstance<SceneTestFixtureSceneReference>();
+
+            sceneRef.Scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(selectedSceneAssetPath);
+
+            ZenUnityEditorUtil.SaveScriptableObjectAsset(
+                ZenUnityEditorUtil.ConvertFullAbsolutePathToAssetPath(
+                    "{0}/{1}.asset".Fmt(outputDirectory, fixtureName)), sceneRef);
+
+            Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(newAssetPath);
+        }
+
+        [MenuItem("Assets/Create/Zenject/Scene Test Fixture Scene Reference", false, 60)]
+        public static void CreateSceneTestFixtureSceneReference()
+        {
+            var absoluteDir = ZenUnityEditorUtil.TryGetSelectedFolderPathInProjectsTab();
+
+            if (absoluteDir == null)
+            {
+                EditorUtility.DisplayDialog("Error",
+                    "Could not find directory to place the SceneReference asset.  Please try again by right clicking in the desired folder within the projects pane.", "Ok");
+                return;
+            }
+
+            var parentFolderName = Path.GetFileName(absoluteDir);
+
+            if (parentFolderName == "Resources")
+            {
+                absoluteDir = Path.Combine(absoluteDir, SceneTestFixture.SettingsResourcePathParentName).Replace("\\", "/");
+
+                if (!Directory.Exists(absoluteDir))
+                {
+                    Directory.CreateDirectory(absoluteDir);
+                }
+            }
+            else
+            {
+                if (!absoluteDir.EndsWith(SceneTestFixture.SettingsResourcePathParentName))
+                {
+                    EditorUtility.DisplayDialog("Error",
+                        "'SceneTestFixtureSceneReference' must be placed in a folder with path 'Resources/{0}'.  Please try again.".Fmt(SceneTestFixture.SettingsResourcePathParentName), "Ok");
+                    return;
+                }
+            }
+
+            var absolutePath = EditorUtility.SaveFilePanel(
+                "Name of scene test fixtured derived class", absoluteDir, "MySceneTestFixtureDerivedClass.asset", "asset");
+
+            if (absolutePath == "")
+            {
+                // Dialog was cancelled
+                return;
+            }
+
+            if (!absolutePath.ToLower().EndsWith(".asset"))
+            {
+                absolutePath += ".asset";
+            }
+
+            var assetPath = ZenUnityEditorUtil.ConvertFullAbsolutePathToAssetPath(absolutePath);
+
+            ZenUnityEditorUtil.SaveScriptableObjectAsset(
+                assetPath, ScriptableObject.CreateInstance<SceneTestFixtureSceneReference>());
+        }
+
         [MenuItem("Assets/Create/Zenject/Project Context", false, 40)]
         public static void CreateProjectContext()
         {
@@ -254,16 +378,22 @@ namespace Zenject.Internal
             Debug.Log("Created new ProjectContext at '{0}'".Fmt(prefabPath));
         }
 
-        static void AddCSharpClassTemplate(
+        static string AddCSharpClassTemplate(
             string friendlyName, string defaultFileName, bool editorOnly, string templateStr)
         {
-            var folderPath = ZenUnityEditorUtil.GetCurrentDirectoryAssetPathFromSelection();
+            return AddCSharpClassTemplate(
+                friendlyName, defaultFileName, editorOnly, templateStr, ZenUnityEditorUtil.GetCurrentDirectoryAssetPathFromSelection());
+        }
 
+        static string AddCSharpClassTemplate(
+            string friendlyName, string defaultFileName, bool editorOnly,
+            string templateStr, string folderPath)
+        {
             if (editorOnly && !folderPath.Contains("/Editor"))
             {
                 EditorUtility.DisplayDialog("Error",
                     "Editor window classes must have a parent folder above them named 'Editor'.  Please create or find an Editor folder and try again", "Ok");
-                return;
+                return null;
             }
 
             var absolutePath = EditorUtility.SaveFilePanel(
@@ -275,7 +405,7 @@ namespace Zenject.Internal
             if (absolutePath == "")
             {
                 // Dialog was cancelled
-                return;
+                return null;
             }
 
             if (!absolutePath.ToLower().EndsWith(".cs"))
@@ -292,6 +422,8 @@ namespace Zenject.Internal
 
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetPath);
+
+            return assetPath;
         }
 
         [MenuItem("Edit/Zenject/Validate All Active Scenes")]

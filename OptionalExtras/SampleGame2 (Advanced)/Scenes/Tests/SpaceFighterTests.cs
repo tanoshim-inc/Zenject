@@ -11,13 +11,8 @@ using Assert = ModestTree.Assert;
 
 namespace Zenject.SpaceFighter
 {
-    public class SpaceFighterTests : ScenePlayModeTestBase
+    public class SpaceFighterTests : SceneTestFixture
     {
-        public SpaceFighterTests()
-            : base("SpaceFighter")
-        {
-        }
-
         [UnityTest]
         public IEnumerator TestEnemyStateChanges()
         {
@@ -103,4 +98,5 @@ namespace Zenject.SpaceFighter
         }
     }
 }
+
 

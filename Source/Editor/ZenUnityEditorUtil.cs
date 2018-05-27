@@ -133,6 +133,11 @@ namespace Zenject.Internal
 
         public static SceneContext TryGetSceneContextForScene(Scene scene)
         {
+            if (!scene.isLoaded)
+            {
+                return null;
+            }
+
             var sceneContexts = scene.GetRootGameObjects()
                 .SelectMany(x => x.GetComponentsInChildren<SceneContext>()).ToList();
 
@@ -159,6 +164,11 @@ namespace Zenject.Internal
 
         public static SceneDecoratorContext TryGetDecoratorContextForScene(Scene scene)
         {
+            if (!scene.isLoaded)
+            {
+                return null;
+            }
+
             var decoratorContexts = scene.GetRootGameObjects()
                 .SelectMany(x => x.GetComponentsInChildren<SceneDecoratorContext>()).ToList();
 
@@ -204,6 +214,12 @@ namespace Zenject.Internal
 
             Assert.That(decoratedSceneNames.IsEmpty(),
                 "Found decorator scenes without a corresponding scene to decorator.  Missing scene contracts: {0}", decoratedSceneNames.Join(", "));
+        }
+
+        public static string ConvertAssetPathToAbsolutePath(string assetPath)
+        {
+            return Path.Combine(
+                Path.Combine(Path.GetFullPath(Application.dataPath), ".."), assetPath);
         }
 
         public static string ConvertFullAbsolutePathToAssetPath(string fullPath)
@@ -258,12 +274,32 @@ namespace Zenject.Internal
                 .Where(x => File.Exists(x)).ToList();
         }
 
+        public static List<string> GetSelectedAssetPathsInProjectsTab()
+        {
+            var paths = new List<string>();
+
+            UnityEngine.Object[] selectedAssets = Selection.GetFiltered(
+                typeof(UnityEngine.Object), SelectionMode.Assets);
+
+            foreach (var item in selectedAssets)
+            {
+                var assetPath = AssetDatabase.GetAssetPath(item);
+
+                if (!string.IsNullOrEmpty(assetPath))
+                {
+                    paths.Add(assetPath);
+                }
+            }
+
+            return paths;
+        }
+
         public static List<string> GetSelectedPathsInProjectsTab()
         {
             var paths = new List<string>();
 
             UnityEngine.Object[] selectedAssets = Selection.GetFiltered(
-                                                      typeof(UnityEngine.Object), SelectionMode.Assets);
+                typeof(UnityEngine.Object), SelectionMode.Assets);
 
             foreach (var item in selectedAssets)
             {
@@ -272,7 +308,7 @@ namespace Zenject.Internal
                 if (!string.IsNullOrEmpty(relativePath))
                 {
                     var fullPath = Path.GetFullPath(Path.Combine(
-                                           Application.dataPath, Path.Combine("..", relativePath)));
+                        Application.dataPath, Path.Combine("..", relativePath)));
 
                     paths.Add(fullPath);
                 }

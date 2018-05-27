@@ -14,6 +14,11 @@ namespace Zenject
 {
     public class SceneContext : RunnableContext
     {
+        public event Action PreInstall = null;
+        public event Action PostInstall = null;
+        public event Action PreResolve = null;
+        public event Action PostResolve = null;
+
         public static Action<DiContainer> ExtraBindingsInstallMethod;
         public static Action<DiContainer> ExtraBindingsLateInstallMethod;
 
@@ -46,6 +51,16 @@ namespace Zenject
         public override DiContainer Container
         {
             get { return _container; }
+        }
+
+        public bool HasResolved
+        {
+            get { return _hasResolved; }
+        }
+
+        public bool HasInstalled
+        {
+            get { return _hasInstalled; }
         }
 
         public bool IsValidating
@@ -217,6 +232,12 @@ namespace Zenject
 
             _container = new DiContainer(parents, parents.First().IsValidating);
 
+            // Do this after creating DiContainer in case it's needed by the pre install logic
+            if (PreInstall != null)
+            {
+                PreInstall();
+            }
+
             Assert.That(_decoratorContexts.IsEmpty());
             _decoratorContexts.AddRange(LookupDecoratorContexts());
 
@@ -257,16 +278,31 @@ namespace Zenject
             {
                 _container.IsInstalling = false;
             }
+
+            if (PostInstall != null)
+            {
+                PostInstall();
+            }
         }
 
         public void Resolve()
         {
+            if (PreResolve != null)
+            {
+                PreResolve();
+            }
+
             Assert.That(_hasInstalled);
             Assert.That(!_hasResolved);
             _hasResolved = true;
 
             _container.ResolveDependencyRoots();
             _container.FlushInjectQueue();
+
+            if (PostResolve != null)
+            {
+                PostResolve();
+            }
         }
 
         void InstallBindings(List<MonoBehaviour> injectableMonoBehaviours)
