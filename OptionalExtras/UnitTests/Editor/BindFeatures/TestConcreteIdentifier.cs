@@ -16,7 +16,7 @@ namespace Zenject.Tests.BindFeatures
             Container.Bind<IFoo>().To<Foo>().AsCached().WithConcreteId("asdf");
             Container.Bind<IFoo>().To<Foo>().AsCached();
 
-            Container.BindInstance("a").When(x => x.ConcreteIdentifier == "asdf" && x.ObjectType == typeof(Foo));
+            Container.BindInstance("a").When(x => object.Equals(x.ConcreteIdentifier, "asdf") && x.ObjectType == typeof(Foo));
             Container.BindInstance("b").When(x => x.ConcreteIdentifier == null && x.ObjectType == typeof(Foo));
 
             var foos = Container.ResolveAll<IFoo>();
