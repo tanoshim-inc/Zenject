@@ -54,7 +54,7 @@ namespace Zenject.Tests.Bindings
         [Test]
         public void TestInstallerSelfSingleMultipleMatches()
         {
-            Container.Bind<Qux>().FromSubContainerResolve().ByInstaller<FooInstaller>().AsSingle().NonLazy();
+            Container.Bind<Qux>().FromSubContainerResolveAll().ByInstaller<FooInstaller>().AsSingle().NonLazy();
 
             Assert.IsEqual(Container.ResolveAll<Qux>().Count, 2);
         }
