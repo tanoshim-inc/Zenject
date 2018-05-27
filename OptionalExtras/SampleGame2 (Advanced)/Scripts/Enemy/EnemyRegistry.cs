@@ -11,7 +11,7 @@ namespace Zenject.SpaceFighter
 
         readonly List<EnemyFacade> _enemies = new List<EnemyFacade>();
 
-        public IReadOnlyList<EnemyFacade> Enemies
+        public IEnumerable<EnemyFacade> Enemies
         {
             get { return _enemies; }
         }
