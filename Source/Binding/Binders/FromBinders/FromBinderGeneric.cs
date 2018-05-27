@@ -119,7 +119,7 @@ namespace Zenject
         }
 
 
-        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInParents(bool excludeSelf = false)
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInParents(bool excludeSelf = false, bool includeInactive = false)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
@@ -128,7 +128,7 @@ namespace Zenject
                     Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>());
                     Assert.IsNotNull(ctx.ObjectInstance);
 
-                    var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInParent<TContract>()
+                    var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInParent<TContract>(includeInactive)
                         .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
 
                     if (excludeSelf)

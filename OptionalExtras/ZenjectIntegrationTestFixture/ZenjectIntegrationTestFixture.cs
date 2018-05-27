@@ -50,11 +50,25 @@ namespace Zenject
         {
             Assert.That(!StaticContext.HasContainer);
             // Only need to record this once for each set of tests
+            #if UNITY_2018_1_OR_NEWER
+            // Unity 2018 flags the test runner object as DontDestroyOnLoad.
+            // This is a workaround to prevent it from being deleted during cleanup.
+            if (_unityTestRunnerObjects == null)
+            {
+                GameObject go = new GameObject();
+                GameObject.DontDestroyOnLoad(go);
+
+                Scene dontDestroyOnLoadScene = go.scene;
+                GameObject.DestroyImmediate(go);
+                _unityTestRunnerObjects = dontDestroyOnLoadScene.GetRootGameObjects().ToList();
+            }
+            #else
             if (_unityTestRunnerObjects == null)
             {
                 _unityTestRunnerObjects = SceneManager.GetActiveScene()
                     .GetRootGameObjects().ToList();
             }
+            #endif
         }
 
         protected void SkipInstall()
