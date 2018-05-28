@@ -19,6 +19,8 @@ namespace Zenject
     {
         SceneContext _sceneContext;
 
+        List<GameObject> _unityTestRunnerObjects;
+
         bool _hasEndedInstall;
         bool _hasStartedInstall;
         bool _hasDestroyedAll;
@@ -47,6 +49,26 @@ namespace Zenject
         public void Setup()
         {
             Assert.That(!StaticContext.HasContainer);
+            // Only need to record this once for each set of tests
+            #if UNITY_2018_1_OR_NEWER
+            // Unity 2018 flags the test runner object as DontDestroyOnLoad.
+            // This is a workaround to prevent it from being deleted during cleanup.
+            if (_unityTestRunnerObjects == null)
+            {
+                GameObject go = new GameObject();
+                GameObject.DontDestroyOnLoad(go);
+
+                Scene dontDestroyOnLoadScene = go.scene;
+                GameObject.DestroyImmediate(go);
+                _unityTestRunnerObjects = dontDestroyOnLoadScene.GetRootGameObjects().ToList();
+            }
+            #else
+            if (_unityTestRunnerObjects == null)
+            {
+                _unityTestRunnerObjects = SceneManager.GetActiveScene()
+                    .GetRootGameObjects().ToList();
+            }
+            #endif
         }
 
         protected void SkipInstall()
@@ -151,7 +173,7 @@ namespace Zenject
             foreach (var rootObj in allRootObjects)
             {
                 // Make sure not to destroy the unity test runner objects that it adds
-                if (rootObj.name != "Code-based tests runner")
+                if (!_unityTestRunnerObjects.Contains(rootObj))
                 {
                     // Use DestroyImmediate for other objects too just to ensure we are fully
                     // cleaned up before the next test starts
