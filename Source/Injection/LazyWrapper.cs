@@ -3,40 +3,42 @@ using ModestTree;
 
 namespace Zenject
 {
+    public interface ILazyProvider
+    {
+        object GetLazy();
+    }
+
     [ZenjectAllowDuringValidationAttribute]
-    public class Lazy<T> : IValidatable
+    public class LazyWrapper<T> : IValidatable, ILazyProvider
     {
         readonly DiContainer _container;
         readonly InjectContext _context;
 
-        bool _hasValue;
-        T _value;
+        Lazy<T> _lazy;
 
-        public Lazy(DiContainer container, InjectContext context)
+        public LazyWrapper(DiContainer container, InjectContext context)
         {
             Assert.DerivesFromOrEqual<T>(context.MemberType);
 
             _container = container;
             _context = context;
+            _lazy = new Lazy<T>(GetValue);
+        }
+
+        public object GetLazy()
+        {
+            return _lazy;
         }
 
         void IValidatable.Validate()
         {
+            // Cannot cast
             _container.Resolve(_context);
         }
 
-        public T Value
+        public T GetValue()
         {
-            get
-            {
-                if (!_hasValue)
-                {
-                    _value = (T)_container.Resolve(_context);
-                    _hasValue = true;
-                }
-
-                return _value;
-            }
+            return (T)_container.Resolve(_context);
         }
     }
 }

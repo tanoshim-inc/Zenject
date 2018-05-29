@@ -102,14 +102,14 @@ namespace Zenject
             newContext.MemberType = context.MemberType.GenericArguments().Single();
 
             var result = Activator.CreateInstance(
-                typeof(Lazy<>).MakeGenericType(newContext.MemberType), new object[] { this, newContext });
+                typeof(LazyWrapper<>).MakeGenericType(newContext.MemberType), new object[] { this, newContext });
 
             if (_isValidating)
             {
                 QueueForValidate((IValidatable)result);
             }
 
-            return result;
+            return ((ILazyProvider)result).GetLazy();
         }
 
         public DiContainer()
