@@ -29,6 +29,7 @@ namespace Zenject
             new MemoryPoolSettings(0, PoolExpandMethods.OneAtATime);
     }
 
+    [ZenjectAllowDuringValidation]
     public class MemoryPoolBase<TContract> : IValidatable, IMemoryPool
     {
         Stack<TContract> _inactiveItems;

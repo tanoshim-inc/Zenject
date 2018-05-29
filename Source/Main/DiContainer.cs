@@ -40,12 +40,16 @@ namespace Zenject
         readonly Queue<IBindingFinalizer> _currentBindings = new Queue<IBindingFinalizer>();
         readonly List<IBindingFinalizer> _childBindings = new List<IBindingFinalizer>();
 
-        readonly List<ILazy> _lateBindingsToValidate = new List<ILazy>();
+        readonly HashSet<Type> _validatedTypes = new HashSet<Type>();
+        readonly List<IValidatable> _validationQueue = new List<IValidatable>();
 
 #if !NOT_UNITY3D
         Context _context;
 #endif
 
+        ZenjectSettings _settings;
+
+        bool _hasCompletedResolve;
         bool _isFinalizingBinding;
         bool _isValidating;
         bool _isInstalling;
@@ -57,11 +61,11 @@ namespace Zenject
 
             _lazyInjector = new LazyInstanceInjector(this);
 
-            ShouldCheckForInstallWarning = true;
-
             InstallDefaultBindings();
             FlushBindings();
             Assert.That(_currentBindings.IsEmpty());
+
+            _settings = ZenjectSettings.Default;
         }
 
         internal SingletonMarkRegistry SingletonMarkRegistry
@@ -92,10 +96,7 @@ namespace Zenject
 
             if (_isValidating)
             {
-                // Unfortunately we can't validate each lazy binding here
-                // because that could result in circular reference exceptions
-                // And that might be exactly why you're using lazy in the first place
-                _lateBindingsToValidate.Add(((ILazy)result));
+                QueueForValidate((IValidatable)result);
             }
 
             return result;
@@ -139,6 +140,29 @@ namespace Zenject
                 Assert.That(_currentBindings.IsEmpty());
                 Assert.That(_childBindings.IsEmpty());
             }
+
+            // Assumed to be configured in a parent container
+            var settings = this.TryResolve<ZenjectSettings>();
+
+            if (settings != null)
+            {
+                _settings = settings;
+            }
+        }
+
+        public void QueueForValidate(IValidatable validatable)
+        {
+            // Don't bother adding to queue if the initial resolve is already completed
+            if (!_hasCompletedResolve)
+            {
+                var concreteType = validatable.GetType();
+
+                if (!_validatedTypes.Contains(concreteType))
+                {
+                    _validatedTypes.Add(concreteType);
+                    _validationQueue.Add(validatable);
+                }
+            }
         }
 
         bool ShouldInheritBinding(IBindingFinalizer binding, DiContainer ancestorContainer)
@@ -179,11 +203,6 @@ namespace Zenject
             }
         }
 #endif
-
-        public bool ShouldCheckForInstallWarning
-        {
-            get; set;
-        }
 
         // When true, this will throw exceptions whenever we create new game objects
         // This is helpful when used in places like EditorWindowKernel where we can't
@@ -248,9 +267,33 @@ namespace Zenject
             }
         }
 
-        public void ResolveDependencyRoots()
+        public void ExecuteResolve()
         {
+            Assert.That(!_hasCompletedResolve);
+
             FlushBindings();
+
+            ResolveDependencyRoots();
+#if DEBUG
+            if (IsValidating && !_settings.ResolveOnlyRootsDuringValidation)
+            {
+                ValidateFullResolve();
+            }
+#endif
+
+            _lazyInjector.LazyInjectAll();
+
+            if (IsValidating)
+            {
+                FlushValidationQueue();
+            }
+
+            Assert.That(!_hasCompletedResolve);
+            _hasCompletedResolve = true;
+        }
+
+        void ResolveDependencyRoots()
+        {
             var rootBindings = new List<BindingId>();
             var rootProviders = new List<ProviderInfo>();
 
@@ -294,59 +337,57 @@ namespace Zenject
             }
         }
 
-        // This will instantiate any binding that results in a type that derives from IValidatable
-        // Note that we are looking at both the contract type and the mapped derived type
-        // This means if you add the binding 'Container.Bind<IFoo>().To<Foo>()'
-        // and Foo derives from both IFoo and IValidatable, then Foo will be instantiated
-        // and then Validate() will be called on it.  Note that this will happen even if Foo is not
-        // referenced anywhere in the normally resolved object graph
-        public void ValidateValidatables()
+        void ValidateFullResolve()
         {
+            Assert.That(!_hasCompletedResolve);
             Assert.That(IsValidating);
 
-            FlushBindings();
-
-#if !NOT_UNITY3D && !ZEN_TESTS_OUTSIDE_UNITY
-            Assert.That(Application.isEditor);
-#endif
-
-            foreach (var pair in _providers.ToList())
+            using (var block = DisposeBlock.Spawn())
             {
-                var bindingId = pair.Key;
-                var providers = pair.Value;
-
-                List<ProviderInfo> validatableProviders;
-
-                using (var injectContext = InjectContext.Pool.Spawn(this, bindingId.Type))
+                foreach (var bindingId in ListPool<BindingId>.Instance
+                    .SpawnWrapper(_providers.Keys).AttachedTo(block).Value)
                 {
-                    injectContext.Identifier = bindingId.Identifier;
-
-                    if (bindingId.Type.DerivesFrom<IValidatable>())
+                    if (!bindingId.Type.IsOpenGenericType())
                     {
-                        validatableProviders = providers;
-                    }
-                    else
-                    {
-                        validatableProviders = providers
-                            .Where(x => x.Provider.GetInstanceType(injectContext)
-                                    .DerivesFrom<IValidatable>()).ToList();
-                    }
-
-                    foreach (var provider in validatableProviders)
-                    {
-                        var validatable = provider.Provider.GetInstance(injectContext) as IValidatable;
-
-                        if (validatable != null)
+                        using (var context = InjectContext.Pool.Spawn(this, bindingId.Type))
                         {
-                            validatable.Validate();
+                            context.Identifier = bindingId.Identifier;
+                            context.SourceType = InjectSources.Local;
+                            context.Optional = true;
+
+                            ResolveAll(context);
                         }
                     }
                 }
             }
+        }
 
-            foreach (var lazy in _lateBindingsToValidate)
+        void FlushValidationQueue()
+        {
+            Assert.That(!_hasCompletedResolve);
+            Assert.That(IsValidating);
+
+#if !NOT_UNITY3D && !ZEN_TESTS_OUTSIDE_UNITY
+            Assert.That(Application.isEditor);
+#endif
+            using (var block = DisposeBlock.Spawn())
             {
-                lazy.Validate();
+                var validatables = ListPool<IValidatable>.Instance
+                    .SpawnWrapper().AttachedTo(block).Value;
+
+                // Repeatedly flush the validation queue until it's empty, to account for
+                // cases where calls to Validate() add more objects to the queue
+                while (_validationQueue.Any())
+                {
+                    validatables.Clear();
+                    validatables.AddRange(_validationQueue);
+                    _validationQueue.Clear();
+
+                    for (int i = 0; i < validatables.Count; i++)
+                    {
+                        validatables[i].Validate();
+                    }
+                }
             }
         }
 
@@ -358,11 +399,6 @@ namespace Zenject
         public void QueueForInject(object instance)
         {
             _lazyInjector.AddInstance(instance);
-        }
-
-        public void FlushInjectQueue()
-        {
-            _lazyInjector.LazyInjectAll();
         }
 
         // Note: this only does anything useful during the injection phase
@@ -721,12 +757,13 @@ namespace Zenject
 
         void CheckForInstallWarning(InjectContext context)
         {
-            if (!ShouldCheckForInstallWarning)
+            if (!_settings.DisplayWarningWhenResolvingDuringInstall)
             {
                 return;
             }
 
             Assert.IsNotNull(context);
+
 #if DEBUG || UNITY_EDITOR
             if (!_isInstalling)
             {
@@ -751,6 +788,10 @@ namespace Zenject
                 return;
             }
 #endif
+            if (TypeAnalyzer.ShouldAllowDuringValidation(context.MemberType))
+            {
+                return;
+            }
 
             var rootContext = context.ParentContextsAndSelf.Last();
 
@@ -761,8 +802,9 @@ namespace Zenject
             }
 
             _hasDisplayedInstallWarning = true;
+
             // Feel free to comment this out if you are comfortable with this practice
-            ModestTree.Log.Warn("Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type '{0}'.  If you don't care about this, you can remove this warning or set 'Container.ShouldCheckForInstallWarning' to false.", rootContext.MemberType);
+            ModestTree.Log.Warn("Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type '{0}'.  If you don't care about this, you can disable this warning by setting flag 'ZenjectSettings.DisplayWarningWhenResolvingDuringInstall' to false (see docs for details on ZenjectSettings).", rootContext.MemberType);
 #endif
         }
 
@@ -857,6 +899,15 @@ namespace Zenject
             Assert.IsNotNull(context);
             var result = GetSingleProviderMatch(context);
             return result;
+        }
+
+        public object Resolve(BindingId id)
+        {
+            using (var context = InjectContext.Pool.Spawn(this, id.Type))
+            {
+                context.Identifier = id.Identifier;
+                return Resolve(context);
+            }
         }
 
         public object Resolve(InjectContext context)
@@ -1079,23 +1130,6 @@ namespace Zenject
             }
         }
 
-        public static bool CanCreateOrInjectDuringValidation(Type type)
-        {
-            // During validation, do not instantiate or inject anything except for
-            // Installers, IValidatable's, or types marked with attribute ZenjectAllowDuringValidation
-            // You would typically use ZenjectAllowDuringValidation attribute for data that you
-            // inject into factories
-            return type.DerivesFrom<IInstaller>()
-                || type.DerivesFrom<IValidatable>()
-#if !NOT_UNITY3D
-                || type.DerivesFrom<Context>()
-#endif
-#if !(UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR)
-                || type.HasAttribute<ZenjectAllowDuringValidationAttribute>()
-#endif
-            ;
-        }
-
         object InstantiateInternal(Type concreteType, bool autoInject, InjectArgs args)
         {
 #if !NOT_UNITY3D
@@ -1109,6 +1143,7 @@ namespace Zenject
             CheckForInstallWarning(args.Context);
 
             var typeInfo = TypeAnalyzer.GetInfo(concreteType);
+            bool allowDuringValidation = TypeAnalyzer.ShouldAllowDuringValidation(concreteType);
 
             object newObj;
 
@@ -1118,7 +1153,7 @@ namespace Zenject
                 Assert.That( typeInfo.ConstructorInjectables.IsEmpty(),
                     "Found constructor parameters on ScriptableObject type '{0}'.  This is not allowed.  Use an [Inject] method or fields instead.");
 
-                if (!IsValidating || CanCreateOrInjectDuringValidation(concreteType))
+                if (!IsValidating || allowDuringValidation)
                 {
                     newObj = ScriptableObject.CreateInstance(concreteType);
                 }
@@ -1161,7 +1196,7 @@ namespace Zenject
                     }
                 }
 
-                if (!IsValidating || CanCreateOrInjectDuringValidation(concreteType))
+                if (!IsValidating || allowDuringValidation)
                 {
                     //ModestTree.Log.Debug("Zenject: Instantiating type '{0}'", concreteType);
                     try
@@ -1196,6 +1231,13 @@ namespace Zenject
                         newObj.GetType(), String.Join(",", args.ExtraArgs.Select(x => x.Type.PrettyName()).ToArray()), args.Context.GetObjectGraphString());
                 }
             }
+
+#if DEBUG
+            if (IsValidating && newObj is IValidatable)
+            {
+                QueueForValidate((IValidatable)newObj);
+            }
+#endif
 
             return newObj;
         }
@@ -1240,15 +1282,22 @@ namespace Zenject
                     return;
                 }
 
-                try
+                if (_settings.ValidationErrorResponse == ZenjectSettings.ValidationErrorResponses.Throw)
                 {
                     InjectExplicitInternal(injectable, injectableType, args);
                 }
-                catch (Exception e)
+                else
                 {
-                    // Just log the error and continue to print multiple validation errors
+                    // In this case, just log it and continue to print out multiple validation errors
                     // at once
-                    ModestTree.Log.ErrorException(e);
+                    try
+                    {
+                        InjectExplicitInternal(injectable, injectableType, args);
+                    }
+                    catch (Exception e)
+                    {
+                        ModestTree.Log.ErrorException(e);
+                    }
                 }
             }
             else
@@ -1262,8 +1311,11 @@ namespace Zenject
         {
             Assert.That(injectable != null);
 
+            var typeInfo = TypeAnalyzer.GetInfo(injectableType);
+            bool allowDuringValidation = TypeAnalyzer.ShouldAllowDuringValidation(injectableType);
+
             // Installers are the only things that we instantiate/inject on during validation
-            bool isDryRun = IsValidating && !CanCreateOrInjectDuringValidation(injectableType);
+            bool isDryRun = IsValidating && !allowDuringValidation;
 
             if (!isDryRun)
             {
@@ -1277,8 +1329,6 @@ namespace Zenject
 
             FlushBindings();
             CheckForInstallWarning(args.Context);
-
-            var typeInfo = TypeAnalyzer.GetInfo(injectableType);
 
             foreach (var injectInfo in typeInfo.FieldInjectables.Concat(
                 typeInfo.PropertyInjectables))
@@ -2351,7 +2401,7 @@ namespace Zenject
             }
         }
 
-        // Do not use this - it is for internal use only
+        // You shouldn't need to use this
         public void FlushBindings()
         {
             while (_currentBindings.Count > 0)
@@ -2935,16 +2985,23 @@ namespace Zenject
             {
                 if (IsValidating)
                 {
-                    try
+                    if (_settings.ValidationErrorResponse == ZenjectSettings.ValidationErrorResponses.Throw)
                     {
                         return InstantiateInternal(concreteType, autoInject, args);
                     }
-                    catch (Exception e)
+                    else
                     {
-                        // Just log the error and continue to print multiple validation errors
+                        // In this case, just log it and continue to print out multiple validation errors
                         // at once
-                        ModestTree.Log.ErrorException(e);
-                        return new ValidationMarker(concreteType, true);
+                        try
+                        {
+                            return InstantiateInternal(concreteType, autoInject, args);
+                        }
+                        catch (Exception e)
+                        {
+                            ModestTree.Log.ErrorException(e);
+                            return new ValidationMarker(concreteType, true);
+                        }
                     }
                 }
                 else

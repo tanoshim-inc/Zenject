@@ -10,10 +10,62 @@ namespace Zenject
     {
         static Dictionary<Type, ZenjectTypeInfo> _typeInfo = new Dictionary<Type, ZenjectTypeInfo>();
 
+        // We store this separately from ZenjectTypeInfo because this flag is needed for contract
+        // types whereas ZenjectTypeInfo is only needed for types that are instantiated, and
+        // we want to minimize the types that generate ZenjectTypeInfo for
+        static Dictionary<Type, bool> _allowDuringValidation = new Dictionary<Type, bool>();
+
         public static ZenjectTypeInfo GetInfo<T>()
         {
             return GetInfo(typeof(T));
         }
+
+        public static bool ShouldAllowDuringValidation<T>()
+        {
+            return ShouldAllowDuringValidation(typeof(T));
+        }
+
+#if !UNITY_EDITOR
+        public static bool ShouldAllowDuringValidation(Type type)
+        {
+            return false;
+        }
+#else
+        public static bool ShouldAllowDuringValidation(Type type)
+        {
+            bool shouldAllow;
+
+            if (!_allowDuringValidation.TryGetValue(type, out shouldAllow))
+            {
+                shouldAllow = ShouldAllowDuringValidationInternal(type);
+                _allowDuringValidation.Add(type, shouldAllow);
+            }
+
+            return shouldAllow;
+        }
+
+        static bool ShouldAllowDuringValidationInternal(Type type)
+        {
+            // During validation, do not instantiate or inject anything except for
+            // Installers, IValidatable's, or types marked with attribute ZenjectAllowDuringValidation
+            // You would typically use ZenjectAllowDuringValidation attribute for data that you
+            // inject into factories
+
+            if (type.DerivesFrom<IInstaller>() || type.DerivesFrom<IValidatable>())
+            {
+                return true;
+            }
+
+#if !NOT_UNITY3D
+            if (type.DerivesFrom<Context>())
+            {
+                return true;
+            }
+#endif
+
+            return type.HasAttribute<ZenjectAllowDuringValidationAttribute>();
+        }
+#endif
 
         public static ZenjectTypeInfo GetInfo(Type type)
         {

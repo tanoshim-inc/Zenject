@@ -33,7 +33,7 @@ namespace Zenject
             Assert.That(typeof(TReturn).DerivesFromOrEqual(context.MemberType));
 
             injectAction = null;
-            if (_container.IsValidating && !DiContainer.CanCreateOrInjectDuringValidation(context.MemberType))
+            if (_container.IsValidating && !TypeAnalyzer.ShouldAllowDuringValidation(context.MemberType))
             {
                 return new List<object>() { new ValidationMarker(typeof(TReturn)) };
             }
@@ -44,7 +44,7 @@ namespace Zenject
                 if (result == null)
                 {
                     throw Assert.CreateException(
-                        "Method '{0}' returned null when list was expected. Object graph: {1}",
+                        "Method '{0}' returned null when list was expected. Object graph:\n {1}",
                         _method.ToDebugString(), context.GetObjectGraphString());
                 }
 

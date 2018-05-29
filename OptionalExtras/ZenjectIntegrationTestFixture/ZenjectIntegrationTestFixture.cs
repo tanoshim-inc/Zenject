@@ -109,11 +109,7 @@ namespace Zenject
 
             Container.Inject(this);
 
-            if (Container.IsValidating)
-            {
-                Container.ValidateValidatables();
-            }
-            else
+            if (!Container.IsValidating)
             {
                 // This is necessary because otherwise MonoKernel is not started until later
                 // and therefore IInitializable objects are not initialized

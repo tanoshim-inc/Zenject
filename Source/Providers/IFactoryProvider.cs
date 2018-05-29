@@ -59,12 +59,6 @@ namespace Zenject
             injectAction = null;
             if (Container.IsValidating)
             {
-                // In case users define a custom IFactory that needs to be validated
-                if (factory is IValidatable)
-                {
-                    ((IValidatable)factory).Validate();
-                }
-
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 return new List<object>() { new ValidationMarker(typeof(TContract)) };
@@ -100,12 +94,6 @@ namespace Zenject
             injectAction = null;
             if (Container.IsValidating)
             {
-                // In case users define a custom IFactory that needs to be validated
-                if (factory is IValidatable)
-                {
-                    ((IValidatable)factory).Validate();
-                }
-
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 return new List<object>() { new ValidationMarker(typeof(TContract)) };
@@ -145,12 +133,6 @@ namespace Zenject
             injectAction = null;
             if (Container.IsValidating)
             {
-                // In case users define a custom IFactory that needs to be validated
-                if (factory is IValidatable)
-                {
-                    ((IValidatable)factory).Validate();
-                }
-
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 return new List<object>() { new ValidationMarker(typeof(TContract)) };
@@ -193,12 +175,6 @@ namespace Zenject
             injectAction = null;
             if (Container.IsValidating)
             {
-                // In case users define a custom IFactory that needs to be validated
-                if (factory is IValidatable)
-                {
-                    ((IValidatable)factory).Validate();
-                }
-
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 return new List<object>() { new ValidationMarker(typeof(TContract)) };
@@ -243,12 +219,6 @@ namespace Zenject
             injectAction = null;
             if (Container.IsValidating)
             {
-                // In case users define a custom IFactory that needs to be validated
-                if (factory is IValidatable)
-                {
-                    ((IValidatable)factory).Validate();
-                }
-
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 return new List<object>() { new ValidationMarker(typeof(TContract)) };
@@ -295,12 +265,6 @@ namespace Zenject
             injectAction = null;
             if (Container.IsValidating)
             {
-                // In case users define a custom IFactory that needs to be validated
-                if (factory is IValidatable)
-                {
-                    ((IValidatable)factory).Validate();
-                }
-
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 return new List<object>() { new ValidationMarker(typeof(TContract)) };
@@ -353,12 +317,6 @@ namespace Zenject
             injectAction = null;
             if (Container.IsValidating)
             {
-                // In case users define a custom IFactory that needs to be validated
-                if (factory is IValidatable)
-                {
-                    ((IValidatable)factory).Validate();
-                }
-
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 return new List<object>() { new ValidationMarker(typeof(TContract)) };

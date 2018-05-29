@@ -71,16 +71,7 @@ namespace Zenject
                 _container.IsInstalling = false;
             }
 
-            _container.ResolveDependencyRoots();
-            _container.FlushInjectQueue();
-
-            if (_container.IsValidating)
-            {
-                // The root-level Container has its ValidateValidatables method
-                // called explicitly - however, this is not so for sub-containers
-                // so call it here instead
-                _container.ValidateValidatables();
-            }
+            _container.ExecuteResolve();
 
             // Normally, the IInitializable.Initialize method would be called during MonoKernel.Start
             // However, this behaviour is undesirable for dynamically created objects, since Unity

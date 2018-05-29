@@ -66,7 +66,7 @@ namespace Zenject
                 gameObj.SetActive(false);
             }
 
-            if (!_container.IsValidating || DiContainer.CanCreateOrInjectDuringValidation(_componentType))
+            if (!_container.IsValidating || TypeAnalyzer.ShouldAllowDuringValidation(_componentType))
             {
                 if (_componentType == typeof(Transform))
                 // Treat transform as a special case because it's the one component that's always automatically added

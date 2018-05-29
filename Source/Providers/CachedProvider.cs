@@ -53,7 +53,7 @@ namespace Zenject
             if (_isCreatingInstance)
             {
                 throw Assert.CreateException(
-                    "Found circular dependency when creating type '{0}'. Object graph: {1}",
+                    "Found circular dependency when creating type '{0}'. Object graph:\n {1}",
                     _creator.GetInstanceType(context), context.GetObjectGraphString());
             }
 

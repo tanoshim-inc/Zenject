@@ -136,8 +136,6 @@ namespace Zenject
             CheckParentContractName();
             Install();
             Resolve();
-
-            _container.ValidateValidatables();
         }
 #endif
 
@@ -296,8 +294,7 @@ namespace Zenject
             Assert.That(!_hasResolved);
             _hasResolved = true;
 
-            _container.ResolveDependencyRoots();
-            _container.FlushInjectQueue();
+            _container.ExecuteResolve();
 
             if (PostResolve != null)
             {

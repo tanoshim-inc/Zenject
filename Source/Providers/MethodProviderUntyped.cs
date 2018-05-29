@@ -29,7 +29,7 @@ namespace Zenject
             Assert.IsNotNull(context);
 
             injectAction = null;
-            if (_container.IsValidating && !DiContainer.CanCreateOrInjectDuringValidation(context.MemberType))
+            if (_container.IsValidating && !TypeAnalyzer.ShouldAllowDuringValidation(context.MemberType))
             {
                 return new List<object>() { new ValidationMarker(context.MemberType) };
             }

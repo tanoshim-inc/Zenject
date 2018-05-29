@@ -3,13 +3,8 @@ using ModestTree;
 
 namespace Zenject
 {
-    public interface ILazy
-    {
-        void Validate();
-    }
-
     [ZenjectAllowDuringValidationAttribute]
-    public class Lazy<T> : ILazy
+    public class Lazy<T> : IValidatable
     {
         readonly DiContainer _container;
         readonly InjectContext _context;
@@ -25,7 +20,7 @@ namespace Zenject
             _context = context;
         }
 
-        void ILazy.Validate()
+        void IValidatable.Validate()
         {
             _container.Resolve(_context);
         }

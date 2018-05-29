@@ -54,7 +54,7 @@ namespace Zenject
 
             object instance;
 
-            if (!_container.IsValidating || DiContainer.CanCreateOrInjectDuringValidation(_componentType))
+            if (!_container.IsValidating || TypeAnalyzer.ShouldAllowDuringValidation(_componentType))
             {
                 var gameObj = ((Component)context.ObjectInstance).gameObject;
 
