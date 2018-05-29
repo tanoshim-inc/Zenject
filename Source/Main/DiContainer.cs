@@ -102,14 +102,23 @@ namespace Zenject
             newContext.MemberType = context.MemberType.GenericArguments().Single();
 
             var result = Activator.CreateInstance(
-                typeof(LazyWrapper<>).MakeGenericType(newContext.MemberType), new object[] { this, newContext });
+#if NET_4_6
+                typeof(LazyWrapper<>)
+#else
+                typeof(Lazy<>)
+#endif
+                .MakeGenericType(newContext.MemberType), new object[] { this, newContext });
 
             if (_isValidating)
             {
                 QueueForValidate((IValidatable)result);
             }
 
+#if NET_4_6
             return ((ILazyProvider)result).GetLazy();
+#else
+            return result;
+#endif
         }
 
         public DiContainer()
@@ -974,7 +983,9 @@ namespace Zenject
                 if (memberType.IsGenericType()
                     && (memberType.GetGenericTypeDefinition() == typeof(List<>)
                         || memberType.GetGenericTypeDefinition() == typeof(IList<>)
+#if NET_4_6
                         || memberType.GetGenericTypeDefinition() == typeof(IReadOnlyList<>)
+#endif
                         || memberType.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
                 {
                     var subType = memberType.GenericArguments().Single();
@@ -2951,6 +2962,7 @@ namespace Zenject
             return (T)InstantiateExplicit(typeof(T), extraArgs);
         }
 
+#if NET_4_6
         public System.Lazy<T> InstantiateLazy<T>()
         {
             return InstantiateLazy<T>(typeof(T));
@@ -2972,6 +2984,7 @@ namespace Zenject
             Assert.That(concreteType.DerivesFromOrEqual<T>());
             return new System.Lazy<T>(() => (T)this.Resolve(concreteType));
         }
+#endif
 
         public object InstantiateExplicit(Type concreteType, List<TypeValuePair> extraArgs)
         {

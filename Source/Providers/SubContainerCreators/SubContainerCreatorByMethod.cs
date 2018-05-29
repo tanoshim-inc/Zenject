@@ -137,12 +137,19 @@ namespace Zenject
 
     public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4> : ISubContainerCreator
     {
-        readonly ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4> _installMethod;
+        readonly 
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<DiContainer, TParam1, TParam2, TParam3, TParam4> _installMethod;
         readonly DiContainer _container;
 
         public SubContainerCreatorByMethod(
             DiContainer container,
-            ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4> installMethod)
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<DiContainer, TParam1, TParam2, TParam3, TParam4> installMethod)
         {
             _installMethod = installMethod;
             _container = container;
@@ -175,12 +182,19 @@ namespace Zenject
 
     public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5> : ISubContainerCreator
     {
-        readonly ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> _installMethod;
+        readonly 
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> _installMethod;
         readonly DiContainer _container;
 
         public SubContainerCreatorByMethod(
             DiContainer container,
-            ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> installMethod)
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> installMethod)
         {
             _installMethod = installMethod;
             _container = container;
@@ -215,12 +229,19 @@ namespace Zenject
 
     public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> : ISubContainerCreator
     {
-        readonly ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> _installMethod;
+        readonly 
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> _installMethod;
         readonly DiContainer _container;
 
         public SubContainerCreatorByMethod(
             DiContainer container,
-            ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> installMethod)
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> installMethod)
         {
             _installMethod = installMethod;
             _container = container;

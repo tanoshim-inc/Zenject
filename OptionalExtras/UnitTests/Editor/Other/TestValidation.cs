@@ -115,7 +115,7 @@ namespace Zenject.Tests
         [Test]
         public void TestLazyFail()
         {
-            Container.Bind<Jaze>().AsSingle();
+            Container.Bind<Jaze>().AsSingle().NonLazy();
 
             Assert.Throws(() => Container.ResolveRoots());
         }

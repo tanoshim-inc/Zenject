@@ -270,7 +270,7 @@ namespace ModestTree
                 yield return ancestor;
             }
         }
-        
+
         public static bool IsClosedGenericType(this Type type)
         {
             bool result;
@@ -402,7 +402,7 @@ namespace ModestTree
                     }
                     else
                     {
-                        sb.Append(string.Join(", ", type.GenericArguments().Select(t => t.PrettyName())));
+                        sb.Append(string.Join(", ", type.GenericArguments().Select(t => t.PrettyName()).ToArray()));
                     }
 
                     sb.Append(">");
@@ -477,9 +477,9 @@ namespace ModestTree
             this MemberInfo provider, params Type[] attributeTypes)
         {
             Attribute[] allAttributes;
-#if NETFX_CORE 
-            allAttributes = provider.GetCustomAttributes<Attribute>(true).ToArray(); 
-#else  
+#if NETFX_CORE
+            allAttributes = provider.GetCustomAttributes<Attribute>(true).ToArray();
+#else
             allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
 #endif
             if (attributeTypes.Length == 0)
@@ -515,9 +515,9 @@ namespace ModestTree
             this ParameterInfo provider, params Type[] attributeTypes)
         {
             Attribute[] allAttributes;
-#if NETFX_CORE 
-            allAttributes = provider.GetCustomAttributes<Attribute>(true).ToArray(); 
-#else  
+#if NETFX_CORE
+            allAttributes = provider.GetCustomAttributes<Attribute>(true).ToArray();
+#else
             allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
 #endif
             if (attributeTypes.Length == 0)

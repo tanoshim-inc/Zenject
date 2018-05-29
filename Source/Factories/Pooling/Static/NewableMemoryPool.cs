@@ -260,10 +260,16 @@ namespace Zenject
     public class NewableMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue>
         where TValue : class, new()
     {
-        ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TValue> _onSpawnMethod;
+#if !NET_4_6
+        ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TValue> _onSpawnMethod;
 
         public NewableMemoryPool(
-            ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
             : base(onDespawnedMethod)
         {
             // What's the point of having a param otherwise?
@@ -271,7 +277,11 @@ namespace Zenject
             _onSpawnMethod = onSpawnMethod;
         }
 
-        public ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TValue> OnSpawnMethod
+        public 
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TValue> OnSpawnMethod
         {
             set { _onSpawnMethod = value; }
         }
@@ -299,10 +309,16 @@ namespace Zenject
     public class NewableMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue>
         where TValue : class, new()
     {
-        ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> _onSpawnMethod;
+#if !NET_4_6
+        ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> _onSpawnMethod;
 
         public NewableMemoryPool(
-            ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
             : base(onDespawnedMethod)
         {
             // What's the point of having a param otherwise?
@@ -310,7 +326,11 @@ namespace Zenject
             _onSpawnMethod = onSpawnMethod;
         }
 
-        public ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> OnSpawnMethod
+        public 
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> OnSpawnMethod
         {
             set { _onSpawnMethod = value; }
         }

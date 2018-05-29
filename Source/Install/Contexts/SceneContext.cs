@@ -75,7 +75,7 @@ namespace Zenject
             }
         }
 
-        public IReadOnlyList<string> ContractNames
+        public IEnumerable<string> ContractNames
         {
             get { return _contractNames; }
             set
