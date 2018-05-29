@@ -49,7 +49,7 @@ namespace Zenject
                 gameObj.SetActive(true);
             }
 
-            // Note: We don't need to call ExecuteResolve here because GameObjectContext does this for us
+            // Note: We don't need to call ResolveRoots here because GameObjectContext does this for us
 
             return context.Container;
         }

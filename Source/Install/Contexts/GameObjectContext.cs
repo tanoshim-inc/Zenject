@@ -71,7 +71,7 @@ namespace Zenject
                 _container.IsInstalling = false;
             }
 
-            _container.ExecuteResolve();
+            _container.ResolveRoots();
 
             // Normally, the IInitializable.Initialize method would be called during MonoKernel.Start
             // However, this behaviour is undesirable for dynamically created objects, since Unity

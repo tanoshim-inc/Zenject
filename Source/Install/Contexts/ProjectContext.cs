@@ -185,7 +185,7 @@ namespace Zenject
                 _container.IsInstalling = false;
             }
 
-            _container.ExecuteResolve();
+            _container.ResolveRoots();
         }
 
         protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)

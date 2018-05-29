@@ -11,7 +11,7 @@ namespace Zenject.Tests.Bindings
         {
             Container.Bind<Foo>().AsSingle().NonLazy();
 
-            Assert.Throws(() => Container.ExecuteResolve());
+            Assert.Throws(() => Container.ResolveRoots());
         }
 
         [Test]
@@ -19,7 +19,7 @@ namespace Zenject.Tests.Bindings
         {
             Container.Bind<Foo>().AsSingle();
 
-            Container.ExecuteResolve();
+            Container.ResolveRoots();
         }
 
         [Test]
@@ -28,7 +28,7 @@ namespace Zenject.Tests.Bindings
             Container.Bind<Foo>().AsSingle().NonLazy();
             Container.Bind<Bar>().AsSingle();
 
-            Container.ExecuteResolve();
+            Container.ResolveRoots();
         }
 
         public class Foo

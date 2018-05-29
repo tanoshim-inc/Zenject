@@ -7,7 +7,7 @@ using System.Linq;
 using ModestTree;
 using Assert=ModestTree.Assert;
 
-namespace Zenject.Tests.Bindings.Singletons
+namespace Zenject.Tests
 {
     [TestFixture]
     public class TestValidation
@@ -18,31 +18,32 @@ namespace Zenject.Tests.Bindings.Singletons
         }
 
         [SetUp]
-        public virtual void Setup()
+        public void Setup()
         {
             Container = new DiContainer(true);
-            Container.BindInstance(
-                new ZenjectSettings()
-                {
-                    ValidationErrorResponse = ZenjectSettings.ValidationErrorResponses.Throw
-                });
+            Container.Settings = new ZenjectSettings()
+            {
+                ValidationErrorResponse = ZenjectSettings.ValidationErrorResponses.Throw,
+                ResolveOnlyRootsDuringValidation = false
+            };
+            Container.BindInstance(Container.Settings);
         }
 
         [Test]
         public void TestFailure()
         {
-            Container.Bind<Bar>().AsSingle().NonLazy();
+            Container.Bind<Bar>().AsSingle();
 
-            Assert.Throws(() => Container.ExecuteResolve());
+            Assert.Throws(() => Container.ResolveRoots());
         }
 
         [Test]
         public void TestSuccess()
         {
             Container.Bind<Foo>().AsSingle();
-            Container.Bind<Bar>().AsSingle().NonLazy();
+            Container.Bind<Bar>().AsSingle();
 
-            Container.ExecuteResolve();
+            Container.ResolveRoots();
         }
 
         [Test]
@@ -50,9 +51,9 @@ namespace Zenject.Tests.Bindings.Singletons
         {
             Gorp.CallCount = 0;
 
-            Container.BindInterfacesAndSelfTo<Gorp>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<Gorp>().AsSingle();
 
-            Container.ExecuteResolve();
+            Container.ResolveRoots();
 
             Assert.IsEqual(Gorp.CallCount, 1);
         }
@@ -60,18 +61,18 @@ namespace Zenject.Tests.Bindings.Singletons
         [Test]
         public void TestFactoryFail()
         {
-            Container.BindFactory<Bar, Bar.Factory>().NonLazy();
+            Container.BindFactory<Bar, Bar.Factory>();
 
-            Assert.Throws(() => Container.ExecuteResolve());
+            Assert.Throws(() => Container.ResolveRoots());
         }
 
         [Test]
         public void TestFactorySuccess()
         {
             Container.Bind<Foo>().AsSingle();
-            Container.BindFactory<Bar, Bar.Factory>().NonLazy();
+            Container.BindFactory<Bar, Bar.Factory>();
 
-            Container.ExecuteResolve();
+            Container.ResolveRoots();
         }
 
         [Test]
@@ -82,11 +83,11 @@ namespace Zenject.Tests.Bindings.Singletons
                 {
                     container.Bind<Qux>().AsSingle();
                     container.Bind<Foo>().AsSingle();
-                    container.Bind<Bar>().AsSingle().NonLazy();
+                    container.Bind<Bar>().AsSingle();
                 })
-                .AsSingle().NonLazy();
+                .AsSingle();
 
-            Container.ExecuteResolve();
+            Container.ResolveRoots();
         }
 
         [Test]
@@ -96,36 +97,84 @@ namespace Zenject.Tests.Bindings.Singletons
                 container =>
                 {
                     container.Bind<Qux>().AsSingle();
-                    container.Bind<Bar>().AsSingle().NonLazy();
+                    container.Bind<Bar>().AsSingle();
                 })
-                .AsSingle().NonLazy();
+                .AsSingle();
 
-            Assert.Throws(() => Container.ExecuteResolve());
+            Assert.Throws(() => Container.ResolveRoots());
         }
 
         [Test]
         public void TestSubContainerInstallerFailure()
         {
-            Container.Bind<Qux>().FromSubContainerResolve().ByInstaller<QuxInstaller>().AsSingle().NonLazy();
+            Container.Bind<Qux>().FromSubContainerResolve().ByInstaller<QuxInstaller>().AsSingle();
 
-            Assert.Throws(() => Container.ExecuteResolve());
+            Assert.Throws(() => Container.ResolveRoots());
         }
 
         [Test]
         public void TestLazyFail()
         {
-            Container.Bind<Jaze>().AsSingle().NonLazy();
+            Container.Bind<Jaze>().AsSingle();
 
-            Assert.Throws(() => Container.ExecuteResolve());
+            Assert.Throws(() => Container.ResolveRoots());
         }
 
         [Test]
         public void TestLazySuccess()
         {
             Container.Bind<Qux>().AsSingle();
-            Container.Bind<Jaze>().AsSingle().NonLazy();
+            Container.Bind<Jaze>().AsSingle();
 
-            Container.ExecuteResolve();
+            Container.ResolveRoots();
+        }
+
+        [Test]
+        public void TestMemoryPoolFailure()
+        {
+            Container.BindMemoryPool<Bar, Bar.Pool>();
+
+            Assert.Throws(() => Container.ResolveRoots());
+        }
+
+        [Test]
+        public void TestMemoryPoolSuccess()
+        {
+            Container.Bind<Foo>().AsSingle();
+            Container.BindMemoryPool<Bar, Bar.Pool>();
+
+            Container.ResolveRoots();
+        }
+
+        [Test]
+        public void TestCustomValidatable()
+        {
+            Container.BindInterfacesAndSelfTo<Loy>().AsSingle().NonLazy();
+
+            Container.ResolveRoots();
+
+            Assert.IsEqual(Container.Resolve<Loy>().CallCount, 1);
+        }
+
+        public class Loy : IValidatable, IInitializable, ITickable
+        {
+            public int CallCount
+            {
+                get; set;
+            }
+
+            public void Initialize()
+            {
+            }
+
+            public void Tick()
+            {
+            }
+
+            public void Validate()
+            {
+                CallCount++;
+            }
         }
 
         public class Jaze
@@ -139,7 +188,7 @@ namespace Zenject.Tests.Bindings.Singletons
             public override void InstallBindings()
             {
                 Container.Bind<Qux>().AsSingle();
-                Container.Bind<Bar>().AsSingle().NonLazy();
+                Container.Bind<Bar>().AsSingle();
             }
         }
 
@@ -154,6 +203,10 @@ namespace Zenject.Tests.Bindings.Singletons
             }
 
             public class Factory : Factory<Bar>
+            {
+            }
+
+            public class Pool : MemoryPool<Bar>
             {
             }
         }

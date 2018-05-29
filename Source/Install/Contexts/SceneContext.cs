@@ -294,7 +294,7 @@ namespace Zenject
             Assert.That(!_hasResolved);
             _hasResolved = true;
 
-            _container.ExecuteResolve();
+            _container.ResolveRoots();
 
             if (PostResolve != null)
             {

@@ -36,7 +36,7 @@ namespace Zenject
                 _installerType, args.Concat(_extraArgs).ToList());
             installer.InstallBindings();
 
-            subContainer.ExecuteResolve();
+            subContainer.ResolveRoots();
 
             return subContainer;
         }

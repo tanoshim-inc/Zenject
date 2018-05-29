@@ -49,7 +49,7 @@ namespace Zenject
 
         ZenjectSettings _settings;
 
-        bool _hasCompletedResolve;
+        bool _hasResolvedRoots;
         bool _isFinalizingBinding;
         bool _isValidating;
         bool _isInstalling;
@@ -66,6 +66,16 @@ namespace Zenject
             Assert.That(_currentBindings.IsEmpty());
 
             _settings = ZenjectSettings.Default;
+        }
+
+        // NOTE: By default it will attempt to get the ZenjectSettings from the parent container
+        // but you can set it explicitly here as well
+        // Also note that if you want sub-containers to inherit the ZenjectSettings then you have
+        // to bind it in addition to setting it here
+        public ZenjectSettings Settings
+        {
+            get { return _settings; }
+            set { _settings = value; }
         }
 
         internal SingletonMarkRegistry SingletonMarkRegistry
@@ -153,7 +163,7 @@ namespace Zenject
         public void QueueForValidate(IValidatable validatable)
         {
             // Don't bother adding to queue if the initial resolve is already completed
-            if (!_hasCompletedResolve)
+            if (!_hasResolvedRoots)
             {
                 var concreteType = validatable.GetType();
 
@@ -267,9 +277,9 @@ namespace Zenject
             }
         }
 
-        public void ExecuteResolve()
+        public void ResolveRoots()
         {
-            Assert.That(!_hasCompletedResolve);
+            Assert.That(!_hasResolvedRoots);
 
             FlushBindings();
 
@@ -288,8 +298,8 @@ namespace Zenject
                 FlushValidationQueue();
             }
 
-            Assert.That(!_hasCompletedResolve);
-            _hasCompletedResolve = true;
+            Assert.That(!_hasResolvedRoots);
+            _hasResolvedRoots = true;
         }
 
         void ResolveDependencyRoots()
@@ -339,7 +349,7 @@ namespace Zenject
 
         void ValidateFullResolve()
         {
-            Assert.That(!_hasCompletedResolve);
+            Assert.That(!_hasResolvedRoots);
             Assert.That(IsValidating);
 
             using (var block = DisposeBlock.Spawn())
@@ -364,7 +374,7 @@ namespace Zenject
 
         void FlushValidationQueue()
         {
-            Assert.That(!_hasCompletedResolve);
+            Assert.That(!_hasResolvedRoots);
             Assert.That(IsValidating);
 
 #if !NOT_UNITY3D && !ZEN_TESTS_OUTSIDE_UNITY
