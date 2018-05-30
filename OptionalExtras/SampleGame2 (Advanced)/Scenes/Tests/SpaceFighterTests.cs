@@ -15,6 +15,8 @@ namespace Zenject.SpaceFighter
 {
     public class SpaceFighterTests : SceneTestFixture
     {
+        const string SceneName = "SpaceFighter";
+
         [UnityTest]
         public IEnumerator TestEnemyStateChanges()
         {
@@ -30,7 +32,7 @@ namespace Zenject.SpaceFighter
                     NumEnemiesStartAmount = 1,
                 });
 
-            yield return LoadScene();
+            yield return LoadScene(SceneName);
 
             var enemy = SceneContainer.Resolve<EnemyRegistry>().Enemies.Single();
 
@@ -73,7 +75,7 @@ namespace Zenject.SpaceFighter
                     NumEnemiesStartAmount = 5,
                 });
 
-            yield return LoadScene();
+            yield return LoadScene(SceneName);
 
             var signalBus = SceneContainer.Resolve<SignalBus>();
 

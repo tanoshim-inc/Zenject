@@ -68,10 +68,68 @@ namespace Zenject
             _settings = ZenjectSettings.Default;
         }
 
-        // NOTE: By default it will attempt to get the ZenjectSettings from the parent container
-        // but you can set it explicitly here as well
-        // Also note that if you want sub-containers to inherit the ZenjectSettings then you have
-        // to bind it in addition to setting it here
+        public DiContainer()
+            : this(false)
+        {
+        }
+
+        public DiContainer(IEnumerable<DiContainer> parentContainers, bool isValidating)
+            : this(isValidating)
+        {
+            _parentContainers = parentContainers.ToArray();
+            _ancestorContainers = FlattenInheritanceChain().ToArray();
+
+            if (!_parentContainers.IsEmpty())
+            {
+                for (int i = 0; i < _parentContainers.Length; i++)
+                {
+                    _parentContainers[i].FlushBindings();
+                }
+
+#if !NOT_UNITY3D
+                DefaultParent = _parentContainers.First().DefaultParent;
+#endif
+
+                // Make sure to avoid duplicates which could happen if a parent container
+                // appears multiple times in the inheritance chain
+                foreach (var ancestorContainer in _ancestorContainers.Distinct())
+                {
+                    foreach (var binding in ancestorContainer._childBindings)
+                    {
+                        if (ShouldInheritBinding(binding, ancestorContainer))
+                        {
+                            FinalizeBinding(binding);
+                        }
+                    }
+                }
+
+                Assert.That(_currentBindings.IsEmpty());
+                Assert.That(_childBindings.IsEmpty());
+            }
+
+            // Assumed to be configured in a parent container
+            var settings = this.TryResolve<ZenjectSettings>();
+
+            if (settings != null)
+            {
+                _settings = settings;
+            }
+        }
+
+        public DiContainer(DiContainer parentContainer, bool isValidating)
+            : this(new [] { parentContainer }, isValidating)
+        {
+        }
+
+        public DiContainer(DiContainer parentContainer)
+            : this(new [] { parentContainer }, false)
+        {
+        }
+
+        // By default the settings will be inherited from parent containers, but can be
+        // set explicitly here as well which is useful in particular in unit tests
+        // Note however that if you want child containers to use this same value you have
+        // to bind it as well
         public ZenjectSettings Settings
         {
             get { return _settings; }
@@ -119,54 +177,6 @@ namespace Zenject
 #else
             return result;
 #endif
-        }
-
-        public DiContainer()
-            : this(false)
-        {
-        }
-
-        public DiContainer(IEnumerable<DiContainer> parentContainers, bool isValidating)
-            : this(isValidating)
-        {
-            _parentContainers = parentContainers.ToArray();
-            _ancestorContainers = FlattenInheritanceChain().ToArray();
-
-            if (!_parentContainers.IsEmpty())
-            {
-                for (int i = 0; i < _parentContainers.Length; i++)
-                {
-                    _parentContainers[i].FlushBindings();
-                }
-
-#if !NOT_UNITY3D
-                DefaultParent = _parentContainers.First().DefaultParent;
-#endif
-
-                // Make sure to avoid duplicates which could happen if a parent container
-                // appears multiple times in the inheritance chain
-                foreach (var ancestorContainer in _ancestorContainers.Distinct())
-                {
-                    foreach (var binding in ancestorContainer._childBindings)
-                    {
-                        if (ShouldInheritBinding(binding, ancestorContainer))
-                        {
-                            FinalizeBinding(binding);
-                        }
-                    }
-                }
-
-                Assert.That(_currentBindings.IsEmpty());
-                Assert.That(_childBindings.IsEmpty());
-            }
-
-            // Assumed to be configured in a parent container
-            var settings = this.TryResolve<ZenjectSettings>();
-
-            if (settings != null)
-            {
-                _settings = settings;
-            }
         }
 
         public void QueueForValidate(IValidatable validatable)
@@ -294,7 +304,7 @@ namespace Zenject
 
             ResolveDependencyRoots();
 #if DEBUG
-            if (IsValidating && !_settings.ResolveOnlyRootsDuringValidation)
+            if (IsValidating && _settings.ValidationRootResolveMethod == RootResolveMethods.All)
             {
                 ValidateFullResolve();
             }
@@ -345,7 +355,11 @@ namespace Zenject
 
                     context.Identifier = bindId.Identifier;
                     context.SourceType = InjectSources.Local;
-                    context.Optional = true;
+
+                    // Should this be true?  Are there cases where you are ok that NonLazy matches
+                    // zero providers?
+                    // Probably better to be false to catch mistakes
+                    context.Optional = false;
 
                     var providerPair = new ProviderPair(providerInfo, this);
                     SafeGetInstances(providerPair, context);
@@ -1303,7 +1317,7 @@ namespace Zenject
                     return;
                 }
 
-                if (_settings.ValidationErrorResponse == ZenjectSettings.ValidationErrorResponses.Throw)
+                if (_settings.ValidationErrorResponse == ValidationErrorResponses.Throw)
                 {
                     InjectExplicitInternal(injectable, injectableType, args);
                 }
@@ -3008,7 +3022,7 @@ namespace Zenject
             {
                 if (IsValidating)
                 {
-                    if (_settings.ValidationErrorResponse == ZenjectSettings.ValidationErrorResponses.Throw)
+                    if (_settings.ValidationErrorResponse == ValidationErrorResponses.Throw)
                     {
                         return InstantiateInternal(concreteType, autoInject, args);
                     }

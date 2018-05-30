@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using Zenject.Internal;
 
 #if UNITY_EDITOR
 using System.Collections.Generic;
@@ -21,7 +23,6 @@ namespace Zenject
 
         bool _hasEndedInstall;
         bool _hasStartedInstall;
-        bool _hasDestroyedAll;
 
         protected DiContainer Container
         {
@@ -47,6 +48,8 @@ namespace Zenject
         public void Setup()
         {
             Assert.That(!StaticContext.HasContainer);
+
+            ZenjectTestUtil.DestroyEverythingExceptTestRunner(true);
         }
 
         protected void SkipInstall()
@@ -117,43 +120,34 @@ namespace Zenject
             }
         }
 
-        protected void DestroyAll()
+        protected IEnumerator DestroyEverything()
         {
-            Assert.That(!_hasDestroyedAll, "Called DestroyAll twice in test '{0}'!", TestContext.CurrentContext.Test.Name);
-            _hasDestroyedAll = true;
-
             Assert.That(_hasStartedInstall,
                 "Called DestroyAll but did not call PreInstall (or SkipInstall) in test '{0}'!", TestContext.CurrentContext.Test.Name);
+            DestroyEverythingInternal(false);
+            // Wait one frame for GC to really destroy everything
+            yield return null;
+        }
 
-            // We need to use DestroyImmediate so that all the IDisposable's etc get processed immediately before
-            // next test runs
-            GameObject.DestroyImmediate(_sceneContext.gameObject);
-            _sceneContext = null;
-
-            var allRootObjects = new List<GameObject>();
-
-            // We want to clear all objects across all scenes to ensure the next test is not affected
-            // at all by previous tests
-            // TODO: How does this handle cases where the test loads other scenes?
-            for (int i = 0; i < SceneManager.sceneCount; i++)
+        void DestroyEverythingInternal(bool immediate)
+        {
+            if (_sceneContext != null)
             {
-                allRootObjects.AddRange(
-                    SceneManager.GetSceneAt(i).GetRootGameObjects());
-            }
-
-            // We also want to destroy any objects marked DontDestroyOnLoad, especially ProjectContext
-            allRootObjects.AddRange(ProjectContext.Instance.gameObject.scene.GetRootGameObjects());
-
-            foreach (var rootObj in allRootObjects)
-            {
-                // Make sure not to destroy the unity test runner objects that it adds
-                if (rootObj.name != "Code-based tests runner")
+                // We need to use DestroyImmediate so that all the IDisposable's etc get processed immediately before
+                // next test runs
+                if (immediate)
                 {
-                    // Use DestroyImmediate for other objects too just to ensure we are fully
-                    // cleaned up before the next test starts
-                    GameObject.DestroyImmediate(rootObj);
+                    GameObject.DestroyImmediate(_sceneContext.gameObject);
                 }
+                else
+                {
+                    GameObject.Destroy(_sceneContext.gameObject);
+                }
+
+                _sceneContext = null;
             }
+
+            ZenjectTestUtil.DestroyEverythingExceptTestRunner(immediate);
         }
 
         [TearDown]
@@ -168,16 +162,10 @@ namespace Zenject
                     "PostInstall was not called in test '{0}'!", TestContext.CurrentContext.Test.Name);
             }
 
-            if (!_hasDestroyedAll)
-            {
-                DestroyAll();
-            }
+            DestroyEverythingInternal(true);
 
             _hasStartedInstall = false;
             _hasEndedInstall = false;
-            _hasDestroyedAll = false;
-
-            StaticContext.Clear();
         }
     }
 #else

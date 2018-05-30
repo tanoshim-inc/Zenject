@@ -54,7 +54,7 @@ namespace Zenject.Tests
 
             Assert.That(Foo.WasInitialized);
 
-            DestroyAll();
+            yield return DestroyEverything();
 
             Assert.That(Foo.WasDisposed);
             yield break;
@@ -74,7 +74,7 @@ namespace Zenject.Tests
             SkipInstall();
             yield return null;
             Assert.That(ProjectContext.HasInstance);
-            DestroyAll();
+            yield return DestroyEverything();
             Assert.That(!ProjectContext.HasInstance);
             yield break;
         }

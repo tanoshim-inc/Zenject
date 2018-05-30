@@ -16,10 +16,17 @@ namespace Zenject.Tests.Bindings
         const string PathPrefix = "TestFromSubContainerPrefabResource/";
         const string FooResourcePath = PathPrefix + "FooSubContainer";
 
+        void CommonInstall()
+        {
+            Container.Settings = new ZenjectSettings(ValidationErrorResponses.Throw);
+        }
+
         [UnityTest]
         public IEnumerator TestTransientError()
         {
             PreInstall();
+            CommonInstall();
+
             // Validation should detect that it doesn't exist
             Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResource(PathPrefix + "asdfasdfas").AsTransient().NonLazy();
 
@@ -31,6 +38,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSelfSingle()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
@@ -44,6 +53,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSelfTransient()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsTransient().NonLazy();
 
             PostInstall();
@@ -57,6 +68,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSelfCached()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
@@ -70,6 +83,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSelfSingleMultipleContracts()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
@@ -84,6 +99,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSelfCachedMultipleContracts()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
@@ -98,6 +115,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSelfTransientMultipleContracts()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsTransient().NonLazy();
 
             PostInstall();
@@ -112,6 +131,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestConcreteSingle()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
@@ -125,6 +146,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestConcreteTransient()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve()
                 .ByNewPrefabResource(FooResourcePath).AsTransient().NonLazy();
 
@@ -139,6 +162,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestConcreteCached()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
@@ -152,6 +177,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestConcreteSingleMultipleContracts()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind(typeof(IFoo), typeof(Bar)).To(typeof(Foo), typeof(Bar))
                 .FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
@@ -167,6 +194,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestConcreteCachedMultipleContracts()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();
@@ -180,6 +209,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSelfIdentifiersFails()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind<Gorp>().FromSubContainerResolve().ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             Assert.Throws(() => PostInstall());
@@ -190,6 +221,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestSelfIdentifiers()
         {
             PreInstall();
+            CommonInstall();
+
             Container.Bind<Gorp>().FromSubContainerResolve("gorp").ByNewPrefabResource(FooResourcePath).AsSingle().NonLazy();
 
             PostInstall();

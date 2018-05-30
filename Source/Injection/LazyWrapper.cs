@@ -9,7 +9,6 @@ namespace Zenject
         object GetLazy();
     }
 
-    [ZenjectAllowDuringValidationAttribute]
     public class LazyWrapper<T> : IValidatable, ILazyProvider
     {
         readonly DiContainer _container;

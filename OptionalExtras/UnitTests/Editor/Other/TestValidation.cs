@@ -21,11 +21,8 @@ namespace Zenject.Tests
         public void Setup()
         {
             Container = new DiContainer(true);
-            Container.Settings = new ZenjectSettings()
-            {
-                ValidationErrorResponse = ZenjectSettings.ValidationErrorResponses.Throw,
-                ResolveOnlyRootsDuringValidation = false
-            };
+            Container.Settings = new ZenjectSettings(
+                ValidationErrorResponses.Throw, RootResolveMethods.All);
             Container.BindInstance(Container.Settings);
         }
 
@@ -115,7 +112,7 @@ namespace Zenject.Tests
         [Test]
         public void TestLazyFail()
         {
-            Container.Bind<Jaze>().AsSingle().NonLazy();
+            Container.Bind<Jaze>().AsSingle();
 
             Assert.Throws(() => Container.ResolveRoots());
         }

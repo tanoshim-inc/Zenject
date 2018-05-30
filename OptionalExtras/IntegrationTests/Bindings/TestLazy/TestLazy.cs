@@ -52,6 +52,8 @@ namespace Zenject.Tests.Bindings
         public IEnumerator Test3()
         {
             PreInstall();
+
+            Container.Settings = new ZenjectSettings(ValidationErrorResponses.Throw);
             Container.Bind<Foo>().AsSingle().NonLazy();
 
             Assert.Throws(() => PostInstall());

@@ -23,26 +23,20 @@ namespace Zenject.Tests
             Container = new DiContainer(true);
         }
 
-        [Test]
-        public void TestValidationErrorLogOnly()
-        {
-            Container.Settings = new ZenjectSettings()
-            {
-                ValidationErrorResponse = ZenjectSettings.ValidationErrorResponses.Log,
-            };
+        // Doesn't work because the logged error is flagged as a test error
+        //[Test]
+        //public void TestValidationErrorLogOnly()
+        //{
+            //Container.Settings = new ZenjectSettings(ValidationErrorResponses.Log);
+            //Container.Bind<Bar>().AsSingle().NonLazy();
 
-            Container.Bind<Bar>().AsSingle().NonLazy();
-
-            Container.ResolveRoots();
-        }
+            //Container.ResolveRoots();
+        //}
 
         [Test]
         public void TestValidationErrorThrows()
         {
-            Container.Settings = new ZenjectSettings()
-            {
-                ValidationErrorResponse = ZenjectSettings.ValidationErrorResponses.Throw,
-            };
+            Container.Settings = new ZenjectSettings(ValidationErrorResponses.Throw);
 
             Container.Bind<Bar>().AsSingle().NonLazy();
 
@@ -52,11 +46,7 @@ namespace Zenject.Tests
         [Test]
         public void TestOutsideObjectGraph1()
         {
-            Container.Settings = new ZenjectSettings()
-            {
-                ValidationErrorResponse = ZenjectSettings.ValidationErrorResponses.Throw,
-                ResolveOnlyRootsDuringValidation = true
-            };
+            Container.Settings = new ZenjectSettings(ValidationErrorResponses.Throw);
 
             Container.Bind<Bar>().AsSingle();
 
@@ -66,11 +56,8 @@ namespace Zenject.Tests
         [Test]
         public void TestOutsideObjectGraph2()
         {
-            Container.Settings = new ZenjectSettings()
-            {
-                ValidationErrorResponse = ZenjectSettings.ValidationErrorResponses.Throw,
-                ResolveOnlyRootsDuringValidation = false
-            };
+            Container.Settings = new ZenjectSettings(
+                ValidationErrorResponses.Throw, RootResolveMethods.All);
 
             Container.Bind<Bar>().AsSingle();
 
