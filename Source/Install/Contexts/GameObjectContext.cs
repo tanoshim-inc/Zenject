@@ -92,6 +92,8 @@ namespace Zenject
 
         protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
+            ZenUtilInternal.AddStateMachineBehaviourAutoInjectersUnderGameObject(this.gameObject);
+
             // We inject on all components on the root except ourself
             foreach (var monoBehaviour in GetComponents<MonoBehaviour>())
             {
@@ -120,7 +122,7 @@ namespace Zenject
 
                 if (child != null)
                 {
-                    ZenUtilInternal.GetInjectableMonoBehaviours(
+                    ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(
                         child.gameObject, monoBehaviours);
                 }
             }

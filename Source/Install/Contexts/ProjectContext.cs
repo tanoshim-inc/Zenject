@@ -190,7 +190,8 @@ namespace Zenject
 
         protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
-            ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject, monoBehaviours);
+            ZenUtilInternal.AddStateMachineBehaviourAutoInjectersUnderGameObject(this.gameObject);
+            ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(this.gameObject, monoBehaviours);
         }
 
         void InstallBindings(List<MonoBehaviour> injectableMonoBehaviours)

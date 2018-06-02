@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System;
 using UnityEngine.TestTools;
 using System.Collections;
@@ -103,3 +105,5 @@ namespace Zenject.Tests.Bindings
         }
     }
 }
+
+#endif

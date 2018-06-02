@@ -50,6 +50,7 @@ namespace Zenject
             Assert.That(!StaticContext.HasContainer);
 
             ZenjectTestUtil.DestroyEverythingExceptTestRunner(true);
+            StaticContext.Clear();
         }
 
         protected void SkipInstall()
@@ -114,8 +115,9 @@ namespace Zenject
 
             if (!Container.IsValidating)
             {
-                // This is necessary because otherwise MonoKernel is not started until later
-                // and therefore IInitializable objects are not initialized
+                // We don't have to do this here but it's kind of convenient
+                // We could also remove it and just require that users add a yield after calling
+                // and it would have the same effect
                 Container.Resolve<MonoKernel>().Initialize();
             }
         }
@@ -148,6 +150,7 @@ namespace Zenject
             }
 
             ZenjectTestUtil.DestroyEverythingExceptTestRunner(immediate);
+            StaticContext.Clear();
         }
 
         [TearDown]

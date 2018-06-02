@@ -57,7 +57,7 @@ namespace Zenject
         [SetUp]
         public virtual void SetUp()
         {
-            Assert.That(!StaticContext.HasContainer);
+            StaticContext.Clear();
             _hasLoadedScene = false;
         }
 
@@ -65,6 +65,7 @@ namespace Zenject
         public virtual void Teardown()
         {
             ZenjectTestUtil.DestroyEverythingExceptTestRunner(true);
+            StaticContext.Clear();
         }
     }
 }

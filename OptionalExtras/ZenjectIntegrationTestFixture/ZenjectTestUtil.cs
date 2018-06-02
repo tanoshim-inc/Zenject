@@ -44,8 +44,6 @@ namespace Zenject.Internal
                     }
                 }
             }
-
-            StaticContext.Clear();
         }
     }
 }

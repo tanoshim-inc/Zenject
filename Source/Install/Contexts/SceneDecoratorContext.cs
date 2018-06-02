@@ -108,7 +108,10 @@ namespace Zenject
 
         protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
-            ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject.scene, monoBehaviours);
+            var scene = this.gameObject.scene;
+
+            ZenUtilInternal.AddStateMachineBehaviourAutoInjectersInScene(scene);
+            ZenUtilInternal.GetInjectableMonoBehavioursInScene(scene, monoBehaviours);
         }
 
         public void InstallLateDecoratorInstallers()

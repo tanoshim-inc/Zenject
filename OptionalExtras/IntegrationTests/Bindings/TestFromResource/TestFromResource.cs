@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+
+using System;
 using UnityEngine.TestTools;
 using System.Collections;
 using System.Collections.Generic;
@@ -106,3 +108,5 @@ namespace Zenject.Tests.Bindings
         }
     }
 }
+
+#endif
