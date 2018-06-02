@@ -4,7 +4,7 @@ using ModestTree;
 using NUnit.Framework;
 using Assert=ModestTree.Assert;
 
-namespace Zenject.Tests.Bindings
+namespace Zenject.Tests
 {
     [TestFixture]
     public class TestNewableMemoryPool
