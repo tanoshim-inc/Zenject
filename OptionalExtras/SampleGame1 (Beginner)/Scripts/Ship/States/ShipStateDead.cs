@@ -79,7 +79,7 @@ namespace Zenject.Asteroids
             public float explosionForce;
         }
 
-        public class Factory : Factory<ShipStateDead>
+        public class Factory : PlaceholderFactory<ShipStateDead>
         {
         }
     }

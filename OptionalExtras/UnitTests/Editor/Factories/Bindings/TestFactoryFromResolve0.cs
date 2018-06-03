@@ -63,13 +63,13 @@ namespace Zenject.Tests.Bindings
         {
         }
 
-        class IFooFactory : Factory<IFoo>
+        class IFooFactory : PlaceholderFactory<IFoo>
         {
         }
 
         class Foo : IFoo
         {
-            public class Factory : Factory<Foo>
+            public class Factory : PlaceholderFactory<Foo>
             {
             }
         }

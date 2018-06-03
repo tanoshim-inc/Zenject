@@ -273,7 +273,7 @@ namespace Zenject.Tests.Factories
 
         void AddFactoryUser<TValue, TFactory>()
             where TValue : IFoo
-            where TFactory : Factory<string, TValue>
+            where TFactory : PlaceholderFactory<string, TValue>
         {
             Container.Bind<IInitializable>()
                 .To<FooFactoryTester<TValue, TFactory>>().AsSingle();
@@ -282,7 +282,7 @@ namespace Zenject.Tests.Factories
         }
 
         public class FooFactoryTester<TValue, TFactory> : IInitializable
-            where TFactory : Factory<string, TValue>
+            where TFactory : PlaceholderFactory<string, TValue>
             where TValue : IFoo
         {
             readonly TFactory _factory;

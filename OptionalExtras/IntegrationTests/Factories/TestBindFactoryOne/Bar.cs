@@ -18,7 +18,7 @@ namespace Zenject.Tests.Factories.BindFactoryOne
             private set;
         }
 
-        public class Factory : Factory<string, Bar>
+        public class Factory : PlaceholderFactory<string, Bar>
         {
         }
     }

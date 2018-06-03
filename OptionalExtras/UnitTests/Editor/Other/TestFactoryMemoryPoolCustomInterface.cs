@@ -37,7 +37,7 @@ namespace Zenject.Tests.Other
             {
             }
 
-            public class Factory : Factory<Foo>, IFooFactory
+            public class Factory : PlaceholderFactory<Foo>, IFooFactory
             {
             }
 

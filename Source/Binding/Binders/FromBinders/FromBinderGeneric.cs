@@ -146,7 +146,8 @@ namespace Zenject
 
             return FromMethodMultiple((ctx) =>
                 {
-                    Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>());
+                    Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>(),
+                        "Cannot use FromComponentSibling to inject data into non monobehaviours!");
                     Assert.IsNotNull(ctx.ObjectInstance);
 
                     return ((MonoBehaviour)ctx.ObjectInstance).GetComponents<TContract>()

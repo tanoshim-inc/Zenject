@@ -110,7 +110,7 @@ namespace Zenject.Asteroids
             public float maxSpeed;
         }
 
-        public class Factory : Factory<Asteroid>
+        public class Factory : PlaceholderFactory<Asteroid>
         {
         }
     }

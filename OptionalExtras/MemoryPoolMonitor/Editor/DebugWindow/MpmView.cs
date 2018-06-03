@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Profiling;
 using Zenject;
-using System.Linq;
 
 namespace Zenject.MemoryPoolMonitor
 {

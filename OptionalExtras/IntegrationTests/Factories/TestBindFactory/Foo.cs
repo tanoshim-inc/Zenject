@@ -7,13 +7,13 @@ namespace Zenject.Tests.Factories.BindFactory
     {
     }
 
-    public class IFooFactory : Factory<IFoo>
+    public class IFooFactory : PlaceholderFactory<IFoo>
     {
     }
 
     public class Foo : MonoBehaviour, IFoo
     {
-        public class Factory : Factory<Foo>
+        public class Factory : PlaceholderFactory<Foo>
         {
         }
     }

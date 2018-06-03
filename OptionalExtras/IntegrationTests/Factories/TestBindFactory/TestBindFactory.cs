@@ -304,12 +304,12 @@ namespace Zenject.Tests.Factories
         public IEnumerator TestToResourceSelf()
         {
             PreInstall();
-            Container.BindFactory<Texture, Factory<Texture>>()
+            Container.BindFactory<Texture, PlaceholderFactory<Texture>>()
                 .FromResource("TestBindFactory/TestTexture").NonLazy();
 
             PostInstall();
 
-            FixtureUtil.CallFactoryCreateMethod<Texture, Factory<Texture>>(Container);
+            FixtureUtil.CallFactoryCreateMethod<Texture, PlaceholderFactory<Texture>>(Container);
             yield break;
         }
 
@@ -317,7 +317,7 @@ namespace Zenject.Tests.Factories
         public IEnumerator TestToResource()
         {
             PreInstall();
-            Container.BindFactory<UnityEngine.Object, Factory<UnityEngine.Object>>()
+            Container.BindFactory<UnityEngine.Object, PlaceholderFactory<UnityEngine.Object>>()
                 .To<Texture>().FromResource("TestBindFactory/TestTexture").NonLazy();
 
             PostInstall();
@@ -468,17 +468,17 @@ namespace Zenject.Tests.Factories
             yield break;
         }
 
-        public class CameraFactory2 : Factory<string, Camera>
+        public class CameraFactory2 : PlaceholderFactory<string, Camera>
         {
         }
 
-        public class CameraFactory : Factory<Camera>
+        public class CameraFactory : PlaceholderFactory<Camera>
         {
         }
 
         public class Foo3 : MonoBehaviour
         {
-            public class Factory : Factory<Foo3>
+            public class Factory : PlaceholderFactory<Foo3>
             {
             }
         }
@@ -488,11 +488,11 @@ namespace Zenject.Tests.Factories
             [Inject]
             int _value;
 
-            public class Factory : Factory<Foo2>
+            public class Factory : PlaceholderFactory<Foo2>
             {
             }
 
-            public class Factory2 : Factory<int, Foo2>
+            public class Factory2 : PlaceholderFactory<int, Foo2>
             {
             }
         }

@@ -36,7 +36,7 @@ namespace Zenject.Tests.Bindings
 
         }
 
-        class IFooFactory : Factory<string, IFoo>
+        class IFooFactory : PlaceholderFactory<string, IFoo>
         {
         }
 
@@ -53,7 +53,7 @@ namespace Zenject.Tests.Bindings
                 private set;
             }
 
-            public class Factory : Factory<string, Foo>
+            public class Factory : PlaceholderFactory<string, Foo>
             {
             }
         }

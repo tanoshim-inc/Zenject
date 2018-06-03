@@ -51,7 +51,7 @@ namespace Zenject.Tests.Bindings
                 get; private set;
             }
 
-            public class Factory : Factory<int, Foo>
+            public class Factory : PlaceholderFactory<int, Foo>
             {
             }
         }

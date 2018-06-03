@@ -63,7 +63,7 @@ namespace Zenject.Tests
         }
 
         public static void CallFactoryCreateMethod<TValue, TFactory>(DiContainer container)
-            where TFactory : Factory<TValue>
+            where TFactory : PlaceholderFactory<TValue>
         {
             container.Resolve<TFactory>().Create();
         }

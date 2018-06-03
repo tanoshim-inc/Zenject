@@ -39,7 +39,7 @@ namespace Zenject.Tests.Bindings
                 get; private set;
             }
 
-            public class Factory : Factory<Foo>
+            public class Factory : PlaceholderFactory<Foo>
             {
             }
         }

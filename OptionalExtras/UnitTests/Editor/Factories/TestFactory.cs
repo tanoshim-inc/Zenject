@@ -25,7 +25,7 @@ namespace Zenject.Tests.AbstractFactory
 
         public class Foo : IFoo
         {
-            public class Factory : Factory<Foo>
+            public class Factory : PlaceholderFactory<Foo>
             {
             }
         }

@@ -199,7 +199,7 @@ namespace Zenject.Tests
             {
             }
 
-            public class Factory : Factory<Bar>
+            public class Factory : PlaceholderFactory<Bar>
             {
             }
 

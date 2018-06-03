@@ -80,7 +80,7 @@ namespace Zenject.Tests.Other
                 get; private set;
             }
 
-            public class Factory : Factory<Foo>
+            public class Factory : PlaceholderFactory<Foo>
             {
             }
         }

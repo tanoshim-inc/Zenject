@@ -22,7 +22,7 @@ namespace Zenject.Tests.Bindings
 
         class Bar
         {
-            public class Factory : Factory<Bar>
+            public class Factory : PlaceholderFactory<Bar>
             {
             }
         }

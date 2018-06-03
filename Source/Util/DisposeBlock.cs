@@ -45,6 +45,18 @@ namespace Zenject
             }
         }
 
+        public List<T> AllocateList<T>(IEnumerable<T> elements)
+        {
+            return ListPool<T>.Instance
+                .SpawnWrapper(elements).AttachedTo(this).Value;
+        }
+
+        public List<T> AllocateList<T>()
+        {
+            return ListPool<T>.Instance
+                .SpawnWrapper().AttachedTo(this).Value;
+        }
+
         public void Add(IDisposable disposable)
         {
             Assert.That(!_disposables.Contains(disposable));

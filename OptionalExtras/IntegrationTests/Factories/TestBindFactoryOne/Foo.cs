@@ -11,7 +11,7 @@ namespace Zenject.Tests.Factories.BindFactoryOne
         }
     }
 
-    public class IFooFactory : Factory<string, IFoo>
+    public class IFooFactory : PlaceholderFactory<string, IFoo>
     {
     }
 
@@ -29,7 +29,7 @@ namespace Zenject.Tests.Factories.BindFactoryOne
             private set;
         }
 
-        public class Factory : Factory<string, Foo>
+        public class Factory : PlaceholderFactory<string, Foo>
         {
         }
     }

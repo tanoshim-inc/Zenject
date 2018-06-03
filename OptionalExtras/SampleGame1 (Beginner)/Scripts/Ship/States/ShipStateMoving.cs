@@ -102,7 +102,7 @@ namespace Zenject.Asteroids
             public float oscillationAmplitude;
         }
 
-        public class Factory : Factory<ShipStateMoving>
+        public class Factory : PlaceholderFactory<ShipStateMoving>
         {
         }
     }

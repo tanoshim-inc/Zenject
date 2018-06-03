@@ -40,7 +40,7 @@ namespace Zenject.Asteroids
             public float Frequency;
         }
 
-        public class Factory : Factory<ShipStateWaitingToStart>
+        public class Factory : PlaceholderFactory<ShipStateWaitingToStart>
         {
         }
     }
