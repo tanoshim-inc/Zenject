@@ -78,9 +78,9 @@ namespace Zenject
         {
             BindingUtil.AssertIsInterfaceOrComponent(ContractType);
 
-            return FromMethod((container) =>
+            return FromMethod(_ =>
                 {
-                    var matches = container.Resolve<Context>().GetRootGameObjects()
+                    var matches = BindContainer.Resolve<Context>().GetRootGameObjects()
                         .SelectMany(x => x.GetComponentsInChildren<TContract>()).ToList();
 
                     Assert.That(!matches.IsEmpty(),

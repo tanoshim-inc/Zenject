@@ -161,7 +161,7 @@ namespace Zenject
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
             return FromMethodMultiple((ctx) => {
-                var res = ctx.Container.Resolve<Context>().GetRootGameObjects()
+                var res = BindContainer.Resolve<Context>().GetRootGameObjects()
                     .SelectMany(x => x.GetComponentsInChildren<TContract>(includeInactive))
                     .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
 
