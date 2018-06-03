@@ -56,6 +56,7 @@ namespace Zenject.Tests.Bindings.Singletons
             Assert.Throws(() => temp = gorp.Bar.Value);
         }
 
+#if NET_4_6
         [Test]
         public void TestInstantiateLazy()
         {
@@ -85,6 +86,7 @@ namespace Zenject.Tests.Bindings.Singletons
 
             Assert.IsEqual(Bar.InstanceCount, 1);
         }
+#endif
 
         public class Bar
         {

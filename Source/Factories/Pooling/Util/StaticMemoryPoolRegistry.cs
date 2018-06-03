@@ -11,7 +11,7 @@ namespace Zenject
 
         readonly static List<IMemoryPool> _pools = new List<IMemoryPool>();
 
-        public static IReadOnlyList<IMemoryPool> Pools
+        public static IEnumerable<IMemoryPool> Pools
         {
             get { return _pools; }
         }
