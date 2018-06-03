@@ -5,8 +5,8 @@ namespace Zenject
 {
     public class SignalSubscription : IDisposable
     {
-        public static readonly NewableMemoryPool<Action<object>, SignalDeclaration, SignalSubscription> Pool =
-            new NewableMemoryPool<Action<object>, SignalDeclaration, SignalSubscription>(OnSpawned, OnDespawned);
+        public static readonly StaticMemoryPool<Action<object>, SignalDeclaration, SignalSubscription> Pool =
+            new StaticMemoryPool<Action<object>, SignalDeclaration, SignalSubscription>(OnSpawned, OnDespawned);
 
         Action<object> _callback;
         SignalDeclaration _declaration;

@@ -8,8 +8,8 @@ namespace Zenject
     public class DisposeWrapper<TValue> : IDisposable
         where TValue : class, new()
     {
-        public static readonly NewableMemoryPool<TValue, IDespawnableMemoryPool<TValue>, DisposeWrapper<TValue>> Pool =
-            new NewableMemoryPool<TValue, IDespawnableMemoryPool<TValue>, DisposeWrapper<TValue>>(OnSpawned, OnDespawned);
+        public static readonly StaticMemoryPool<TValue, IDespawnableMemoryPool<TValue>, DisposeWrapper<TValue>> Pool =
+            new StaticMemoryPool<TValue, IDespawnableMemoryPool<TValue>, DisposeWrapper<TValue>>(OnSpawned, OnDespawned);
 
         IDespawnableMemoryPool<TValue> _wrappedPool;
         TValue _value;

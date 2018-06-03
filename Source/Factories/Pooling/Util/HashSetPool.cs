@@ -4,7 +4,7 @@ using Zenject;
 
 namespace ModestTree
 {
-    public class HashSetPool<T> : NewableMemoryPool<HashSet<T>>
+    public class HashSetPool<T> : StaticMemoryPool<HashSet<T>>
     {
         static HashSetPool<T> _instance = new HashSetPool<T>();
 

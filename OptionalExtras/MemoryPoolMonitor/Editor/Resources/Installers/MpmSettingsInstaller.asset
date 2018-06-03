@@ -285,16 +285,11 @@ MonoBehaviour:
       m_StretchHeight: 0
     RowBackground1: {r: 0.854902, g: 0.854902, b: 0.854902, a: 1}
     RowBackground2: {r: 0.833, g: 0.833, b: 0.833, a: 1}
+    RowBackgroundHighlighted: {r: 0, g: 0, b: 0, a: 0}
     LineColor: {r: 0.6691177, g: 0.6691177, b: 0.6691177, a: 1}
-    ClearButtonMargin: 2.87
-    ScrollSpeed: 1.5
+    ScrollSpeed: 10.64
     NormalColumnWidth: 101.52
     HeaderHeight: 23.69
-    RowSplitterHeight: 1.87
     SplitterWidth: 2.56
     RowHeight: 21.09
-    Offset1: -6.53
-    Offset2: 29.8
-    Offset3: 17.7
-    Offset4: 22.8
-    ColumnWidths: 200
+    ButtonMargin: 3

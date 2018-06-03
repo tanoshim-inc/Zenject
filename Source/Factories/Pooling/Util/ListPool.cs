@@ -4,7 +4,7 @@ using Zenject;
 
 namespace ModestTree
 {
-    public class ListPool<T> : NewableMemoryPool<List<T>>
+    public class ListPool<T> : StaticMemoryPool<List<T>>
     {
         static ListPool<T> _instance = new ListPool<T>();
 

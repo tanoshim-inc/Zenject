@@ -7,7 +7,7 @@ using Assert=ModestTree.Assert;
 namespace Zenject.Tests
 {
     [TestFixture]
-    public class TestNewableMemoryPool2 : ZenjectUnitTestFixture
+    public class TestStaticMemoryPool2 : ZenjectUnitTestFixture
     {
         [SetUp]
         public void CommonInstall()
@@ -143,8 +143,8 @@ namespace Zenject.Tests
 
         public class Foo : IDisposable
         {
-            public static readonly NewableMemoryPool<string, Foo> Pool =
-                new NewableMemoryPool<string, Foo>(OnSpawned, OnDespawned);
+            public static readonly StaticMemoryPool<string, Foo> Pool =
+                new StaticMemoryPool<string, Foo>(OnSpawned, OnDespawned);
 
             public string Value
             {

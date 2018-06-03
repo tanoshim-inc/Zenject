@@ -4,7 +4,7 @@ using Zenject;
 
 namespace ModestTree
 {
-    public class DictionaryPool<TKey, TValue> : NewableMemoryPool<Dictionary<TKey, TValue>>
+    public class DictionaryPool<TKey, TValue> : StaticMemoryPool<Dictionary<TKey, TValue>>
     {
         static DictionaryPool<TKey, TValue> _instance = new DictionaryPool<TKey, TValue>();
 

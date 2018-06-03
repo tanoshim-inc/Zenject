@@ -4,7 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    public abstract class NewableMemoryPoolBase<TValue> : IDespawnableMemoryPool<TValue>, IDisposable
+    public abstract class StaticMemoryPoolBase<TValue> : IDespawnableMemoryPool<TValue>, IDisposable
         where TValue : class, new()
     {
         readonly Stack<TValue> _stack = new Stack<TValue>();
@@ -12,7 +12,7 @@ namespace Zenject
         Action<TValue> _onDespawnedMethod;
         int _activeCount;
 
-        public NewableMemoryPoolBase(Action<TValue> onDespawnedMethod)
+        public StaticMemoryPoolBase(Action<TValue> onDespawnedMethod)
         {
             _onDespawnedMethod = onDespawnedMethod;
             StaticMemoryPoolRegistry.Add(this);
@@ -117,12 +117,12 @@ namespace Zenject
 
     // Zero parameters
 
-    public class NewableMemoryPool<TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TValue>
+    public class StaticMemoryPool<TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TValue>
         where TValue : class, new()
     {
         Action<TValue> _onSpawnMethod;
 
-        public NewableMemoryPool(
+        public StaticMemoryPool(
             Action<TValue> onSpawnMethod = null, Action<TValue> onDespawnedMethod = null)
             : base(onDespawnedMethod)
         {
@@ -154,12 +154,12 @@ namespace Zenject
 
     // One parameter
 
-    public class NewableMemoryPool<TParam1, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TValue>
+    public class StaticMemoryPool<TParam1, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TValue>
         where TValue : class, new()
     {
         Action<TParam1, TValue> _onSpawnMethod;
 
-        public NewableMemoryPool(
+        public StaticMemoryPool(
             Action<TParam1, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
             : base(onDespawnedMethod)
         {
@@ -193,12 +193,12 @@ namespace Zenject
 
     // Two parameter
 
-    public class NewableMemoryPool<TParam1, TParam2, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TValue>
+    public class StaticMemoryPool<TParam1, TParam2, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TValue>
         where TValue : class, new()
     {
         Action<TParam1, TParam2, TValue> _onSpawnMethod;
 
-        public NewableMemoryPool(
+        public StaticMemoryPool(
             Action<TParam1, TParam2, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
             : base(onDespawnedMethod)
         {
@@ -232,12 +232,12 @@ namespace Zenject
 
     // Three parameters
 
-    public class NewableMemoryPool<TParam1, TParam2, TParam3, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TValue>
+    public class StaticMemoryPool<TParam1, TParam2, TParam3, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TValue>
         where TValue : class, new()
     {
         Action<TParam1, TParam2, TParam3, TValue> _onSpawnMethod;
 
-        public NewableMemoryPool(
+        public StaticMemoryPool(
             Action<TParam1, TParam2, TParam3, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
             : base(onDespawnedMethod)
         {
@@ -271,7 +271,7 @@ namespace Zenject
 
     // Four parameters
 
-    public class NewableMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue>
+    public class StaticMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue>
         where TValue : class, new()
     {
 #if !NET_4_6
@@ -279,7 +279,7 @@ namespace Zenject
 #endif
             Action<TParam1, TParam2, TParam3, TParam4, TValue> _onSpawnMethod;
 
-        public NewableMemoryPool(
+        public StaticMemoryPool(
 #if !NET_4_6
             ModestTree.Util.
 #endif
@@ -320,7 +320,7 @@ namespace Zenject
 
     // Five parameters
 
-    public class NewableMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> : NewableMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue>
+    public class StaticMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue>
         where TValue : class, new()
     {
 #if !NET_4_6
@@ -328,7 +328,7 @@ namespace Zenject
 #endif
             Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> _onSpawnMethod;
 
-        public NewableMemoryPool(
+        public StaticMemoryPool(
 #if !NET_4_6
             ModestTree.Util.
 #endif

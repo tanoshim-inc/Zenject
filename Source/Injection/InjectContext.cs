@@ -8,8 +8,8 @@ namespace Zenject
 {
     public class InjectContext : IDisposable
     {
-        public static readonly NewableMemoryPool<DiContainer, Type, InjectContext> Pool =
-            new NewableMemoryPool<DiContainer, Type, InjectContext>(OnSpawned, OnDespawned);
+        public static readonly StaticMemoryPool<DiContainer, Type, InjectContext> Pool =
+            new StaticMemoryPool<DiContainer, Type, InjectContext>(OnSpawned, OnDespawned);
 
         readonly BindingId _bindingId = new BindingId();
 

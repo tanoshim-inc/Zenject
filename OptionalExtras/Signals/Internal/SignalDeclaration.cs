@@ -11,8 +11,8 @@ namespace Zenject
 {
     public class SignalDeclaration : IDisposable
     {
-        public static readonly NewableMemoryPool<Type, bool, bool, SignalSettings, SignalDeclaration> Pool =
-            new NewableMemoryPool<Type, bool, bool, SignalSettings, SignalDeclaration>(OnSpawned, OnDespawned);
+        public static readonly StaticMemoryPool<Type, bool, bool, SignalSettings, SignalDeclaration> Pool =
+            new StaticMemoryPool<Type, bool, bool, SignalSettings, SignalDeclaration>(OnSpawned, OnDespawned);
 
         readonly List<SignalSubscription> _subscriptions;
         readonly List<ISignal> _signalQueue;
