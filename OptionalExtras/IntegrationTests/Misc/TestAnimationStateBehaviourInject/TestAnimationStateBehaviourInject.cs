@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#if UNITY_EDITOR
+
+using System.Collections;
 using System.Collections.Generic;
 using ModestTree;
 using UnityEngine;
@@ -47,3 +49,5 @@ namespace Zenject.Tests.TestAnimationStateBehaviourInject
         }
     }
 }
+
+#endif

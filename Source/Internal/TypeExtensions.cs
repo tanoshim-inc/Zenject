@@ -376,7 +376,7 @@ namespace ModestTree
             {
                 var name = GetCSharpTypeName(type.Name);
 
-                if (type.IsGenericType)
+                if (type.IsGenericType())
                 {
                     var quoteIndex = name.IndexOf('`');
 
