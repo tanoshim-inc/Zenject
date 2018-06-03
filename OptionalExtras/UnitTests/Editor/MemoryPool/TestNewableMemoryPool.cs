@@ -38,7 +38,7 @@ namespace Zenject.Tests
         [Test]
         public void Test2()
         {
-            Foo.Pool.ClearPool();
+            Foo.Pool.Clear();
 
             Assert.IsEqual(Foo.Pool.NumTotal, 0);
             Assert.IsEqual(Foo.Pool.NumActive, 0);

@@ -30,7 +30,7 @@ namespace Zenject
     }
 
     [ZenjectAllowDuringValidation]
-    public class MemoryPoolBase<TContract> : IValidatable, IMemoryPool
+    public class MemoryPoolBase<TContract> : IValidatable, IMemoryPool, IDisposable
     {
         Stack<TContract> _inactiveItems;
         IFactory<TContract> _factory;
@@ -57,6 +57,8 @@ namespace Zenject
                     _inactiveItems.Push(AllocNew());
                 }
             }
+
+            StaticMemoryPoolRegistry.Add(this);
         }
 
         public IEnumerable<TContract> InactiveItems
@@ -82,6 +84,11 @@ namespace Zenject
         public Type ItemType
         {
             get { return typeof(TContract); }
+        }
+
+        public void Dispose()
+        {
+            StaticMemoryPoolRegistry.Remove(this);
         }
 
         public void Despawn(TContract item)
@@ -135,14 +142,21 @@ namespace Zenject
             }
         }
 
+        public void Clear()
+        {
+            Shrink(0);
+        }
+
         /// <summary>
         /// Shrinks the MemoryPool down to a maximum of maxInactive inactive items
         /// </summary>
         /// <param name="maxInactive">The maximum amount of inactive items to keep</param>
         public void Shrink(int maxInactive)
         {
-            for (var i = _inactiveItems.Count - 1; i >= maxInactive && i >= 0; --i)
-                _inactiveItems.Pop();
+            while (_inactiveItems.Count > maxInactive)
+            {
+                OnDestroyed(_inactiveItems.Pop());
+            }
         }
 
         protected TContract GetInternal()
@@ -232,6 +246,11 @@ namespace Zenject
         }
 
         protected virtual void OnCreated(TContract item)
+        {
+            // Optional
+        }
+
+        protected virtual void OnDestroyed(TContract item)
         {
             // Optional
         }

@@ -4,16 +4,18 @@ using ModestTree;
 
 namespace Zenject
 {
-    public abstract class NewableMemoryPoolBase<TValue> : IDespawnableMemoryPool<TValue>
+    public abstract class NewableMemoryPoolBase<TValue> : IDespawnableMemoryPool<TValue>, IDisposable
         where TValue : class, new()
     {
         readonly Stack<TValue> _stack = new Stack<TValue>();
 
         Action<TValue> _onDespawnedMethod;
+        int _activeCount;
 
         public NewableMemoryPoolBase(Action<TValue> onDespawnedMethod)
         {
             _onDespawnedMethod = onDespawnedMethod;
+            StaticMemoryPoolRegistry.Add(this);
         }
 
         public Action<TValue> OnDespawnedMethod
@@ -23,12 +25,12 @@ namespace Zenject
 
         public int NumTotal
         {
-            get; private set;
+            get { return NumInactive + NumActive; }
         }
 
         public int NumActive
         {
-            get { return NumTotal - NumInactive; }
+            get { return _activeCount; }
         }
 
         public int NumInactive
@@ -41,10 +43,22 @@ namespace Zenject
             get { return typeof(TValue); }
         }
 
-        public void ClearPool()
+        public void Shrink(int maxInactive)
+        {
+            while (_stack.Count > maxInactive)
+            {
+                _stack.Pop();
+            }
+        }
+
+        public void Dispose()
+        {
+            StaticMemoryPoolRegistry.Remove(this);
+        }
+
+        public void Clear()
         {
             _stack.Clear();
-            NumTotal = 0;
         }
 
         public void ExpandPoolBy(int additionalSize)
@@ -57,9 +71,7 @@ namespace Zenject
 
         TValue Alloc()
         {
-            var value = new TValue();
-            NumTotal++;
-            return value;
+            return new TValue();
         }
 
         protected TValue SpawnInternal()
@@ -75,6 +87,7 @@ namespace Zenject
                 element = _stack.Pop();
             }
 
+            _activeCount++;
             return element;
         }
 
@@ -97,6 +110,7 @@ namespace Zenject
 
             Assert.That(!_stack.Contains(element), "Attempted to despawn element twice!");
 
+            _activeCount--;
             _stack.Push(element);
         }
     }
@@ -277,7 +291,7 @@ namespace Zenject
             _onSpawnMethod = onSpawnMethod;
         }
 
-        public 
+        public
 #if !NET_4_6
             ModestTree.Util.
 #endif
@@ -326,7 +340,7 @@ namespace Zenject
             _onSpawnMethod = onSpawnMethod;
         }
 
-        public 
+        public
 #if !NET_4_6
             ModestTree.Util.
 #endif

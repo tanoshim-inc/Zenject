@@ -12,6 +12,10 @@ namespace Zenject
         {
             get;
         }
+
+        void ExpandPoolBy(int additionalSize);
+        void Shrink(int maxInactive);
+        void Clear();
     }
 
     public interface IDespawnableMemoryPool<TValue> : IMemoryPool

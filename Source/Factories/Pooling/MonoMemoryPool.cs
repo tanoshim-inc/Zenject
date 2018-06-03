@@ -16,6 +16,11 @@ namespace Zenject
             item.gameObject.SetActive(false);
         }
 
+        protected override void OnDestroyed(TValue item)
+        {
+            GameObject.Destroy(item.gameObject);
+        }
+
         protected override void OnSpawned(TValue item)
         {
             item.gameObject.SetActive(true);
@@ -36,6 +41,11 @@ namespace Zenject
         protected override void OnCreated(TValue item)
         {
             item.gameObject.SetActive(false);
+        }
+
+        protected override void OnDestroyed(TValue item)
+        {
+            GameObject.Destroy(item.gameObject);
         }
 
         protected override void OnSpawned(TValue item)
@@ -61,6 +71,11 @@ namespace Zenject
             item.gameObject.SetActive(false);
         }
 
+        protected override void OnDestroyed(TValue item)
+        {
+            GameObject.Destroy(item.gameObject);
+        }
+
         protected override void OnSpawned(TValue item)
         {
             item.gameObject.SetActive(true);
@@ -82,6 +97,11 @@ namespace Zenject
         protected override void OnCreated(TValue item)
         {
             item.gameObject.SetActive(false);
+        }
+
+        protected override void OnDestroyed(TValue item)
+        {
+            GameObject.Destroy(item.gameObject);
         }
 
         protected override void OnSpawned(TValue item)
@@ -107,6 +127,11 @@ namespace Zenject
             item.gameObject.SetActive(false);
         }
 
+        protected override void OnDestroyed(TValue item)
+        {
+            GameObject.Destroy(item.gameObject);
+        }
+
         protected override void OnSpawned(TValue item)
         {
             item.gameObject.SetActive(true);
@@ -128,6 +153,11 @@ namespace Zenject
         protected override void OnCreated(TValue item)
         {
             item.gameObject.SetActive(false);
+        }
+
+        protected override void OnDestroyed(TValue item)
+        {
+            GameObject.Destroy(item.gameObject);
         }
 
         protected override void OnSpawned(TValue item)

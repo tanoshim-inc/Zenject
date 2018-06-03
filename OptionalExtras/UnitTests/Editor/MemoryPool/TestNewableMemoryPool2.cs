@@ -20,7 +20,7 @@ namespace Zenject.Tests
         {
             var pool = Foo.Pool;
 
-            pool.ClearPool();
+            pool.Clear();
 
             Assert.IsEqual(pool.NumActive, 0);
             Assert.IsEqual(pool.NumInactive, 0);
@@ -121,7 +121,7 @@ namespace Zenject.Tests
         {
             var pool = Foo.Pool;
 
-            pool.ClearPool();
+            pool.Clear();
 
             Assert.IsEqual(pool.NumActive, 0);
             Assert.IsEqual(pool.NumInactive, 0);

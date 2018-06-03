@@ -2727,7 +2727,7 @@ namespace Zenject
             where TPoolConcrete : TPoolContract, IMemoryPool
             where TPoolContract : IMemoryPool
         {
-            var contractTypes = new List<Type>() { typeof(TPoolContract) };
+            var contractTypes = new List<Type>() { typeof(IDisposable), typeof(TPoolContract) };
 
             if (includeConcreteType)
             {
