@@ -187,7 +187,7 @@ namespace Zenject.Internal
             // Do not inject on installers since these are always injected before they are installed
             return type != null && !type.DerivesFrom<MonoInstaller>()
                 // Don't bother performing reflection operations on unity classes since they are guaranteed not to use zenject
-                && (type.Namespace == null || !type.Namespace.StartsWith("UnityEngine."));
+                && (type.Namespace == null || !type.Namespace.StartsWith("UnityEngine.", StringComparison.Ordinal));
         }
 
         public static IEnumerable<GameObject> GetRootGameObjects(Scene scene)
