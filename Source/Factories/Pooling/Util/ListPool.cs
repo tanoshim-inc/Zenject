@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Zenject;
 
-namespace ModestTree
+namespace Zenject
 {
     public class ListPool<T> : StaticMemoryPool<List<T>>
     {
