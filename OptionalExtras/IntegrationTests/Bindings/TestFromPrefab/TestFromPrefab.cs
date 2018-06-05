@@ -180,6 +180,19 @@ namespace Zenject.Tests.Bindings
         }
 
         [UnityTest]
+        public IEnumerator TestMultipleMatchTransform()
+        {
+            PreInstall();
+            Container.Bind<Transform>().FromComponentInNewPrefab(FooPrefab).AsCached();
+            PostInstall();
+            var transform = Container.Resolve<Transform>();
+            Assert.IsNotNull(transform);
+            Assert.IsNull(transform.parent);
+            FixtureUtil.AssertNumGameObjects(1);
+            yield break;
+        }
+
+        [UnityTest]
         public IEnumerator TestCircularDependencies()
         {
             PreInstall();
