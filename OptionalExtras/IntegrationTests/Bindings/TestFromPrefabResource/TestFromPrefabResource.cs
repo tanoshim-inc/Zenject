@@ -97,12 +97,26 @@ namespace Zenject.Tests.Bindings
         }
 
         [UnityTest]
-        public IEnumerator TestWithAbstractSearch()
+        public IEnumerator TestWithAbstractSearchSingleMatch()
         {
             PreInstall();
             // There are three components that implement INorf on this prefab
-            // and so this should result in a list of 3 INorf's
-            Container.Bind<INorf>().FromComponentInNewPrefabResource(PathPrefix + "Norf").AsTransient().NonLazy();
+            Container.Bind<INorf>().FromComponentInNewPrefabResource(PathPrefix + "Norf").AsCached().NonLazy();
+
+            PostInstall();
+
+            FixtureUtil.AssertNumGameObjects(1);
+            FixtureUtil.AssertComponentCount<INorf>(3);
+            FixtureUtil.AssertResolveCount<INorf>(Container, 1);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator TestWithAbstractSearchMultipleMatch()
+        {
+            PreInstall();
+            // There are three components that implement INorf on this prefab
+            Container.Bind<INorf>().FromComponentsInNewPrefabResource(PathPrefix + "Norf").AsCached().NonLazy();
 
             PostInstall();
 
@@ -117,12 +131,21 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             // Should ignore the Norf2 component on it
-            Container.Bind<INorf>().To<Norf>().FromComponentInNewPrefabResource(PathPrefix + "Norf").AsTransient().NonLazy();
+            Container.Bind<INorf>().To<Norf>().FromComponentsInNewPrefabResource(PathPrefix + "Norf").AsCached().NonLazy();
 
             PostInstall();
 
             FixtureUtil.AssertNumGameObjects(1);
             FixtureUtil.AssertResolveCount<INorf>(Container, 2);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator TestMultipleMatchFailure()
+        {
+            PreInstall();
+            Container.Bind<INorf>().FromComponentsInNewPrefabResource(PathPrefix + "Foo").AsSingle().NonLazy();
+            Assert.Throws(() => PostInstall());
             yield break;
         }
 

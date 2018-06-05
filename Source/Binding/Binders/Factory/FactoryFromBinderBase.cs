@@ -167,7 +167,7 @@ namespace Zenject
                     ContractType,
                     new PrefabInstantiator(
                         container, gameObjectInfo,
-                        ContractType, new List<TypeValuePair>(), new PrefabProvider(prefab)));
+                        ContractType, new List<TypeValuePair>(), new PrefabProvider(prefab)), true);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
@@ -184,7 +184,7 @@ namespace Zenject
                     ContractType,
                     new PrefabInstantiator(
                         container, gameObjectInfo,
-                        ContractType, new List<TypeValuePair>(), new PrefabProviderResource(resourcePath)));
+                        ContractType, new List<TypeValuePair>(), new PrefabProviderResource(resourcePath)), true);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }

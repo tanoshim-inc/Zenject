@@ -66,6 +66,7 @@ namespace Zenject.Tests.Bindings
 
             PostInstall();
 
+            Assert.IsNotNull(Container.Resolve<IFoo>());
             FixtureUtil.AssertComponentCount<Foo>(1);
             yield break;
         }
@@ -101,7 +102,7 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestWithArgumentsFail2()
         {
             PreInstall();
-            Container.Bind(typeof(Gorp), typeof(Qux))
+            Container.Bind<Gorp>()
                 .FromComponentInNewPrefab(GorpAndQuxPrefab).WithGameObjectName("Gorp").AsSingle()
                 .WithArguments(5, "test1").NonLazy();
 
@@ -126,12 +127,26 @@ namespace Zenject.Tests.Bindings
         }
 
         [UnityTest]
-        public IEnumerator TestWithAbstractSearch()
+        public IEnumerator TestWithAbstractSearchSingleMatch()
         {
             PreInstall();
             // There are three components that implement INorf on this prefab
-            // and so this should result in a list of 3 INorf's
-            Container.Bind<INorf>().FromComponentInNewPrefab(NorfPrefab).AsTransient().NonLazy();
+            Container.Bind<INorf>().FromComponentInNewPrefab(NorfPrefab).AsCached().NonLazy();
+
+            PostInstall();
+
+            FixtureUtil.AssertNumGameObjects(1);
+            FixtureUtil.AssertComponentCount<INorf>(3);
+            FixtureUtil.AssertResolveCount<INorf>(Container, 1);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator TestWithAbstractSearchMultipleMatch()
+        {
+            PreInstall();
+            // There are three components that implement INorf on this prefab
+            Container.Bind<INorf>().FromComponentsInNewPrefab(NorfPrefab).AsCached().NonLazy();
 
             PostInstall();
 
@@ -146,12 +161,21 @@ namespace Zenject.Tests.Bindings
         {
             PreInstall();
             // Should ignore the Norf2 component on it
-            Container.Bind<INorf>().To<Norf>().FromComponentInNewPrefab(NorfPrefab).AsTransient().NonLazy();
+            Container.Bind<INorf>().To<Norf>().FromComponentsInNewPrefab(NorfPrefab).AsCached().NonLazy();
 
             PostInstall();
 
             FixtureUtil.AssertNumGameObjects(1);
             FixtureUtil.AssertResolveCount<INorf>(Container, 2);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator TestMultipleMatchFailure()
+        {
+            PreInstall();
+            Container.Bind<INorf>().FromComponentsInNewPrefab(FooPrefab).AsSingle().NonLazy();
+            Assert.Throws(() => PostInstall());
             yield break;
         }
 
