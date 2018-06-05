@@ -136,7 +136,8 @@ namespace Zenject
             });
         }
 
-        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInParents()
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInParents(
+            bool excludeSelf = false, bool includeInactive = false)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
@@ -146,12 +147,19 @@ namespace Zenject
                         "Cannot use FromComponentInParents to inject data into non monobehaviours!");
                     Assert.IsNotNull(ctx.ObjectInstance);
 
-                    var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentInParent<TContract>();
+                    var matches = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInParent<TContract>(includeInactive)
+                        .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
 
-                    Assert.IsNotNull(res,
-                        "Could not find component '{0}' through FromComponentInParents binding", typeof(TContract));
+                    if (excludeSelf)
+                    {
+                        matches = matches.Where(x => (x as Component).gameObject != (ctx.ObjectInstance as Component).gameObject);
+                    }
 
-                    return res;
+                    var result = matches.FirstOrDefault();
+
+                    Assert.IsNotNull(result, "Could not find component '{0}' through FromComponentInParents binding", typeof(TContract));
+
+                    return result;
                 });
         }
 
