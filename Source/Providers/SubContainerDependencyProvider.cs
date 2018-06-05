@@ -24,6 +24,11 @@ namespace Zenject
             _resolveAll = resolveAll;
         }
 
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
+        }
+
         public Type GetInstanceType(InjectContext context)
         {
             return _dependencyType;

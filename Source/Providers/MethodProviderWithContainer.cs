@@ -15,6 +15,11 @@ namespace Zenject
             _method = method;
         }
 
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
+        }
+
         public Type GetInstanceType(InjectContext context)
         {
             return typeof(TValue);
@@ -50,6 +55,11 @@ namespace Zenject
         public MethodProviderWithContainer(Func<DiContainer, TParam1, TValue> method)
         {
             _method = method;
+        }
+
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -95,6 +105,11 @@ namespace Zenject
             _method = method;
         }
 
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
+        }
+
         public Type GetInstanceType(InjectContext context)
         {
             return typeof(TValue);
@@ -138,6 +153,11 @@ namespace Zenject
         public MethodProviderWithContainer(Func<DiContainer, TParam1, TParam2, TParam3, TValue> method)
         {
             _method = method;
+        }
+
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -193,6 +213,11 @@ namespace Zenject
             Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TValue> method)
         {
             _method = method;
+        }
+
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -252,6 +277,11 @@ namespace Zenject
             _method = method;
         }
 
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
+        }
+
         public Type GetInstanceType(InjectContext context)
         {
             return typeof(TValue);
@@ -309,6 +339,11 @@ namespace Zenject
             Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TValue> method)
         {
             _method = method;
+        }
+
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
         }
 
         public Type GetInstanceType(InjectContext context)

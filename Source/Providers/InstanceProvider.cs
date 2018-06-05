@@ -18,6 +18,11 @@ namespace Zenject
             _container = container;
         }
 
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
+        }
+
         public Type GetInstanceType(InjectContext context)
         {
             return _instanceType;

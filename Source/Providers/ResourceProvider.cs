@@ -22,6 +22,11 @@ namespace Zenject
             _matchSingle = matchSingle;
         }
 
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
+        }
+
         public Type GetInstanceType(InjectContext context)
         {
             return _resourceType;

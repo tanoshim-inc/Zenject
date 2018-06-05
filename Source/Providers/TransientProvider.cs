@@ -26,9 +26,14 @@ namespace Zenject
             _concreteIdentifier = concreteIdentifier;
         }
 
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return true; }
+        }
+
         public Type GetInstanceType(InjectContext context)
         {
-            return _concreteType;
+            return GetTypeToCreate(context.MemberType);
         }
 
         public List<object> GetAllInstancesWithInjectSplit(

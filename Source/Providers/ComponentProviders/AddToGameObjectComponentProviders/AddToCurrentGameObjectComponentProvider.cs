@@ -28,6 +28,11 @@ namespace Zenject
             _concreteIdentifier = concreteIdentifier;
         }
 
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
+        }
+
         protected DiContainer Container
         {
             get { return _container; }

@@ -21,6 +21,11 @@ namespace Zenject
             _componentType = componentType;
         }
 
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
+        }
+
         public Type GetInstanceType(InjectContext context)
         {
             return _componentType;
@@ -32,7 +37,7 @@ namespace Zenject
             Assert.IsNotNull(context);
 
             var gameObject = _prefabInstantiator.Instantiate(args, out injectAction);
-            
+
             var component = gameObject.AddComponent(_componentType);
 
             return new List<object>() { component };

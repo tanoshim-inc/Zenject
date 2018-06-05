@@ -19,6 +19,15 @@ namespace Zenject
             _creator = creator;
         }
 
+        public bool TypeVariesBasedOnMemberType
+        {
+            get
+            {
+                // Should not call this
+                throw Assert.CreateException();
+            }
+        }
+
         public int NumInstances
         {
             get { return _instances == null ? 0 : _instances.Count; }

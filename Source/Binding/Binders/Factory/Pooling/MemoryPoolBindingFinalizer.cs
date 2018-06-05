@@ -31,7 +31,7 @@ namespace Zenject
 
             RegisterProviderForAllContracts(
                 container,
-                new CachedProvider(
+                BindingUtil.CreateCachedProvider(
                     new TransientProvider(
                         _factoryBindInfo.FactoryType,
                         container,
