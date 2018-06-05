@@ -1,5 +1,6 @@
 #if !NOT_UNITY3D
 
+using System;
 using ModestTree;
 
 using System.Collections.Generic;
@@ -16,6 +17,11 @@ namespace Zenject
 {
     public class ProjectContext : Context
     {
+        public event Action PreInstall = null;
+        public event Action PostInstall = null;
+        public event Action PreResolve = null;
+        public event Action PostResolve = null;
+
         public const string ProjectContextResourcePath = "ProjectContext";
         public const string ProjectContextResourcePathOld = "ProjectCompositionRoot";
 
@@ -166,6 +172,12 @@ namespace Zenject
             _container = new DiContainer(
                 new DiContainer[] { StaticContext.Container }, isValidating);
 
+            // Do this after creating DiContainer in case it's needed by the pre install logic
+            if (PreInstall != null)
+            {
+                PreInstall();
+            }
+
             var injectableMonoBehaviours = new List<MonoBehaviour>();
             GetInjectableMonoBehaviours(injectableMonoBehaviours);
 
@@ -185,7 +197,22 @@ namespace Zenject
                 _container.IsInstalling = false;
             }
 
+            if (PostInstall != null)
+            {
+                PostInstall();
+            }
+
+            if (PreResolve != null)
+            {
+                PreResolve();
+            }
+
             _container.ResolveRoots();
+
+            if (PostResolve != null)
+            {
+                PostResolve();
+            }
         }
 
         protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
