@@ -48,6 +48,8 @@ namespace Zenject
         public void Setup()
         {
             Assert.That(!StaticContext.HasContainer);
+            Assert.That(Application.isPlaying,
+                "ZenjectIntegrationTestFixture is meant to be used for play mode tests only.  Please ensure your test file '{0}' is outside of the editor folder and try again.", this.GetType());
 
             ZenjectTestUtil.DestroyEverythingExceptTestRunner(true);
             StaticContext.Clear();
