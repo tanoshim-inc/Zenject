@@ -85,20 +85,38 @@ namespace Zenject
 
 #if !NOT_UNITY3D
 
-        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInChildren(
-            Func<TContract, bool> predicate, bool includeInactive = false)
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInChildren(bool includeInactive = false)
         {
-            return FromComponentInChildren(false, predicate, includeInactive);
+            BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
+
+            return FromMethod((ctx) => {
+                Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>(),
+                    "Cannot use FromComponentInChildren to inject data into non monobehaviours!");
+                Assert.IsNotNull(ctx.ObjectInstance);
+
+                var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentInChildren<TContract>(includeInactive);
+
+                Assert.IsNotNull(res,
+                    "Could not find component '{0}' through FromComponentInChildren binding", typeof(TContract));
+
+                return res;
+            });
         }
 
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsInChildren(
+            Func<TContract, bool> predicate, bool includeInactive = false)
+        {
+            return FromComponentsInChildren(false, predicate, includeInactive);
+        }
 
-        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInChildren(
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsInChildren(
             bool excludeSelf = false, Func<TContract, bool> predicate = null, bool includeInactive = false)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
             return FromMethodMultiple((ctx) => {
-                Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>());
+                Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>(),
+                    "Cannot use FromComponentsInChildren to inject data into non monobehaviours!");
                 Assert.IsNotNull(ctx.ObjectInstance);
 
                 var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInChildren<TContract>(includeInactive)
@@ -125,7 +143,8 @@ namespace Zenject
 
             return FromMethodMultiple((ctx) =>
                 {
-                    Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>());
+                    Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>(),
+                        "Cannot use FromComponentInParents to inject data into non monobehaviours!");
                     Assert.IsNotNull(ctx.ObjectInstance);
 
                     var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInParent<TContract>(includeInactive)

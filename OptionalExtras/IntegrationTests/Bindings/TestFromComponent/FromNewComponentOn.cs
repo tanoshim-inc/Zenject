@@ -12,7 +12,7 @@ using Assert=ModestTree.Assert;
 
 namespace Zenject.Tests.Bindings
 {
-    public class TestFromComponent : ZenjectIntegrationTestFixture
+    public class FromNewComponentOn : ZenjectIntegrationTestFixture
     {
         [UnityTest]
         public IEnumerator TestBasic()

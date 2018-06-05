@@ -34,6 +34,10 @@ namespace Zenject
             // Clean up any leftovers from previous test
             ZenjectTestUtil.DestroyEverythingExceptTestRunner(false);
 
+            Assert.That(Application.CanStreamedLevelBeLoaded(sceneName),
+                "Cannot load scene '{0}' for test '{1}'.  The scenes used by SceneTestFixture derived classes must be added to the build settings for the test to work",
+                sceneName, GetType());
+
             var loader = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
 
             while (!loader.isDone)
