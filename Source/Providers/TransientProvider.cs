@@ -28,7 +28,7 @@ namespace Zenject
 
         public bool TypeVariesBasedOnMemberType
         {
-            get { return true; }
+            get { return _concreteType.IsOpenGenericType(); }
         }
 
         public Type GetInstanceType(InjectContext context)
