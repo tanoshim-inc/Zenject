@@ -2607,7 +2607,14 @@ namespace Zenject
         {
             var bindInfo = new BindInfo();
 
-            bindInfo.ContractTypes.AddRange(type.Interfaces());
+            var interfaces = type.Interfaces();
+
+            if (interfaces.IsEmpty())
+            {
+                Log.Warn("Called BindInterfacesTo for type {0} but no interfaces were found", type);
+            }
+
+            bindInfo.ContractTypes.AddRange(interfaces);
             bindInfo.SetContextInfo("BindInterfacesTo({0})".Fmt(type));
 
             // Almost always, you don't want to use the default AsTransient so make them type it
