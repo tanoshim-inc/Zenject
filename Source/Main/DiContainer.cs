@@ -492,7 +492,7 @@ namespace Zenject
             }
         }
 
-        ProviderPair? GetSingleProviderMatch(InjectContext context)
+        ProviderPair? TryGetUniqueProvider(InjectContext context)
         {
             Assert.IsNotNull(context);
             var bindingId = context.BindingId;
@@ -514,8 +514,11 @@ namespace Zenject
                     return;
                 }
                 var localProviders = container.GetLocalProviders(bindingId);
-                foreach (var provider in localProviders)
+
+                for (int i = 0; i < localProviders.Count; i++)
                 {
+                    var provider = localProviders[i];
+
                     bool curHasCondition = provider.Condition != null;
 
                     if (curHasCondition && !provider.Condition(context))
@@ -913,18 +916,6 @@ namespace Zenject
 
                 return new List<Type> {};
             }
-        }
-
-        /// <summary>
-        /// Try looking up a single provider for a given context
-        /// </summary>
-        /// <returns>Provider pair if found, null otherwise</returns>
-        /// <exception cref="ZenjectException">If there is unresolvable ambiguity</exception>
-        ProviderPair? TryGetUniqueProvider(InjectContext context)
-        {
-            Assert.IsNotNull(context);
-            var result = GetSingleProviderMatch(context);
-            return result;
         }
 
         public object Resolve(BindingId id)
