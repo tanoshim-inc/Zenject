@@ -236,7 +236,7 @@ namespace Zenject
             BindingUtil.AssertDerivesFromUnityObject(ContractType);
 
             ProviderFunc =
-                (container) => new ResourceProvider(resourcePath, ContractType);
+                (container) => new ResourceProvider(resourcePath, ContractType, true);
 
             return this;
         }

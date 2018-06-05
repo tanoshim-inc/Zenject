@@ -74,22 +74,21 @@ namespace Zenject
 
 #if !NOT_UNITY3D
 
-        public ConditionCopyNonLazyBinder FromComponentInHierarchy()
+        public ConditionCopyNonLazyBinder FromComponentInHierarchy(
+            bool includeInactive = false)
         {
             BindingUtil.AssertIsInterfaceOrComponent(ContractType);
 
             return FromMethod(_ =>
                 {
-                    var matches = BindContainer.Resolve<Context>().GetRootGameObjects()
-                        .SelectMany(x => x.GetComponentsInChildren<TContract>()).ToList();
+                    var res = BindContainer.Resolve<Context>().GetRootGameObjects()
+                        .Select(x => x.GetComponentInChildren<TContract>(includeInactive))
+                        .Where(x => x != null).FirstOrDefault();
 
-                    Assert.That(!matches.IsEmpty(),
-                        "Found zero matches when looking up type '{0}' using FromComponentInHierarchy for factory", ContractType);
+                    Assert.IsNotNull(res,
+                        "Could not find component '{0}' through FromComponentInHierarchy factory binding", typeof(TContract));
 
-                    Assert.That(matches.Count() == 1,
-                        "Found multiple matches when looking up type '{0}' using FromComponentInHierarchy for factory.  Only expected to find one!", ContractType);
-
-                    return matches.Single();
+                    return res;
                 });
         }
 #endif

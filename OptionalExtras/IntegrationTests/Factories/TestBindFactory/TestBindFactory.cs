@@ -83,8 +83,8 @@ namespace Zenject.Tests.Factories
 
             new GameObject().AddComponent<Foo>();
 
-            // Multiple
-            Assert.Throws(() => factory.Create());
+            // Multiple is ok too to mirror unity's GetComponentsInChildren behaviour
+            factory.Create();
             yield break;
         }
 

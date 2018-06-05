@@ -394,7 +394,19 @@ namespace Zenject
             BindInfo.RequireExplicitScope = false;
             SubFinalizer = new ScopableBindingFinalizer(
                 BindInfo,
-                (_, type) => new ResourceProvider(resourcePath, type));
+                (_, type) => new ResourceProvider(resourcePath, type, true));
+
+            return new ScopeConditionCopyNonLazyBinder(BindInfo);
+        }
+
+        public ScopeConditionCopyNonLazyBinder FromResources(string resourcePath)
+        {
+            BindingUtil.AssertDerivesFromUnityObject(ConcreteTypes);
+
+            BindInfo.RequireExplicitScope = false;
+            SubFinalizer = new ScopableBindingFinalizer(
+                BindInfo,
+                (_, type) => new ResourceProvider(resourcePath, type, false));
 
             return new ScopeConditionCopyNonLazyBinder(BindInfo);
         }
