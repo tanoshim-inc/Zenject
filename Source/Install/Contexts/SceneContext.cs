@@ -146,8 +146,18 @@ namespace Zenject
 
             Assert.That(!IsValidating);
 
-            Install();
-            Resolve();
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+            using (ProfileBlock.Start("SceneContext.Install"))
+#endif
+            {
+                Install();
+            }
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+            using (ProfileBlock.Start("SceneContext.Resolve"))
+#endif
+            {
+                Resolve();
+            }
         }
 
         public override IEnumerable<GameObject> GetRootGameObjects()

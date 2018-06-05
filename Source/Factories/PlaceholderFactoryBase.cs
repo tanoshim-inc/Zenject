@@ -31,11 +31,14 @@ namespace Zenject
             {
                 var result = _provider.GetInstance(_injectContext, extraArgs);
 
-                Assert.That(result == null
-                    || result.GetType().DerivesFromOrEqual<TValue>()
-                    || (_injectContext.Container.IsValidating && result is ValidationMarker));
+                if (_injectContext.Container.IsValidating && result is ValidationMarker)
+                {
+                    return default(TValue);
+                }
 
-                return (TValue)result;
+                Assert.That(result == null || result.GetType().DerivesFromOrEqual<TValue>());
+
+                return (TValue) result;
             }
             catch (Exception e)
             {
