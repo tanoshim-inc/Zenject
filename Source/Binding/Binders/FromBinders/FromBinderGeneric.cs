@@ -182,6 +182,23 @@ namespace Zenject
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
+            return FromMethod((ctx) =>
+                {
+                    Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>(),
+                        "Cannot use FromComponentSibling to inject data into non monobehaviours!");
+                    Assert.IsNotNull(ctx.ObjectInstance);
+
+                    var match = ((MonoBehaviour)ctx.ObjectInstance).GetComponent<TContract>();
+                    Assert.IsNotNull(match,
+                        "Could not find component '{0}' through FromComponentSibling binding", typeof(TContract));
+                    return match;
+                });
+        }
+
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsSibling()
+        {
+            BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
+
             return FromMethodMultiple((ctx) =>
                 {
                     Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>(),
@@ -194,6 +211,23 @@ namespace Zenject
         }
 
         public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInHierarchy(
+            bool includeInactive = false)
+        {
+            BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
+
+            return FromMethod((ctx) => {
+                var res = BindContainer.Resolve<Context>().GetRootGameObjects()
+                    .Select(x => x.GetComponentInChildren<TContract>(includeInactive))
+                    .Where(x => x != null).FirstOrDefault();
+
+                Assert.IsNotNull(res,
+                    "Could not find component '{0}' through FromComponentInHierarchy binding", typeof(TContract));
+
+                return res;
+            });
+        }
+
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsInHierarchy(
             Func<TContract, bool> predicate = null, bool includeInactive = false)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);

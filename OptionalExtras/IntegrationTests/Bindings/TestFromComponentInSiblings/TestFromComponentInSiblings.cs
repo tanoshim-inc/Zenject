@@ -19,8 +19,7 @@ namespace Zenject.Tests.Bindings
         Qux _qux1;
         Qux _qux2;
 
-        [SetUp]
-        public void SetUp()
+        public void Setup1()
         {
             _foo = new GameObject().AddComponent<Foo>();
 
@@ -29,11 +28,39 @@ namespace Zenject.Tests.Bindings
             _qux2 = _foo.gameObject.AddComponent<Qux>();
         }
 
-        [UnityTest]
-        public IEnumerator RunTest()
+        public void Setup2()
         {
+            _foo = new GameObject().AddComponent<Foo>();
+            _bar = _foo.gameObject.AddComponent<Bar>();
+        }
+
+        [UnityTest]
+        public IEnumerator RunTestSingleMatch()
+        {
+            Setup1();
             PreInstall();
+
             Container.Bind<Qux>().FromComponentSibling();
+            Container.Bind<Bar>().FromComponentSibling();
+            Container.Bind<IBar>().FromComponentSibling();
+
+            PostInstall();
+
+            Assert.IsEqual(_foo.Bar, _bar);
+            Assert.IsEqual(_foo.IBar, _bar);
+            Assert.IsEqual(_foo.Qux.Count, 1);
+            Assert.IsEqual(_foo.Qux[0], _qux1);
+            Assert.IsEqual(_qux1.OtherQux, _qux1);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunTestMultiple()
+        {
+            Setup1();
+            PreInstall();
+
+            Container.Bind<Qux>().FromComponentsSibling();
             Container.Bind<Bar>().FromComponentSibling();
             Container.Bind<IBar>().FromComponentSibling();
 
@@ -47,6 +74,36 @@ namespace Zenject.Tests.Bindings
             // Should skip self
             Assert.IsEqual(_foo.Qux[0].OtherQux, _foo.Qux[1]);
             Assert.IsEqual(_foo.Qux[1].OtherQux, _foo.Qux[0]);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunTestMissingFailure()
+        {
+            Setup2();
+            PreInstall();
+
+            Container.Bind<Qux>().FromComponentSibling();
+            Container.Bind<Bar>().FromComponentSibling();
+            Container.Bind<IBar>().FromComponentSibling();
+
+            Assert.Throws(() => PostInstall());
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunTestMissingSuccess()
+        {
+            Setup2();
+            PreInstall();
+
+            Container.Bind<Qux>().FromComponentsSibling();
+            Container.Bind<Bar>().FromComponentSibling();
+            Container.Bind<IBar>().FromComponentSibling();
+
+            PostInstall();
+
+            Assert.That(_foo.Qux.IsEmpty());
             yield break;
         }
 

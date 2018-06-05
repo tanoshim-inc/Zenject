@@ -14,13 +14,14 @@ namespace Zenject.Tests.Bindings
 {
     public class TestFromComponentInHierarchy : ZenjectIntegrationTestFixture
     {
-        Foo _foo;
-        Bar _bar;
+        Foo _foo1;
+        Foo _foo2;
 
-        [SetUp]
-        public void SetUp()
+        public void Setup1()
         {
             var root = new GameObject();
+
+            _foo1 = root.AddComponent<Foo>();
 
             var child1 = new GameObject();
             child1.transform.SetParent(root.transform);
@@ -28,19 +29,75 @@ namespace Zenject.Tests.Bindings
             var child2 = new GameObject();
             child2.transform.SetParent(root.transform);
 
-            _foo = child2.AddComponent<Foo>();
-            _bar = child2.AddComponent<Bar>();
+            _foo2 = child2.AddComponent<Foo>();
+        }
+
+        public void Setup2()
+        {
+            var root = new GameObject();
+
+            var child1 = new GameObject();
+            child1.transform.SetParent(root.transform);
         }
 
         [UnityTest]
-        public IEnumerator RunTest()
+        public IEnumerator RunMatchSingle()
         {
+            Setup1();
             PreInstall();
+            Container.Bind<Qux>().AsSingle();
             Container.Bind<Foo>().FromComponentInHierarchy();
 
             PostInstall();
 
-            Assert.IsEqual(_bar.Foo, _foo);
+            var qux = Container.Resolve<Qux>();
+            Assert.IsEqual(qux.Foos.Count, 1);
+            Assert.IsEqual(qux.Foos[0], _foo1);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunMatchMultiple()
+        {
+            Setup1();
+            PreInstall();
+            Container.Bind<Qux>().AsSingle();
+            Container.Bind<Foo>().FromComponentsInHierarchy();
+
+            PostInstall();
+
+            var qux = Container.Resolve<Qux>();
+            Assert.IsEqual(qux.Foos.Count, 2);
+            Assert.IsEqual(qux.Foos[0], _foo1);
+            Assert.IsEqual(qux.Foos[1], _foo2);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunMatchNotFoundFailure()
+        {
+            Setup2();
+            PreInstall();
+            Container.Bind<Qux>().AsSingle().NonLazy();
+            Container.Bind<Foo>().FromComponentInHierarchy();
+
+            Assert.Throws(() => PostInstall());
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunMatchNotFoundSuccess()
+        {
+            Setup2();
+            PreInstall();
+
+            Container.Bind<Qux>().AsSingle().NonLazy();
+            Container.Bind<Foo>().FromComponentsInHierarchy();
+
+            PostInstall();
+
+            var qux = Container.Resolve<Qux>();
+            Assert.IsEqual(qux.Foos.Count, 0);
             yield break;
         }
 
@@ -48,10 +105,10 @@ namespace Zenject.Tests.Bindings
         {
         }
 
-        public class Bar : MonoBehaviour
+        public class Qux
         {
             [Inject]
-            public Foo Foo;
+            public List<Foo> Foos;
         }
     }
 }
