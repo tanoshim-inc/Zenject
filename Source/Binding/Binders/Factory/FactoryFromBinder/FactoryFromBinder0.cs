@@ -75,7 +75,7 @@ namespace Zenject
 #if !NOT_UNITY3D
 
         public ConditionCopyNonLazyBinder FromComponentInHierarchy(
-            bool includeInactive = false)
+            bool includeInactive = true)
         {
             BindingUtil.AssertIsInterfaceOrComponent(ContractType);
 

@@ -85,7 +85,7 @@ namespace Zenject
 
 #if !NOT_UNITY3D
 
-        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInChildren(bool includeInactive = false)
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInChildren(bool includeInactive = true)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
@@ -104,13 +104,13 @@ namespace Zenject
         }
 
         public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsInChildren(
-            Func<TContract, bool> predicate, bool includeInactive = false)
+            Func<TContract, bool> predicate, bool includeInactive = true)
         {
             return FromComponentsInChildren(false, predicate, includeInactive);
         }
 
         public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsInChildren(
-            bool excludeSelf = false, Func<TContract, bool> predicate = null, bool includeInactive = false)
+            bool excludeSelf = false, Func<TContract, bool> predicate = null, bool includeInactive = true)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
@@ -137,7 +137,7 @@ namespace Zenject
         }
 
         public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInParents(
-            bool excludeSelf = false, bool includeInactive = false)
+            bool excludeSelf = false, bool includeInactive = true)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
@@ -164,7 +164,7 @@ namespace Zenject
         }
 
         public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsInParents(
-            bool excludeSelf = false, bool includeInactive = false)
+            bool excludeSelf = false, bool includeInactive = true)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
@@ -219,7 +219,7 @@ namespace Zenject
         }
 
         public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInHierarchy(
-            bool includeInactive = false)
+            bool includeInactive = true)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
@@ -236,7 +236,7 @@ namespace Zenject
         }
 
         public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsInHierarchy(
-            Func<TContract, bool> predicate = null, bool includeInactive = false)
+            Func<TContract, bool> predicate = null, bool includeInactive = true)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
