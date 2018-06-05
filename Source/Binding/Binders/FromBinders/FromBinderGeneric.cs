@@ -136,8 +136,27 @@ namespace Zenject
             });
         }
 
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInParents()
+        {
+            BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
-        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentInParents(bool excludeSelf = false, bool includeInactive = false)
+            return FromMethod((ctx) =>
+                {
+                    Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>(),
+                        "Cannot use FromComponentInParents to inject data into non monobehaviours!");
+                    Assert.IsNotNull(ctx.ObjectInstance);
+
+                    var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentInParent<TContract>();
+
+                    Assert.IsNotNull(res,
+                        "Could not find component '{0}' through FromComponentInParents binding", typeof(TContract));
+
+                    return res;
+                });
+        }
+
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsInParents(
+            bool excludeSelf = false, bool includeInactive = false)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
