@@ -57,6 +57,7 @@
     <Compile Include="Binding\Binders\Factory\FactoryFromBinder\FactoryFromBinder10.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryFromBinder\SubContainerBinder\FactorySubContainerBinder10.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryFromBinder\Untyped\FactoryFromBinderUntyped.cs" />
+    <Compile Include="Binding\Binders\Factory\FactoryToChoiceBinder\DecoratorToChoiceFromBinder.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryToChoiceBinder\FactoryToChoiceBinder10.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryToChoiceIdBinder\FactoryToChoiceIdBinder0.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryToChoiceIdBinder\FactoryToChoiceIdBinder1.cs" />
@@ -138,6 +139,8 @@
     <Compile Include="Main\LazyInstanceInjector.cs" />
     <Compile Include="Main\SingletonMarkRegistry.cs" />
     <Compile Include="Main\ZenjectSettings.cs" />
+    <Compile Include="Providers\CachedOpenTypeProvider.cs" />
+    <Compile Include="Providers\Decorator\DecoratorProvider.cs" />
     <Compile Include="Providers\IFactoryProvider.cs" />
     <Compile Include="Providers\MethodProviderMultiple.cs" />
     <Compile Include="Providers\MethodProviderUntyped.cs" />
@@ -199,8 +202,6 @@
     <Compile Include="Binding\Finalizers\SubContainerInstallerBindingFinalizer.cs" />
     <Compile Include="Binding\Finalizers\PrefabBindingFinalizer.cs" />
     <Compile Include="Binding\Finalizers\PrefabResourceBindingFinalizer.cs" />
-    <Compile Include="Binding\Finalizers\SubContainerPrefabBindingFinalizer.cs" />
-    <Compile Include="Binding\Finalizers\SubContainerPrefabResourceBindingFinalizer.cs" />
     <Compile Include="Binding\Finalizers\SubContainerMethodBindingFinalizer.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryFromBinderBase.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryFromBinder\SubContainerBinder\FactorySubContainerBinder0.cs" />
