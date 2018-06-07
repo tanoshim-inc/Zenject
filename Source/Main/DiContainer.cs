@@ -361,8 +361,7 @@ namespace Zenject
                     // Probably better to be false to catch mistakes
                     context.Optional = false;
 
-                    var providerPair = new ProviderPair(providerInfo, this);
-                    SafeGetInstances(providerPair, context);
+                    SafeGetInstances(providerInfo, context);
 
                     // Zero matches might actually be valid in some cases
                     //Assert.That(matches.Any());
@@ -453,28 +452,28 @@ namespace Zenject
         public void RegisterProvider(
             BindingId bindingId, BindingCondition condition, IProvider provider, bool nonLazy)
         {
-            var info = new ProviderInfo(provider, condition, nonLazy);
+            var info = new ProviderInfo(provider, condition, nonLazy, this);
 
             List<ProviderInfo> providerInfos;
+
             if (!_providers.TryGetValue(bindingId, out providerInfos))
             {
-                _providers.Add(bindingId, new List<ProviderInfo> { info });
+                providerInfos = new List<ProviderInfo>();
+                _providers.Add(bindingId, providerInfos);
             }
-            else
-            {
-                providerInfos.Add(info);
-            }
+
+            providerInfos.Add(info);
         }
 
         void GetProviderMatches(
-            InjectContext context, List<ProviderPair> buffer)
+            InjectContext context, List<ProviderInfo> buffer)
         {
             Assert.IsNotNull(context);
             Assert.That(buffer.IsEmpty());
 
             using (var block = DisposeBlock.Spawn())
             {
-                var allMatches = block.AllocateList<ProviderPair>();
+                var allMatches = block.AllocateList<ProviderInfo>();
 
                 GetProvidersForContract(
                     context.BindingId, context.SourceType, allMatches);
@@ -483,8 +482,7 @@ namespace Zenject
                 {
                     var match = allMatches[i];
 
-                    if (match.ProviderInfo.Condition == null
-                        || match.ProviderInfo.Condition(context))
+                    if (match.Condition == null || match.Condition(context))
                     {
                         buffer.Add(match);
                     }
@@ -492,7 +490,7 @@ namespace Zenject
             }
         }
 
-        ProviderPair? TryGetUniqueProvider(InjectContext context)
+        ProviderInfo TryGetUniqueProvider(InjectContext context)
         {
             Assert.IsNotNull(context);
             var bindingId = context.BindingId;
@@ -500,87 +498,96 @@ namespace Zenject
 
             ForAllContainersToLookup(sourceType, container => container.FlushBindings());
 
-            ProviderPair? selected = null;
-            int selectedDistance = Int32.MaxValue;
-            bool selectedHasCondition = false;
-            bool ambiguousSelection = false;
-            ForAllContainersToLookup(sourceType, container =>
+            using (var block = DisposeBlock.Spawn())
             {
-                int curDistance = GetContainerHeirarchyDistance(container);
-                if (curDistance > selectedDistance)
+                var localProviders = block.AllocateList<ProviderInfo>();
+
+                ProviderInfo selected = null;
+                int selectedDistance = Int32.MaxValue;
+                bool selectedHasCondition = false;
+                bool ambiguousSelection = false;
+
+                ForAllContainersToLookup(sourceType, container =>
                 {
-                    // If matching provider was already found lower in the hierarchy => don't search for a new one,
-                    // because there can't be a better or equal provider in this container.
-                    return;
-                }
-                var localProviders = container.GetLocalProviders(bindingId);
-
-                for (int i = 0; i < localProviders.Count; i++)
-                {
-                    var provider = localProviders[i];
-
-                    bool curHasCondition = provider.Condition != null;
-
-                    if (curHasCondition && !provider.Condition(context))
+                    int curDistance = GetContainerHeirarchyDistance(container);
+                    if (curDistance > selectedDistance)
                     {
-                        // The condition is not satisfied.
-                        continue;
+                        // If matching provider was already found lower in the hierarchy => don't search for a new one,
+                        // because there can't be a better or equal provider in this container.
+                        return;
                     }
 
-                    // The distance can't decrease becuase we are iterating over the containers with increasing distance.
-                    // The distance can't increase because  we skip the container if the distance is greater than selected.
-                    // So the distances are equal and only the condition can help resolving the amiguity.
-                    Assert.That(selected == null || selectedDistance == curDistance);
+                    localProviders.Clear();
+                    container.GetLocalProviders(bindingId, localProviders);
 
-                    if (curHasCondition)
+                    for (int i = 0; i < localProviders.Count; i++)
                     {
-                        if (selectedHasCondition)
+                        var provider = localProviders[i];
+
+                        bool curHasCondition = provider.Condition != null;
+
+                        if (curHasCondition && !provider.Condition(context))
                         {
-                            // Both providers have condition and are on equal depth.
-                            ambiguousSelection = true;
+                            // The condition is not satisfied.
+                            continue;
+                        }
+
+                        // The distance can't decrease becuase we are iterating over the containers with increasing distance.
+                        // The distance can't increase because  we skip the container if the distance is greater than selected.
+                        // So the distances are equal and only the condition can help resolving the amiguity.
+                        Assert.That(selected == null || selectedDistance == curDistance);
+
+                        if (curHasCondition)
+                        {
+                            if (selectedHasCondition)
+                            {
+                                // Both providers have condition and are on equal depth.
+                                ambiguousSelection = true;
+                            }
+                            else
+                            {
+                                // Ambiguity is resolved because a provider with condition was found.
+                                ambiguousSelection = false;
+                            }
                         }
                         else
                         {
-                            // Ambiguity is resolved because a provider with condition was found.
-                            ambiguousSelection = false;
+                            if (selectedHasCondition)
+                            {
+                                // Selected provider is better because it has condition.
+                                continue;
+                            }
+                            if (selected != null && !selectedHasCondition)
+                            {
+                                // Both providers don't have a condition and are on equal depth.
+                                ambiguousSelection = true;
+                            }
                         }
-                    }
-                    else
-                    {
-                        if (selectedHasCondition)
+
+                        if (ambiguousSelection)
                         {
-                            // Selected provider is better because it has condition.
                             continue;
                         }
-                        if (selected != null && !selectedHasCondition)
-                        {
-                            // Both providers don't have a condition and are on equal depth.
-                            ambiguousSelection = true;
-                        }
-                    }
 
-                    if (ambiguousSelection)
-                    {
-                        continue;
+                        selectedDistance = curDistance;
+                        selectedHasCondition = curHasCondition;
+                        selected = provider;
                     }
+                });
 
-                    selectedDistance = curDistance;
-                    selectedHasCondition = curHasCondition;
-                    selected = new ProviderPair(provider, container);
+                if (ambiguousSelection)
+                {
+                    throw Assert.CreateException(
+                        "Found multiple matches when only one was expected for type '{0}'{1}. \nObject graph:\n {2}",
+                        context.MemberType,
+                        (context.ObjectType == null
+                            ? ""
+                            : " while building object with type '{0}'".Fmt(context.ObjectType)),
+                        context.GetObjectGraphString());
                 }
-            });
 
-            if (ambiguousSelection)
-            {
-                throw Assert.CreateException(
-                    "Found multiple matches when only one was expected for type '{0}'{1}. \nObject graph:\n {2}",
-                    context.MemberType,
-                    (context.ObjectType == null
-                        ? ""
-                        : " while building object with type '{0}'".Fmt(context.ObjectType)),
-                    context.GetObjectGraphString());
+                return selected;
             }
-            return selected;
         }
 
         void ForAllContainersToLookup(InjectSources sourceType, Action<DiContainer> action)
@@ -650,37 +657,6 @@ namespace Zenject
             return processed;
         }
 
-        void GetLocalProviderPairs(BindingId bindingId, List<ProviderPair> buffer)
-        {
-            buffer.AddRange(GetLocalProviders(bindingId).Select(x => new ProviderPair(x, this)));
-        }
-
-        List<ProviderInfo> GetLocalProviders(BindingId bindingId)
-        {
-            List<ProviderInfo> localProviders;
-
-            if (_providers.TryGetValue(bindingId, out localProviders))
-            {
-                return localProviders;
-            }
-
-            // If we are asking for a List<int>, we should also match for any localProviders that are bound to the open generic type List<>
-            // Currently it only matches one and not the other - not totally sure if this is better than returning both
-            if (bindingId.Type.IsGenericType() && _providers.TryGetValue(new BindingId(bindingId.Type.GetGenericTypeDefinition(), bindingId.Identifier), out localProviders))
-            {
-                return localProviders;
-            }
-
-            return new List<ProviderInfo>();
-        }
-
-        void GetProvidersForContract(
-            BindingId bindingId, InjectSources sourceType, List<ProviderPair> buffer)
-        {
-            ForAllContainersToLookup(sourceType, container => container.FlushBindings());
-            ForAllContainersToLookup(sourceType, container => container.GetLocalProviderPairs(bindingId, buffer));
-        }
-
         void GetLocalProviders(BindingId bindingId, List<ProviderInfo> buffer)
         {
             List<ProviderInfo> localProviders;
@@ -698,6 +674,15 @@ namespace Zenject
                 buffer.AddRange(localProviders);
                 return;
             }
+
+            // None found
+        }
+
+        void GetProvidersForContract(
+            BindingId bindingId, InjectSources sourceType, List<ProviderInfo> buffer)
+        {
+            ForAllContainersToLookup(sourceType, container => container.FlushBindings());
+            ForAllContainersToLookup(sourceType, container => container.GetLocalProviders(bindingId, buffer));
         }
 
         public void Install<TInstaller>()
@@ -734,7 +719,7 @@ namespace Zenject
 
             using (var block = DisposeBlock.Spawn())
             {
-                var matches = block.AllocateList<ProviderPair>();
+                var matches = block.AllocateList<ProviderInfo>();
 
                 GetProviderMatches(context, matches);
 
@@ -866,9 +851,9 @@ namespace Zenject
 
             FlushBindings();
 
-            var providerPair = TryGetUniqueProvider(context);
+            var providerInfo = TryGetUniqueProvider(context);
 
-            if (providerPair == null)
+            if (providerInfo == null)
             {
                 throw Assert.CreateException(
                     "Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
@@ -877,7 +862,7 @@ namespace Zenject
                     context.GetObjectGraphString());
             }
 
-            return providerPair.Value.ProviderInfo.Provider.GetInstanceType(context);
+            return providerInfo.Provider.GetInstanceType(context);
         }
 
         public List<Type> ResolveTypeAll(Type type)
@@ -903,14 +888,14 @@ namespace Zenject
 
             using (var block = DisposeBlock.Spawn())
             {
-                var matches = block.AllocateList<ProviderPair>();
+                var matches = block.AllocateList<ProviderInfo>();
 
                 GetProviderMatches(context, matches);
 
                 if (matches.Count > 0 )
                 {
                     return matches.Select(
-                        x => x.ProviderInfo.Provider.GetInstanceType(context))
+                        x => x.Provider.GetInstanceType(context))
                         .Where(x => x != null).ToList();
                 }
 
@@ -953,9 +938,9 @@ namespace Zenject
                 lookupContext.Optional = false;
             }
 
-            var providerPair = TryGetUniqueProvider(lookupContext);
+            var providerInfo = TryGetUniqueProvider(lookupContext);
 
-            if (providerPair == null)
+            if (providerInfo == null)
             {
                 // If it's an array try matching to multiple values using its array type
                 if (memberType.IsArray && memberType.GetArrayRank() == 1)
@@ -1010,7 +995,7 @@ namespace Zenject
             }
             else
             {
-                var instances = SafeGetInstances(providerPair.Value, context);
+                var instances = SafeGetInstances(providerInfo, context);
 
                 if (instances.IsEmpty())
                 {
@@ -1047,11 +1032,11 @@ namespace Zenject
             }
         }
 
-        List<object> SafeGetInstances(ProviderPair providerPair, InjectContext context)
+        List<object> SafeGetInstances(ProviderInfo providerInfo, InjectContext context)
         {
             Assert.IsNotNull(context);
 
-            var provider = providerPair.ProviderInfo.Provider;
+            var provider = providerInfo.Provider;
 
             if (ChecksForCircularDependencies)
             {
@@ -1066,7 +1051,7 @@ namespace Zenject
                 // lookup, which will trigger another GameObjectContext and container (since it is
                 // transient) and the process continues indefinitely
 
-                var providerContainer = providerPair.Container;
+                var providerContainer = providerInfo.Container;
 
                 if (providerContainer._resolvesTwiceInProgress.Contains(lookupId))
                 {
@@ -2416,7 +2401,7 @@ namespace Zenject
 
             using (var block = DisposeBlock.Spawn())
             {
-                var matches = block.AllocateList<ProviderPair>();
+                var matches = block.AllocateList<ProviderInfo>();
 
                 GetProviderMatches(context, matches);
 
@@ -3285,19 +3270,6 @@ namespace Zenject
 
         ////////////// Types ////////////////
 
-        struct ProviderPair
-        {
-            public readonly ProviderInfo ProviderInfo;
-
-            public readonly DiContainer Container;
-
-            public ProviderPair(ProviderInfo info, DiContainer container)
-            {
-                ProviderInfo = info;
-                Container = container;
-            }
-        }
-
         struct LookupId
         {
             public readonly IProvider Provider;
@@ -3323,17 +3295,18 @@ namespace Zenject
 
         public class ProviderInfo
         {
-            public ProviderInfo(IProvider provider, BindingCondition condition, bool nonLazy)
+            public ProviderInfo(
+                IProvider provider, BindingCondition condition, bool nonLazy, DiContainer container)
             {
                 Provider = provider;
                 Condition = condition;
                 NonLazy = nonLazy;
+                Container = container;
             }
 
+            public readonly DiContainer Container;
             public readonly bool NonLazy;
-
             public readonly IProvider Provider;
-
             public readonly BindingCondition Condition;
         }
     }

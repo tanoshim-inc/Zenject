@@ -8,20 +8,20 @@ namespace Zenject.Tests.Other
     [TestFixture]
     public class TestMisc : ZenjectUnitTestFixture
     {
-        public class FooSignal : ISignal
-        {
-        }
+        //public class FooSignal : ISignal
+        //{
+        //}
 
-        public class Foo
-        {
-        }
+        //public class Foo
+        //{
+        //}
 
         [Test]
         public void Test1()
         {
-            Container.BindSignal<FooSignal>();
+            //Container.BindSignal<FooSignal>();
 
-            Container.Bind<Foo>().AsSingle();
+            //Container.Bind<Foo>().AsSingle();
         }
     }
 }
