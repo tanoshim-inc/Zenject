@@ -27,6 +27,7 @@ namespace Zenject
     // - Instantiate new values via InstantiateX() methods
     public class DiContainer : IInstantiator
     {
+        readonly Dictionary<Type, IDecoratorProvider> _decorators = new Dictionary<Type, IDecoratorProvider>();
         readonly Dictionary<BindingId, List<ProviderInfo>> _providers = new Dictionary<BindingId, List<ProviderInfo>>();
         readonly DiContainer[] _parentContainers = new DiContainer[0];
         readonly DiContainer[] _ancestorContainers = new DiContainer[0];
@@ -1070,7 +1071,7 @@ namespace Zenject
                 }
                 try
                 {
-                    return provider.GetAllInstances(context);
+                    return GetDecoratedInstances(provider, context);
                 }
                 finally
                 {
@@ -1088,8 +1089,50 @@ namespace Zenject
             }
             else
             {
-                return provider.GetAllInstances(context);
+                return GetDecoratedInstances(provider, context);
             }
+        }
+
+        public DecoratorToChoiceFromBinder<TContract> Decorate<TContract>()
+        {
+            var bindInfo = new BindInfo();
+
+            bindInfo.ContractTypes.Add(typeof(IFactory<TContract, TContract>));
+
+            var factoryBindInfo = new FactoryBindInfo(
+                typeof(PlaceholderFactory<TContract, TContract>));
+
+            StartBinding().SubFinalizer = new PlaceholderFactoryBindingFinalizer<TContract>(
+                bindInfo, factoryBindInfo);
+
+            var bindId = Guid.NewGuid();
+
+            bindInfo.Identifier = bindId;
+
+            IDecoratorProvider decoratorProvider;
+
+            if (!_decorators.TryGetValue(typeof(TContract), out decoratorProvider))
+            {
+                decoratorProvider = new DecoratorProvider<TContract>(this);
+                _decorators.Add(typeof(TContract), decoratorProvider);
+            }
+
+            ((DecoratorProvider<TContract>)decoratorProvider).AddFactoryId(bindId);
+
+            return new DecoratorToChoiceFromBinder<TContract>(
+                this, bindInfo, factoryBindInfo);
+        }
+
+        List<object> GetDecoratedInstances(IProvider provider, InjectContext context)
+        {
+            IDecoratorProvider decoratorProvider;
+
+            if (_decorators.TryGetValue(context.BindingId.Type, out decoratorProvider))
+            {
+                return decoratorProvider.GetAllInstances(provider, context);
+            }
+
+            return provider.GetAllInstances(context);
         }
 
         int GetContainerHeirarchyDistance(DiContainer container)

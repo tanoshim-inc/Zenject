@@ -16,6 +16,11 @@ namespace Zenject
             _prefabCreator = prefabCreator;
         }
 
+        public bool IsCached
+        {
+            get { return false; }
+        }
+
         public bool TypeVariesBasedOnMemberType
         {
             get { return false; }

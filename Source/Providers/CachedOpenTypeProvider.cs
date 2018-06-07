@@ -16,6 +16,11 @@ namespace Zenject
             _creator = creator;
         }
 
+        public bool IsCached
+        {
+            get { return true; }
+        }
+
         public bool TypeVariesBasedOnMemberType
         {
             get

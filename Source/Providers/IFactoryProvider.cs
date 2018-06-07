@@ -13,6 +13,11 @@ namespace Zenject
             FactoryId = factoryId;
         }
 
+        public bool IsCached
+        {
+            get { return false; }
+        }
+
         protected Guid FactoryId
         {
             get;

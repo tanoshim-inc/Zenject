@@ -21,6 +21,11 @@ namespace Zenject
             _componentType = componentType;
         }
 
+        public bool IsCached
+        {
+            get { return false; }
+        }
+
         public bool TypeVariesBasedOnMemberType
         {
             get { return false; }

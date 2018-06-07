@@ -15,6 +15,11 @@ namespace Zenject
             _method = method;
         }
 
+        public bool IsCached
+        {
+            get { return false; }
+        }
+
         public bool TypeVariesBasedOnMemberType
         {
             get { return false; }
@@ -55,6 +60,11 @@ namespace Zenject
         public MethodProviderWithContainer(Func<DiContainer, TParam1, TValue> method)
         {
             _method = method;
+        }
+
+        public bool IsCached
+        {
+            get { return false; }
         }
 
         public bool TypeVariesBasedOnMemberType
@@ -103,6 +113,11 @@ namespace Zenject
         public MethodProviderWithContainer(Func<DiContainer, TParam1, TParam2, TValue> method)
         {
             _method = method;
+        }
+
+        public bool IsCached
+        {
+            get { return false; }
         }
 
         public bool TypeVariesBasedOnMemberType
@@ -155,6 +170,11 @@ namespace Zenject
             _method = method;
         }
 
+        public bool IsCached
+        {
+            get { return false; }
+        }
+
         public bool TypeVariesBasedOnMemberType
         {
             get { return false; }
@@ -200,7 +220,7 @@ namespace Zenject
 
     public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TValue> : IProvider
     {
-        readonly 
+        readonly
 #if !NET_4_6
             ModestTree.Util.
 #endif
@@ -213,6 +233,11 @@ namespace Zenject
             Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TValue> method)
         {
             _method = method;
+        }
+
+        public bool IsCached
+        {
+            get { return false; }
         }
 
         public bool TypeVariesBasedOnMemberType
@@ -262,7 +287,7 @@ namespace Zenject
 
     public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> : IProvider
     {
-        readonly 
+        readonly
 #if !NET_4_6
             ModestTree.Util.
 #endif
@@ -275,6 +300,11 @@ namespace Zenject
             Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TValue> method)
         {
             _method = method;
+        }
+
+        public bool IsCached
+        {
+            get { return false; }
         }
 
         public bool TypeVariesBasedOnMemberType
@@ -326,7 +356,7 @@ namespace Zenject
 
     public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TValue> : IProvider
     {
-        readonly 
+        readonly
 #if !NET_4_6
             ModestTree.Util.
 #endif
@@ -339,6 +369,11 @@ namespace Zenject
             Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TValue> method)
         {
             _method = method;
+        }
+
+        public bool IsCached
+        {
+            get { return false; }
         }
 
         public bool TypeVariesBasedOnMemberType

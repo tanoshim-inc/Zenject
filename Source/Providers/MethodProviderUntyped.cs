@@ -17,6 +17,11 @@ namespace Zenject
             _method = method;
         }
 
+        public bool IsCached
+        {
+            get { return false; }
+        }
+
         public bool TypeVariesBasedOnMemberType
         {
             get { return false; }

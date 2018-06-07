@@ -24,6 +24,11 @@ namespace Zenject
             _resolveAll = resolveAll;
         }
 
+        public bool IsCached
+        {
+            get { return false; }
+        }
+
         public bool TypeVariesBasedOnMemberType
         {
             get { return false; }

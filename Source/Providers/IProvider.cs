@@ -11,6 +11,11 @@ namespace Zenject
             get;
         }
 
+        bool IsCached
+        {
+            get;
+        }
+
         Type GetInstanceType(InjectContext context);
 
         // Return an instance which might be not yet injected to.

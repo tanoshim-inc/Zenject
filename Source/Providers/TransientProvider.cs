@@ -26,6 +26,11 @@ namespace Zenject
             _concreteIdentifier = concreteIdentifier;
         }
 
+        public bool IsCached
+        {
+            get { return false; }
+        }
+
         public bool TypeVariesBasedOnMemberType
         {
             get { return _concreteType.IsOpenGenericType(); }
