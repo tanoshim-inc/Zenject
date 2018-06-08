@@ -23,7 +23,6 @@ namespace Zenject.Tests
             Container = new DiContainer(true);
             Container.Settings = new ZenjectSettings(
                 ValidationErrorResponses.Throw, RootResolveMethods.All);
-            Container.BindInstance(Container.Settings);
         }
 
         [Test]

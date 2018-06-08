@@ -38,12 +38,18 @@ namespace Zenject
         {
             if (_settings.EnsureDeterministicDestructionOrderOnApplicationQuit)
             {
-                ForceUnloadAllScenes(true);
-
-                // Destroy project context after all scenes
-                Assert.That(!IsDestroyed);
-                GameObject.DestroyImmediate(this.gameObject);
+                DestroyEverythingInOrder();
             }
+        }
+
+        public void DestroyEverythingInOrder()
+        {
+            ForceUnloadAllScenes(true);
+
+            // Destroy project context after all scenes
+            Assert.That(!IsDestroyed);
+            GameObject.DestroyImmediate(this.gameObject);
+            Assert.That(IsDestroyed);
         }
 
         public void ForceUnloadAllScenes(bool immediate = false)
