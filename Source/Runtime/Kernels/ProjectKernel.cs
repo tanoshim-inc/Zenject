@@ -10,6 +10,9 @@ namespace Zenject
 {
     public class ProjectKernel : MonoKernel
     {
+        [Inject]
+        ZenjectSettings _settings;
+
         // One issue with relying on MonoKernel.OnDestroy to call IDisposable.Dispose
         // is that the order that OnDestroy is called in is difficult to predict
         // One good thing is that it does follow the heirarchy order (so root game objects
@@ -33,11 +36,14 @@ namespace Zenject
         // ZenjectSceneLoader which will do this for you
         public void OnApplicationQuit()
         {
-            ForceUnloadAllScenes(true);
+            if (_settings.EnsureDeterministicDestructionOrderOnApplicationQuit)
+            {
+                ForceUnloadAllScenes(true);
 
-            // Destroy project context after all scenes
-            Assert.That(!IsDestroyed);
-            GameObject.DestroyImmediate(this.gameObject);
+                // Destroy project context after all scenes
+                Assert.That(!IsDestroyed);
+                GameObject.DestroyImmediate(this.gameObject);
+            }
         }
 
         public void ForceUnloadAllScenes(bool immediate = false)

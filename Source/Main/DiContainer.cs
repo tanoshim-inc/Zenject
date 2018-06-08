@@ -134,7 +134,11 @@ namespace Zenject
         public ZenjectSettings Settings
         {
             get { return _settings; }
-            set { _settings = value; }
+            set
+            {
+                _settings = value;
+                this.Rebind<ZenjectSettings>().FromInstance(value);
+            }
         }
 
         internal SingletonMarkRegistry SingletonMarkRegistry
