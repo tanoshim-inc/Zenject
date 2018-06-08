@@ -1,0 +1,19 @@
+using UnityEngine;
+using Zenject;
+
+namespace Zenject.Tests.AutoInjecter
+{
+    public class Bar : MonoBehaviour
+    {
+        [Inject]
+        public Foo Foo;
+
+        public bool ConstructCalled;
+
+        [Inject]
+        public void Construct()
+        {
+            ConstructCalled = true;
+        }
+    }
+}
