@@ -43,6 +43,7 @@ namespace Zenject
         Stack<TContract> _inactiveItems;
         IFactory<TContract> _factory;
         MemoryPoolSettings _settings;
+        DiContainer _container;
 
         int _activeCount;
 
@@ -55,6 +56,7 @@ namespace Zenject
         {
             _settings = settings ?? MemoryPoolSettings.Default;
             _factory = factory;
+            _container = container;
 
             _inactiveItems = new Stack<TContract>(_settings.InitialSize);
 
@@ -67,6 +69,11 @@ namespace Zenject
             }
 
             StaticMemoryPoolRegistry.Add(this);
+        }
+
+        protected DiContainer Container
+        {
+            get { return _container; }
         }
 
         public IEnumerable<TContract> InactiveItems
@@ -131,9 +138,13 @@ namespace Zenject
             try
             {
                 var item = _factory.Create();
-                // Null is normal during validation
-                //Assert.IsNotNull(item, "Factory '{0}' returned null value when creating via {1}!", _factory.GetType(), this.GetType());
-                OnCreated(item);
+
+                if (!_container.IsValidating)
+                {
+                    Assert.IsNotNull(item, "Factory '{0}' returned null value when creating via {1}!", _factory.GetType(), this.GetType());
+                    OnCreated(item);
+                }
+
                 return item;
             }
             catch (Exception e)

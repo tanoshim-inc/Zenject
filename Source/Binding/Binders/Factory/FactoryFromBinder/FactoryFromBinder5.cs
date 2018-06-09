@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using ModestTree;
 
 namespace Zenject
@@ -11,33 +12,6 @@ namespace Zenject
             DiContainer container, BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
             : base(container, typeof(TContract), bindInfo, factoryBindInfo)
         {
-        }
-
-        public ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TContractAgain>(
-            Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
-            // Unfortunately we have to pass the same contract in again to satisfy the generic
-            // constraints on PoolableMemoryPool below
-            where TContractAgain : IPoolable<TParam1, TParam2, TParam3, TParam4, TParam5, IMemoryPool>
-        {
-            Assert.IsEqual(typeof(TContractAgain), typeof(TContract));
-
-            // Use a random ID so that our provider is the only one that can find it and so it doesn't
-            // conflict with anything else
-            var poolId = Guid.NewGuid();
-
-            var binder = BindContainer.BindMemoryPoolCustomInterface<TContractAgain, PoolableMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, IMemoryPool, TContractAgain>, PoolableMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, IMemoryPool, TContractAgain>>(
-                false,
-                // Very important here that we call StartBinding with false otherwise the other
-                // binding will be finalized early
-                BindContainer.StartBinding(null, false))
-                .WithId(poolId);
-
-            poolBindGenerator(binder);
-
-            ProviderFunc =
-                (container) => { return new PoolableMemoryPoolProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TContractAgain>(container, poolId); };
-
-            return new ArgConditionCopyNonLazyBinder(BindInfo);
         }
 
         public ConditionCopyNonLazyBinder FromMethod(
@@ -81,6 +55,52 @@ namespace Zenject
         {
             return new FactorySubContainerBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>(
                 BindContainer, BindInfo, FactoryBindInfo, subIdentifier);
+        }
+
+        public ArgConditionCopyNonLazyBinder FromMonoPoolableMemoryPool<TContractAgain>(
+            Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
+            // Unfortunately we have to pass the same contract in again to satisfy the generic
+            // constraints below
+            where TContractAgain : Component, IPoolable<TParam1, TParam2, TParam3, TParam4, TParam5, IMemoryPool>
+        {
+            return FromPoolableMemoryPoolInternal<TContractAgain, MonoPoolableMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, IMemoryPool, TContractAgain>>(poolBindGenerator);
+        }
+
+        public ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TContractAgain>(
+            Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
+            // Unfortunately we have to pass the same contract in again to satisfy the generic
+            // constraints below
+            where TContractAgain : IPoolable<TParam1, TParam2, TParam3, TParam4, TParam5, IMemoryPool>
+        {
+            return FromPoolableMemoryPoolInternal<TContractAgain, PoolableMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, IMemoryPool, TContractAgain>>(poolBindGenerator);
+        }
+
+        ArgConditionCopyNonLazyBinder FromPoolableMemoryPoolInternal<TContractAgain, TMemoryPool>(
+            Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
+            // Unfortunately we have to pass the same contract in again to satisfy the generic
+            // constraints below
+            where TContractAgain : IPoolable<TParam1, TParam2, TParam3, TParam4, TParam5, IMemoryPool>
+            where TMemoryPool : MemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, IMemoryPool, TContractAgain>
+        {
+            Assert.IsEqual(typeof(TContractAgain), typeof(TContract));
+
+            // Use a random ID so that our provider is the only one that can find it and so it doesn't
+            // conflict with anything else
+            var poolId = Guid.NewGuid();
+
+            var binder = BindContainer.BindMemoryPoolCustomInterface<TContractAgain, TMemoryPool, TMemoryPool>(
+                false,
+                // Very important here that we call StartBinding with false otherwise the other
+                // binding will be finalized early
+                BindContainer.StartBinding(null, false))
+                .WithId(poolId);
+
+            poolBindGenerator(binder);
+
+            ProviderFunc =
+                (container) => { return new PoolableMemoryPoolProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TContractAgain, TMemoryPool>(container, poolId); };
+
+            return new ArgConditionCopyNonLazyBinder(BindInfo);
         }
     }
 }

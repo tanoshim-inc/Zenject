@@ -10,11 +10,15 @@ namespace Zenject
         public TValue Spawn()
         {
             var item = GetInternal();
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
-#endif
+
+            if (!Container.IsValidating)
             {
-                Reinitialize(item);
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+#endif
+                {
+                    Reinitialize(item);
+                }
             }
             return item;
         }
@@ -37,12 +41,17 @@ namespace Zenject
         public TValue Spawn(TParam1 param)
         {
             var item = GetInternal();
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
-#endif
+
+            if (!Container.IsValidating)
             {
-                Reinitialize(param, item);
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+#endif
+                {
+                    Reinitialize(param, item);
+                }
             }
+
             return item;
         }
 
@@ -65,12 +74,16 @@ namespace Zenject
         {
             var item = GetInternal();
 
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
-#endif
+            if (!Container.IsValidating)
             {
-                Reinitialize(param1, param2, item);
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+#endif
+                {
+                    Reinitialize(param1, param2, item);
+                }
             }
+
             return item;
         }
 
@@ -92,11 +105,15 @@ namespace Zenject
         public TValue Spawn(TParam1 param1, TParam2 param2, TParam3 param3)
         {
             var item = GetInternal();
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
-#endif
+
+            if (!Container.IsValidating)
             {
-                Reinitialize(param1, param2, param3, item);
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+#endif
+                {
+                    Reinitialize(param1, param2, param3, item);
+                }
             }
             return item;
         }
@@ -119,11 +136,15 @@ namespace Zenject
         public TValue Spawn(TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4)
         {
             var item = GetInternal();
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
-#endif
+
+            if (!Container.IsValidating)
             {
-                Reinitialize(param1, param2, param3, param4, item);
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+#endif
+                {
+                    Reinitialize(param1, param2, param3, param4, item);
+                }
             }
             return item;
         }
@@ -147,11 +168,14 @@ namespace Zenject
             TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5)
         {
             var item = GetInternal();
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
-#endif
+            if (!Container.IsValidating)
             {
-                Reinitialize(param1, param2, param3, param4, param5, item);
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+#endif
+                {
+                    Reinitialize(param1, param2, param3, param4, param5, item);
+                }
             }
             return item;
         }
@@ -176,11 +200,15 @@ namespace Zenject
             TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5, TParam6 param6)
         {
             var item = GetInternal();
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
-#endif
+
+            if (!Container.IsValidating)
             {
-                Reinitialize(param1, param2, param3, param4, param5, param6, item);
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+#endif
+                {
+                    Reinitialize(param1, param2, param3, param4, param5, param6, item);
+                }
             }
             return item;
         }
@@ -205,11 +233,15 @@ namespace Zenject
             TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5, TParam6 param6, TParam7 param7)
         {
             var item = GetInternal();
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
-#endif
+
+            if (!Container.IsValidating)
             {
-                Reinitialize(param1, param2, param3, param4, param5, param6, param7, item);
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+#endif
+                {
+                    Reinitialize(param1, param2, param3, param4, param5, param6, param7, item);
+                }
             }
             return item;
         }
@@ -234,11 +266,15 @@ namespace Zenject
             TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5, TParam6 param6, TParam7 param7, TParam8 param8)
         {
             var item = GetInternal();
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
-#endif
+
+            if (!Container.IsValidating)
             {
-                Reinitialize(param1, param2, param3, param4, param5, param6, param7, param8, item);
+#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+#endif
+                {
+                    Reinitialize(param1, param2, param3, param4, param5, param6, param7, param8, item);
+                }
             }
             return item;
         }
