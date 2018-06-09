@@ -17,16 +17,18 @@ namespace Zenject
     public class MemoryPoolSettings
     {
         public int InitialSize;
+        public int MaxSize;
         public PoolExpandMethods ExpandMethod;
 
-        public MemoryPoolSettings(int initialSize, PoolExpandMethods expandMethod)
+        public MemoryPoolSettings(int initialSize, int maxSize, PoolExpandMethods expandMethod)
         {
             InitialSize = initialSize;
+            MaxSize = maxSize;
             ExpandMethod = expandMethod;
         }
 
         public static readonly MemoryPoolSettings Default =
-            new MemoryPoolSettings(0, PoolExpandMethods.OneAtATime);
+            new MemoryPoolSettings(0, int.MaxValue, PoolExpandMethods.OneAtATime);
     }
 
     [ZenjectAllowDuringValidation]
@@ -106,6 +108,11 @@ namespace Zenject
             {
                 OnDespawned(item);
             }
+
+            if (_inactiveItems.Count > _settings.MaxSize)
+            {
+                Resize(_settings.MaxSize);
+            }
         }
 
         TContract AllocNew()
@@ -144,19 +151,17 @@ namespace Zenject
 
         public void Clear()
         {
-            Shrink(0);
+            Resize(0);
         }
 
-        /// <summary>
-        /// Shrinks the MemoryPool down to a maximum of maxInactive inactive items
-        /// </summary>
-        /// <param name="maxInactive">The maximum amount of inactive items to keep</param>
-        public void Shrink(int maxInactive)
+        public void ShrinkBy(int numToRemove)
         {
-            while (_inactiveItems.Count > maxInactive)
-            {
-                OnDestroyed(_inactiveItems.Pop());
-            }
+            Resize(_inactiveItems.Count - numToRemove);
+        }
+
+        public void ExpandBy(int numToAdd)
+        {
+            Resize(_inactiveItems.Count + numToAdd);
         }
 
         protected TContract GetInternal()
@@ -173,58 +178,59 @@ namespace Zenject
             return item;
         }
 
-        /// <summary>
-        /// Expands the pool by the additional size.
-        ///
-        /// This bypasses the configured expansion method (OneAtATime or Doubling), but still enforces the Fixed size
-        /// constraint.
-        /// </summary>
-        /// <param name="additionalSize">The additional number of items to allocate in the pool.</param>
-        /// <exception cref="PoolExceededFixedSizeException">if the pool is configured with a fixed size.</exception>
-        public void ExpandPoolBy(int additionalSize)
+        public void Resize(int desiredPoolSize)
         {
-            if (_settings.ExpandMethod == PoolExpandMethods.Fixed)
+            if (_inactiveItems.Count == desiredPoolSize)
             {
-                throw new PoolExceededFixedSizeException(
-                    "Pool factory '{0}' exceeded its max size of '{1}'!"
-                    .Fmt(this.GetType(), NumTotal));
+                return;
             }
 
-            for (int i = 0; i < additionalSize; i++)
+            if (_settings.ExpandMethod == PoolExpandMethods.Disabled)
+            {
+                throw new PoolExceededFixedSizeException(
+                    "Pool factory '{0}' attempted resize but pool set to fixed size of '{1}'!"
+                    .Fmt(this.GetType(), _inactiveItems.Count));
+            }
+
+            Assert.That(desiredPoolSize >= 0, "Attempted to resize the pool to a negative amount");
+
+            while (_inactiveItems.Count > desiredPoolSize)
+            {
+                OnDestroyed(_inactiveItems.Pop());
+            }
+
+            while (desiredPoolSize > _inactiveItems.Count)
             {
                 _inactiveItems.Push(AllocNew());
             }
+
+            Assert.IsEqual(_inactiveItems.Count, desiredPoolSize);
         }
 
         void ExpandPool()
         {
             switch (_settings.ExpandMethod)
             {
-                case PoolExpandMethods.Fixed:
+                case PoolExpandMethods.Disabled:
                 {
                     throw new PoolExceededFixedSizeException(
-                        "Pool factory '{0}' exceeded its max size of '{1}'!"
-                        .Fmt(this.GetType(), NumTotal));
+                        "Pool factory '{0}' exceeded its fixed size of '{1}'!"
+                        .Fmt(this.GetType(), _inactiveItems.Count));
                 }
                 case PoolExpandMethods.OneAtATime:
                 {
-                    _inactiveItems.Push(AllocNew());
+                    ExpandBy(1);
                     break;
                 }
                 case PoolExpandMethods.Double:
                 {
                     if (NumTotal == 0)
                     {
-                        _inactiveItems.Push(AllocNew());
+                        ExpandBy(1);
                     }
                     else
                     {
-                        var oldSize = NumTotal;
-
-                        for (int i = 0; i < oldSize; i++)
-                        {
-                            _inactiveItems.Push(AllocNew());
-                        }
+                        ExpandBy(NumTotal);
                     }
                     break;
                 }

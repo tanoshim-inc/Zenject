@@ -271,7 +271,7 @@ namespace Zenject.MemoryPoolMonitor
 
                     if (GUI.Button(buttonBounds, "Expand"))
                     {
-                        pool.ExpandPoolBy(5);
+                        pool.ExpandBy(5);
                     }
                     break;
                 }

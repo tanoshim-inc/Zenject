@@ -77,8 +77,12 @@ namespace Zenject.Asteroids
 
             Container.BindInterfacesTo<AudioHandler>().AsSingle();
 
-            Container.Bind<ExplosionFactory>().AsSingle().WithArguments(_settings.ExplosionPrefab);
-            Container.Bind<BrokenShipFactory>().AsSingle().WithArguments(_settings.BrokenShipPrefab);
+            // FromComponentInNewPrefab matches the first transform only just like GetComponentsInChildren
+            // So can be useful in cases where we don't need a custom MonoBehaviour attached
+            Container.BindFactory<Transform, ExplosionFactory>()
+                .FromComponentInNewPrefab(_settings.ExplosionPrefab);
+            Container.BindFactory<Transform, BrokenShipFactory>()
+                .FromComponentInNewPrefab(_settings.BrokenShipPrefab);
 
             SignalRootInstaller.Install(Container);
         }

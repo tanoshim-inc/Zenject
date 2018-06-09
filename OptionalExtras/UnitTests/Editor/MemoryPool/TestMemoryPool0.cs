@@ -14,52 +14,52 @@ namespace Zenject.Tests.Bindings
         {
             Container.BindMemoryPool<Foo, Foo.Pool>();
 
-            var factory = Container.Resolve<Foo.Pool>();
+            var pool = Container.Resolve<Foo.Pool>();
 
-            Assert.IsEqual(factory.NumActive, 0);
-            Assert.IsEqual(factory.NumTotal, 0);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 0);
+            Assert.IsEqual(pool.NumInactive, 0);
 
-            var foo = factory.Spawn();
+            var foo = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 1);
-            Assert.IsEqual(factory.NumTotal, 1);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 1);
+            Assert.IsEqual(pool.NumTotal, 1);
+            Assert.IsEqual(pool.NumInactive, 0);
             Assert.IsEqual(foo.ResetCount, 1);
 
-            factory.Despawn(foo);
+            pool.Despawn(foo);
 
-            Assert.IsEqual(factory.NumActive, 0);
-            Assert.IsEqual(factory.NumTotal, 1);
-            Assert.IsEqual(factory.NumInactive, 1);
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 1);
+            Assert.IsEqual(pool.NumInactive, 1);
             Assert.IsEqual(foo.ResetCount, 1);
 
-            foo = factory.Spawn();
+            foo = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 1);
-            Assert.IsEqual(factory.NumTotal, 1);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 1);
+            Assert.IsEqual(pool.NumTotal, 1);
+            Assert.IsEqual(pool.NumInactive, 0);
             Assert.IsEqual(foo.ResetCount, 2);
 
-            var foo2 = factory.Spawn();
+            var foo2 = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 2);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 2);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 0);
             Assert.IsEqual(foo2.ResetCount, 1);
 
-            factory.Despawn(foo);
+            pool.Despawn(foo);
 
-            Assert.IsEqual(factory.NumActive, 1);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 1);
+            Assert.IsEqual(pool.NumActive, 1);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 1);
             Assert.IsEqual(foo.ResetCount, 2);
 
-            factory.Despawn(foo2);
+            pool.Despawn(foo2);
 
-            Assert.IsEqual(factory.NumActive, 0);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 2);
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 2);
         }
 
         [Test]
@@ -67,47 +67,47 @@ namespace Zenject.Tests.Bindings
         {
             Container.BindMemoryPool<Foo>();
 
-            var factory = Container.Resolve<MemoryPool<Foo>>();
+            var pool = Container.Resolve<MemoryPool<Foo>>();
 
-            Assert.IsEqual(factory.NumActive, 0);
-            Assert.IsEqual(factory.NumTotal, 0);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 0);
+            Assert.IsEqual(pool.NumInactive, 0);
 
-            var foo = factory.Spawn();
+            var foo = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 1);
-            Assert.IsEqual(factory.NumTotal, 1);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 1);
+            Assert.IsEqual(pool.NumTotal, 1);
+            Assert.IsEqual(pool.NumInactive, 0);
 
-            factory.Despawn(foo);
+            pool.Despawn(foo);
 
-            Assert.IsEqual(factory.NumActive, 0);
-            Assert.IsEqual(factory.NumTotal, 1);
-            Assert.IsEqual(factory.NumInactive, 1);
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 1);
+            Assert.IsEqual(pool.NumInactive, 1);
 
-            foo = factory.Spawn();
+            foo = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 1);
-            Assert.IsEqual(factory.NumTotal, 1);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 1);
+            Assert.IsEqual(pool.NumTotal, 1);
+            Assert.IsEqual(pool.NumInactive, 0);
 
-            var foo2 = factory.Spawn();
+            var foo2 = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 2);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 2);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 0);
 
-            factory.Despawn(foo);
+            pool.Despawn(foo);
 
-            Assert.IsEqual(factory.NumActive, 1);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 1);
+            Assert.IsEqual(pool.NumActive, 1);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 1);
 
-            factory.Despawn(foo2);
+            pool.Despawn(foo2);
 
-            Assert.IsEqual(factory.NumActive, 0);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 2);
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 2);
         }
 
         [Test]
@@ -115,41 +115,41 @@ namespace Zenject.Tests.Bindings
         {
             Container.BindMemoryPool<Foo, Foo.Pool>().ExpandByDoubling();
 
-            var factory = Container.Resolve<Foo.Pool>();
+            var pool = Container.Resolve<Foo.Pool>();
 
-            Assert.IsEqual(factory.NumActive, 0);
-            Assert.IsEqual(factory.NumTotal, 0);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 0);
+            Assert.IsEqual(pool.NumInactive, 0);
 
-            var foo = factory.Spawn();
+            var foo = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 1);
-            Assert.IsEqual(factory.NumTotal, 1);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 1);
+            Assert.IsEqual(pool.NumTotal, 1);
+            Assert.IsEqual(pool.NumInactive, 0);
 
-            var foo2 = factory.Spawn();
+            var foo2 = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 2);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 2);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 0);
 
-            var foo3 = factory.Spawn();
+            var foo3 = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 3);
-            Assert.IsEqual(factory.NumTotal, 4);
-            Assert.IsEqual(factory.NumInactive, 1);
+            Assert.IsEqual(pool.NumActive, 3);
+            Assert.IsEqual(pool.NumTotal, 4);
+            Assert.IsEqual(pool.NumInactive, 1);
 
-            factory.Despawn(foo2);
+            pool.Despawn(foo2);
 
-            Assert.IsEqual(factory.NumActive, 2);
-            Assert.IsEqual(factory.NumTotal, 4);
-            Assert.IsEqual(factory.NumInactive, 2);
+            Assert.IsEqual(pool.NumActive, 2);
+            Assert.IsEqual(pool.NumTotal, 4);
+            Assert.IsEqual(pool.NumInactive, 2);
 
-            var foo4 = factory.Spawn();
+            var foo4 = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 3);
-            Assert.IsEqual(factory.NumTotal, 4);
-            Assert.IsEqual(factory.NumInactive, 1);
+            Assert.IsEqual(pool.NumActive, 3);
+            Assert.IsEqual(pool.NumTotal, 4);
+            Assert.IsEqual(pool.NumInactive, 1);
         }
 
         [Test]
@@ -157,25 +157,25 @@ namespace Zenject.Tests.Bindings
         {
             Container.BindMemoryPool<Foo, Foo.Pool>().WithFixedSize(2);
 
-            var factory = Container.Resolve<Foo.Pool>();
+            var pool = Container.Resolve<Foo.Pool>();
 
-            Assert.IsEqual(factory.NumActive, 0);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 2);
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 2);
 
-            var foo = factory.Spawn();
+            var foo = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 1);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 1);
+            Assert.IsEqual(pool.NumActive, 1);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 1);
 
-            var foo2 = factory.Spawn();
+            var foo2 = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 2);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 2);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 0);
 
-            Assert.Throws<PoolExceededFixedSizeException>(() => factory.Spawn());
+            Assert.Throws<PoolExceededFixedSizeException>(() => pool.Spawn());
         }
 
         [Test]
@@ -183,71 +183,131 @@ namespace Zenject.Tests.Bindings
         {
             Container.BindMemoryPool<Foo, Foo.Pool>().WithInitialSize(5);
 
-            var factory = Container.Resolve<Foo.Pool>();
+            var pool = Container.Resolve<Foo.Pool>();
 
-            Assert.IsEqual(factory.NumActive, 0);
-            Assert.IsEqual(factory.NumTotal, 5);
-            Assert.IsEqual(factory.NumInactive, 5);
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 5);
+            Assert.IsEqual(pool.NumInactive, 5);
         }
 
         [Test]
-        public void TestExpandManually()
+        public void TestExpandAndShrinkManually()
         {
             Container.BindMemoryPool<Foo, Foo.Pool>();
 
-            var factory = Container.Resolve<Foo.Pool>();
+            var pool = Container.Resolve<Foo.Pool>();
 
-            Assert.IsEqual(factory.NumActive, 0);
-            Assert.IsEqual(factory.NumTotal, 0);
-            Assert.IsEqual(factory.NumInactive, 0);
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 0);
+            Assert.IsEqual(pool.NumInactive, 0);
 
-            factory.ExpandPoolBy(2);
+            pool.ExpandBy(2);
 
-            Assert.IsEqual(factory.NumActive, 0);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 2);
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 2);
 
-            var foo = factory.Spawn();
+            var foo = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 1);
-            Assert.IsEqual(factory.NumTotal, 2);
-            Assert.IsEqual(factory.NumInactive, 1);
+            Assert.IsEqual(pool.NumActive, 1);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 1);
 
-            factory.ExpandPoolBy(3);
+            pool.ExpandBy(3);
 
-            Assert.IsEqual(factory.NumActive, 1);
-            Assert.IsEqual(factory.NumTotal, 5);
-            Assert.IsEqual(factory.NumInactive, 4);
+            Assert.IsEqual(pool.NumActive, 1);
+            Assert.IsEqual(pool.NumTotal, 5);
+            Assert.IsEqual(pool.NumInactive, 4);
 
-            var foo2 = factory.Spawn();
+            var foo2 = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 2);
-            Assert.IsEqual(factory.NumTotal, 5);
-            Assert.IsEqual(factory.NumInactive, 3);
+            Assert.IsEqual(pool.NumActive, 2);
+            Assert.IsEqual(pool.NumTotal, 5);
+            Assert.IsEqual(pool.NumInactive, 3);
 
-            var foo3 = factory.Spawn();
+            var foo3 = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 3);
-            Assert.IsEqual(factory.NumTotal, 5);
-            Assert.IsEqual(factory.NumInactive, 2);
+            Assert.IsEqual(pool.NumActive, 3);
+            Assert.IsEqual(pool.NumTotal, 5);
+            Assert.IsEqual(pool.NumInactive, 2);
 
-            factory.ExpandPoolBy(1);
+            pool.ExpandBy(1);
 
-            Assert.IsEqual(factory.NumActive, 3);
-            Assert.IsEqual(factory.NumTotal, 6);
-            Assert.IsEqual(factory.NumInactive, 3);
+            Assert.IsEqual(pool.NumActive, 3);
+            Assert.IsEqual(pool.NumTotal, 6);
+            Assert.IsEqual(pool.NumInactive, 3);
 
-            factory.Despawn(foo2);
+            pool.Despawn(foo2);
 
-            Assert.IsEqual(factory.NumActive, 2);
-            Assert.IsEqual(factory.NumTotal, 6);
-            Assert.IsEqual(factory.NumInactive, 4);
+            Assert.IsEqual(pool.NumActive, 2);
+            Assert.IsEqual(pool.NumTotal, 6);
+            Assert.IsEqual(pool.NumInactive, 4);
 
-            var foo4 = factory.Spawn();
+            var foo4 = pool.Spawn();
 
-            Assert.IsEqual(factory.NumActive, 3);
-            Assert.IsEqual(factory.NumTotal, 6);
-            Assert.IsEqual(factory.NumInactive, 3);
+            Assert.IsEqual(pool.NumActive, 3);
+            Assert.IsEqual(pool.NumTotal, 6);
+            Assert.IsEqual(pool.NumInactive, 3);
+
+            pool.ShrinkBy(1);
+
+            Assert.IsEqual(pool.NumActive, 3);
+            Assert.IsEqual(pool.NumTotal, 5);
+            Assert.IsEqual(pool.NumInactive, 2);
+
+            pool.Resize(6);
+
+            Assert.IsEqual(pool.NumActive, 3);
+            Assert.IsEqual(pool.NumTotal, 9);
+            Assert.IsEqual(pool.NumInactive, 6);
+
+            pool.Clear();
+
+            Assert.IsEqual(pool.NumActive, 3);
+            Assert.IsEqual(pool.NumTotal, 3);
+            Assert.IsEqual(pool.NumInactive, 0);
+
+            Assert.Throws(() => pool.Resize(-1));
+            Assert.Throws(() => pool.ShrinkBy(1));
+        }
+
+        [Test]
+        public void TestMaxSize()
+        {
+            Container.BindMemoryPool<Foo, Foo.Pool>().WithInitialSize(2).WithMaxSize(4);
+
+            var pool = Container.Resolve<Foo.Pool>();
+
+            var foos = new List<Foo>();
+
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 2);
+            Assert.IsEqual(pool.NumInactive, 2);
+
+            foos.Add(pool.Spawn());
+            foos.Add(pool.Spawn());
+            foos.Add(pool.Spawn());
+            foos.Add(pool.Spawn());
+            foos.Add(pool.Spawn());
+
+            Assert.IsEqual(pool.NumActive, 5);
+            Assert.IsEqual(pool.NumTotal, 5);
+            Assert.IsEqual(pool.NumInactive, 0);
+
+            pool.Despawn(foos[0]);
+            pool.Despawn(foos[1]);
+            pool.Despawn(foos[2]);
+
+            Assert.IsEqual(pool.NumActive, 2);
+            Assert.IsEqual(pool.NumTotal, 5);
+            Assert.IsEqual(pool.NumInactive, 3);
+
+            pool.Despawn(foos[3]);
+            pool.Despawn(foos[4]);
+
+            Assert.IsEqual(pool.NumActive, 0);
+            Assert.IsEqual(pool.NumTotal, 4);
+            Assert.IsEqual(pool.NumInactive, 4);
         }
 
         class Bar
@@ -287,8 +347,8 @@ namespace Zenject.Tests.Bindings
             Container.BindMemoryPool<Qux, Qux.Pool>()
                 .FromSubContainerResolve().ByMethod(InstallQux).NonLazy();
 
-            var factory = Container.Resolve<Qux.Pool>();
-            var qux = factory.Spawn();
+            var pool = Container.Resolve<Qux.Pool>();
+            var qux = pool.Spawn();
         }
 
         void InstallQux(DiContainer subContainer)

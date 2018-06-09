@@ -24,7 +24,7 @@ namespace Zenject.Tests.Bindings
         [Test]
         public void TestFromRuntime()
         {
-            var settings = new MemoryPoolSettings(0, PoolExpandMethods.OneAtATime);
+            var settings = new MemoryPoolSettings(0, int.MaxValue, PoolExpandMethods.OneAtATime);
 
             var pool = Container.Instantiate<Qux.Pool>(new object[] { settings, new CustomFactory() });
 

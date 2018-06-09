@@ -12,7 +12,7 @@ namespace Zenject.Tests.Other
         {
             var foo = new Foo();
 
-            Container.BindFactoryInterface<Foo, Foo.Factory, Foo.IFooFactory>().FromInstance(foo);
+            Container.BindFactoryCustomInterface<Foo, Foo.Factory, Foo.IFooFactory>().FromInstance(foo);
 
             Assert.IsEqual(Container.Resolve<Foo.IFooFactory>().Create(), foo);
         }
@@ -22,7 +22,7 @@ namespace Zenject.Tests.Other
         {
             var foo = new Foo();
 
-            Container.BindMemoryPoolInterface<Foo, Foo.Pool, Foo.IFooPool>().FromInstance(foo);
+            Container.BindMemoryPoolCustomInterface<Foo, Foo.Pool, Foo.IFooPool>().FromInstance(foo);
 
             Assert.IsEqual(Container.Resolve<Foo.IFooPool>().Spawn(), foo);
         }

@@ -6,11 +6,11 @@ using Random=UnityEngine.Random;
 
 namespace Zenject.Asteroids
 {
-    public class ExplosionFactory : GameObjectFactory
+    public class ExplosionFactory : Factory<Transform>
     {
     }
 
-    public class BrokenShipFactory : GameObjectFactory
+    public class BrokenShipFactory : Factory<Transform>
     {
     }
 
@@ -43,10 +43,10 @@ namespace Zenject.Asteroids
             _ship.MeshRenderer.enabled = false;
             _ship.ParticleEmitter.gameObject.SetActive(false);
 
-            _explosion = _explosionFactory.Create();
+            _explosion = _explosionFactory.Create().gameObject;
             _explosion.transform.position = _ship.Position;
 
-            _shipBroken = _brokenShipFactory.Create();
+            _shipBroken = _brokenShipFactory.Create().gameObject;
             _shipBroken.transform.position = _ship.Position;
             _shipBroken.transform.rotation = _ship.Rotation;
 

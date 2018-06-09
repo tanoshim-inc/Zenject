@@ -227,7 +227,7 @@ namespace Zenject
         void InstallBindings(List<MonoBehaviour> injectableMonoBehaviours)
         {
             _container.DefaultParent = this.transform;
-            _container.Settings = _settings;
+            _container.Settings = _settings ?? ZenjectSettings.Default;
 
             _container.Bind<ZenjectSceneLoader>().AsSingle();
 

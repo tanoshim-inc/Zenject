@@ -43,12 +43,21 @@ namespace Zenject
             get { return typeof(TValue); }
         }
 
-        public void Shrink(int maxInactive)
+        public void Resize(int desiredPoolSize)
         {
-            while (_stack.Count > maxInactive)
+            Assert.That(desiredPoolSize >= 0, "Attempted to resize the pool to a negative amount");
+
+            while (_stack.Count > desiredPoolSize)
             {
                 _stack.Pop();
             }
+
+            while (desiredPoolSize > _stack.Count)
+            {
+                _stack.Push(Alloc());
+            }
+
+            Assert.IsEqual(_stack.Count, desiredPoolSize);
         }
 
         public void Dispose()
@@ -58,15 +67,17 @@ namespace Zenject
 
         public void Clear()
         {
-            _stack.Clear();
+            Resize(0);
         }
 
-        public void ExpandPoolBy(int additionalSize)
+        public void ShrinkBy(int numToRemove)
         {
-            for (int i = 0; i < additionalSize; i++)
-            {
-                _stack.Push(Alloc());
-            }
+            Resize(_stack.Count - numToRemove);
+        }
+
+        public void ExpandBy(int numToAdd)
+        {
+            Resize(_stack.Count + numToAdd);
         }
 
         TValue Alloc()

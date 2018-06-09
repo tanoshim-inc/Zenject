@@ -27,7 +27,7 @@ namespace Zenject
                 _factoryBindInfo.ProviderFunc(container), new InjectContext(container, typeof(TContract)));
 
             var settings = new MemoryPoolSettings(
-                _poolBindInfo.InitialSize, _poolBindInfo.ExpandMethod);
+                _poolBindInfo.InitialSize, _poolBindInfo.MaxSize, _poolBindInfo.ExpandMethod);
 
             RegisterProviderForAllContracts(
                 container,
