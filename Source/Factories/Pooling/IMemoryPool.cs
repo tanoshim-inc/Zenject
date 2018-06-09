@@ -34,6 +34,8 @@ namespace Zenject
         /// </summary>
         /// <param name="numToRemove">The amount of items to remove from the pool</param>
         void ShrinkBy(int numToRemove);
+
+        void Despawn(object obj);
     }
 
     public interface IDespawnableMemoryPool<TValue> : IMemoryPool

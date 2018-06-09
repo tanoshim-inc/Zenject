@@ -13,6 +13,33 @@ namespace Zenject
         {
         }
 
+        public ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TContractAgain>(
+            Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
+            // Unfortunately we have to pass the same contract in again to satisfy the generic
+            // constraints on PoolableMemoryPool below
+            where TContractAgain : IPoolable<IMemoryPool>
+        {
+            Assert.IsEqual(typeof(TContractAgain), typeof(TContract));
+
+            // Use a random ID so that our provider is the only one that can find it and so it doesn't
+            // conflict with anything else
+            var poolId = Guid.NewGuid();
+
+            var binder = BindContainer.BindMemoryPoolCustomInterface<TContractAgain, PoolableMemoryPool<IMemoryPool, TContractAgain>, PoolableMemoryPool<IMemoryPool, TContractAgain>>(
+                false,
+                // Very important here that we call StartBinding with false otherwise the other
+                // binding will be finalized early
+                BindContainer.StartBinding(null, false))
+                .WithId(poolId);
+
+            poolBindGenerator(binder);
+
+            ProviderFunc =
+                (container) => { return new PoolableMemoryPoolProvider<TContractAgain>(container, poolId); };
+
+            return new ArgConditionCopyNonLazyBinder(BindInfo);
+        }
+
         public ConditionCopyNonLazyBinder FromResolveGetter<TObj>(Func<TObj, TContract> method)
         {
             return FromResolveGetter<TObj>(null, method);

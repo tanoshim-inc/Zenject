@@ -352,6 +352,77 @@ namespace Zenject
         }
     }
 
+    // Six params
+
+    public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue> : IProvider
+    {
+        readonly
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue> _method;
+
+        public MethodProviderWithContainer(
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue> method)
+        {
+            _method = method;
+        }
+
+        public bool IsCached
+        {
+            get { return false; }
+        }
+
+        public bool TypeVariesBasedOnMemberType
+        {
+            get { return false; }
+        }
+
+        public Type GetInstanceType(InjectContext context)
+        {
+            return typeof(TValue);
+        }
+
+        public List<object> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        {
+            Assert.IsEqual(args.Count, 5);
+            Assert.IsNotNull(context);
+
+            Assert.That(typeof(TValue).DerivesFromOrEqual(context.MemberType));
+            Assert.That(args[0].Type.DerivesFromOrEqual(typeof(TParam1)));
+            Assert.That(args[1].Type.DerivesFromOrEqual(typeof(TParam2)));
+            Assert.That(args[2].Type.DerivesFromOrEqual(typeof(TParam3)));
+            Assert.That(args[3].Type.DerivesFromOrEqual(typeof(TParam4)));
+            Assert.That(args[4].Type.DerivesFromOrEqual(typeof(TParam5)));
+            Assert.That(args[5].Type.DerivesFromOrEqual(typeof(TParam6)));
+
+            injectAction = null;
+            if (context.Container.IsValidating)
+            {
+                // Don't do anything when validating, we can't make any assumptions on the given method
+                return new List<object>() { new ValidationMarker(typeof(TValue)) };
+            }
+            else
+            {
+                return new List<object>()
+                {
+                    _method(
+                        context.Container,
+                        (TParam1)args[0].Value,
+                        (TParam2)args[1].Value,
+                        (TParam3)args[2].Value,
+                        (TParam4)args[3].Value,
+                        (TParam5)args[4].Value,
+                        (TParam6)args[5].Value)
+                };
+            }
+        }
+    }
+
     // Ten params
 
     public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TValue> : IProvider

@@ -33,11 +33,26 @@ namespace Zenject
             return this;
         }
 
-        public FactoryToChoiceIdBinder<TContract> WithFixedSize(int size)
+        public FactoryToChoiceBinder<TContract> WithFixedSize(int size)
         {
             MemoryPoolBindInfo.InitialSize = size;
             MemoryPoolBindInfo.MaxSize = size;
             MemoryPoolBindInfo.ExpandMethod = PoolExpandMethods.Disabled;
+            return this;
+        }
+    }
+
+    public class MemoryPoolIdInitialSizeMaxSizeBinder<TContract> : MemoryPoolInitialSizeMaxSizeBinder<TContract>
+    {
+        public MemoryPoolIdInitialSizeMaxSizeBinder(
+            DiContainer bindContainer, BindInfo bindInfo, FactoryBindInfo factoryBindInfo, MemoryPoolBindInfo poolBindInfo)
+            : base(bindContainer, bindInfo, factoryBindInfo, poolBindInfo)
+        {
+        }
+
+        public MemoryPoolInitialSizeMaxSizeBinder<TContract> WithId(object identifier)
+        {
+            BindInfo.Identifier = identifier;
             return this;
         }
     }

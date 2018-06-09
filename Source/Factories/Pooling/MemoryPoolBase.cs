@@ -20,6 +20,13 @@ namespace Zenject
         public int MaxSize;
         public PoolExpandMethods ExpandMethod;
 
+        public MemoryPoolSettings()
+        {
+            InitialSize = 0;
+            MaxSize = int.MaxValue;
+            ExpandMethod = PoolExpandMethods.OneAtATime;
+        }
+
         public MemoryPoolSettings(int initialSize, int maxSize, PoolExpandMethods expandMethod)
         {
             InitialSize = initialSize;
@@ -27,8 +34,7 @@ namespace Zenject
             ExpandMethod = expandMethod;
         }
 
-        public static readonly MemoryPoolSettings Default =
-            new MemoryPoolSettings(0, int.MaxValue, PoolExpandMethods.OneAtATime);
+        public static readonly MemoryPoolSettings Default = new MemoryPoolSettings();
     }
 
     [ZenjectAllowDuringValidation]
@@ -93,6 +99,11 @@ namespace Zenject
             StaticMemoryPoolRegistry.Remove(this);
         }
 
+        void IMemoryPool.Despawn(object item)
+        {
+            Despawn((TContract)item);
+        }
+
         public void Despawn(TContract item)
         {
             Assert.That(!_inactiveItems.Contains(item),
@@ -120,11 +131,8 @@ namespace Zenject
             try
             {
                 var item = _factory.Create();
-
-                // For debugging when new objects should not be re-created
-                //ModestTree.Log.Info("Created new object of type '{0}' in pool '{1}'.  Total instances: {2}", typeof(TContract), this.GetType(), this.NumTotal);
-
-                Assert.IsNotNull(item, "Factory '{0}' returned null value when creating via {1}!", _factory.GetType(), this.GetType());
+                // Null is normal during validation
+                //Assert.IsNotNull(item, "Factory '{0}' returned null value when creating via {1}!", _factory.GetType(), this.GetType());
                 OnCreated(item);
                 return item;
             }

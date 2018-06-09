@@ -2735,18 +2735,26 @@ namespace Zenject
             return BindFactoryInternal<TContract, TFactoryContract, TFactoryConcrete>();
         }
 
-        public MemoryPoolInitialSizeMaxSizeBinder<TItemContract> BindMemoryPool<TItemContract>()
+        public MemoryPoolIdInitialSizeMaxSizeBinder<TItemContract> BindMemoryPool<TItemContract>()
         {
             return BindMemoryPool<TItemContract, MemoryPool<TItemContract>>();
         }
 
-        public MemoryPoolInitialSizeMaxSizeBinder<TItemContract> BindMemoryPool<TItemContract, TPool>()
+        public MemoryPoolIdInitialSizeMaxSizeBinder<TItemContract> BindMemoryPool<TItemContract, TPool>()
             where TPool : IMemoryPool
         {
             return BindMemoryPoolCustomInterface<TItemContract, TPool, TPool>();
         }
 
-        public MemoryPoolInitialSizeMaxSizeBinder<TItemContract> BindMemoryPoolCustomInterface<TItemContract, TPoolConcrete, TPoolContract>(bool includeConcreteType = false)
+        public MemoryPoolIdInitialSizeMaxSizeBinder<TItemContract> BindMemoryPoolCustomInterface<TItemContract, TPoolConcrete, TPoolContract>(bool includeConcreteType = false)
+            where TPoolConcrete : TPoolContract, IMemoryPool
+            where TPoolContract : IMemoryPool
+        {
+            return BindMemoryPoolCustomInterface<TItemContract, TPoolConcrete, TPoolContract>(includeConcreteType, StartBinding());
+        }
+
+        internal MemoryPoolIdInitialSizeMaxSizeBinder<TItemContract> BindMemoryPoolCustomInterface<TItemContract, TPoolConcrete, TPoolContract>(
+            bool includeConcreteType, BindFinalizerWrapper bindFinalizerWrapper)
             where TPoolConcrete : TPoolContract, IMemoryPool
             where TPoolContract : IMemoryPool
         {
@@ -2769,10 +2777,10 @@ namespace Zenject
             var factoryBindInfo = new FactoryBindInfo(typeof(TPoolConcrete));
             var poolBindInfo = new MemoryPoolBindInfo();
 
-            StartBinding().SubFinalizer = new MemoryPoolBindingFinalizer<TItemContract>(
+            bindFinalizerWrapper.SubFinalizer = new MemoryPoolBindingFinalizer<TItemContract>(
                 bindInfo, factoryBindInfo, poolBindInfo);
 
-            return new MemoryPoolInitialSizeMaxSizeBinder<TItemContract>(
+            return new MemoryPoolIdInitialSizeMaxSizeBinder<TItemContract>(
                 this, bindInfo, factoryBindInfo, poolBindInfo);
         }
 
@@ -2959,6 +2967,43 @@ namespace Zenject
             where TFactoryContract : IFactory
         {
             return BindFactoryInternal<TParam1, TParam2, TParam3, TParam4, TParam5, TContract, TFactoryContract, TFactoryConcrete>();
+        }
+
+        FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract> BindFactoryInternal<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract, TFactoryContract, TFactoryConcrete>()
+            where TFactoryConcrete : TFactoryContract, IFactory
+            where TFactoryContract : IFactory
+        {
+            var bindInfo = new BindInfo();
+
+            bindInfo.ContractTypes.Add(typeof(TFactoryContract));
+
+            var factoryBindInfo = new FactoryBindInfo(typeof(TFactoryConcrete));
+
+            StartBinding().SubFinalizer = new PlaceholderFactoryBindingFinalizer<TContract>(
+                bindInfo, factoryBindInfo);
+
+            return new FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract>(
+                this, bindInfo, factoryBindInfo);
+        }
+
+        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract> BindIFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract>()
+        {
+            return BindFactoryInternal<
+                TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract, IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract>, PlaceholderFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract>>();
+        }
+
+        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract> BindFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract, TFactory>()
+            where TFactory : PlaceholderFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract>
+        {
+            return BindFactoryInternal<
+                TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract, TFactory, TFactory>();
+        }
+
+        public FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract> BindFactoryCustomInterface<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract, TFactoryConcrete, TFactoryContract>()
+            where TFactoryConcrete : PlaceholderFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract>, TFactoryContract
+            where TFactoryContract : IFactory
+        {
+            return BindFactoryInternal<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract, TFactoryContract, TFactoryConcrete>();
         }
 
         FactoryToChoiceIdBinder<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract> BindFactoryInternal<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract, TFactoryContract, TFactoryConcrete>()

@@ -367,7 +367,7 @@ namespace Zenject.Tests.Bindings
         [ValidateOnly]
         public void TestIds()
         {
-            Container.BindMemoryPool<Foo, Foo.Pool>().WithInitialSize(5).WithId("foo");
+            Container.BindMemoryPool<Foo, Foo.Pool>().WithId("foo").WithInitialSize(5);
 
             var pool = Container.ResolveId<Foo.Pool>("foo");
         }

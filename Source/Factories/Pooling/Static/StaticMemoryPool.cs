@@ -107,6 +107,11 @@ namespace Zenject
             return DisposeWrapper<TValue>.Pool.Spawn(instance, this);
         }
 
+        void IMemoryPool.Despawn(object item)
+        {
+            Despawn((TValue)item);
+        }
+
         public void Despawn(TValue element)
         {
             if (_onDespawnedMethod != null)
