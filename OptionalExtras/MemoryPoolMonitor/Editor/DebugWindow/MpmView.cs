@@ -60,16 +60,63 @@ namespace Zenject.MemoryPoolMonitor
             return texture;
         }
 
+        Texture2D RowBackground1
+        {
+            get
+            {
+                if (_rowBackground1 == null)
+                {
+                    _rowBackground1 = CreateColorTexture(_settings.RowBackground1);
+                }
+
+                return _rowBackground1;
+            }
+        }
+
+        Texture2D RowBackground2
+        {
+            get
+            {
+                if (_rowBackground2 == null)
+                {
+                    _rowBackground2 = CreateColorTexture(_settings.RowBackground2);
+                }
+
+                return _rowBackground2;
+            }
+        }
+
+        Texture2D RowBackgroundHighlighted
+        {
+            get
+            {
+                if (_rowBackgroundHighlighted == null)
+                {
+                    _rowBackgroundHighlighted = CreateColorTexture(_settings.RowBackgroundHighlighted);
+                }
+
+                return _rowBackgroundHighlighted;
+            }
+        }
+
+        Texture2D LineTexture
+        {
+            get
+            {
+                if (_lineTexture == null)
+                {
+                    _lineTexture = CreateColorTexture(_settings.LineColor);
+                }
+
+                return _lineTexture;
+            }
+        }
+
         public void Initialize()
         {
             StaticMemoryPoolRegistry.PoolAdded += OnPoolListChanged;
             StaticMemoryPoolRegistry.PoolRemoved += OnPoolListChanged;
             _poolListDirty = true;
-
-            _rowBackground1 = CreateColorTexture(_settings.RowBackground1);
-            _rowBackground2 = CreateColorTexture(_settings.RowBackground2);
-            _rowBackgroundHighlighted = CreateColorTexture(_settings.RowBackgroundHighlighted);
-            _lineTexture = CreateColorTexture(_settings.LineColor);
         }
 
         void OnPoolListChanged(IMemoryPool pool)
@@ -83,10 +130,15 @@ namespace Zenject.MemoryPoolMonitor
             {
                 _poolListDirty = false;
                 _pools.Clear();
-                _pools.AddRange(StaticMemoryPoolRegistry.Pools);
+                _pools.AddRange(StaticMemoryPoolRegistry.Pools.Where(ShouldIncludePool));
             }
 
             InPlaceStableSort<IMemoryPool>.Sort(_pools, ComparePools);
+        }
+
+        bool ShouldIncludePool(IMemoryPool pool)
+        {
+            return pool.GetType().Namespace != "Zenject";
         }
 
         public void GuiRender()
@@ -149,15 +201,15 @@ namespace Zenject.MemoryPoolMonitor
 
                 if (rowRect.Contains(mousePositionInContent))
                 {
-                    background = _rowBackgroundHighlighted;
+                    background = RowBackgroundHighlighted;
                 }
                 else if (i % 2 == 0)
                 {
-                    background = _rowBackground1;
+                    background = RowBackground1;
                 }
                 else
                 {
-                    background = _rowBackground2;
+                    background = RowBackground2;
                 }
 
                 GUI.DrawTexture(rowRect, background);
@@ -177,7 +229,7 @@ namespace Zenject.MemoryPoolMonitor
         void DrawContent(float width)
         {
             GUI.DrawTexture(new Rect(
-                0, _settings.HeaderHeight - 0.5f * _settings.SplitterWidth, TotalWidth, _settings.SplitterWidth), _lineTexture);
+                0, _settings.HeaderHeight - 0.5f * _settings.SplitterWidth, TotalWidth, _settings.SplitterWidth), LineTexture);
 
             DrawRowBackgrounds();
 
@@ -202,7 +254,7 @@ namespace Zenject.MemoryPoolMonitor
             {
                 GUI.DrawTexture(new Rect(
                     position + width - _settings.SplitterWidth * 0.5f, 0,
-                    _settings.SplitterWidth, columnHeight), _lineTexture);
+                    _settings.SplitterWidth, columnHeight), LineTexture);
             }
 
             var columnBounds = new Rect(

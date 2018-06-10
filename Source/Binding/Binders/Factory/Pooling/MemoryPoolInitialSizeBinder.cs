@@ -33,7 +33,7 @@ namespace Zenject
             return this;
         }
 
-        public FactoryToChoiceBinder<TContract> WithFixedSize(int size)
+        public FactoryArgumentsToChoiceBinder<TContract> WithFixedSize(int size)
         {
             MemoryPoolBindInfo.InitialSize = size;
             MemoryPoolBindInfo.MaxSize = size;

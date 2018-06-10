@@ -8,16 +8,28 @@ using UnityEngine;
 
 namespace Zenject
 {
-    public class FactoryFromBinderBase : FactoryArgumentsBinder
+    public class FactoryFromBinderBase : ArgConditionCopyNonLazyBinder
     {
         public FactoryFromBinderBase(
             DiContainer bindContainer, Type contractType, BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
-            : base(bindContainer, bindInfo, factoryBindInfo)
+            : base(bindInfo)
         {
+            FactoryBindInfo = factoryBindInfo;
+            BindContainer = bindContainer;
             ContractType = contractType;
             factoryBindInfo.ProviderFunc =
                 (container) => new TransientProvider(
                     ContractType, container, BindInfo.Arguments, BindInfo.ContextInfo, BindInfo.ConcreteIdentifier);
+        }
+
+        protected DiContainer BindContainer
+        {
+            get; private set;
+        }
+
+        protected FactoryBindInfo FactoryBindInfo
+        {
+            get; private set;
         }
 
         protected Func<DiContainer, IProvider> ProviderFunc

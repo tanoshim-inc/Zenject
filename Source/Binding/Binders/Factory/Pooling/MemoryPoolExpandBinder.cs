@@ -4,7 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    public class MemoryPoolExpandBinder<TContract> : FactoryToChoiceBinder<TContract>
+    public class MemoryPoolExpandBinder<TContract> : FactoryArgumentsToChoiceBinder<TContract>
     {
         public MemoryPoolExpandBinder(
             DiContainer bindContainer, BindInfo bindInfo, FactoryBindInfo factoryBindInfo, MemoryPoolBindInfo poolBindInfo)
@@ -20,13 +20,13 @@ namespace Zenject
             get; private set;
         }
 
-        public FactoryToChoiceBinder<TContract> ExpandByOneAtATime()
+        public FactoryArgumentsToChoiceBinder<TContract> ExpandByOneAtATime()
         {
             MemoryPoolBindInfo.ExpandMethod = PoolExpandMethods.OneAtATime;
             return this;
         }
 
-        public FactoryToChoiceBinder<TContract> ExpandByDoubling()
+        public FactoryArgumentsToChoiceBinder<TContract> ExpandByDoubling()
         {
             MemoryPoolBindInfo.ExpandMethod = PoolExpandMethods.Double;
             return this;
