@@ -4,26 +4,26 @@ using Zenject;
 
 namespace Zenject.SpaceFighter
 {
-    public class EnemyFacade : MonoBehaviour
+    // Here we can add some high-level methods to give some info to other
+    // parts of the codebase outside of our enemy facade
+    public class EnemyFacade : MonoBehaviour, IPoolable<float, float, IMemoryPool>, IDisposable
     {
-        Enemy _enemy;
+        [Inject]
+        EnemyView _view;
+
+        [Inject]
         EnemyTunables _tunables;
+
+        [Inject]
         EnemyDeathHandler _deathHandler;
+
+        [Inject]
         EnemyStateManager _stateManager;
 
-        // We can't use a constructor here because MonoFacade derives from
-        // MonoBehaviour
         [Inject]
-        public void Construct(
-            Enemy enemy, EnemyTunables tunables,
-            EnemyDeathHandler deathHandler, 
-            EnemyStateManager stateManager)
-        {
-            _enemy = enemy;
-            _tunables = tunables;
-            _deathHandler = deathHandler;
-            _stateManager = stateManager;
-        }
+        EnemyRegistry _registry;
+
+        IMemoryPool _pool;
 
         public EnemyStates State
         {
@@ -40,18 +40,15 @@ namespace Zenject.SpaceFighter
             get { return _tunables.Speed; }
         }
 
-        // Here we can add some high-level methods to give some info to other
-        // parts of the codebase outside of our enemy facade
         public Vector3 Position
         {
-            get { return _enemy.Position; }
-            set { _enemy.Position = value; }
+            get { return _view.Position; }
+            set { _view.Position = value; }
         }
 
-        public void Update()
+        public void Dispose()
         {
-            // Always ensure we are on the main plane
-            _enemy.Position = new Vector3(_enemy.Position.x, _enemy.Position.y, 0);
+            _pool.Despawn(this);
         }
 
         public void Die()
@@ -59,32 +56,23 @@ namespace Zenject.SpaceFighter
             _deathHandler.Die();
         }
 
-        public class Pool : MonoMemoryPool<float, float, EnemyFacade>
+        public void OnDespawned()
         {
-            readonly EnemyRegistry _registry;
+            _registry.RemoveEnemy(this);
+            _pool = null;
+        }
 
-            public Pool(EnemyRegistry registry)
-            {
-                _registry = registry;
-            }
+        public void OnSpawned(float accuracy, float speed, IMemoryPool pool)
+        {
+            _pool = pool;
+            _tunables.Accuracy = accuracy;
+            _tunables.Speed = speed;
 
-            protected override void OnSpawned(EnemyFacade item)
-            {
-                base.OnSpawned(item);
-                _registry.Add(item);
-            }
+            _registry.AddEnemy(this);
+        }
 
-            protected override void OnDespawned(EnemyFacade item)
-            {
-                base.OnDespawned(item);
-                _registry.Remove(item);
-            }
-
-            protected override void Reinitialize(float accuracy, float speed, EnemyFacade enemy)
-            {
-                enemy._tunables.Accuracy = accuracy;
-                enemy._tunables.Speed = speed;
-            }
+        public class Factory : PlaceholderFactory<float, float, EnemyFacade>
+        {
         }
     }
 }

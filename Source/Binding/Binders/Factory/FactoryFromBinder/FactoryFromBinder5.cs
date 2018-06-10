@@ -95,6 +95,9 @@ namespace Zenject
                 BindContainer.StartBinding(null, false))
                 .WithId(poolId);
 
+            // Always make it non lazy by default in case the user sets an InitialSize
+            binder.NonLazy();
+
             poolBindGenerator(binder);
 
             ProviderFunc =

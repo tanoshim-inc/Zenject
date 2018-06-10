@@ -6,7 +6,7 @@ using Zenject;
 
 namespace Zenject.SpaceFighter
 {
-    public class Explosion : MonoBehaviour
+    public class Explosion : MonoBehaviour, IPoolable<IMemoryPool>
     {
         [SerializeField]
         float _lifeTime;
@@ -16,8 +16,7 @@ namespace Zenject.SpaceFighter
 
         float _startTime;
 
-        [Inject]
-        Pool _pool;
+        IMemoryPool _pool;
 
         public void Update()
         {
@@ -27,15 +26,21 @@ namespace Zenject.SpaceFighter
             }
         }
 
-        public class Pool : MonoMemoryPool<Explosion>
+        public void OnDespawned()
         {
-            protected override void Reinitialize(Explosion explosion)
-            {
-                explosion._particleSystem.Clear();
-                explosion._particleSystem.Play();
+        }
 
-                explosion._startTime = Time.realtimeSinceStartup;
-            }
+        public void OnSpawned(IMemoryPool pool)
+        {
+            _particleSystem.Clear();
+            _particleSystem.Play();
+
+            _startTime = Time.realtimeSinceStartup;
+            _pool = pool;
+        }
+
+        public class Factory : PlaceholderFactory<Explosion>
+        {
         }
     }
 }

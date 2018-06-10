@@ -6,11 +6,12 @@ namespace Zenject.SpaceFighter
 {
     public class EnemyStateFollow : IEnemyState
     {
+        readonly EnemyRotationHandler _rotationHandler;
         readonly EnemyCommonSettings _commonSettings;
         readonly Settings _settings;
         readonly EnemyTunables _tunables;
         readonly EnemyStateManager _stateManager;
-        readonly Enemy _enemy;
+        readonly EnemyView _view;
         readonly PlayerFacade _player;
 
         bool _strafeRight;
@@ -18,17 +19,19 @@ namespace Zenject.SpaceFighter
 
         public EnemyStateFollow(
             PlayerFacade player,
-            Enemy enemy,
+            EnemyView view,
             EnemyStateManager stateManager,
             EnemyTunables tunables,
             Settings settings,
-            EnemyCommonSettings commonSettings)
+            EnemyCommonSettings commonSettings,
+            EnemyRotationHandler rotationHandler)
         {
+            _rotationHandler = rotationHandler;
             _commonSettings = commonSettings;
             _settings = settings;
             _tunables = tunables;
             _stateManager = stateManager;
-            _enemy = enemy;
+            _view = view;
             _player = player;
         }
 
@@ -50,10 +53,10 @@ namespace Zenject.SpaceFighter
                 return;
             }
 
-            var distanceToPlayer = (_player.Position - _enemy.Position).magnitude;
+            var distanceToPlayer = (_player.Position - _view.Position).magnitude;
 
             // Always look towards the player
-            _enemy.DesiredLookDir = (_player.Position - _enemy.Position).normalized;
+            _rotationHandler.DesiredLookDir = (_player.Position - _view.Position).normalized;
 
             // Strafe back and forth over the given interval
             // This helps avoiding being too easy a target
@@ -80,19 +83,19 @@ namespace Zenject.SpaceFighter
             // Strafe to avoid getting hit too easily
             if (_strafeRight)
             {
-                _enemy.AddForce(_enemy.RightDir * _settings.StrafeMultiplier * _tunables.Speed);
+                _view.AddForce(_view.RightDir * _settings.StrafeMultiplier * _tunables.Speed);
             }
             else
             {
-                _enemy.AddForce(-_enemy.RightDir * _settings.StrafeMultiplier * _tunables.Speed);
+                _view.AddForce(-_view.RightDir * _settings.StrafeMultiplier * _tunables.Speed);
             }
         }
 
         void MoveTowardsPlayer()
         {
-            var playerDir = (_player.Position - _enemy.Position).normalized;
+            var playerDir = (_player.Position - _view.Position).normalized;
 
-            _enemy.AddForce(playerDir * _tunables.Speed);
+            _view.AddForce(playerDir * _tunables.Speed);
         }
 
         [Serializable]

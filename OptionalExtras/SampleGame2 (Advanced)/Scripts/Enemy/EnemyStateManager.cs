@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ModestTree;
+using UnityEngine;
 using Zenject;
 
 namespace Zenject.SpaceFighter
@@ -29,14 +30,17 @@ namespace Zenject.SpaceFighter
     {
         IEnemyState _currentStateHandler;
         EnemyStates _currentState = EnemyStates.None;
+        EnemyView _view;
 
         List<IEnemyState> _states;
 
         // We can't use a constructor due to a circular dependency issue
         [Inject]
         public void Construct(
+            EnemyView view,
             EnemyStateIdle idle, EnemyStateAttack attack, EnemyStateFollow follow)
         {
+            _view = view;
             _states = new List<IEnemyState>()
             {
                 // This needs to follow the enum order
@@ -65,7 +69,7 @@ namespace Zenject.SpaceFighter
                 return;
             }
 
-            //Log.Trace("Enemy Changing state from {0} to {1}", _currentState, state);
+            //Log.Trace("View Changing state from {0} to {1}", _currentState, state);
 
             _currentState = state;
 
@@ -81,6 +85,9 @@ namespace Zenject.SpaceFighter
 
         public void Tick()
         {
+            // Always ensure we are on the main plane
+            _view.Position = new Vector3(_view.Position.x, _view.Position.y, 0);
+
             _currentStateHandler.Update();
         }
 

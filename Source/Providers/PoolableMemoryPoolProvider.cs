@@ -46,7 +46,7 @@ namespace Zenject
 
     // Zero parameters
 
-    public class PoolableMemoryPoolProvider<TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>
+    public class PoolableMemoryPoolProvider<TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>, IValidatable
         where TContract : IPoolable<IMemoryPool>
         where TMemoryPool : MemoryPool<IMemoryPool, TContract>
     {
@@ -56,9 +56,11 @@ namespace Zenject
             DiContainer container, Guid poolId)
             : base(container, poolId)
         {
-            // Do this even when validating in case it has its own dependencies
-            // Resolve this now in case the pool has an initial size set
-            _pool = Container.ResolveId<TMemoryPool>(PoolId);
+        }
+
+        public void Validate()
+        {
+            Container.ResolveId<TMemoryPool>(PoolId);
         }
 
         public override List<object> GetAllInstancesWithInjectSplit(
@@ -72,13 +74,18 @@ namespace Zenject
 
             injectAction = null;
 
+            if (_pool == null)
+            {
+                _pool = Container.ResolveId<TMemoryPool>(PoolId);
+            }
+
             return new List<object>() { _pool.Spawn(_pool) };
         }
     }
 
     // One parameters
 
-    public class PoolableMemoryPoolProvider<TParam1, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>
+    public class PoolableMemoryPoolProvider<TParam1, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>, IValidatable
         where TContract : IPoolable<TParam1, IMemoryPool>
         where TMemoryPool : MemoryPool<TParam1, IMemoryPool, TContract>
     {
@@ -88,9 +95,11 @@ namespace Zenject
             DiContainer container, Guid poolId)
             : base(container, poolId)
         {
-            // Do this even when validating in case it has its own dependencies
-            // Resolve this now in case the pool has an initial size set
-            _pool = Container.ResolveId<TMemoryPool>(PoolId);
+        }
+
+        public void Validate()
+        {
+            Container.ResolveId<TMemoryPool>(PoolId);
         }
 
         public override List<object> GetAllInstancesWithInjectSplit(
@@ -104,13 +113,18 @@ namespace Zenject
 
             injectAction = null;
 
+            if (_pool == null)
+            {
+                _pool = Container.ResolveId<TMemoryPool>(PoolId);
+            }
+
             return new List<object>() { _pool.Spawn((TParam1)args[0].Value, _pool) };
         }
     }
 
     // Two parameters
 
-    public class PoolableMemoryPoolProvider<TParam1, TParam2, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>
+    public class PoolableMemoryPoolProvider<TParam1, TParam2, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>, IValidatable
         where TContract : IPoolable<TParam1, TParam2, IMemoryPool>
         where TMemoryPool : MemoryPool<TParam1, TParam2, IMemoryPool, TContract>
     {
@@ -120,9 +134,11 @@ namespace Zenject
             DiContainer container, Guid poolId)
             : base(container, poolId)
         {
-            // Do this even when validating in case it has its own dependencies
-            // Resolve this now in case the pool has an initial size set
-            _pool = Container.ResolveId<TMemoryPool>(PoolId);
+        }
+
+        public void Validate()
+        {
+            Container.ResolveId<TMemoryPool>(PoolId);
         }
 
         public override List<object> GetAllInstancesWithInjectSplit(
@@ -137,6 +153,11 @@ namespace Zenject
 
             injectAction = null;
 
+            if (_pool == null)
+            {
+                _pool = Container.ResolveId<TMemoryPool>(PoolId);
+            }
+
             return new List<object>() { _pool.Spawn(
                 (TParam1)args[0].Value,
                 (TParam2)args[1].Value,
@@ -146,7 +167,7 @@ namespace Zenject
 
     // Three parameters
 
-    public class PoolableMemoryPoolProvider<TParam1, TParam2, TParam3, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>
+    public class PoolableMemoryPoolProvider<TParam1, TParam2, TParam3, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>, IValidatable
         where TContract : IPoolable<TParam1, TParam2, TParam3, IMemoryPool>
         where TMemoryPool : MemoryPool<TParam1, TParam2, TParam3, IMemoryPool, TContract>
     {
@@ -156,9 +177,11 @@ namespace Zenject
             DiContainer container, Guid poolId)
             : base(container, poolId)
         {
-            // Do this even when validating in case it has its own dependencies
-            // Resolve this now in case the pool has an initial size set
-            _pool = Container.ResolveId<TMemoryPool>(PoolId);
+        }
+
+        public void Validate()
+        {
+            Container.ResolveId<TMemoryPool>(PoolId);
         }
 
         public override List<object> GetAllInstancesWithInjectSplit(
@@ -174,6 +197,11 @@ namespace Zenject
 
             injectAction = null;
 
+            if (_pool == null)
+            {
+                _pool = Container.ResolveId<TMemoryPool>(PoolId);
+            }
+
             return new List<object>() { _pool.Spawn(
                 (TParam1)args[0].Value,
                 (TParam2)args[1].Value,
@@ -184,7 +212,7 @@ namespace Zenject
 
     // Four parameters
 
-    public class PoolableMemoryPoolProvider<TParam1, TParam2, TParam3, TParam4, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>
+    public class PoolableMemoryPoolProvider<TParam1, TParam2, TParam3, TParam4, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>, IValidatable
         where TContract : IPoolable<TParam1, TParam2, TParam3, TParam4, IMemoryPool>
         where TMemoryPool : MemoryPool<TParam1, TParam2, TParam3, TParam4, IMemoryPool, TContract>
     {
@@ -194,9 +222,11 @@ namespace Zenject
             DiContainer container, Guid poolId)
             : base(container, poolId)
         {
-            // Do this even when validating in case it has its own dependencies
-            // Resolve this now in case the pool has an initial size set
-            _pool = Container.ResolveId<TMemoryPool>(PoolId);
+        }
+
+        public void Validate()
+        {
+            Container.ResolveId<TMemoryPool>(PoolId);
         }
 
         public override List<object> GetAllInstancesWithInjectSplit(
@@ -213,6 +243,11 @@ namespace Zenject
 
             injectAction = null;
 
+            if (_pool == null)
+            {
+                _pool = Container.ResolveId<TMemoryPool>(PoolId);
+            }
+
             return new List<object>() { _pool.Spawn(
                 (TParam1)args[0].Value,
                 (TParam2)args[1].Value,
@@ -224,7 +259,7 @@ namespace Zenject
 
     // Five parameters
 
-    public class PoolableMemoryPoolProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>
+    public class PoolableMemoryPoolProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>, IValidatable
         where TContract : IPoolable<TParam1, TParam2, TParam3, TParam4, TParam5, IMemoryPool>
         where TMemoryPool : MemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, IMemoryPool, TContract>
     {
@@ -234,9 +269,11 @@ namespace Zenject
             DiContainer container, Guid poolId)
             : base(container, poolId)
         {
-            // Do this even when validating in case it has its own dependencies
-            // Resolve this now in case the pool has an initial size set
-            _pool = Container.ResolveId<TMemoryPool>(PoolId);
+        }
+
+        public void Validate()
+        {
+            Container.ResolveId<TMemoryPool>(PoolId);
         }
 
         public override List<object> GetAllInstancesWithInjectSplit(
@@ -254,6 +291,11 @@ namespace Zenject
 
             injectAction = null;
 
+            if (_pool == null)
+            {
+                _pool = Container.ResolveId<TMemoryPool>(PoolId);
+            }
+
             return new List<object>() { _pool.Spawn(
                 (TParam1)args[0].Value,
                 (TParam2)args[1].Value,
@@ -266,7 +308,7 @@ namespace Zenject
 
     // Six parameters
 
-    public class PoolableMemoryPoolProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>
+    public class PoolableMemoryPoolProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract, TMemoryPool> : PoolableMemoryPoolProviderBase<TContract>, IValidatable
         where TContract : IPoolable<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, IMemoryPool>
         where TMemoryPool : MemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, IMemoryPool, TContract>
     {
@@ -276,9 +318,11 @@ namespace Zenject
             DiContainer container, Guid poolId)
             : base(container, poolId)
         {
-            // Do this even when validating in case it has its own dependencies
-            // Resolve this now in case the pool has an initial size set
-            _pool = Container.ResolveId<TMemoryPool>(PoolId);
+        }
+
+        public void Validate()
+        {
+            Container.ResolveId<TMemoryPool>(PoolId);
         }
 
         public override List<object> GetAllInstancesWithInjectSplit(
@@ -296,6 +340,11 @@ namespace Zenject
             Assert.That(args[5].Type.DerivesFromOrEqual<TParam6>());
 
             injectAction = null;
+
+            if (_pool == null)
+            {
+                _pool = Container.ResolveId<TMemoryPool>(PoolId);
+            }
 
             return new List<object>() { _pool.Spawn(
                 (TParam1)args[0].Value,

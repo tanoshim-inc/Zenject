@@ -3,31 +3,41 @@ using UnityEngine;
 
 namespace Zenject.SpaceFighter
 {
-    public class Enemy
+    public class EnemyView : MonoBehaviour
     {
-        readonly MeshRenderer _renderer;
-        readonly Collider _collider;
-        readonly Rigidbody _rigidBody;
+        [SerializeField]
+        MeshRenderer _renderer;
 
-        public Enemy(
-            Rigidbody rigidBody,
-            Collider collider,
-            MeshRenderer renderer)
+        [SerializeField]
+        Collider _collider;
+
+        [SerializeField]
+        Rigidbody _rigidBody;
+
+        [Inject]
+        public EnemyFacade Facade
         {
-            _renderer = renderer;
-            _collider = collider;
-            _rigidBody = rigidBody;
+            get; set;
+        }
+
+        public MeshRenderer Renderer
+        {
+            get { return _renderer; }
+        }
+
+        public Collider Collider
+        {
+            get { return _collider; }
+        }
+
+        public Rigidbody Rigidbody
+        {
+            get { return _rigidBody; }
         }
 
         public Vector3 LookDir
         {
             get { return -_rigidBody.transform.right; }
-        }
-
-        public Vector3 DesiredLookDir
-        {
-            get;
-            set;
         }
 
         public Vector3 RightDir
@@ -55,16 +65,6 @@ namespace Zenject.SpaceFighter
         public Vector3 Velocity
         {
             get { return _rigidBody.velocity; }
-        }
-
-        public Collider Collider
-        {
-            get { return _collider; }
-        }
-
-        public MeshRenderer Renderer
-        {
-            get { return _renderer; }
         }
 
         public Vector3 AngularVelocity

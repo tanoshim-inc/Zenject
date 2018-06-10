@@ -8,37 +8,40 @@ namespace Zenject.SpaceFighter
 {
     public class EnemyStateAttack : IEnemyState
     {
+        readonly EnemyRotationHandler _rotationHandler;
         readonly EnemyCommonSettings _commonSettings;
         readonly AudioPlayer _audioPlayer;
         readonly EnemyTunables _tunables;
         readonly EnemyStateManager _stateManager;
         readonly PlayerFacade _player;
         readonly Settings _settings;
-        readonly Enemy _enemy;
-        readonly Bullet.Pool _bulletPool;
+        readonly EnemyView _view;
+        readonly Bullet.Factory _bulletFactory;
 
         float _lastShootTime;
         bool _strafeRight;
         float _lastStrafeChangeTime;
 
         public EnemyStateAttack(
-            Bullet.Pool bulletPool,
-            Enemy enemy,
+            Bullet.Factory bulletFactory,
+            EnemyView view,
             Settings settings,
             PlayerFacade player,
             EnemyStateManager stateManager,
             EnemyTunables tunables,
             AudioPlayer audioPlayer,
-            EnemyCommonSettings commonSettings)
+            EnemyCommonSettings commonSettings,
+            EnemyRotationHandler rotationHandler)
         {
+            _rotationHandler = rotationHandler;
             _commonSettings = commonSettings;
             _audioPlayer = audioPlayer;
             _tunables = tunables;
             _stateManager = stateManager;
             _player = player;
             _settings = settings;
-            _enemy = enemy;
-            _bulletPool = bulletPool;
+            _view = view;
+            _bulletFactory = bulletFactory;
             _strafeRight = Random.Range(0.0f, 1.0f) < 0.5f;
         }
 
@@ -58,7 +61,7 @@ namespace Zenject.SpaceFighter
                 return;
             }
 
-            _enemy.DesiredLookDir = (_player.Position - _enemy.Position).normalized;
+            _rotationHandler.DesiredLookDir = (_player.Position - _view.Position).normalized;
 
             // Strafe back and forth over the given interval
             if (Time.realtimeSinceStartup - _lastStrafeChangeTime > _settings.StrafeChangeInterval)
@@ -75,7 +78,7 @@ namespace Zenject.SpaceFighter
             }
 
             // If the player runs away then chase them
-            if ((_player.Position - _enemy.Position).magnitude > _commonSettings.AttackDistance + _settings.AttackRangeBuffer)
+            if ((_player.Position - _view.Position).magnitude > _commonSettings.AttackDistance + _settings.AttackRangeBuffer)
             {
                 _stateManager.ChangeState(EnemyStates.Follow);
             }
@@ -86,17 +89,17 @@ namespace Zenject.SpaceFighter
             // Strafe to avoid getting hit too easily
             if (_strafeRight)
             {
-                _enemy.AddForce(_enemy.RightDir * _settings.StrafeMultiplier * _tunables.Speed);
+                _view.AddForce(_view.RightDir * _settings.StrafeMultiplier * _tunables.Speed);
             }
             else
             {
-                _enemy.AddForce(-_enemy.RightDir * _settings.StrafeMultiplier * _tunables.Speed);
+                _view.AddForce(-_view.RightDir * _settings.StrafeMultiplier * _tunables.Speed);
             }
         }
 
         void Fire()
         {
-            var bullet = _bulletPool.Spawn(
+            var bullet = _bulletFactory.Create(
                 _settings.BulletSpeed, _settings.BulletLifetime, BulletTypes.FromEnemy);
 
             // Randomize our aim a bit
@@ -111,8 +114,8 @@ namespace Zenject.SpaceFighter
 
             var thetaError = error * _settings.ErrorRangeTheta;
 
-            bullet.transform.position = _enemy.Position + _enemy.LookDir * _settings.BulletOffsetDistance;
-            bullet.transform.rotation = Quaternion.AngleAxis(thetaError, Vector3.forward) * _enemy.Rotation;
+            bullet.transform.position = _view.Position + _view.LookDir * _settings.BulletOffsetDistance;
+            bullet.transform.rotation = Quaternion.AngleAxis(thetaError, Vector3.forward) * _view.Rotation;
 
             _audioPlayer.Play(_settings.ShootSound, _settings.ShootSoundVolume);
         }

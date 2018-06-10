@@ -40,7 +40,7 @@ MonoBehaviour:
       MaxShootInterval: 0.15
       BulletOffsetDistance: 2
     PlayerCollisionHandler:
-      HealthLoss: 15
+      HealthLoss: 0
       HitForce: 1000
       HitSound: {fileID: 8300000, guid: f9517356afb533a41b9e7cb6f155031e, type: 3}
       HitSoundVolume: 1

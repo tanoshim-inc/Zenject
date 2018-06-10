@@ -16,28 +16,38 @@ namespace Zenject.SpaceFighter
         {
             Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
 
-            Container.Bind<EnemyRegistry>().AsSingle();
-            Container.BindMemoryPool<EnemyFacade, EnemyFacade.Pool>()
-                .WithInitialSize(10)
-                .FromSubContainerResolve()
-                .ByNewPrefab(_settings.EnemyFacadePrefab)
-                .UnderTransformGroup("Enemies");
+            Container.BindFactory<float, float, EnemyFacade, EnemyFacade.Factory>()
+                .FromMonoPoolableMemoryPool<EnemyFacade>(poolBinder => poolBinder
+                    // Spawn 5 enemies right off the bat so that we don't incur spikes at runtime
+                    .WithInitialSize(5)
+                    .FromSubContainerResolve()
+                    .ByNewPrefabInstaller<EnemyInstaller>(_settings.EnemyFacadePrefab)
+                    // Place each enemy under an Enemies game object at the root of scene hierarchy
+                    .UnderTransformGroup("Enemies"));
 
-            Container.BindMemoryPool<Bullet, Bullet.Pool>()
-                .WithInitialSize(25)
-                .FromComponentInNewPrefab(_settings.BulletPrefab)
-                .UnderTransformGroup("Bullets");
+            Container.BindFactory<float, float, BulletTypes, Bullet, Bullet.Factory>()
+                .FromMonoPoolableMemoryPool<Bullet>(poolBinder => poolBinder
+                    // Spawn 20 right off the bat so that we don't incur spikes at runtime
+                    .WithInitialSize(20)
+                    // Bullets are simple enough that we don't need to make a subcontainer for them
+                    // The logic can all just be in one class
+                    .FromComponentInNewPrefab(_settings.BulletPrefab)
+                    .UnderTransformGroup("Bullets"));
 
             Container.Bind<LevelBoundary>().AsSingle();
 
-            Container.BindMemoryPool<Explosion, Explosion.Pool>()
-                .WithInitialSize(4)
-                .FromComponentInNewPrefab(_settings.ExplosionPrefab)
-                .UnderTransformGroup("Explosions");
+            Container.BindFactory<Explosion, Explosion.Factory>()
+                .FromMonoPoolableMemoryPool<Explosion>(poolBinder => poolBinder
+                    // Spawn 4 right off the bat so that we don't incur spikes at runtime
+                    .WithInitialSize(4)
+                    .FromComponentInNewPrefab(_settings.ExplosionPrefab)
+                    .UnderTransformGroup("Explosions"));
 
             Container.Bind<AudioPlayer>().AsSingle();
 
             Container.BindInterfacesTo<GameRestartHandler>().AsSingle();
+
+            Container.Bind<EnemyRegistry>().AsSingle();
 
             GameSignalsInstaller.Install(Container);
         }

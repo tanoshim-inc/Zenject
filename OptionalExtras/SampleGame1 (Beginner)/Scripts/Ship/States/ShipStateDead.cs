@@ -6,14 +6,6 @@ using Random=UnityEngine.Random;
 
 namespace Zenject.Asteroids
 {
-    public class ExplosionFactory : Factory<Transform>
-    {
-    }
-
-    public class BrokenShipFactory : Factory<Transform>
-    {
-    }
-
     public class ShipStateDead : ShipState
     {
         readonly SignalBus _signalBus;

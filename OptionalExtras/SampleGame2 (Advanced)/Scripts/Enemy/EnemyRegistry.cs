@@ -6,9 +6,6 @@ namespace Zenject.SpaceFighter
 {
     public class EnemyRegistry
     {
-        public event Action<EnemyFacade> EnemyAdded = delegate {};
-        public event Action<EnemyFacade> EnemyRemoved = delegate {};
-
         readonly List<EnemyFacade> _enemies = new List<EnemyFacade>();
 
         public IEnumerable<EnemyFacade> Enemies
@@ -16,17 +13,14 @@ namespace Zenject.SpaceFighter
             get { return _enemies; }
         }
 
-        public void Add(EnemyFacade enemy)
+        public void AddEnemy(EnemyFacade enemy)
         {
             _enemies.Add(enemy);
-            EnemyAdded(enemy);
         }
 
-        public void Remove(EnemyFacade enemy)
+        public void RemoveEnemy(EnemyFacade enemy)
         {
-            bool removed = _enemies.Remove(enemy);
-            Assert.That(removed);
-            EnemyRemoved(enemy);
+            _enemies.Remove(enemy);
         }
     }
 }
