@@ -3235,7 +3235,7 @@ namespace Zenject
 
         public void BindExecutionOrder(Type type, int order)
         {
-            Assert.That(type.DerivesFrom<ITickable>() || type.DerivesFrom<IInitializable>() || type.DerivesFrom<IDisposable>() || type.DerivesFrom<ILateDisposable>() || type.DerivesFrom<IFixedTickable>() || type.DerivesFrom<ILateTickable>(),
+            Assert.That(type.DerivesFrom<ITickable>() || type.DerivesFrom<IInitializable>() || type.DerivesFrom<IDisposable>() || type.DerivesFrom<ILateDisposable>() || type.DerivesFrom<IFixedTickable>() || type.DerivesFrom<ILateTickable>() || type.DerivesFrom<IPoolable>(),
                 "Expected type '{0}' to derive from one or more of the following interfaces: ITickable, IInitializable, ILateTickable, IFixedTickable, IDisposable, ILateDisposable", type);
 
             if (type.DerivesFrom<ITickable>())
@@ -3266,6 +3266,11 @@ namespace Zenject
             if (type.DerivesFrom<ILateTickable>())
             {
                 BindLateTickableExecutionOrder(type, order);
+            }
+
+            if (type.DerivesFrom<IPoolable>())
+            {
+                BindPoolableExecutionOrder(type, order);
             }
         }
 
@@ -3357,6 +3362,21 @@ namespace Zenject
 
             Bind<ModestTree.Util.ValuePair<Type, int>>().WithId("Late")
                 .FromInstance(ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<TickableManager>();
+        }
+
+        public void BindPoolableExecutionOrder<T>(int order)
+            where T : IPoolable
+        {
+            BindPoolableExecutionOrder(typeof(T), order);
+        }
+
+        public void BindPoolableExecutionOrder(Type type, int order)
+        {
+            Assert.That(type.DerivesFrom<IPoolable>(),
+                "Expected type '{0}' to derive from IPoolable", type);
+
+            Bind<ModestTree.Util.ValuePair<Type, int>>()
+                .FromInstance(ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<PoolableManager>();
         }
 
         ////////////// Types ////////////////

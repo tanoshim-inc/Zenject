@@ -27,16 +27,16 @@ namespace Zenject
             {
                 // Note that we use zero for unspecified priority
                 // This is nice because you can use negative or positive for before/after unspecified
-                var matches = priorities.Where(x => disposable.GetType().DerivesFromOrEqual(x.First)).Select(x => x.Second).ToList();
-                int priority = matches.IsEmpty() ? 0 : matches.Distinct().Single();
+                var match = priorities.Where(x => disposable.GetType().DerivesFromOrEqual(x.First)).Select(x => (int?)x.Second).SingleOrDefault();
+                int priority = match.HasValue ? match.Value : 0;
 
                 _disposables.Add(new DisposableInfo(disposable, priority));
             }
 
             foreach (var lateDisposable in lateDisposables)
             {
-                var matches = latePriorities.Where(x => lateDisposable.GetType().DerivesFromOrEqual(x.First)).Select(x => x.Second).ToList();
-                int priority = matches.IsEmpty() ? 0 : matches.Distinct().Single();
+                var match = latePriorities.Where(x => lateDisposable.GetType().DerivesFromOrEqual(x.First)).Select(x => (int?)x.Second).SingleOrDefault();
+                int priority = match.HasValue ? match.Value : 0;
 
                 _lateDisposables.Add(new LateDisposableInfo(lateDisposable, priority));
             }
@@ -117,7 +117,7 @@ namespace Zenject
             }
         }
 
-        class DisposableInfo
+        struct DisposableInfo
         {
             public IDisposable Disposable;
             public int Priority;

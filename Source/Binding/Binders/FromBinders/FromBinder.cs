@@ -221,6 +221,12 @@ namespace Zenject
             return new ArgConditionCopyNonLazyBinder(BindInfo);
         }
 
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromNewComponentOnRoot()
+        {
+            return FromNewComponentOn(
+                ctx => BindContainer.Resolve<Context>().gameObject);
+        }
+
         public NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder FromNewComponentOnNewGameObject()
         {
             return FromNewComponentOnNewGameObject(new GameObjectCreationParameters());
