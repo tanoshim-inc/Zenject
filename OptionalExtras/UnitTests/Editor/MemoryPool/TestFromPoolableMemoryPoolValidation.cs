@@ -47,7 +47,7 @@ namespace Zenject.Tests.Bindings
                 _pool = pool;
             }
 
-            public class Factory : Factory<Foo>
+            public class Factory : PlaceholderFactory<Foo>
             {
             }
         }

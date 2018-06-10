@@ -101,7 +101,7 @@ namespace Zenject.Tests
 
             using (var block = DisposeBlock.Spawn())
             {
-                pool.Spawn("asdf").AttachedTo(block);
+                block.Spawn(pool, "asdf");
 
                 Assert.IsEqual(pool.NumTotal, 1);
                 Assert.IsEqual(pool.NumActive, 1);
@@ -126,7 +126,7 @@ namespace Zenject.Tests
 
             using (var block = DisposeBlock.Spawn())
             {
-                pool.Spawn().AttachedTo(block);
+                block.Spawn(pool);
 
                 Assert.IsEqual(pool.NumTotal, 1);
                 Assert.IsEqual(pool.NumActive, 1);

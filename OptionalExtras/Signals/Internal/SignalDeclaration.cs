@@ -127,7 +127,7 @@ namespace Zenject
                 // Cache the callback list to allow handlers to be added from within callbacks
                 using (var block = DisposeBlock.Spawn())
                 {
-                    var subscriptions = block.AllocateList<SignalSubscription>();
+                    var subscriptions = block.SpawnList<SignalSubscription>();
                     subscriptions.AddRange(_subscriptions);
                     FireInternal(subscriptions, signal);
                 }
@@ -170,12 +170,12 @@ namespace Zenject
                 // Cache the callback list to allow handlers to be added from within callbacks
                 using (var block = DisposeBlock.Spawn())
                 {
-                    var subscriptions = block.AllocateList<SignalSubscription>();
+                    var subscriptions = block.SpawnList<SignalSubscription>();
                     subscriptions.AddRange(_subscriptions);
 
                     // Cache the signals so that if the signal is fired again inside the handler that it
                     // is not executed until next frame
-                    var signals = block.AllocateList<ISignal>();
+                    var signals = block.SpawnList<ISignal>();
                     signals.AddRange(_signalQueue);
 
                     _signalQueue.Clear();

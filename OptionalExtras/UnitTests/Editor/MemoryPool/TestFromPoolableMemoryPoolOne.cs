@@ -59,7 +59,7 @@ namespace Zenject.Tests.Bindings
                 _data = data;
             }
 
-            public class Factory : Factory<string, Foo>
+            public class Factory : PlaceholderFactory<string, Foo>
             {
             }
         }

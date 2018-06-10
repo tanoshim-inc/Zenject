@@ -130,7 +130,7 @@ namespace Zenject.Tests
 
             using (var block = DisposeBlock.Spawn())
             {
-                pool.Spawn("asdf").AttachedTo(block);
+                block.Spawn(pool, "asdf");
 
                 Assert.IsEqual(pool.NumActive, 1);
                 Assert.IsEqual(pool.NumInactive, 0);

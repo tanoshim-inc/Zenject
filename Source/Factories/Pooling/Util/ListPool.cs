@@ -22,12 +22,5 @@ namespace Zenject
         {
             list.Clear();
         }
-
-        public DisposeWrapper<List<T>> SpawnWrapper(IEnumerable<T> values)
-        {
-            var wrapper = base.SpawnWrapper(Spawn());
-            wrapper.Value.AddRange(values);
-            return wrapper;
-        }
     }
 }

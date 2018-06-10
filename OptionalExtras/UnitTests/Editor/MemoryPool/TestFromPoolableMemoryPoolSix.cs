@@ -52,7 +52,7 @@ namespace Zenject.Tests.Bindings
                 _data = p1;
             }
 
-            public class Factory : Factory<string, int, float, char, double, long, Foo>
+            public class Factory : PlaceholderFactory<string, int, float, char, double, long, Foo>
             {
             }
         }
@@ -64,7 +64,7 @@ namespace Zenject.Tests.Bindings
 
             var factory = Container.Resolve<Foo.Factory>();
 
-            var foo = factory.Create("asdf", 1, 1.0f, 'u', 1.0, 1l);
+            var foo = factory.Create("asdf", 1, 1.0f, 'u', 1.0, 1L);
             var pool = foo.Pool;
 
             Assert.IsEqual(pool.NumActive, 1);

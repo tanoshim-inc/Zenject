@@ -355,8 +355,7 @@ namespace Zenject
 
                 using (var block = DisposeBlock.Spawn())
                 {
-                    var context = InjectContext.Pool.Spawn(this, bindId.Type)
-                        .AttachedTo(block);
+                    var context = block.Spawn(InjectContext.Pool, this, bindId.Type);
 
                     context.Identifier = bindId.Identifier;
                     context.SourceType = InjectSources.Local;
@@ -381,7 +380,7 @@ namespace Zenject
 
             using (var block = DisposeBlock.Spawn())
             {
-                foreach (var bindingId in block.AllocateList<BindingId>(_providers.Keys))
+                foreach (var bindingId in block.SpawnList<BindingId>(_providers.Keys))
                 {
                     if (!bindingId.Type.IsOpenGenericType())
                     {
@@ -408,7 +407,7 @@ namespace Zenject
 #endif
             using (var block = DisposeBlock.Spawn())
             {
-                var validatables = block.AllocateList<IValidatable>();
+                var validatables = block.SpawnList<IValidatable>();
 
                 // Repeatedly flush the validation queue until it's empty, to account for
                 // cases where calls to Validate() add more objects to the queue
@@ -478,7 +477,7 @@ namespace Zenject
 
             using (var block = DisposeBlock.Spawn())
             {
-                var allMatches = block.AllocateList<ProviderInfo>();
+                var allMatches = block.SpawnList<ProviderInfo>();
 
                 GetProvidersForContract(
                     context.BindingId, context.SourceType, allMatches);
@@ -505,7 +504,7 @@ namespace Zenject
 
             using (var block = DisposeBlock.Spawn())
             {
-                var localProviders = block.AllocateList<ProviderInfo>();
+                var localProviders = block.SpawnList<ProviderInfo>();
 
                 ProviderInfo selected = null;
                 int selectedDistance = Int32.MaxValue;
@@ -708,7 +707,7 @@ namespace Zenject
         {
             using (var block = DisposeBlock.Spawn())
             {
-                var buffer = block.AllocateList<object>();
+                var buffer = block.SpawnList<object>();
                 ResolveAllInternal(context, buffer);
                 return ReflectionUtil.CreateGenericList(context.MemberType, buffer);
             }
@@ -724,7 +723,7 @@ namespace Zenject
 
             using (var block = DisposeBlock.Spawn())
             {
-                var matches = block.AllocateList<ProviderInfo>();
+                var matches = block.SpawnList<ProviderInfo>();
 
                 GetProviderMatches(context, matches);
 
@@ -739,7 +738,7 @@ namespace Zenject
                     return;
                 }
 
-                var allInstances = block.AllocateList<object>();
+                var allInstances = block.SpawnList<object>();
 
                 for (int i = 0; i < matches.Count; i++)
                 {
@@ -893,7 +892,7 @@ namespace Zenject
 
             using (var block = DisposeBlock.Spawn())
             {
-                var matches = block.AllocateList<ProviderInfo>();
+                var matches = block.SpawnList<ProviderInfo>();
 
                 GetProviderMatches(context, matches);
 
@@ -961,7 +960,7 @@ namespace Zenject
 
                     using (var block = DisposeBlock.Spawn())
                     {
-                        var instances = block.AllocateList<object>();
+                        var instances = block.SpawnList<object>();
                         ResolveAllInternal(subContext, instances);
                         return ReflectionUtil.CreateArray(subContext.MemberType, instances);
                     }
@@ -2448,7 +2447,7 @@ namespace Zenject
 
             using (var block = DisposeBlock.Spawn())
             {
-                var matches = block.AllocateList<ProviderInfo>();
+                var matches = block.SpawnList<ProviderInfo>();
 
                 GetProviderMatches(context, matches);
 

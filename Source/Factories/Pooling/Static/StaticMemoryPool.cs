@@ -102,11 +102,6 @@ namespace Zenject
             return element;
         }
 
-        protected DisposeWrapper<TValue> SpawnWrapper(TValue instance)
-        {
-            return DisposeWrapper<TValue>.Pool.Spawn(instance, this);
-        }
-
         void IMemoryPool.Despawn(object item)
         {
             Despawn((TValue)item);
@@ -150,11 +145,6 @@ namespace Zenject
             set { _onSpawnMethod = value; }
         }
 
-        public DisposeWrapper<TValue> SpawnWrapper()
-        {
-            return base.SpawnWrapper(Spawn());
-        }
-
         public TValue Spawn()
         {
             var item = SpawnInternal();
@@ -187,11 +177,6 @@ namespace Zenject
         public Action<TParam1, TValue> OnSpawnMethod
         {
             set { _onSpawnMethod = value; }
-        }
-
-        public DisposeWrapper<TValue> SpawnWrapper(TParam1 param)
-        {
-            return base.SpawnWrapper(Spawn(param));
         }
 
         public TValue Spawn(TParam1 param)
@@ -228,11 +213,6 @@ namespace Zenject
             set { _onSpawnMethod = value; }
         }
 
-        public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2)
-        {
-            return base.SpawnWrapper(Spawn(p1, p2));
-        }
-
         public TValue Spawn(TParam1 p1, TParam2 p2)
         {
             var item = SpawnInternal();
@@ -265,11 +245,6 @@ namespace Zenject
         public Action<TParam1, TParam2, TParam3, TValue> OnSpawnMethod
         {
             set { _onSpawnMethod = value; }
-        }
-
-        public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2, TParam3 p3)
-        {
-            return base.SpawnWrapper(Spawn(p1, p2, p3));
         }
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3)
@@ -316,11 +291,6 @@ namespace Zenject
             set { _onSpawnMethod = value; }
         }
 
-        public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4)
-        {
-            return base.SpawnWrapper(Spawn(p1, p2, p3, p4));
-        }
-
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4)
         {
             var item = SpawnInternal();
@@ -363,11 +333,6 @@ namespace Zenject
             Action<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> OnSpawnMethod
         {
             set { _onSpawnMethod = value; }
-        }
-
-        public DisposeWrapper<TValue> SpawnWrapper(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5)
-        {
-            return base.SpawnWrapper(Spawn(p1, p2, p3, p4, p5));
         }
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5)
