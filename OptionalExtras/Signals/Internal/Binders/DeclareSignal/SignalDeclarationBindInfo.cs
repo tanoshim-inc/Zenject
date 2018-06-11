@@ -21,7 +21,7 @@ namespace Zenject
             get; set;
         }
 
-        public bool RequireHandler
+        public SignalMissingHandlerResponses MissingHandlerResponse
         {
             get; set;
         }

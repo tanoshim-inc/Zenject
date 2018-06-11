@@ -21,6 +21,12 @@ namespace Zenject
             SignalBindInfo.RunAsync = true;
             return this;
         }
+
+        public SignalCopyBinder RunSync()
+        {
+            SignalBindInfo.RunAsync = false;
+            return this;
+        }
     }
 }
 

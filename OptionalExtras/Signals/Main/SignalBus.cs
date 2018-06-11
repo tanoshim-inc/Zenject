@@ -15,17 +15,25 @@ namespace Zenject
         readonly List<SignalDeclaration> _localDeclarations;
         readonly SignalBus _parentBus;
         readonly Dictionary<SignalSubscriptionId, SignalSubscription> _subscriptionMap = new Dictionary<SignalSubscriptionId, SignalSubscription>();
-        readonly SignalSettings _settings;
+        readonly ZenjectSettings.SignalSettings _settings;
 
         public SignalBus(
             [Inject(Source = InjectSources.Local)]
             List<SignalDeclarationBindInfo> signalBindings,
             [Inject(Source = InjectSources.Parent, Optional = true)]
             SignalBus parentBus,
-            [Inject(Optional = true)]
-            SignalSettings settings)
+            [InjectOptional]
+            ZenjectSettings zenjectSettings)
         {
-            _settings = settings ?? SignalSettings.Default;
+            if (zenjectSettings != null && zenjectSettings.Signals != null)
+            {
+                _settings = zenjectSettings.Signals;
+            }
+            else
+            {
+                _settings = ZenjectSettings.SignalSettings.Default;
+            }
+
             _localDeclarations = new List<SignalDeclaration>();
             _localDeclarationMap = new Dictionary<Type, SignalDeclaration>();
             _parentBus = parentBus;
@@ -36,7 +44,9 @@ namespace Zenject
                 Assert.That(signalBindInfo.SignalType.DerivesFrom<ISignal>());
 
                 var declaration = SignalDeclaration.Pool.Spawn(
-                    signalBindInfo.SignalType, signalBindInfo.RequireHandler, signalBindInfo.RunAsync, _settings);
+                    signalBindInfo.SignalType,
+                    signalBindInfo.MissingHandlerResponse,
+                    signalBindInfo.RunAsync, _settings);
 
                 _localDeclarations.Add(declaration);
                 _localDeclarationMap.Add(signalBindInfo.SignalType, declaration);

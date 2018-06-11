@@ -9,10 +9,10 @@ using UniRx;
 
 namespace Zenject
 {
-    public class SignalDeclaration : IDisposable
+    public class SignalDeclaration : IDisposable, IPoolable<Type, SignalMissingHandlerResponses, bool, ZenjectSettings.SignalSettings>
     {
-        public static readonly StaticMemoryPool<Type, bool, bool, SignalSettings, SignalDeclaration> Pool =
-            new StaticMemoryPool<Type, bool, bool, SignalSettings, SignalDeclaration>(OnSpawned, OnDespawned);
+        public static readonly PoolableStaticMemoryPool<Type, SignalMissingHandlerResponses, bool, ZenjectSettings.SignalSettings, SignalDeclaration> Pool =
+            new PoolableStaticMemoryPool<Type, SignalMissingHandlerResponses, bool, ZenjectSettings.SignalSettings, SignalDeclaration>();
 
         readonly List<SignalSubscription> _subscriptions;
         readonly List<ISignal> _signalQueue;
@@ -20,21 +20,10 @@ namespace Zenject
 #if ZEN_SIGNALS_ADD_UNIRX
         Subject<object> _stream;
 #endif
-
         Type _signalType;
-        bool _requireHandler;
+        SignalMissingHandlerResponses _missingHandlerResponses;
         bool _runAsync;
-        SignalSettings _settings;
-
-        static void OnDespawned(SignalDeclaration that)
-        {
-            that.OnDespawned();
-        }
-
-        static void OnSpawned(Type signalType, bool requireHandler, bool runAsync, SignalSettings settings, SignalDeclaration that)
-        {
-            that.OnSpawned(signalType, requireHandler, runAsync, settings);
-        }
+        ZenjectSettings.SignalSettings _settings;
 
         public SignalDeclaration()
         {
@@ -68,8 +57,7 @@ namespace Zenject
             // in case some objects are still subscribed to the old one
             _stream = new Subject<object>();
 #endif
-
-            _requireHandler = false;
+            _missingHandlerResponses = SignalMissingHandlerResponses.Ignore;
             _runAsync = false;
             _settings = null;
             _signalType = null;
@@ -77,9 +65,9 @@ namespace Zenject
             _signalQueue.Clear();
         }
 
-        void OnDespawned()
+        public void OnDespawned()
         {
-            if (_settings.AddAssertsForStrictDestructionOrder)
+            if (_settings.RequireStrictUnsubscribe)
             {
                 Assert.That(_subscriptions.IsEmpty(),
                     "Found {0} signals still added to declaration {1}", _subscriptions.Count, _signalType);
@@ -103,15 +91,17 @@ namespace Zenject
             SetDefaults();
         }
 
-        void OnSpawned(Type signalType, bool requireHandler, bool runAsync, SignalSettings settings)
+        public void OnSpawned(
+            Type signalType, SignalMissingHandlerResponses missingHandlerResponses,
+            bool runAsync, ZenjectSettings.SignalSettings settings)
         {
             Assert.IsNull(_signalType);
             Assert.That(_subscriptions.IsEmpty());
 
-            _signalType = signalType;
-            _requireHandler = requireHandler;
-            _runAsync = runAsync;
             _settings = settings;
+            _signalType = signalType;
+            _missingHandlerResponses = missingHandlerResponses;
+            _runAsync = runAsync;
         }
 
         public void Fire(ISignal signal)
@@ -140,10 +130,17 @@ namespace Zenject
 #if ZEN_SIGNALS_ADD_UNIRX
                 && !_stream.HasObservers
 #endif
-                && _requireHandler)
+                )
             {
-                throw Assert.CreateException(
-                    "Fired signal '{0}' but no subscriptions found!  (and signal is marked with RequireHandler)", signal.GetType());
+                if (_missingHandlerResponses == SignalMissingHandlerResponses.Warn)
+                {
+                    Log.Warn("Fired signal '{0}' but no subscriptions found!  If this is intentional then either add IgnoreMissingHandler to the binding or change the default in ZenjectSettings", signal.GetType());
+                }
+                else if (_missingHandlerResponses == SignalMissingHandlerResponses.Throw)
+                {
+                    throw Assert.CreateException(
+                        "Fired signal '{0}' but no subscriptions found!  If this is intentional then either add IgnoreMissingHandler to the binding or change the default in ZenjectSettings", signal.GetType());
+                }
             }
 
             for (int i = 0; i < subscriptions.Count; i++)

@@ -15,6 +15,19 @@ namespace Zenject
         All,
     }
 
+    public enum SignalDefaultSyncModes
+    {
+        Synchronous,
+        Asynchronous,
+    }
+
+    public enum SignalMissingHandlerResponses
+    {
+        Ignore,
+        Throw,
+        Warn
+    }
+
     [Serializable]
     [ZenjectAllowDuringValidation]
     public class ZenjectSettings
@@ -33,16 +46,21 @@ namespace Zenject
         [SerializeField]
         ValidationErrorResponses _validationErrorResponse;
 
+        [SerializeField]
+        SignalSettings _signalSettings;
+
         public ZenjectSettings(
             ValidationErrorResponses validationErrorResponse,
             RootResolveMethods validationRootResolveMethod = RootResolveMethods.NonLazyOnly,
             bool displayWarningWhenResolvingDuringInstall = true,
-            bool ensureDeterministicDestructionOrderOnApplicationQuit = false)
+            bool ensureDeterministicDestructionOrderOnApplicationQuit = false,
+            SignalSettings signalSettings = null)
         {
             _validationErrorResponse = validationErrorResponse;
             _validationRootResolveMethod = validationRootResolveMethod;
             _displayWarningWhenResolvingDuringInstall = displayWarningWhenResolvingDuringInstall;
             _ensureDeterministicDestructionOrderOnApplicationQuit =ensureDeterministicDestructionOrderOnApplicationQuit;
+            _signalSettings = signalSettings ?? ZenjectSettings.SignalSettings.Default;
         }
 
         // Need to define an emtpy constructor since this is created by unity serialization
@@ -50,6 +68,11 @@ namespace Zenject
         public ZenjectSettings()
             : this(ValidationErrorResponses.Log)
         {
+        }
+
+        public SignalSettings Signals
+        {
+            get { return _signalSettings; }
         }
 
         // Setting this to Log can be more useful because it will print out
@@ -82,6 +105,63 @@ namespace Zenject
         public bool EnsureDeterministicDestructionOrderOnApplicationQuit
         {
             get { return _ensureDeterministicDestructionOrderOnApplicationQuit; }
+        }
+
+        [Serializable]
+        public class SignalSettings
+        {
+            public static SignalSettings Default = new SignalSettings();
+
+            [SerializeField]
+            SignalDefaultSyncModes _defaultSyncMode;
+
+            [SerializeField]
+            SignalMissingHandlerResponses _missingHandlerDefaultResponse;
+
+            [SerializeField]
+            bool _autoUnsubscribeInDispose;
+
+            [SerializeField]
+            bool _requireStrictUnsubscribe;
+
+            public SignalSettings(
+                SignalDefaultSyncModes defaultSyncMode,
+                SignalMissingHandlerResponses missingHandlerDefaultResponse = SignalMissingHandlerResponses.Warn,
+                bool autoUnsubscribeInDispose = true,
+                bool requireStrictUnsubscribe = false)
+            {
+                _defaultSyncMode = defaultSyncMode;
+                _missingHandlerDefaultResponse = missingHandlerDefaultResponse;
+                _autoUnsubscribeInDispose = autoUnsubscribeInDispose;
+                _requireStrictUnsubscribe = requireStrictUnsubscribe;
+            }
+
+            // Need to define an emtpy constructor since this is created by unity serialization
+            // even if the above constructor has defaults for all
+            public SignalSettings()
+                : this(SignalDefaultSyncModes.Synchronous)
+            {
+            }
+
+            public bool AutoUnsubscribeInDispose
+            {
+                get { return _autoUnsubscribeInDispose; }
+            }
+
+            public SignalDefaultSyncModes DefaultSyncMode
+            {
+                get { return _defaultSyncMode; }
+            }
+
+            public SignalMissingHandlerResponses MissingHandlerDefaultResponse
+            {
+                get { return _missingHandlerDefaultResponse; }
+            }
+
+            public bool RequireStrictUnsubscribe
+            {
+                get { return _requireStrictUnsubscribe; }
+            }
         }
     }
 }

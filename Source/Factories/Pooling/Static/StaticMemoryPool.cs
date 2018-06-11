@@ -347,4 +347,92 @@ namespace Zenject
             return item;
         }
     }
+
+    // Six parameters
+
+    public class StaticMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue>
+        where TValue : class, new()
+    {
+#if !NET_4_6
+        ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue> _onSpawnMethod;
+
+        public StaticMemoryPool(
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
+            : base(onDespawnedMethod)
+        {
+            // What's the point of having a param otherwise?
+            Assert.IsNotNull(onSpawnMethod);
+            _onSpawnMethod = onSpawnMethod;
+        }
+
+        public
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue> OnSpawnMethod
+        {
+            set { _onSpawnMethod = value; }
+        }
+
+        public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5, TParam6 p6)
+        {
+            var item = SpawnInternal();
+
+            if (_onSpawnMethod != null)
+            {
+                _onSpawnMethod(p1, p2, p3, p4, p5, p6, item);
+            }
+
+            return item;
+        }
+    }
+
+    // Seven parameters
+
+    public class StaticMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TValue>
+        where TValue : class, new()
+    {
+#if !NET_4_6
+        ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TValue> _onSpawnMethod;
+
+        public StaticMemoryPool(
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TValue> onSpawnMethod, Action<TValue> onDespawnedMethod = null)
+            : base(onDespawnedMethod)
+        {
+            // What's the point of having a param otherwise?
+            Assert.IsNotNull(onSpawnMethod);
+            _onSpawnMethod = onSpawnMethod;
+        }
+
+        public
+#if !NET_4_6
+            ModestTree.Util.
+#endif
+            Action<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TValue> OnSpawnMethod
+        {
+            set { _onSpawnMethod = value; }
+        }
+
+        public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5, TParam6 p6, TParam7 p7)
+        {
+            var item = SpawnInternal();
+
+            if (_onSpawnMethod != null)
+            {
+                _onSpawnMethod(p1, p2, p3, p4, p5, p6, p7, item);
+            }
+
+            return item;
+        }
+    }
 }
