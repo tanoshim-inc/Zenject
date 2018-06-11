@@ -31,7 +31,12 @@ namespace Zenject.MemoryPoolMonitor
         Texture2D _rowBackground1;
         Texture2D _rowBackground2;
         Texture2D _rowBackgroundHighlighted;
+        Texture2D _rowBackgroundSelected;
         Texture2D _lineTexture;
+        Type _selectedPoolType;
+        float _headerTop;
+        string _searchFilter = "";
+        string _actualFilter = "";
 
         public MpmView(
             MpmWindow window,
@@ -44,6 +49,11 @@ namespace Zenject.MemoryPoolMonitor
         public float TotalWidth
         {
             get { return _window.position.width; }
+        }
+
+        public float TotalHeight
+        {
+            get { return _window.position.height; }
         }
 
         string GetName(IMemoryPool pool)
@@ -99,6 +109,19 @@ namespace Zenject.MemoryPoolMonitor
             }
         }
 
+        Texture2D RowBackgroundSelected
+        {
+            get
+            {
+                if (_rowBackgroundSelected == null)
+                {
+                    _rowBackgroundSelected = CreateColorTexture(_settings.RowBackgroundSelected);
+                }
+
+                return _rowBackgroundSelected;
+            }
+        }
+
         Texture2D LineTexture
         {
             get
@@ -117,6 +140,7 @@ namespace Zenject.MemoryPoolMonitor
             StaticMemoryPoolRegistry.PoolAdded += OnPoolListChanged;
             StaticMemoryPoolRegistry.PoolRemoved += OnPoolListChanged;
             _poolListDirty = true;
+            _headerTop = _settings.HeaderHeight + _settings.FilterHeight;
         }
 
         void OnPoolListChanged(IMemoryPool pool)
@@ -129,6 +153,7 @@ namespace Zenject.MemoryPoolMonitor
             if (_poolListDirty)
             {
                 _poolListDirty = false;
+
                 _pools.Clear();
                 _pools.AddRange(StaticMemoryPoolRegistry.Pools.Where(ShouldIncludePool));
             }
@@ -138,7 +163,19 @@ namespace Zenject.MemoryPoolMonitor
 
         bool ShouldIncludePool(IMemoryPool pool)
         {
-            return pool.GetType().Namespace != "Zenject";
+            var poolType = pool.GetType();
+
+            if (poolType.Namespace == "Zenject")
+            {
+                return false;
+            }
+
+            if (_actualFilter.IsEmpty())
+            {
+                return true;
+            }
+
+            return GetName(pool).ToLowerInvariant().Contains(_actualFilter);
         }
 
         public void GuiRender()
@@ -151,14 +188,31 @@ namespace Zenject.MemoryPoolMonitor
                 GUI.skin.horizontalScrollbar.CalcSize(GUIContent.none).y,
                 GUI.skin.verticalScrollbar.CalcSize(GUIContent.none).x);
 
+            GUI.Label(new Rect(
+                0, 0, _settings.FilterPaddingLeft, _settings.FilterHeight), "Filter:", _settings.FilterTextStyle);
+
+            var searchFilter = GUI.TextField(
+                new Rect(_settings.FilterPaddingLeft, _settings.FilterPaddingTop, _settings.FilterWidth, _settings.FilterInputHeight), _searchFilter, 999);
+
+            if (searchFilter != _searchFilter)
+            {
+                _searchFilter = searchFilter;
+                _actualFilter = _searchFilter.Trim().ToLowerInvariant();
+                _poolListDirty = true;
+            }
+
+            Rect viewArea = new Rect(0, _headerTop, TotalWidth - scrollbarSize.y, _window.position.height - _headerTop);
+
             Rect contentRect = new Rect(
-                0, 0, windowBounds.width, _settings.HeaderHeight + _pools.Count() * _settings.RowHeight);
-            Rect viewArea = windowBounds;
+                0, 0, viewArea.width, _pools.Count() * _settings.RowHeight);
 
-            viewArea.width -= scrollbarSize.y;
+            Rect vScrRect = new Rect(
+                windowBounds.x + viewArea.width, _headerTop, scrollbarSize.y, viewArea.height);
 
-            Rect vScrRect = new Rect(windowBounds.x + viewArea.width, windowBounds.y, scrollbarSize.y, viewArea.height);
-            _scrollPosition = GUI.VerticalScrollbar(vScrRect, _scrollPosition, viewArea.height, 0, contentRect.height);
+            _scrollPosition = GUI.VerticalScrollbar(
+                vScrRect, _scrollPosition, viewArea.height, 0, contentRect.height);
+
+            DrawColumnHeaders(viewArea.width);
 
             GUI.BeginGroup(viewArea);
             {
@@ -175,41 +229,116 @@ namespace Zenject.MemoryPoolMonitor
             HandleEvents();
         }
 
+        void DrawColumnHeaders(float width)
+        {
+            GUI.DrawTexture(new Rect(
+                0, _settings.FilterHeight - 0.5f * _settings.SplitterWidth, width, _settings.SplitterWidth), LineTexture);
+
+            GUI.DrawTexture(new Rect(
+                0, _headerTop - 0.5f * _settings.SplitterWidth, width, _settings.SplitterWidth), LineTexture);
+
+            var columnPos = 0.0f;
+
+            for (int i = 0; i < NumColumns; i++)
+            {
+                var columnWidth = GetColumnWidth(i);
+                DrawColumn1(i, columnPos, columnWidth);
+                columnPos += columnWidth;
+            }
+        }
+
+        void DrawColumn1(
+            int index, float position, float width)
+        {
+            var columnHeight = _settings.HeaderHeight + _pools.Count() * _settings.RowHeight;
+
+            if (index < 4)
+            {
+                GUI.DrawTexture(new Rect(
+                    position + width - _settings.SplitterWidth * 0.5f, _settings.FilterHeight,
+                    _settings.SplitterWidth, columnHeight), LineTexture);
+            }
+
+            var headerBounds = new Rect(
+                position + 0.5f * _settings.SplitterWidth,
+                _settings.FilterHeight,
+                width - _settings.SplitterWidth, _settings.HeaderHeight);
+
+            DrawColumnHeader(index, headerBounds, ColumnTitles[index]);
+        }
+
         void HandleEvents()
         {
             switch (Event.current.GetTypeForControl(_controlID))
             {
                 case EventType.ScrollWheel:
                 {
-                    _scrollPosition += Event.current.delta.y * _settings.ScrollSpeed;
+                    _scrollPosition = Mathf.Clamp(_scrollPosition + Event.current.delta.y * _settings.ScrollSpeed, 0, TotalHeight);
+                    break;
+                }
+                case EventType.MouseDown:
+                {
+                    _selectedPoolType = TryGetPoolTypeUnderMouse();
                     break;
                 }
             }
         }
 
-        void DrawRowBackgrounds()
+        Type TryGetPoolTypeUnderMouse()
         {
             var mousePositionInContent = Event.current.mousePosition + Vector2.up * _scrollPosition;
 
-            for (int i = 0; i < _pools.Count + 1; i++)
+            for (int i = 0; i < _pools.Count; i++)
             {
-                var rowRect = new Rect(
-                    0, _settings.HeaderHeight + i * _settings.RowHeight,
-                    TotalWidth, _settings.RowHeight);
+                var pool = _pools[i];
 
-                Texture2D background;
+                var rowRect = GetPoolRowRect(i);
+                rowRect.y += _headerTop;
 
                 if (rowRect.Contains(mousePositionInContent))
                 {
-                    background = RowBackgroundHighlighted;
+                    return pool.GetType();
                 }
-                else if (i % 2 == 0)
+            }
+
+            return null;
+        }
+
+        Rect GetPoolRowRect(int index)
+        {
+            return new Rect(
+                0, index * _settings.RowHeight, TotalWidth, _settings.RowHeight);
+        }
+
+        void DrawRowBackgrounds()
+        {
+            var mousePositionInContent = Event.current.mousePosition;
+
+            for (int i = 0; i < _pools.Count; i++)
+            {
+                var pool = _pools[i];
+                var rowRect = GetPoolRowRect(i);
+
+                Texture2D background;
+
+                if (pool.GetType() == _selectedPoolType)
                 {
-                    background = RowBackground1;
+                    background = RowBackgroundSelected;
                 }
                 else
                 {
-                    background = RowBackground2;
+                    if (rowRect.Contains(mousePositionInContent))
+                    {
+                        background = RowBackgroundHighlighted;
+                    }
+                    else if (i % 2 == 0)
+                    {
+                        background = RowBackground1;
+                    }
+                    else
+                    {
+                        background = RowBackground2;
+                    }
                 }
 
                 GUI.DrawTexture(rowRect, background);
@@ -228,9 +357,6 @@ namespace Zenject.MemoryPoolMonitor
 
         void DrawContent(float width)
         {
-            GUI.DrawTexture(new Rect(
-                0, _settings.HeaderHeight - 0.5f * _settings.SplitterWidth, TotalWidth, _settings.SplitterWidth), LineTexture);
-
             DrawRowBackgrounds();
 
             var columnPos = 0.0f;
@@ -246,8 +372,6 @@ namespace Zenject.MemoryPoolMonitor
         void DrawColumn(
             int index, float position, float width)
         {
-            var title = ColumnTitles[index];
-
             var columnHeight = _settings.HeaderHeight + _pools.Count() * _settings.RowHeight;
 
             if (index < 4)
@@ -262,16 +386,12 @@ namespace Zenject.MemoryPoolMonitor
 
             GUI.BeginGroup(columnBounds);
             {
-                var headerBounds = new Rect(0, 0, columnBounds.width, _settings.HeaderHeight);
-
-                DrawColumnHeader(index, headerBounds, title);
-
                 for (int i = 0; i < _pools.Count; i++)
                 {
                     var pool = _pools[i];
 
                     var cellBounds = new Rect(
-                        0, _settings.HeaderHeight + _settings.RowHeight * i,
+                        0, _settings.RowHeight * i,
                         columnBounds.width, _settings.RowHeight);
 
                     DrawColumnContents(index, cellBounds, pool);
@@ -403,6 +523,7 @@ namespace Zenject.MemoryPoolMonitor
             public Texture2D TriangleDown;
             public Vector2 TriangleOffset;
 
+            public GUIStyle FilterTextStyle;
             public GUIStyle HeaderTextStyleName;
             public GUIStyle HeaderTextStyle;
             public GUIStyle ContentNumberTextStyle;
@@ -411,11 +532,17 @@ namespace Zenject.MemoryPoolMonitor
             public Color RowBackground1;
             public Color RowBackground2;
             public Color RowBackgroundHighlighted;
+            public Color RowBackgroundSelected;
             public Color LineColor;
 
             public float ScrollSpeed = 1.5f;
             public float NormalColumnWidth;
             public float HeaderHeight;
+            public float FilterHeight;
+            public float FilterInputHeight;
+            public float FilterWidth;
+            public float FilterPaddingLeft;
+            public float FilterPaddingTop = 10;
 
             public float SplitterWidth;
             public float RowHeight;

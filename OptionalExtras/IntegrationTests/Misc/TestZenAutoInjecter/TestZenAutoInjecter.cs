@@ -13,6 +13,7 @@ namespace Zenject.Tests.AutoInjecter
         public DiContainer Container;
     }
 
+#if UNITY_EDITOR
     public class TestZenAutoInjecter : ZenjectIntegrationTestFixture
     {
         GameObject GetPrefab(string name)
@@ -143,4 +144,6 @@ namespace Zenject.Tests.AutoInjecter
             yield break;
         }
     }
+#endif
 }
+
