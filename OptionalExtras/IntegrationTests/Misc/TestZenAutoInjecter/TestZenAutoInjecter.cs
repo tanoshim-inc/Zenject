@@ -3,7 +3,9 @@ using ModestTree;
 using UnityEngine;
 using Zenject;
 using System.Collections;
+#if UNITY_EDITOR
 using UnityEngine.TestTools;
+#endif
 
 namespace Zenject.Tests.AutoInjecter
 {
