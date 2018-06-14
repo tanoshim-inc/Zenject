@@ -6,7 +6,6 @@ namespace Zenject
     public static class SignalExtensions
     {
         public static DeclareSignalRequireHandlerAsyncCopyBinder DeclareSignal<TSignal>(this DiContainer container)
-            where TSignal : ISignal
         {
             var signalBindInfo = new SignalDeclarationBindInfo(typeof(TSignal));
             signalBindInfo.RunAsync = container.Settings.Signals.DefaultSyncMode == SignalDefaultSyncModes.Asynchronous;
@@ -18,7 +17,6 @@ namespace Zenject
         }
 
         public static BindSignalToBinder<TSignal> BindSignal<TSignal>(this DiContainer container)
-            where TSignal : ISignal
         {
             return new BindSignalToBinder<TSignal>(container);
         }

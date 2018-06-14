@@ -15,7 +15,7 @@ namespace Zenject
             new PoolableStaticMemoryPool<Type, SignalMissingHandlerResponses, bool, ZenjectSettings.SignalSettings, SignalDeclaration>();
 
         readonly List<SignalSubscription> _subscriptions;
-        readonly List<ISignal> _signalQueue;
+        readonly List<object> _signalQueue;
 
 #if ZEN_SIGNALS_ADD_UNIRX
         Subject<object> _stream;
@@ -28,7 +28,7 @@ namespace Zenject
         public SignalDeclaration()
         {
             _subscriptions = new List<SignalSubscription>();
-            _signalQueue = new List<ISignal>();
+            _signalQueue = new List<object>();
 
             SetDefaults();
         }
@@ -104,7 +104,7 @@ namespace Zenject
             _runAsync = runAsync;
         }
 
-        public void Fire(ISignal signal)
+        public void Fire(object signal)
         {
             Assert.That(signal.GetType().DerivesFromOrEqual(_signalType));
 
@@ -124,7 +124,7 @@ namespace Zenject
             }
         }
 
-        void FireInternal(List<SignalSubscription> subscriptions, ISignal signal)
+        void FireInternal(List<SignalSubscription> subscriptions, object signal)
         {
             if (subscriptions.IsEmpty()
 #if ZEN_SIGNALS_ADD_UNIRX
@@ -172,7 +172,7 @@ namespace Zenject
 
                     // Cache the signals so that if the signal is fired again inside the handler that it
                     // is not executed until next frame
-                    var signals = block.SpawnList<ISignal>();
+                    var signals = block.SpawnList<object>();
                     signals.AddRange(_signalQueue);
 
                     _signalQueue.Clear();

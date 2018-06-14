@@ -6,7 +6,7 @@ namespace Zenject.SpaceFighter
     {
         public override void InstallBindings()
         {
-            SignalRootInstaller.Install(Container);
+            SignalBusInstaller.Install(Container);
 
             Container.DeclareSignal<EnemyKilledSignal>();
             Container.DeclareSignal<PlayerDiedSignal>();

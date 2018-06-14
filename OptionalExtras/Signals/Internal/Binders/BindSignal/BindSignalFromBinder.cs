@@ -4,7 +4,6 @@ using ModestTree;
 namespace Zenject
 {
     public class BindSignalFromBinder<TObject, TSignal>
-        where TSignal : ISignal
     {
         readonly BindFinalizerWrapper _finalizerWrapper;
         readonly Func<TObject, Action<TSignal>> _methodGetter;

@@ -87,9 +87,9 @@ namespace Zenject.Asteroids
 
         void InstallSignals()
         {
-            // Every scene that uses signals needs to install the built-in installer SignalRootInstaller
+            // Every scene that uses signals needs to install the built-in installer SignalBusInstaller
             // Or alternatively it can be installed at the project context level (see docs for details)
-            SignalRootInstaller.Install(Container);
+            SignalBusInstaller.Install(Container);
 
             // Signals can be useful for game-wide events that could have many interested parties
             Container.DeclareSignal<ShipCrashedSignal>();

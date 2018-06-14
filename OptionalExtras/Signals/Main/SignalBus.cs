@@ -41,7 +41,6 @@ namespace Zenject
             for (int i = 0; i < signalBindings.Count; i++)
             {
                 var signalBindInfo = signalBindings[i];
-                Assert.That(signalBindInfo.SignalType.DerivesFrom<ISignal>());
 
                 var declaration = SignalDeclaration.Pool.Spawn(
                     signalBindInfo.SignalType,
@@ -92,12 +91,11 @@ namespace Zenject
         }
 
         public void Fire<TSignal>()
-            where TSignal : ISignal
         {
             Fire((TSignal)Activator.CreateInstance(typeof(TSignal)));
         }
 
-        public void Fire(ISignal signal)
+        public void Fire(object signal)
         {
             GetDeclaration(signal.GetType()).Fire(signal);
         }
@@ -115,14 +113,12 @@ namespace Zenject
 #endif
 
         public void Subscribe<TSignal>(Action callback)
-            where TSignal : ISignal
         {
             Action<object> wrapperCallback = (args) => callback();
             SubscribeInternal(typeof(TSignal), callback, wrapperCallback);
         }
 
         public void Subscribe<TSignal>(Action<TSignal> callback)
-            where TSignal : ISignal
         {
             Action<object> wrapperCallback = (args) => callback((TSignal)args);
             SubscribeInternal(typeof(TSignal), callback, wrapperCallback);
@@ -134,7 +130,6 @@ namespace Zenject
         }
 
         public void Unsubscribe<TSignal>(Action callback)
-            where TSignal : ISignal
         {
             Unsubscribe(typeof(TSignal), callback);
         }
@@ -150,13 +145,11 @@ namespace Zenject
         }
 
         public void Unsubscribe<TSignal>(Action<TSignal> callback)
-            where TSignal : ISignal
         {
             UnsubscribeInternal(typeof(TSignal), callback, true);
         }
 
         public void TryUnsubscribe<TSignal>(Action callback)
-            where TSignal : ISignal
         {
             UnsubscribeInternal(typeof(TSignal), callback, false);
         }
@@ -172,7 +165,6 @@ namespace Zenject
         }
 
         public void TryUnsubscribe<TSignal>(Action<TSignal> callback)
-            where TSignal : ISignal
         {
             UnsubscribeInternal(typeof(TSignal), callback, false);
         }

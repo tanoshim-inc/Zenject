@@ -4,7 +4,6 @@ using ModestTree;
 namespace Zenject
 {
     public class BindSignalToBinder<TSignal>
-        where TSignal : ISignal
     {
         DiContainer _container;
         BindFinalizerWrapper _finalizerWrapper;

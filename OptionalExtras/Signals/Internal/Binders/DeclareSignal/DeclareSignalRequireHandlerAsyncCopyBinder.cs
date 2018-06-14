@@ -11,21 +11,21 @@ namespace Zenject
         {
         }
 
-        public DeclareSignalAsyncCopyBinder ThrowOnMissingHandler()
+        public DeclareSignalAsyncCopyBinder RequireSubscriber()
         {
             SignalBindInfo.MissingHandlerResponse = SignalMissingHandlerResponses.Throw;
             return this;
         }
 
-        public DeclareSignalAsyncCopyBinder WarnOnMissingHandler()
+        public DeclareSignalAsyncCopyBinder OptionalSubscriber()
         {
-            SignalBindInfo.MissingHandlerResponse = SignalMissingHandlerResponses.Warn;
+            SignalBindInfo.MissingHandlerResponse = SignalMissingHandlerResponses.Ignore;
             return this;
         }
 
-        public DeclareSignalAsyncCopyBinder IgnoreMissingHandler()
+        public DeclareSignalAsyncCopyBinder OptionalSubscriberWithWarning()
         {
-            SignalBindInfo.MissingHandlerResponse = SignalMissingHandlerResponses.Ignore;
+            SignalBindInfo.MissingHandlerResponse = SignalMissingHandlerResponses.Warn;
             return this;
         }
     }

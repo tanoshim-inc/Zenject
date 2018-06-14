@@ -15,6 +15,10 @@ namespace Zenject
         {
             Container.Bind(typeof(TickableManager), typeof(InitializableManager), typeof(DisposableManager))
                 .ToSelf().AsSingle().CopyIntoAllSubContainers();
+
+#if ZEN_SIGNALS_ADD_UNIRX
+            Container.BindInterfacesAndSelfTo<ZenjectStreams>().AsSingle().CopyIntoAllSubContainers();
+#endif
         }
     }
 }

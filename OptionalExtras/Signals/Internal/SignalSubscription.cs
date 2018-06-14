@@ -61,7 +61,7 @@ namespace Zenject
             _declaration = null;
         }
 
-        public void Invoke(ISignal signal)
+        public void Invoke(object signal)
         {
             _callback(signal);
         }

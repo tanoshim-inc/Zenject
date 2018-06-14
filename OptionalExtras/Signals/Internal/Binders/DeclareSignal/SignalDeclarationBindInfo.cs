@@ -7,7 +7,6 @@ namespace Zenject
     {
         public SignalDeclarationBindInfo(Type signalType)
         {
-            Assert.That(signalType.DerivesFromOrEqual<ISignal>());
             SignalType = signalType;
         }
 
