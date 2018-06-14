@@ -15,22 +15,25 @@ namespace Zenject
             new PoolableStaticMemoryPool<Type, SignalMissingHandlerResponses, bool, ZenjectSettings.SignalSettings, SignalDeclaration>();
 
         readonly List<SignalSubscription> _subscriptions;
-        readonly List<object> _signalQueue;
 
 #if ZEN_SIGNALS_ADD_UNIRX
         Subject<object> _stream;
 #endif
         Type _signalType;
         SignalMissingHandlerResponses _missingHandlerResponses;
-        bool _runAsync;
+        bool _isAsync;
         ZenjectSettings.SignalSettings _settings;
 
         public SignalDeclaration()
         {
             _subscriptions = new List<SignalSubscription>();
-            _signalQueue = new List<object>();
 
             SetDefaults();
+        }
+
+        public bool IsAsync
+        {
+            get { return _isAsync; }
         }
 
 #if ZEN_SIGNALS_ADD_UNIRX
@@ -58,11 +61,10 @@ namespace Zenject
             _stream = new Subject<object>();
 #endif
             _missingHandlerResponses = SignalMissingHandlerResponses.Ignore;
-            _runAsync = false;
+            _isAsync = false;
             _settings = null;
             _signalType = null;
             _subscriptions.Clear();
-            _signalQueue.Clear();
         }
 
         public void OnDespawned()
@@ -101,26 +103,20 @@ namespace Zenject
             _settings = settings;
             _signalType = signalType;
             _missingHandlerResponses = missingHandlerResponses;
-            _runAsync = runAsync;
+            _isAsync = runAsync;
         }
 
         public void Fire(object signal)
         {
             Assert.That(signal.GetType().DerivesFromOrEqual(_signalType));
 
-            if (_runAsync)
+            // Cache the callback list to allow handlers to be added from within callbacks
+            // This also allows subscribers to unsubscribe in the handler
+            using (var block = DisposeBlock.Spawn())
             {
-                _signalQueue.Add(signal);
-            }
-            else
-            {
-                // Cache the callback list to allow handlers to be added from within callbacks
-                using (var block = DisposeBlock.Spawn())
-                {
-                    var subscriptions = block.SpawnList<SignalSubscription>();
-                    subscriptions.AddRange(_subscriptions);
-                    FireInternal(subscriptions, signal);
-                }
+                var subscriptions = block.SpawnList<SignalSubscription>();
+                subscriptions.AddRange(_subscriptions);
+                FireInternal(subscriptions, signal);
             }
         }
 
@@ -158,31 +154,6 @@ namespace Zenject
 #if ZEN_SIGNALS_ADD_UNIRX
             _stream.OnNext(signal);
 #endif
-        }
-
-        public void Update()
-        {
-            if (!_signalQueue.IsEmpty())
-            {
-                // Cache the callback list to allow handlers to be added from within callbacks
-                using (var block = DisposeBlock.Spawn())
-                {
-                    var subscriptions = block.SpawnList<SignalSubscription>();
-                    subscriptions.AddRange(_subscriptions);
-
-                    // Cache the signals so that if the signal is fired again inside the handler that it
-                    // is not executed until next frame
-                    var signals = block.SpawnList<object>();
-                    signals.AddRange(_signalQueue);
-
-                    _signalQueue.Clear();
-
-                    for (int i = 0; i < signals.Count; i++)
-                    {
-                        FireInternal(subscriptions, signals[i]);
-                    }
-                }
-            }
         }
 
         public void Add(SignalSubscription subscription)

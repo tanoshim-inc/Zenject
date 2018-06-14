@@ -38,10 +38,7 @@ namespace Zenject.Tests.Other
 
             Container.DeclareSignal<UserJoinedSignal>();
 
-            Container.Bind<Greeter>().AsSingle();
-
-            Container.BindSignal<UserJoinedSignal>()
-                .ToMethod<Greeter>(x => x.SayHello).FromResolve().CopyIntoAllSubContainers();
+            Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).From(x => x.AsCached());
 
             Container.ResolveRoots();
 

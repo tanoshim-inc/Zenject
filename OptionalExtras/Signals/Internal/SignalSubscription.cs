@@ -17,14 +17,9 @@ namespace Zenject
             SetDefaults();
         }
 
-        static void OnDespawned(SignalSubscription that)
+        public Type SignalType
         {
-            if (that._declaration != null)
-            {
-                that._declaration.Remove(that);
-            }
-
-            that.SetDefaults();
+            get { return _signalType; }
         }
 
         static void OnSpawned(Action<object> callback, SignalDeclaration declaration, SignalSubscription that)
@@ -38,9 +33,14 @@ namespace Zenject
             declaration.Add(that);
         }
 
-        public Type SignalType
+        static void OnDespawned(SignalSubscription that)
         {
-            get { return _signalType; }
+            if (that._declaration != null)
+            {
+                that._declaration.Remove(that);
+            }
+
+            that.SetDefaults();
         }
 
         void SetDefaults()

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using ModestTree;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace Zenject
         readonly SignalBus _parentBus;
         readonly Dictionary<SignalSubscriptionId, SignalSubscription> _subscriptionMap = new Dictionary<SignalSubscriptionId, SignalSubscription>();
         readonly ZenjectSettings.SignalSettings _settings;
+        readonly Queue _asyncSignalQueue = new Queue();
 
         public SignalBus(
             [Inject(Source = InjectSources.Local)]
@@ -84,20 +86,47 @@ namespace Zenject
 
         public void Tick()
         {
-            for (int i = 0; i < _localDeclarations.Count; i++)
+            // Loop until queue is empty
+            // This means that we could get infinite loops where signal A triggers signal B which
+            // triggers signal A again etc. but it's still better than waiting another frame
+            // so that using code can guarantee that their signal will be handled the current frame
+            // This might be important if it affects the way things render to the screen for example
+            while (_asyncSignalQueue.Count > 0)
             {
-                _localDeclarations[i].Update();
+                var signal = _asyncSignalQueue.Dequeue();
+                GetDeclaration(signal.GetType()).Fire(signal);
             }
         }
 
         public void Fire<TSignal>()
         {
-            Fire((TSignal)Activator.CreateInstance(typeof(TSignal)));
+            // Do this before creating the signal so that it throws if the signal was not declared
+            var declaration = GetDeclaration(typeof(TSignal));
+
+            var signal = (TSignal)Activator.CreateInstance(typeof(TSignal));
+
+            if (declaration.IsAsync)
+            {
+                _asyncSignalQueue.Enqueue(signal);
+            }
+            else
+            {
+                declaration.Fire(signal);
+            }
         }
 
         public void Fire(object signal)
         {
-            GetDeclaration(signal.GetType()).Fire(signal);
+            var declaration = GetDeclaration(signal.GetType());
+
+            if (declaration.IsAsync)
+            {
+                _asyncSignalQueue.Enqueue(signal);
+            }
+            else
+            {
+                declaration.Fire(signal);
+            }
         }
 
 #if ZEN_SIGNALS_ADD_UNIRX
