@@ -1,5 +1,7 @@
 using System;
+#if !NOT_UNITY3D
 using UnityEngine;
+#endif
 
 namespace Zenject
 {
@@ -34,19 +36,29 @@ namespace Zenject
     {
         public static ZenjectSettings Default = new ZenjectSettings();
 
+#if !NOT_UNITY3D
         [SerializeField]
+#endif
         bool _ensureDeterministicDestructionOrderOnApplicationQuit;
 
+#if !NOT_UNITY3D
         [SerializeField]
+#endif
         bool _displayWarningWhenResolvingDuringInstall;
 
+#if !NOT_UNITY3D
         [SerializeField]
+#endif
         RootResolveMethods _validationRootResolveMethod;
 
+#if !NOT_UNITY3D
         [SerializeField]
+#endif
         ValidationErrorResponses _validationErrorResponse;
 
+#if !NOT_UNITY3D
         [SerializeField]
+#endif
         SignalSettings _signalSettings;
 
         public ZenjectSettings(
@@ -112,16 +124,24 @@ namespace Zenject
         {
             public static SignalSettings Default = new SignalSettings();
 
+#if !NOT_UNITY3D
             [SerializeField]
+#endif
             SignalDefaultSyncModes _defaultSyncMode;
 
+#if !NOT_UNITY3D
             [SerializeField]
+#endif
             SignalMissingHandlerResponses _missingHandlerDefaultResponse;
 
+#if !NOT_UNITY3D
             [SerializeField]
+#endif
             bool _autoUnsubscribeInDispose;
 
+#if !NOT_UNITY3D
             [SerializeField]
+#endif
             bool _requireStrictUnsubscribe;
 
             public SignalSettings(

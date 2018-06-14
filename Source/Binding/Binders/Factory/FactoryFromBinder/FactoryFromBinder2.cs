@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+#if !NOT_UNITY3D
 using UnityEngine;
+#endif
 using ModestTree;
 
 namespace Zenject
@@ -52,6 +54,7 @@ namespace Zenject
                 BindContainer, BindInfo, FactoryBindInfo, subIdentifier);
         }
 
+#if !NOT_UNITY3D
         public ArgConditionCopyNonLazyBinder FromMonoPoolableMemoryPool<TContractAgain>(
             Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
             // Unfortunately we have to pass the same contract in again to satisfy the generic
@@ -60,6 +63,7 @@ namespace Zenject
         {
             return FromPoolableMemoryPoolInternal<TContractAgain, MonoPoolableMemoryPool<TParam1, TParam2, IMemoryPool, TContractAgain>>(poolBindGenerator);
         }
+#endif
 
         public ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TContractAgain>(
             Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
