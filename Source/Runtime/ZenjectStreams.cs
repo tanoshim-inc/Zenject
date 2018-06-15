@@ -10,12 +10,29 @@ namespace Zenject
 {
     public class ZenjectStreams : IInitializable, ITickable, ILateTickable, IFixedTickable, IDisposable, ILateDisposable
     {
+        // Execute just after all the unordered objects
+        // This makes sense as a default for cases where classes wait to Sample() using the streams below since
+        // the original trigger would most likely occur during the unordered objects and therefore the
+        // Sample will be triggered during the same frame
+        public static readonly int ExecutionOrder = 1;
+
         readonly Subject<Unit> _tickStream = new Subject<Unit>();
         readonly Subject<Unit> _lateTickStream = new Subject<Unit>();
         readonly Subject<Unit> _fixedTickStream = new Subject<Unit>();
         readonly Subject<Unit> _disposeStream = new Subject<Unit>();
         readonly Subject<Unit> _lateDisposeStream = new Subject<Unit>();
         readonly Subject<Unit> _initializeStream = new Subject<Unit>();
+
+        public ZenjectStreams(
+            TickableManager tickManager, InitializableManager initManager, DisposableManager disposeManager)
+        {
+            tickManager.Add(this, ExecutionOrder);
+            tickManager.AddLate(this, ExecutionOrder);
+            tickManager.AddFixed(this, ExecutionOrder);
+            initManager.Add(this, ExecutionOrder);;
+            disposeManager.Add(this, ExecutionOrder);
+            disposeManager.AddLate(this, ExecutionOrder);
+        }
 
         public IObservableRx<Unit> TickStream
         {
