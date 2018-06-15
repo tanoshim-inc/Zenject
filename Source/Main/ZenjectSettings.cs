@@ -144,16 +144,25 @@ namespace Zenject
 #endif
             bool _requireStrictUnsubscribe;
 
+#if !NOT_UNITY3D
+            [SerializeField]
+#endif
+            int _defaultAsyncTickPriority;
+
             public SignalSettings(
                 SignalDefaultSyncModes defaultSyncMode,
                 SignalMissingHandlerResponses missingHandlerDefaultResponse = SignalMissingHandlerResponses.Warn,
                 bool autoUnsubscribeInDispose = true,
-                bool requireStrictUnsubscribe = false)
+                bool requireStrictUnsubscribe = false,
+                // Run right after all the unspecified tick priorities so that the effects of the
+                // signal are handled during the same frame when they are triggered
+                int defaultAsyncTickPriority = 1)
             {
                 _defaultSyncMode = defaultSyncMode;
                 _missingHandlerDefaultResponse = missingHandlerDefaultResponse;
                 _autoUnsubscribeInDispose = autoUnsubscribeInDispose;
                 _requireStrictUnsubscribe = requireStrictUnsubscribe;
+                _defaultAsyncTickPriority = defaultAsyncTickPriority;
             }
 
             // Need to define an emtpy constructor since this is created by unity serialization
@@ -161,6 +170,11 @@ namespace Zenject
             public SignalSettings()
                 : this(SignalDefaultSyncModes.Synchronous)
             {
+            }
+
+            public int DefaultAsyncTickPriority
+            {
+                get { return _defaultAsyncTickPriority; }
             }
 
             public bool AutoUnsubscribeInDispose

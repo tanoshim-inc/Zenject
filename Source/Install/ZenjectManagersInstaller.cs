@@ -9,7 +9,7 @@ namespace Zenject
     // you are working in
     //
     // You might also want to use this installer in a ZenjectUnitTestFixture
-    public class StandardInterfacesRootInstaller : Installer<StandardInterfacesRootInstaller>
+    public class ZenjectManagersInstaller : Installer<ZenjectManagersInstaller>
     {
         public override void InstallBindings()
         {

@@ -34,25 +34,21 @@ namespace Zenject
             _finalizerWrapper.SubFinalizer = new NullBindingFinalizer();
 
             var objectLookupId = Guid.NewGuid();
-            var objectBindInfo = new BindInfo();
 
-            objectBindCallback(
-                _container.Bind<TObject>(
-                    objectBindInfo,
-                    // Very important here that we call StartBinding with false otherwise our signal
-                    // binding will be finalized early
-                    _container.StartBinding(null, false)).WithId(objectLookupId));
+            // Very important here that we use NoFlush otherwise the main binding will be finalized early
+            var objectBinder = _container.BindNoFlush<TObject>().WithId(objectLookupId);
 
-            var wrapperBindInfo = new BindInfo();
+            objectBindCallback(objectBinder);
 
-            _container.Bind<IDisposable>(wrapperBindInfo)
+            var wrapperBinder = _container.Bind<IDisposable>()
                 .To<SignalCallbackWithLookupWrapper<TObject, TSignal>>()
                 .AsCached()
                 .WithArguments(_methodGetter, objectLookupId)
                 .NonLazy();
 
             // Make sure if they use one of the Copy/Move methods that it applies to both bindings
-            return new SignalCopyBinder(wrapperBindInfo, objectBindInfo);
+            return new SignalCopyBinder(
+                wrapperBinder.BindInfo, objectBinder.BindInfo);
         }
     }
 }

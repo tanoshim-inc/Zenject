@@ -87,11 +87,8 @@ namespace Zenject
             // conflict with anything else
             var poolId = Guid.NewGuid();
 
-            var binder = BindContainer.BindMemoryPoolCustomInterface<TContractAgain, TMemoryPool, TMemoryPool>(
-                false,
-                // Very important here that we call StartBinding with false otherwise the other
-                // binding will be finalized early
-                BindContainer.StartBinding(null, false))
+            // Important to use NoFlush otherwise the binding will be finalized early
+            var binder = BindContainer.BindMemoryPoolCustomInterfaceNoFlush<TContractAgain, TMemoryPool, TMemoryPool>()
                 .WithId(poolId);
 
             // Always make it non lazy by default in case the user sets an InitialSize

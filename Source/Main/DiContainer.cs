@@ -2489,7 +2489,7 @@ namespace Zenject
             }
         }
 
-        public BindFinalizerWrapper StartBinding(string errorContext = null, bool flush = true)
+        internal BindFinalizerWrapper StartBinding(string errorContext = null, bool flush = true)
         {
             Assert.That(!_isFinalizingBinding,
                 "Attempted to start a binding during a binding finalizer.  This is not allowed, since binding finalizers should directly use AddProvider instead, to allow for bindings to be inherited properly without duplicates");
@@ -2530,18 +2530,19 @@ namespace Zenject
         // Note that this can include open generic types as well such as List<>
         public ConcreteIdBinderGeneric<TContract> Bind<TContract>()
         {
-            return Bind<TContract>(new BindInfo());
+            return Bind<TContract>(StartBinding());
         }
 
-        // For zenject extensions like signals
-        public ConcreteIdBinderGeneric<TContract> Bind<TContract>(BindInfo bindInfo)
+        internal ConcreteIdBinderGeneric<TContract> BindNoFlush<TContract>()
         {
-            return Bind<TContract>(bindInfo, StartBinding());
+            return Bind<TContract>(StartBinding(null, false));
         }
 
-        public ConcreteIdBinderGeneric<TContract> Bind<TContract>(
-            BindInfo bindInfo, BindFinalizerWrapper finalizerWrapper)
+        ConcreteIdBinderGeneric<TContract> Bind<TContract>(
+            BindFinalizerWrapper finalizerWrapper)
         {
+            var bindInfo = new BindInfo();
+
             Assert.That(!typeof(TContract).DerivesFrom<IPlaceholderFactory>(),
                 "You should not use Container.Bind for factory classes.  Use Container.BindFactory instead.");
 
@@ -2556,29 +2557,25 @@ namespace Zenject
         // Note that this can include open generic types as well such as List<>
         public ConcreteIdBinderNonGeneric Bind(params Type[] contractTypes)
         {
-            return Bind((IEnumerable<Type>)contractTypes);
+            var bindInfo = new BindInfo();
+            bindInfo.ContractTypes.AddRange(contractTypes);
+            return BindInternal(bindInfo, StartBinding());
         }
 
         public ConcreteIdBinderNonGeneric Bind(IEnumerable<Type> contractTypes)
         {
-            return BindInternal(contractTypes, null);
+            var bindInfo = new BindInfo();
+            bindInfo.ContractTypes.AddRange(contractTypes);
+            return BindInternal(bindInfo, StartBinding());
         }
 
         ConcreteIdBinderNonGeneric BindInternal(
-            IEnumerable<Type> contractTypes, string contextInfo)
-        {
-            var bindInfo = new BindInfo();
-            bindInfo.ContractTypes.AddRange(contractTypes);
-            bindInfo.SetContextInfo(contextInfo);
-            return BindInternal(bindInfo);
-        }
-
-        ConcreteIdBinderNonGeneric BindInternal(BindInfo bindInfo)
+            BindInfo bindInfo, BindFinalizerWrapper bindingFinalizer)
         {
             Assert.That(bindInfo.ContractTypes.All(x => !x.DerivesFrom<IPlaceholderFactory>()),
                 "You should not use Container.Bind for factory classes.  Use Container.BindFactory instead.");
 
-            return new ConcreteIdBinderNonGeneric(this, bindInfo, StartBinding());
+            return new ConcreteIdBinderNonGeneric(this, bindInfo, bindingFinalizer);
         }
 
 #if !(UNITY_WSA && ENABLE_DOTNET)
@@ -2641,7 +2638,7 @@ namespace Zenject
 
             // Almost always, you don't want to use the default AsTransient so make them type it
             bindInfo.RequireExplicitScope = true;
-            return BindInternal(bindInfo).To(type);
+            return BindInternal(bindInfo, StartBinding()).To(type);
         }
 
         // Same as BindInterfaces except also binds to self
@@ -2661,7 +2658,7 @@ namespace Zenject
 
             // Almost always, you don't want to use the default AsTransient so make them type it
             bindInfo.RequireExplicitScope = true;
-            return BindInternal(bindInfo).To(type);
+            return BindInternal(bindInfo, StartBinding()).To(type);
         }
 
         //  This is simply a shortcut to using the FromInstance method.
@@ -2749,10 +2746,17 @@ namespace Zenject
             where TPoolConcrete : TPoolContract, IMemoryPool
             where TPoolContract : IMemoryPool
         {
-            return BindMemoryPoolCustomInterface<TItemContract, TPoolConcrete, TPoolContract>(includeConcreteType, StartBinding());
+            return BindMemoryPoolCustomInterfaceInternal<TItemContract, TPoolConcrete, TPoolContract>(includeConcreteType, StartBinding());
         }
 
-        internal MemoryPoolIdInitialSizeMaxSizeBinder<TItemContract> BindMemoryPoolCustomInterface<TItemContract, TPoolConcrete, TPoolContract>(
+        internal MemoryPoolIdInitialSizeMaxSizeBinder<TItemContract> BindMemoryPoolCustomInterfaceNoFlush<TItemContract, TPoolConcrete, TPoolContract>(bool includeConcreteType = false)
+            where TPoolConcrete : TPoolContract, IMemoryPool
+            where TPoolContract : IMemoryPool
+        {
+            return BindMemoryPoolCustomInterfaceInternal<TItemContract, TPoolConcrete, TPoolContract>(includeConcreteType, StartBinding(null, false));
+        }
+
+        MemoryPoolIdInitialSizeMaxSizeBinder<TItemContract> BindMemoryPoolCustomInterfaceInternal<TItemContract, TPoolConcrete, TPoolContract>(
             bool includeConcreteType, BindFinalizerWrapper bindFinalizerWrapper)
             where TPoolConcrete : TPoolContract, IMemoryPool
             where TPoolContract : IMemoryPool

@@ -3,27 +3,27 @@ using ModestTree;
 
 namespace Zenject
 {
-    public class DeclareSignalRequireHandlerAsyncCopyBinder : DeclareSignalAsyncCopyBinder
+    public class DeclareSignalRequireHandlerAsyncTickPriorityCopyBinder : DeclareSignalAsyncTickPriorityCopyBinder
     {
-        public DeclareSignalRequireHandlerAsyncCopyBinder(
+        public DeclareSignalRequireHandlerAsyncTickPriorityCopyBinder(
             SignalDeclarationBindInfo signalBindInfo, BindInfo bindInfo)
             : base(signalBindInfo, bindInfo)
         {
         }
 
-        public DeclareSignalAsyncCopyBinder RequireSubscriber()
+        public DeclareSignalAsyncTickPriorityCopyBinder RequireSubscriber()
         {
             SignalBindInfo.MissingHandlerResponse = SignalMissingHandlerResponses.Throw;
             return this;
         }
 
-        public DeclareSignalAsyncCopyBinder OptionalSubscriber()
+        public DeclareSignalAsyncTickPriorityCopyBinder OptionalSubscriber()
         {
             SignalBindInfo.MissingHandlerResponse = SignalMissingHandlerResponses.Ignore;
             return this;
         }
 
-        public DeclareSignalAsyncCopyBinder OptionalSubscriberWithWarning()
+        public DeclareSignalAsyncTickPriorityCopyBinder OptionalSubscriberWithWarning()
         {
             SignalBindInfo.MissingHandlerResponse = SignalMissingHandlerResponses.Warn;
             return this;
