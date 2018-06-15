@@ -146,13 +146,13 @@ namespace Zenject
 
             Assert.That(!IsValidating);
 
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+#if UNITY_EDITOR
             using (ProfileBlock.Start("SceneContext.Install"))
 #endif
             {
                 Install();
             }
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+#if UNITY_EDITOR
             using (ProfileBlock.Start("SceneContext.Resolve"))
 #endif
             {

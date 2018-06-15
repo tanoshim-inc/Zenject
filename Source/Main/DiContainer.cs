@@ -1251,7 +1251,7 @@ namespace Zenject
                     //ModestTree.Log.Debug("Zenject: Instantiating type '{0}'", concreteType);
                     try
                     {
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+#if UNITY_EDITOR
                         using (ProfileBlock.Start("{0}.{1}()", concreteType, concreteType.Name))
 #endif
                         {
@@ -1430,7 +1430,7 @@ namespace Zenject
 
             foreach (var method in typeInfo.PostInjectMethods)
             {
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+#if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.{1}()", injectableType, method.MethodInfo.Name))
 #endif
                 {
@@ -3091,7 +3091,7 @@ namespace Zenject
 
         public object InstantiateExplicit(Type concreteType, bool autoInject, InjectArgs args)
         {
-#if UNITY_EDITOR && ZEN_PROFILING_ENABLED
+#if UNITY_EDITOR
             using (ProfileBlock.Start("Zenject.Instantiate({0})", concreteType))
 #endif
             {
