@@ -43,20 +43,20 @@ namespace Zenject
 
         public void LateDispose()
         {
-            if (_settings.AutoUnsubscribeInDispose)
-            {
-                foreach (var subscription in _subscriptionMap.Values)
-                {
-                    subscription.Dispose();
-                }
-            }
-            else
+            if (_settings.RequireStrictUnsubscribe)
             {
                 if (!_subscriptionMap.IsEmpty())
                 {
                     throw Assert.CreateException(
                         "Found subscriptions for signals '{0}' in SignalBus.LateDispose!  Either add the explicit Unsubscribe or set SignalSettings.AutoUnsubscribeInDispose to true",
                         _subscriptionMap.Values.Select(x => x.SignalType.PrettyName()).Join(", "));
+                }
+            }
+            else
+            {
+                foreach (var subscription in _subscriptionMap.Values)
+                {
+                    subscription.Dispose();
                 }
             }
 

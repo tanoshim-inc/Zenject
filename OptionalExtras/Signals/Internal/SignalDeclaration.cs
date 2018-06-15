@@ -62,7 +62,7 @@ namespace Zenject
             if (_settings.RequireStrictUnsubscribe)
             {
                 Assert.That(_subscriptions.IsEmpty(),
-                    "Found {0} signals still added to declaration {1}", _subscriptions.Count, _signalType);
+                    "Found {0} signal handlers still added to declaration {1}", _subscriptions.Count, _signalType);
             }
             else
             {

@@ -137,11 +137,6 @@ namespace Zenject
 #if !NOT_UNITY3D
             [SerializeField]
 #endif
-            bool _autoUnsubscribeInDispose;
-
-#if !NOT_UNITY3D
-            [SerializeField]
-#endif
             bool _requireStrictUnsubscribe;
 
 #if !NOT_UNITY3D
@@ -152,7 +147,6 @@ namespace Zenject
             public SignalSettings(
                 SignalDefaultSyncModes defaultSyncMode,
                 SignalMissingHandlerResponses missingHandlerDefaultResponse = SignalMissingHandlerResponses.Warn,
-                bool autoUnsubscribeInDispose = true,
                 bool requireStrictUnsubscribe = false,
                 // Run right after all the unspecified tick priorities so that the effects of the
                 // signal are handled during the same frame when they are triggered
@@ -160,7 +154,6 @@ namespace Zenject
             {
                 _defaultSyncMode = defaultSyncMode;
                 _missingHandlerDefaultResponse = missingHandlerDefaultResponse;
-                _autoUnsubscribeInDispose = autoUnsubscribeInDispose;
                 _requireStrictUnsubscribe = requireStrictUnsubscribe;
                 _defaultAsyncTickPriority = defaultAsyncTickPriority;
             }
@@ -175,11 +168,6 @@ namespace Zenject
             public int DefaultAsyncTickPriority
             {
                 get { return _defaultAsyncTickPriority; }
-            }
-
-            public bool AutoUnsubscribeInDispose
-            {
-                get { return _autoUnsubscribeInDispose; }
             }
 
             public SignalDefaultSyncModes DefaultSyncMode
