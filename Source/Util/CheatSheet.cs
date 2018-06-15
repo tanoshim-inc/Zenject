@@ -4,6 +4,8 @@ using UnityEngine;
 using Zenject;
 using ModestTree;
 
+#pragma warning disable 219
+
 namespace Zenject
 {
     public class CheatSheet : Installer<CheatSheet>
@@ -282,8 +284,8 @@ namespace Zenject
             Container.Bind<Bar>().WithId("Bar2").AsCached();
 
             // Here we use the 'ParentContexts' property of inject context to sync multiple corresponding identifiers
-            Container.BindInstance(foo1).When(c => c.ParentContexts.Where(x => x.MemberType == typeof(Bar) && x.Identifier == "Bar1").Any());
-            Container.BindInstance(foo2).When(c => c.ParentContexts.Where(x => x.MemberType == typeof(Bar) && x.Identifier == "Bar2").Any());
+            Container.BindInstance(foo1).When(c => c.ParentContexts.Where(x => x.MemberType == typeof(Bar) && object.Equals(x.Identifier, "Bar1")).Any());
+            Container.BindInstance(foo2).When(c => c.ParentContexts.Where(x => x.MemberType == typeof(Bar) && object.Equals(x.Identifier, "Bar2")).Any());
 
             // This results in:
             Assert.That(Container.ResolveId<Bar>("Bar1").Foo == foo1);
