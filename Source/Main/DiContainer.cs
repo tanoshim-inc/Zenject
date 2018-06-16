@@ -54,7 +54,9 @@ namespace Zenject
         bool _isFinalizingBinding;
         bool _isValidating;
         bool _isInstalling;
+#if DEBUG || UNITY_EDITOR
         bool _hasDisplayedInstallWarning;
+#endif
 
         public DiContainer(bool isValidating)
         {

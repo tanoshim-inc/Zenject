@@ -5,7 +5,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+#if UNITY_EDITOR
 using UnityEngine.Profiling;
+#endif
 using ModestTree;
 using Zenject.Internal;
 

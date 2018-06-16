@@ -35,10 +35,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="JetBrains.Annotations, Version=11.0.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\NonUnityBuild\packages\JetBrains.Annotations.11.0.0\lib\net20\JetBrains.Annotations.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -108,10 +104,11 @@
     <Compile Include="Factories\Pooling\Util\PoolCleanupChecker.cs" />
     <Compile Include="Factories\Pooling\Util\StaticMemoryPoolRegistry.cs" />
     <Compile Include="Injection\LazyWrapper.cs" />
+    <Compile Include="Install\Contexts\StaticContext.cs" />
     <Compile Include="Install\InstallerBase.cs" />
     <Compile Include="Install\MonoInstallerBase.cs" />
     <Compile Include="Install\ScriptableObjectInstallerBase.cs" />
-    <Compile Include="Install\StandardInterfacesRootInstaller.cs" />
+    <Compile Include="Install\ZenjectManagersInstaller.cs" />
     <Compile Include="Internal\Assert.cs" />
     <Compile Include="Internal\Func.cs" />
     <Compile Include="Internal\LinqExtensions.cs" />
@@ -153,6 +150,7 @@
     <Compile Include="Providers\CachedOpenTypeProvider.cs" />
     <Compile Include="Providers\Decorator\DecoratorProvider.cs" />
     <Compile Include="Providers\IFactoryProvider.cs" />
+    <Compile Include="Providers\MethodMultipleProviderUntyped.cs" />
     <Compile Include="Providers\MethodProviderMultiple.cs" />
     <Compile Include="Providers\MethodProviderUntyped.cs" />
     <Compile Include="Providers\PoolableMemoryPoolProvider.cs" />
