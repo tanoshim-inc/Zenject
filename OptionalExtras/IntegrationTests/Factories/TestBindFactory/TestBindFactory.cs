@@ -485,9 +485,6 @@ namespace Zenject.Tests.Factories
 
         public class Foo2 : MonoBehaviour
         {
-            [Inject]
-            int _value;
-
             public class Factory : PlaceholderFactory<Foo2>
             {
             }

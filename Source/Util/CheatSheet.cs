@@ -186,13 +186,13 @@ namespace Zenject
         public class Norf
         {
             [Inject(Id = "FooA")]
-            string _foo;
+            public string Foo;
         }
 
         public class Qux
         {
             [Inject(Id = "FooB")]
-            string _foo;
+            public string Foo;
         }
 
         public void InstallMore2()
@@ -217,7 +217,7 @@ namespace Zenject
         public class Norf2
         {
             [Inject]
-            Foo _foo;
+            public Foo Foo;
         }
 
         // Qux2._foo will be the same instance as Norf2._foo
@@ -225,10 +225,10 @@ namespace Zenject
         public class Qux2
         {
             [Inject]
-            Foo _foo;
+            public Foo Foo;
 
             [Inject(Id = "FooA")]
-            Foo _foo2;
+            public Foo Foo2;
         }
 
         public void InstallMore3()
@@ -430,7 +430,10 @@ namespace Zenject
         {
             public Foo Foo
             {
-                get;
+                get
+                {
+                    return null;
+                }
             }
         }
     }

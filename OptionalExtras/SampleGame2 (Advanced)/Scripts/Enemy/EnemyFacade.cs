@@ -8,22 +8,27 @@ namespace Zenject.SpaceFighter
     // parts of the codebase outside of our enemy facade
     public class EnemyFacade : MonoBehaviour, IPoolable<float, float, IMemoryPool>, IDisposable
     {
-        [Inject]
         EnemyView _view;
-
-        [Inject]
         EnemyTunables _tunables;
-
-        [Inject]
         EnemyDeathHandler _deathHandler;
-
-        [Inject]
         EnemyStateManager _stateManager;
+        EnemyRegistry _registry;
+        IMemoryPool _pool;
 
         [Inject]
-        EnemyRegistry _registry;
-
-        IMemoryPool _pool;
+        public void Construct(
+            EnemyView view,
+            EnemyTunables tunables,
+            EnemyDeathHandler deathHandler,
+            EnemyStateManager stateManager,
+            EnemyRegistry registry)
+        {
+            _view = view;
+            _tunables = tunables;
+            _deathHandler = deathHandler;
+            _stateManager = stateManager;
+            _registry = registry;
+        }
 
         public EnemyStates State
         {

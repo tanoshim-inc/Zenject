@@ -28,7 +28,7 @@ namespace Zenject
         static ProjectContext _instance;
 
         [SerializeField]
-        ZenjectSettings _settings;
+        ZenjectSettings _settings = null;
 
         DiContainer _container;
 
