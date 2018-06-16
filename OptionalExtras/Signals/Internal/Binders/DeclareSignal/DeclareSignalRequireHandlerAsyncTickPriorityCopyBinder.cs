@@ -6,8 +6,8 @@ namespace Zenject
     public class DeclareSignalRequireHandlerAsyncTickPriorityCopyBinder : DeclareSignalAsyncTickPriorityCopyBinder
     {
         public DeclareSignalRequireHandlerAsyncTickPriorityCopyBinder(
-            SignalDeclarationBindInfo signalBindInfo, BindInfo bindInfo)
-            : base(signalBindInfo, bindInfo)
+            SignalDeclarationBindInfo signalBindInfo)
+            : base(signalBindInfo)
         {
         }
 

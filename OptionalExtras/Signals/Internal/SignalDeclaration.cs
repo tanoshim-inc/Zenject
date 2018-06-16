@@ -23,12 +23,10 @@ namespace Zenject
 #endif
 
         public SignalDeclaration(
-            Type signalType, SignalDeclarationBindInfo bindInfo,
+            Type signalType,
+            SignalDeclarationBindInfo bindInfo,
             [InjectOptional]
-            ZenjectSettings zenjectSettings,
-            // Make TickableManager optional so that it's easier to use signals in unit tests
-            [InjectOptional]
-            TickableManager tickManager)
+            ZenjectSettings zenjectSettings)
         {
             zenjectSettings = zenjectSettings ?? ZenjectSettings.Default;
             _settings = zenjectSettings.Signals ?? ZenjectSettings.SignalSettings.Default;
@@ -36,13 +34,7 @@ namespace Zenject
             _signalType = signalType;
             _missingHandlerResponses = bindInfo.MissingHandlerResponse;
             _isAsync = bindInfo.RunAsync;
-
-            if (bindInfo.RunAsync)
-            {
-                Assert.IsNotNull(tickManager, "TickableManager is required when using asynchronous signals");
-                var tickPriority = bindInfo.TickPriority.HasValue ? bindInfo.TickPriority.Value : _settings.DefaultAsyncTickPriority;
-                tickManager.Add(this, tickPriority);
-            }
+            TickPriority = bindInfo.TickPriority;
         }
 
 #if ZEN_SIGNALS_ADD_UNIRX
@@ -51,6 +43,16 @@ namespace Zenject
             get { return _stream; }
         }
 #endif
+
+        public int TickPriority
+        {
+            get; private set;
+        }
+
+        public bool IsAsync
+        {
+            get { return _isAsync; }
+        }
 
         public Type SignalType
         {

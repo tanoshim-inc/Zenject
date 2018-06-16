@@ -45,6 +45,16 @@ namespace Zenject.Tests.Bindings
             Assert.That(Container.Resolve<IFooFactory>().Create() is Foo);
         }
 
+        [Test]
+        public void TestConcreteUntyped()
+        {
+            Container.BindFactory<IFoo, IFooFactory>().To(typeof(Foo)).NonLazy();
+
+            Assert.IsNotNull(Container.Resolve<IFooFactory>().Create());
+
+            Assert.That(Container.Resolve<IFooFactory>().Create() is Foo);
+        }
+
         interface IFoo
         {
         }

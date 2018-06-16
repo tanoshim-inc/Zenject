@@ -46,9 +46,10 @@ namespace Zenject
                 .WithArguments(_methodGetter, objectLookupId)
                 .NonLazy();
 
+            var copyBinder = new SignalCopyBinder( wrapperBinder.BindInfo);
             // Make sure if they use one of the Copy/Move methods that it applies to both bindings
-            return new SignalCopyBinder(
-                wrapperBinder.BindInfo, objectBinder.BindInfo);
+            copyBinder.AddCopyBindInfo(objectBinder.BindInfo);
+            return copyBinder;
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Zenject
             get; set;
         }
 
-        public int? TickPriority
+        public int TickPriority
         {
             get; set;
         }

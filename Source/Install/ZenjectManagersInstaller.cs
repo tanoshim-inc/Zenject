@@ -15,13 +15,6 @@ namespace Zenject
         {
             Container.Bind(typeof(TickableManager), typeof(InitializableManager), typeof(DisposableManager))
                 .ToSelf().AsSingle().CopyIntoAllSubContainers();
-
-#if ZEN_SIGNALS_ADD_UNIRX
-            // We could use BindInterfacesAndSelfTo instead here but it's better to add ourselves
-            // to all the managers in the constructor to avoid the performance hit for cases where
-            // ZenjectStreams is not used
-            Container.Bind<ZenjectStreams>().AsSingle().CopyIntoAllSubContainers();
-#endif
         }
     }
 }
