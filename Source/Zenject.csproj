@@ -103,7 +103,7 @@
     <Compile Include="Factories\Pooling\Util\ListPool.cs" />
     <Compile Include="Factories\Pooling\Util\PoolCleanupChecker.cs" />
     <Compile Include="Factories\Pooling\Util\StaticMemoryPoolRegistry.cs" />
-    <Compile Include="Injection\LazyWrapper.cs" />
+    <Compile Include="Injection\LazyInject.cs" />
     <Compile Include="Install\Contexts\StaticContext.cs" />
     <Compile Include="Install\InstallerBase.cs" />
     <Compile Include="Install\MonoInstallerBase.cs" />
