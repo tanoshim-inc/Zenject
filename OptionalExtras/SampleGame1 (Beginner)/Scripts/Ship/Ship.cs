@@ -14,8 +14,10 @@ namespace Zenject.Asteroids
         [SerializeField]
         MeshRenderer _meshRenderer;
 
+#if !UNITY_2018
         [SerializeField]
         ParticleEmitter _particleEmitter;
+#endif
 
         ShipStateFactory _stateFactory;
         ShipState _state = null;
@@ -31,10 +33,12 @@ namespace Zenject.Asteroids
             get { return _meshRenderer; }
         }
 
+#if !UNITY_2018
         public ParticleEmitter ParticleEmitter
         {
             get { return _particleEmitter; }
         }
+#endif
 
         public Vector3 Position
         {

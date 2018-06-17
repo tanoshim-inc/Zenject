@@ -46,11 +46,12 @@ namespace Zenject.Asteroids
 
         void UpdateThruster()
         {
-            // doesn't work on 2018
-            //var speed = (_ship.Position - _lastPosition).magnitude / Time.deltaTime;
-            //var speedPx = Mathf.Clamp(speed / _settings.speedForMaxEmisssion, 0.0f, 1.0f);
+#if !UNITY_2018
+            var speed = (_ship.Position - _lastPosition).magnitude / Time.deltaTime;
+            var speedPx = Mathf.Clamp(speed / _settings.speedForMaxEmisssion, 0.0f, 1.0f);
 
-            //_ship.ParticleEmitter.maxEmission = _settings.maxEmission * speedPx;
+            _ship.ParticleEmitter.maxEmission = _settings.maxEmission * speedPx;
+#endif
         }
 
         void Move()
@@ -75,12 +76,17 @@ namespace Zenject.Asteroids
         public override void Start()
         {
             _lastPosition = _ship.Position;
+
+#if !UNITY_2018
             _ship.ParticleEmitter.gameObject.SetActive(true);
+#endif
         }
 
         public override void Dispose()
         {
+#if !UNITY_2018
             _ship.ParticleEmitter.gameObject.SetActive(false);
+#endif
         }
 
         public override void OnTriggerEnter(Collider other)
