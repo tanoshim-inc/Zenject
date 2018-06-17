@@ -157,7 +157,7 @@ namespace Zenject
         void InstallDefaultBindings()
         {
             Bind<DiContainer>().FromInstance(this);
-            Bind(typeof(Lazy<>)).FromMethodUntyped(CreateLazyBinding).Lazy();
+            Bind(typeof(LazyInject<>)).FromMethodUntyped(CreateLazyBinding).Lazy();
         }
 
         object CreateLazyBinding(InjectContext context)
@@ -167,11 +167,7 @@ namespace Zenject
             newContext.MemberType = context.MemberType.GenericArguments().Single();
 
             var result = Activator.CreateInstance(
-#if NET_4_6
-                typeof(LazyWrapper<>)
-#else
-                typeof(Lazy<>)
-#endif
+                typeof(LazyInject<>)
                 .MakeGenericType(newContext.MemberType), new object[] { this, newContext });
 
             if (_isValidating)
@@ -179,11 +175,7 @@ namespace Zenject
                 QueueForValidate((IValidatable)result);
             }
 
-#if NET_4_6
-            return ((ILazyProvider)result).GetLazy();
-#else
             return result;
-#endif
         }
 
         public void QueueForValidate(IValidatable validatable)
@@ -931,12 +923,12 @@ namespace Zenject
 
             var lookupContext = context;
 
-            // The context used for lookups is always the same as the given context EXCEPT for Lazy<>
-            // In CreateLazyBinding above, we forward the context to a new instance of Lazy<>
-            // The problem is, we want the binding for Bind(typeof(Lazy<>)) to always match even
+            // The context used for lookups is always the same as the given context EXCEPT for LazyInject<>
+            // In CreateLazyBinding above, we forward the context to a new instance of LazyInject<>
+            // The problem is, we want the binding for Bind(typeof(LazyInject<>)) to always match even
             // for members that are marked for a specific ID, so we need to discard the identifier
             // for this one particular case
-            if (memberType.IsGenericType() && memberType.GetGenericTypeDefinition() == typeof(Lazy<>))
+            if (memberType.IsGenericType() && memberType.GetGenericTypeDefinition() == typeof(LazyInject<>))
             {
                 lookupContext = context.Clone();
                 lookupContext.Identifier = null;

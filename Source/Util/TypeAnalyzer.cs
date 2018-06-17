@@ -56,13 +56,6 @@ namespace Zenject
                 return true;
             }
 
-#if NET_4_6
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Lazy<>))
-            {
-                return true;
-            }
-#endif
-
 #if !NOT_UNITY3D
             if (type.DerivesFrom<Context>())
             {

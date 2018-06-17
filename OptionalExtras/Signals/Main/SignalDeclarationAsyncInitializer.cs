@@ -10,14 +10,14 @@ namespace Zenject
     // to have a unique tick priority
     public class SignalDeclarationAsyncInitializer : IInitializable
     {
-        readonly Lazy<TickableManager> _tickManager;
+        readonly LazyInject<TickableManager> _tickManager;
         readonly List<SignalDeclaration> _declarations;
 
         public SignalDeclarationAsyncInitializer(
             [Inject(Source = InjectSources.Local)]
             List<SignalDeclaration> declarations,
             [Inject(Optional = true, Source = InjectSources.Local)]
-            Lazy<TickableManager> tickManager)
+            LazyInject<TickableManager> tickManager)
         {
             _declarations = declarations;
             _tickManager = tickManager;
