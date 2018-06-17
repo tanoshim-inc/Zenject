@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ModestTree.Util;
 using UnityEngine;
 using Zenject;
 
@@ -17,7 +18,7 @@ namespace Zenject.SpaceFighter
             Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
 
             Container.BindFactory<float, float, EnemyFacade, EnemyFacade.Factory>()
-                .FromMonoPoolableMemoryPool<EnemyFacade>(poolBinder => poolBinder
+                .FromPoolableMemoryPool<EnemyFacade, EnemyFacadePool>(poolBinder => poolBinder
                     // Spawn 5 enemies right off the bat so that we don't incur spikes at runtime
                     .WithInitialSize(5)
                     .FromSubContainerResolve()
@@ -26,7 +27,7 @@ namespace Zenject.SpaceFighter
                     .UnderTransformGroup("Enemies"));
 
             Container.BindFactory<float, float, BulletTypes, Bullet, Bullet.Factory>()
-                .FromMonoPoolableMemoryPool<Bullet>(poolBinder => poolBinder
+                .FromPoolableMemoryPool<Bullet, BulletPool>(poolBinder => poolBinder
                     // Spawn 20 right off the bat so that we don't incur spikes at runtime
                     .WithInitialSize(20)
                     // Bullets are simple enough that we don't need to make a subcontainer for them
@@ -37,7 +38,7 @@ namespace Zenject.SpaceFighter
             Container.Bind<LevelBoundary>().AsSingle();
 
             Container.BindFactory<Explosion, Explosion.Factory>()
-                .FromMonoPoolableMemoryPool<Explosion>(poolBinder => poolBinder
+                .FromPoolableMemoryPool<Explosion, ExplosionPool>(poolBinder => poolBinder
                     // Spawn 4 right off the bat so that we don't incur spikes at runtime
                     .WithInitialSize(4)
                     .FromComponentInNewPrefab(_settings.ExplosionPrefab)
@@ -58,6 +59,18 @@ namespace Zenject.SpaceFighter
             public GameObject EnemyFacadePrefab;
             public GameObject BulletPrefab;
             public GameObject ExplosionPrefab;
+        }
+
+        class EnemyFacadePool : MonoPoolableMemoryPool<float, float, IMemoryPool, EnemyFacade>
+        {
+        }
+
+        class BulletPool : MonoPoolableMemoryPool<float, float, BulletTypes, IMemoryPool, Bullet>
+        {
+        }
+
+        class ExplosionPool : MonoPoolableMemoryPool<IMemoryPool, Explosion>
+        {
         }
     }
 }

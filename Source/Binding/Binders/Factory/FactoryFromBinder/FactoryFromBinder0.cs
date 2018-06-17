@@ -81,10 +81,10 @@ namespace Zenject
             // constraints below
             where TContractAgain : IPoolable<IMemoryPool>
         {
-            return FromPoolableMemoryPoolInternal<TContractAgain, PoolableMemoryPool<IMemoryPool, TContractAgain>>(poolBindGenerator);
+            return FromPoolableMemoryPool<TContractAgain, PoolableMemoryPool<IMemoryPool, TContractAgain>>(poolBindGenerator);
         }
 
-        ArgConditionCopyNonLazyBinder FromPoolableMemoryPoolInternal<TContractAgain, TMemoryPool>(
+        public ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TContractAgain, TMemoryPool>(
             Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
             // Unfortunately we have to pass the same contract in again to satisfy the generic
             // constraints below
@@ -112,15 +112,6 @@ namespace Zenject
         }
 
 #if !NOT_UNITY3D
-
-        public ArgConditionCopyNonLazyBinder FromMonoPoolableMemoryPool<TContractAgain>(
-            Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
-            // Unfortunately we have to pass the same contract in again to satisfy the generic
-            // constraints below
-            where TContractAgain : Component, IPoolable<IMemoryPool>
-        {
-            return FromPoolableMemoryPoolInternal<TContractAgain, MonoPoolableMemoryPool<IMemoryPool, TContractAgain>>(poolBindGenerator);
-        }
 
         public ConditionCopyNonLazyBinder FromComponentInHierarchy(
             bool includeInactive = true)
