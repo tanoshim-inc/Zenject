@@ -8,22 +8,31 @@ namespace Zenject
     // attempted to inject TickableManager into either SignalDeclaration or SignalBus
     // And we need to directly depend on TickableManager because we need each SignalDeclaration
     // to have a unique tick priority
-    public class SignalDeclarationAsyncInitializer
+    public class SignalDeclarationAsyncInitializer : IInitializable
     {
+        readonly Lazy<TickableManager> _tickManager;
+        readonly List<SignalDeclaration> _declarations;
+
         public SignalDeclarationAsyncInitializer(
             [Inject(Source = InjectSources.Local)]
-            List<SignalDeclaration> signalDeclarations,
+            List<SignalDeclaration> declarations,
             [Inject(Optional = true, Source = InjectSources.Local)]
-            TickableManager tickManager)
+            Lazy<TickableManager> tickManager)
         {
-            for (int i = 0; i < signalDeclarations.Count; i++)
+            _declarations = declarations;
+            _tickManager = tickManager;
+        }
+
+        public void Initialize()
+        {
+            for (int i = 0; i < _declarations.Count; i++)
             {
-                var declaration = signalDeclarations[i];
+                var declaration = _declarations[i];
 
                 if (declaration.IsAsync)
                 {
-                    Assert.IsNotNull(tickManager, "TickableManager is required when using asynchronous signals");
-                    tickManager.Add(declaration, declaration.TickPriority);
+                    Assert.IsNotNull(_tickManager.Value, "TickableManager is required when using asynchronous signals");
+                    _tickManager.Value.Add(declaration, declaration.TickPriority);
                 }
             }
         }
