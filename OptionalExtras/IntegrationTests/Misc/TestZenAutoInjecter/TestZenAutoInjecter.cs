@@ -65,7 +65,7 @@ namespace Zenject.Tests.AutoInjecter
         public IEnumerator TestInstantiatePrefabWithSearchContainerSourceInGameObjectContext()
         {
             PreInstall();
-            Container.Bind<Gorp>().FromSubContainerResolve().ByNewPrefab(GetPrefab("GorpContext")).AsSingle();
+            Container.Bind<Gorp>().FromSubContainerResolve().ByNewContextPrefab(GetPrefab("GorpContext")).AsSingle();
             PostInstall();
             yield return null;
 

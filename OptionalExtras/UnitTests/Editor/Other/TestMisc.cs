@@ -12,7 +12,7 @@ namespace Zenject.Tests.Other
     {
         public class Foo
         {
-            public class Factory : Factory<Foo>
+            public class Factory : PlaceholderFactory<Foo>
             {
             }
         }

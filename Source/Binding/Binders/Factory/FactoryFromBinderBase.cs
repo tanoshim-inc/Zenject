@@ -102,6 +102,37 @@ namespace Zenject
 
 #if !NOT_UNITY3D
 
+        public ConditionCopyNonLazyBinder FromComponentOn(GameObject gameObject)
+        {
+            BindingUtil.AssertIsValidGameObject(gameObject);
+            BindingUtil.AssertIsComponent(ContractType);
+            BindingUtil.AssertIsNotAbstract(ContractType);
+
+            ProviderFunc =
+                (container) => new GetFromGameObjectComponentProvider(
+                    ContractType, gameObject, true);
+
+            return this;
+        }
+
+        public ConditionCopyNonLazyBinder FromComponentOn(Func<InjectContext, GameObject> gameObjectGetter)
+        {
+            BindingUtil.AssertIsComponent(ContractType);
+            BindingUtil.AssertIsNotAbstract(ContractType);
+
+            ProviderFunc =
+                (container) => new GetFromGameObjectGetterComponentProvider(
+                    ContractType, gameObjectGetter, true);
+
+            return this;
+        }
+
+        public ConditionCopyNonLazyBinder FromComponentOnRoot()
+        {
+            return FromComponentOn(
+                ctx => BindContainer.Resolve<Context>().gameObject);
+        }
+
         public ConditionCopyNonLazyBinder FromNewComponentOn(GameObject gameObject)
         {
             BindingUtil.AssertIsValidGameObject(gameObject);

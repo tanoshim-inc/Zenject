@@ -174,6 +174,76 @@ namespace Zenject
 
 #if !NOT_UNITY3D
 
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsOn(GameObject gameObject)
+        {
+            BindingUtil.AssertIsValidGameObject(gameObject);
+            BindingUtil.AssertIsComponent(ConcreteTypes);
+            BindingUtil.AssertTypesAreNotAbstract(ConcreteTypes);
+
+            BindInfo.RequireExplicitScope = true;
+            SubFinalizer = new ScopableBindingFinalizer(
+                BindInfo,
+                (container, type) => new GetFromGameObjectComponentProvider(
+                    type, gameObject, false));
+
+            return new ScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo);
+        }
+
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentOn(GameObject gameObject)
+        {
+            BindingUtil.AssertIsValidGameObject(gameObject);
+            BindingUtil.AssertIsComponent(ConcreteTypes);
+            BindingUtil.AssertTypesAreNotAbstract(ConcreteTypes);
+
+            BindInfo.RequireExplicitScope = true;
+            SubFinalizer = new ScopableBindingFinalizer(
+                BindInfo,
+                (container, type) => new GetFromGameObjectComponentProvider(
+                    type, gameObject, true));
+
+            return new ScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo);
+        }
+
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsOn(Func<InjectContext, GameObject> gameObjectGetter)
+        {
+            BindingUtil.AssertIsComponent(ConcreteTypes);
+            BindingUtil.AssertTypesAreNotAbstract(ConcreteTypes);
+
+            BindInfo.RequireExplicitScope = false;
+            SubFinalizer = new ScopableBindingFinalizer(
+                BindInfo,
+                (container, type) => new GetFromGameObjectGetterComponentProvider(
+                    type, gameObjectGetter, false));
+
+            return new ScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo);
+        }
+
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentOn(Func<InjectContext, GameObject> gameObjectGetter)
+        {
+            BindingUtil.AssertIsComponent(ConcreteTypes);
+            BindingUtil.AssertTypesAreNotAbstract(ConcreteTypes);
+
+            BindInfo.RequireExplicitScope = false;
+            SubFinalizer = new ScopableBindingFinalizer(
+                BindInfo,
+                (container, type) => new GetFromGameObjectGetterComponentProvider(
+                    type, gameObjectGetter, true));
+
+            return new ScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo);
+        }
+
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentsOnRoot()
+        {
+            return FromComponentsOn(
+                ctx => BindContainer.Resolve<Context>().gameObject);
+        }
+
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder FromComponentOnRoot()
+        {
+            return FromComponentOn(
+                ctx => BindContainer.Resolve<Context>().gameObject);
+        }
+
         public ScopeConcreteIdArgConditionCopyNonLazyBinder FromNewComponentOn(GameObject gameObject)
         {
             BindingUtil.AssertIsValidGameObject(gameObject);

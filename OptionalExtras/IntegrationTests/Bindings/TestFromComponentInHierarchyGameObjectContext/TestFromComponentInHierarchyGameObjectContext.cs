@@ -35,7 +35,7 @@ namespace Zenject.Tests.Bindings.FromComponentInHierarchyGameObjectContext
             PreInstall();
 
             Container.Bind<Foo>().FromSubContainerResolve()
-                .ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+                .ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
 

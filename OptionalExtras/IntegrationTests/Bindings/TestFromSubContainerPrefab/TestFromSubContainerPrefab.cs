@@ -39,7 +39,7 @@ namespace Zenject.Tests.Bindings
             CommonInstall();
 
             Container.Bind<Foo>().FromSubContainerResolve()
-                .ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+                .ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -56,7 +56,7 @@ namespace Zenject.Tests.Bindings
             CommonInstall();
 
             Container.Bind<Foo>().FromSubContainerResolve()
-                .ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+                .ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
             yield break;
@@ -70,7 +70,7 @@ namespace Zenject.Tests.Bindings
             CommonInstall();
 
             Container.Bind<Foo>().FromSubContainerResolve()
-                .ByNewPrefab(FooPrefab2).AsSingle().NonLazy();
+                .ByNewContextPrefab(FooPrefab2).AsSingle().NonLazy();
 
             Assert.Throws(() => PostInstall());
             yield break;
@@ -82,7 +82,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
             CommonInstall();
 
-            Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefab(FooPrefab).AsTransient().NonLazy();
+            Container.Bind<Foo>().FromSubContainerResolve().ByNewContextPrefab(FooPrefab).AsTransient().NonLazy();
 
             PostInstall();
 
@@ -97,7 +97,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
             CommonInstall();
 
-            Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+            Container.Bind<Foo>().FromSubContainerResolve().ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -112,7 +112,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
             CommonInstall();
 
-            Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+            Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -128,7 +128,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
             CommonInstall();
 
-            Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+            Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -144,7 +144,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
             CommonInstall();
 
-            Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewPrefab(FooPrefab).AsTransient().NonLazy();
+            Container.Bind(typeof(Foo), typeof(Bar)).FromSubContainerResolve().ByNewContextPrefab(FooPrefab).AsTransient().NonLazy();
 
             PostInstall();
 
@@ -160,7 +160,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
             CommonInstall();
 
-            Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve().ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+            Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve().ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -176,7 +176,7 @@ namespace Zenject.Tests.Bindings
             CommonInstall();
 
             Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve()
-                .ByNewPrefab(FooPrefab).AsTransient().NonLazy();
+                .ByNewContextPrefab(FooPrefab).AsTransient().NonLazy();
 
             PostInstall();
 
@@ -191,7 +191,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
             CommonInstall();
 
-            Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve().ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+            Container.Bind<IFoo>().To<Foo>().FromSubContainerResolve().ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -207,7 +207,7 @@ namespace Zenject.Tests.Bindings
             CommonInstall();
 
             Container.Bind(typeof(Bar), typeof(IFoo)).To(typeof(Foo), typeof(Bar))
-                .FromSubContainerResolve().ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+                .FromSubContainerResolve().ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -223,7 +223,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
             CommonInstall();
 
-            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromSubContainerResolve().ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromSubContainerResolve().ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -238,7 +238,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
             CommonInstall();
 
-            Container.Bind<Gorp>().FromSubContainerResolve().ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+            Container.Bind<Gorp>().FromSubContainerResolve().ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             Assert.Throws(() => PostInstall());
             yield break;
@@ -251,7 +251,7 @@ namespace Zenject.Tests.Bindings
             CommonInstall();
 
             Container.Settings = new ZenjectSettings(ValidationErrorResponses.Throw);
-            Container.Bind<Gorp>().FromSubContainerResolve("gorp").ByNewPrefab(FooPrefab).AsSingle().NonLazy();
+            Container.Bind<Gorp>().FromSubContainerResolve("gorp").ByNewContextPrefab(FooPrefab).AsSingle().NonLazy();
 
             PostInstall();
 

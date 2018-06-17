@@ -360,7 +360,7 @@ namespace Zenject.Tests.Factories
         public IEnumerator TestToSubContainerPrefabSelf()
         {
             PreInstall();
-            Container.BindFactory<Foo, Foo.Factory>().FromSubContainerResolve().ByNewPrefab(FooSubContainerPrefab);
+            Container.BindFactory<Foo, Foo.Factory>().FromSubContainerResolve().ByNewContextPrefab(FooSubContainerPrefab);
 
             PostInstall();
 
@@ -376,7 +376,7 @@ namespace Zenject.Tests.Factories
         {
             PreInstall();
             Container.BindFactory<IFoo, IFooFactory>()
-                .To<Foo>().FromSubContainerResolve().ByNewPrefab(FooSubContainerPrefab);
+                .To<Foo>().FromSubContainerResolve().ByNewContextPrefab(FooSubContainerPrefab);
 
             PostInstall();
 
@@ -485,6 +485,12 @@ namespace Zenject.Tests.Factories
 
         public class Foo2 : MonoBehaviour
         {
+            [Inject]
+            public int Value
+            {
+                get; private set;
+            }
+
             public class Factory : PlaceholderFactory<Foo2>
             {
             }
