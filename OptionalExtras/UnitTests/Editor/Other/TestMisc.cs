@@ -10,30 +10,17 @@ namespace Zenject.Tests.Other
     [TestFixture]
     public class TestMisc : ZenjectUnitTestFixture
     {
-        public interface ILoadFilter
+        public class Foo
         {
-        }
-
-        public class CacheLoadFilter : ILoadFilter
-        {
-        }
-
-        public class DatabaseLoadFilter : ILoadFilter
-        {
-        }
-
-        public class FileLoadFilter : ILoadFilter
-        {
+            public class Factory : Factory<Foo>
+            {
+            }
         }
 
         [Test]
         public void Test1()
         {
-            Container.Bind<ILoadFilter>().WithId("cache").To<CacheLoadFilter>().AsSingle();
-            Container.Bind<ILoadFilter>().WithId("database").To<DatabaseLoadFilter>().AsSingle();
-            Container.Bind<ILoadFilter>().WithId("file").To<FileLoadFilter>().AsSingle();
-
-            Container.ResolveId<ILoadFilter>("cache");
+            Container.BindFactory<Foo, Foo.Factory>();
         }
     }
 }
