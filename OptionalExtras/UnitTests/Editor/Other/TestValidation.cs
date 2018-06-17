@@ -176,7 +176,7 @@ namespace Zenject.Tests
         public class Jaze
         {
             [Inject]
-            public Lazy<Qux> Qux;
+            public LazyInject<Qux> Qux;
         }
 
         public class QuxInstaller : Installer<QuxInstaller>
