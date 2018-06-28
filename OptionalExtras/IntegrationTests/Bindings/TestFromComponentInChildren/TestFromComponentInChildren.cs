@@ -33,17 +33,6 @@ namespace Zenject.Tests.Bindings
             _grandchild.transform.SetParent(_child1.transform);
         }
 
-        public void Setup2()
-        {
-            _root = new GameObject("root").AddComponent<Root>();
-
-            _child1 = null;
-            _child2 = null;
-
-            _grandchild = new GameObject("grandchild").AddComponent<Grandchild>();
-            _grandchild.transform.SetParent(_root.transform);
-        }
-
         [UnityTest]
         public IEnumerator RunMatchSingleChild()
         {
@@ -80,10 +69,10 @@ namespace Zenject.Tests.Bindings
         [UnityTest]
         public IEnumerator RunMissingChildrenFailure()
         {
-            Setup2();
+            var root = new GameObject("root").AddComponent<Root>();
+
             PreInstall();
             Container.Bind<Grandchild>().FromComponentInChildren();
-            Container.Bind<Child>().FromComponentInChildren();
 
             Assert.Throws(() => PostInstall());
             yield break;
@@ -92,15 +81,53 @@ namespace Zenject.Tests.Bindings
         [UnityTest]
         public IEnumerator RunMissingChildrenSuccess()
         {
-            Setup2();
+            var root = new GameObject("root").AddComponent<Root>();
+
+            var grandchild = new GameObject("grandchild").AddComponent<Grandchild>();
+            grandchild.transform.SetParent(root.transform);
+
             PreInstall();
             Container.Bind<Grandchild>().FromComponentInChildren();
-            Container.Bind<Child>().FromComponentsInChildren();
+
+            PostInstall();
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator TestOptional()
+        {
+            var root = new GameObject("root").AddComponent<RootWithOptional>();
+
+            PreInstall();
+
+            Container.Bind<Child>().FromComponentInChildren();
 
             PostInstall();
 
-            Assert.IsEqual(_root.Grandchild, _grandchild);
-            Assert.IsEqual(_root.Childs.Count, 0);
+            Assert.IsNull(root.Child);
+
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator TestOptional2()
+        {
+            var root = new GameObject("root").AddComponent<Root>();
+
+            var grandChild = new GameObject("grandchild").AddComponent<Grandchild>();
+            grandChild.transform.SetParent(root.transform, false);
+
+            PreInstall();
+
+            Container.Bind<Grandchild>().FromComponentsInChildren();
+            Container.Bind<Child>().FromComponentInChildren();
+
+            PostInstall();
+
+            // The FromComponentInChildren call should match nothing when optional like in
+            // list bindings
+            Assert.That(root.Childs.IsEmpty());
+
             yield break;
         }
 
@@ -119,6 +146,12 @@ namespace Zenject.Tests.Bindings
 
         public class Grandchild : MonoBehaviour
         {
+        }
+
+        public class RootWithOptional : MonoBehaviour
+        {
+            [InjectOptional]
+            public Child Child;
         }
     }
 }

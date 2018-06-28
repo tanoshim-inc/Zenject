@@ -59,6 +59,23 @@ namespace Zenject.Tests.Bindings
             yield break;
         }
 
+        [UnityTest]
+        public IEnumerator TestOptional()
+        {
+            var gameObject = new GameObject("Test");
+
+            PreInstall();
+
+            Container.Bind<Qiv>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
+            Container.Bind<Foo>().FromComponentSibling();
+
+            PostInstall();
+
+            var qiv = Container.Resolve<Qiv>();
+            Assert.IsNull(qiv.Foo);
+            yield break;
+        }
+
         public class Qux
         {
             public Qux(Foo foo)
@@ -79,6 +96,12 @@ namespace Zenject.Tests.Bindings
         public class Gorp : MonoBehaviour
         {
             [Inject]
+            public Foo Foo;
+        }
+
+        public class Qiv : MonoBehaviour
+        {
+            [InjectOptional]
             public Foo Foo;
         }
     }

@@ -14,30 +14,15 @@ namespace Zenject.Tests.Bindings
 {
     public class TestFromComponentSibling : ZenjectIntegrationTestFixture
     {
-        Foo _foo;
-        Bar _bar;
-        Qux _qux1;
-        Qux _qux2;
-
-        public void Setup1()
-        {
-            _foo = new GameObject().AddComponent<Foo>();
-
-            _bar = _foo.gameObject.AddComponent<Bar>();
-            _qux1 = _foo.gameObject.AddComponent<Qux>();
-            _qux2 = _foo.gameObject.AddComponent<Qux>();
-        }
-
-        public void Setup2()
-        {
-            _foo = new GameObject().AddComponent<Foo>();
-            _bar = _foo.gameObject.AddComponent<Bar>();
-        }
-
         [UnityTest]
         public IEnumerator RunTestSingleMatch()
         {
-            Setup1();
+            var foo = new GameObject().AddComponent<Foo>();
+
+            var bar = foo.gameObject.AddComponent<Bar>();
+            var qux1 = foo.gameObject.AddComponent<Qux>();
+            var qux2 = foo.gameObject.AddComponent<Qux>();
+
             PreInstall();
 
             Container.Bind<Qux>().FromComponentSibling();
@@ -46,18 +31,23 @@ namespace Zenject.Tests.Bindings
 
             PostInstall();
 
-            Assert.IsEqual(_foo.Bar, _bar);
-            Assert.IsEqual(_foo.IBar, _bar);
-            Assert.IsEqual(_foo.Qux.Count, 1);
-            Assert.IsEqual(_foo.Qux[0], _qux1);
-            Assert.IsEqual(_qux1.OtherQux, _qux1);
+            Assert.IsEqual(foo.Bar, bar);
+            Assert.IsEqual(foo.IBar, bar);
+            Assert.IsEqual(foo.Qux.Count, 1);
+            Assert.IsEqual(foo.Qux[0], qux1);
+            Assert.IsEqual(qux1.OtherQux, qux1);
             yield break;
         }
 
         [UnityTest]
         public IEnumerator RunTestMultiple()
         {
-            Setup1();
+            var foo = new GameObject().AddComponent<Foo>();
+
+            var bar = foo.gameObject.AddComponent<Bar>();
+            var qux1 = foo.gameObject.AddComponent<Qux>();
+            var qux2 = foo.gameObject.AddComponent<Qux>();
+
             PreInstall();
 
             Container.Bind<Qux>().FromComponentsSibling();
@@ -66,26 +56,25 @@ namespace Zenject.Tests.Bindings
 
             PostInstall();
 
-            Assert.IsEqual(_foo.Bar, _bar);
-            Assert.IsEqual(_foo.IBar, _bar);
-            Assert.IsEqual(_foo.Qux[0], _qux1);
-            Assert.IsEqual(_foo.Qux[1], _qux2);
+            Assert.IsEqual(foo.Bar, bar);
+            Assert.IsEqual(foo.IBar, bar);
+            Assert.IsEqual(foo.Qux[0], qux1);
+            Assert.IsEqual(foo.Qux[1], qux2);
 
             // Should skip self
-            Assert.IsEqual(_foo.Qux[0].OtherQux, _foo.Qux[1]);
-            Assert.IsEqual(_foo.Qux[1].OtherQux, _foo.Qux[0]);
+            Assert.IsEqual(foo.Qux[0].OtherQux, foo.Qux[1]);
+            Assert.IsEqual(foo.Qux[1].OtherQux, foo.Qux[0]);
             yield break;
         }
 
         [UnityTest]
         public IEnumerator RunTestMissingFailure()
         {
-            Setup2();
+            var gorp = new GameObject().AddComponent<Gorp>();
+
             PreInstall();
 
-            Container.Bind<Qux>().FromComponentSibling();
             Container.Bind<Bar>().FromComponentSibling();
-            Container.Bind<IBar>().FromComponentSibling();
 
             Assert.Throws(() => PostInstall());
             yield break;
@@ -94,7 +83,9 @@ namespace Zenject.Tests.Bindings
         [UnityTest]
         public IEnumerator RunTestMissingSuccess()
         {
-            Setup2();
+            var foo = new GameObject().AddComponent<Foo>();
+            foo.gameObject.AddComponent<Bar>();
+
             PreInstall();
 
             Container.Bind<Qux>().FromComponentsSibling();
@@ -103,7 +94,7 @@ namespace Zenject.Tests.Bindings
 
             PostInstall();
 
-            Assert.That(_foo.Qux.IsEmpty());
+            Assert.That(foo.Qux.IsEmpty());
             yield break;
         }
 
@@ -131,6 +122,12 @@ namespace Zenject.Tests.Bindings
 
             [Inject]
             public List<Qux> Qux;
+        }
+
+        public class Gorp : MonoBehaviour
+        {
+            [Inject]
+            public Bar Bar;
         }
     }
 }

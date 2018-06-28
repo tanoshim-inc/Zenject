@@ -78,7 +78,7 @@ namespace Zenject.Tests.Bindings
         {
             Setup2();
             PreInstall();
-            Container.Bind<Qux>().AsSingle().NonLazy();
+            Container.Bind<Bar>().AsSingle().NonLazy();
             Container.Bind<Foo>().FromComponentInHierarchy();
 
             Assert.Throws(() => PostInstall());
@@ -101,6 +101,21 @@ namespace Zenject.Tests.Bindings
             yield break;
         }
 
+        [UnityTest]
+        public IEnumerator TestOptional()
+        {
+            PreInstall();
+
+            Container.Bind<Qiv>().AsSingle().NonLazy();
+            Container.Bind<Foo>().FromComponentInHierarchy();
+
+            PostInstall();
+
+            var qiv = Container.Resolve<Qiv>();
+            Assert.IsNull(qiv.Foo);
+            yield break;
+        }
+
         public class Foo : MonoBehaviour
         {
         }
@@ -109,6 +124,18 @@ namespace Zenject.Tests.Bindings
         {
             [Inject]
             public List<Foo> Foos;
+        }
+
+        public class Bar
+        {
+            [Inject]
+            public Foo Foo;
+        }
+
+        public class Qiv
+        {
+            [InjectOptional]
+            public Foo Foo;
         }
     }
 }

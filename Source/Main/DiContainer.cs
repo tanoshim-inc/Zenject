@@ -1003,7 +1003,7 @@ namespace Zenject
                     }
 
                     throw Assert.CreateException(
-                        "Provider returned zero instances when one was expected!  While resolving type '{0}'{1}. \nObject graph:\n{2}",
+                        "Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
                         memberType.ToString() + (context.Identifier == null
                             ? ""
                             : " with ID '{0}'".Fmt(context.Identifier.ToString())),
