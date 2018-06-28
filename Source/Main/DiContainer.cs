@@ -156,7 +156,7 @@ namespace Zenject
 
         void InstallDefaultBindings()
         {
-            Bind<DiContainer>().FromInstance(this);
+            Bind(typeof(DiContainer), typeof(IInstantiator)).FromInstance(this);
             Bind(typeof(LazyInject<>)).FromMethodUntyped(CreateLazyBinding).Lazy();
         }
 
