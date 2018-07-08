@@ -112,7 +112,7 @@ namespace Zenject.Tests.Bindings
         [UnityTest]
         public IEnumerator TestOptional()
         {
-            var root = new GameObject();
+            new GameObject();
             var child = new GameObject().AddComponent<ChildWithOptional>();
 
             PreInstall();

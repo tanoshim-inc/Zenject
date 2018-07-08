@@ -21,7 +21,7 @@ namespace Zenject.Tests.Bindings
 
             var bar = foo.gameObject.AddComponent<Bar>();
             var qux1 = foo.gameObject.AddComponent<Qux>();
-            var qux2 = foo.gameObject.AddComponent<Qux>();
+            foo.gameObject.AddComponent<Qux>();
 
             PreInstall();
 
@@ -70,7 +70,7 @@ namespace Zenject.Tests.Bindings
         [UnityTest]
         public IEnumerator RunTestMissingFailure()
         {
-            var gorp = new GameObject().AddComponent<Gorp>();
+            new GameObject().AddComponent<Gorp>();
 
             PreInstall();
 

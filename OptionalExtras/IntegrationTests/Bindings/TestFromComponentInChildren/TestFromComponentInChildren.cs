@@ -69,7 +69,7 @@ namespace Zenject.Tests.Bindings
         [UnityTest]
         public IEnumerator RunMissingChildrenFailure()
         {
-            var root = new GameObject("root").AddComponent<Root>();
+            new GameObject("root").AddComponent<Root>();
 
             PreInstall();
             Container.Bind<Grandchild>().FromComponentInChildren();
