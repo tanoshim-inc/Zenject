@@ -2,11 +2,11 @@ using System;
 
 namespace Zenject.SpaceFighter
 {
-    public class PlayerDiedSignal
+    public struct PlayerDiedSignal
     {
     }
 
-    public class EnemyKilledSignal
+    public struct EnemyKilledSignal
     {
     }
 }
