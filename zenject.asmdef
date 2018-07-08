@@ -1,0 +1,8 @@
+{
+    "name": "zenject",
+    "references": [
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
