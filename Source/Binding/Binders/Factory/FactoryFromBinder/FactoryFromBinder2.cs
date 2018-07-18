@@ -79,6 +79,7 @@ namespace Zenject
             return fromBinder.FromPoolableMemoryPool<TParam1, TParam2, TContract, PoolableMemoryPool<TParam1, TParam2, IMemoryPool, TContract>>(poolBindGenerator);
         }
 
+#if !NOT_UNITY3D
         public static ArgConditionCopyNonLazyBinder FromMonoPoolableMemoryPool<TParam1, TParam2, TContract>(
             this FactoryFromBinder<TParam1, TParam2, TContract> fromBinder)
             // Unfortunately we have to pass the same contract in again to satisfy the generic
@@ -97,6 +98,7 @@ namespace Zenject
         {
             return fromBinder.FromPoolableMemoryPool<TParam1, TParam2, TContract, MonoPoolableMemoryPool<TParam1, TParam2, IMemoryPool, TContract>>(poolBindGenerator);
         }
+#endif
 
         public static ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TParam1, TParam2, TContract, TMemoryPool>(
             this FactoryFromBinder<TParam1, TParam2, TContract> fromBinder)
