@@ -75,6 +75,14 @@ namespace Zenject
                 BindContainer, BindInfo, FactoryBindInfo, subIdentifier);
         }
 
+        public ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TContractAgain>()
+            // Unfortunately we have to pass the same contract in again to satisfy the generic
+            // constraints below
+            where TContractAgain : IPoolable<IMemoryPool>
+        {
+            return FromPoolableMemoryPool<TContractAgain>(x => {});
+        }
+
         public ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TContractAgain>(
             Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
             // Unfortunately we have to pass the same contract in again to satisfy the generic
@@ -82,6 +90,15 @@ namespace Zenject
             where TContractAgain : IPoolable<IMemoryPool>
         {
             return FromPoolableMemoryPool<TContractAgain, PoolableMemoryPool<IMemoryPool, TContractAgain>>(poolBindGenerator);
+        }
+
+        public ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TContractAgain, TMemoryPool>()
+            // Unfortunately we have to pass the same contract in again to satisfy the generic
+            // constraints below
+            where TContractAgain : IPoolable<IMemoryPool>
+            where TMemoryPool : MemoryPool<IMemoryPool, TContractAgain>
+        {
+            return FromPoolableMemoryPool<TContractAgain, TMemoryPool>(x => {});
         }
 
         public ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TContractAgain, TMemoryPool>(
