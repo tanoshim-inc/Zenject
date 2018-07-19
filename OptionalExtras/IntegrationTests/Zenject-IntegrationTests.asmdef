@@ -1,8 +1,8 @@
 {
-    "name": "Zenject-Editor-PoolMonitor",
+    "name": "Zenject-IntegrationTests",
     "references": [
-        "Zenject",
-        "Zenject-Editor"
+        "Zenject-TestFramework",
+        "Zenject"
     ],
     "includePlatforms": [
         "Editor"

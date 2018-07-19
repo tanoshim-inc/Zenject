@@ -1,0 +1,12 @@
+{
+    "name": "Zenject-TestFramework-Editor",
+    "references": [
+        "Zenject-TestFramework",
+        "Zenject-Editor",
+        "Zenject"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}
