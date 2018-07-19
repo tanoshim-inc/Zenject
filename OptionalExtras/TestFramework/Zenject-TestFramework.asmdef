@@ -1,8 +1,7 @@
 {
-    "name": "Zenject-Editor-UnitTests",
+    "name": "Zenject-TestFramework",
     "references": [
-        "Zenject",
-        "Zenject-Editor-TestFramework"
+        "Zenject"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
