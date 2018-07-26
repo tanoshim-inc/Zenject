@@ -67,7 +67,7 @@ namespace Zenject.Tests.Bindings
         [Test]
         public void Test1()
         {
-            Container.BindFactory<string, Foo, Foo.Factory>().FromPoolableMemoryPool<Foo>(x => x.WithInitialSize(2).WithArguments("blurg"));
+            Container.BindFactory<string, Foo, Foo.Factory>().FromPoolableMemoryPool(x => x.WithInitialSize(2).WithArguments("blurg"));
 
             var factory = Container.Resolve<Foo.Factory>();
 

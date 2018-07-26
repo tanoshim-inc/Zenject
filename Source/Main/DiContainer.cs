@@ -45,7 +45,8 @@ namespace Zenject
         readonly List<IValidatable> _validationQueue = new List<IValidatable>();
 
 #if !NOT_UNITY3D
-        Context _context;
+        Transform _contextTransform;
+        bool _hasLookedUpContextTransform;
 #endif
 
         ZenjectSettings _settings;
@@ -217,17 +218,24 @@ namespace Zenject
         }
 
 #if !NOT_UNITY3D
-        Context Context
+        // This might be null in some rare cases like when used in ZenjectUnitTestFixture
+        Transform ContextTransform
         {
             get
             {
-                if (_context == null)
+                if (!_hasLookedUpContextTransform)
                 {
-                    _context = Resolve<Context>();
-                    Assert.IsNotNull(_context);
+                    _hasLookedUpContextTransform = true;
+
+                    var context = TryResolve<Context>();
+
+                    if (context != null)
+                    {
+                        _contextTransform = context.transform;
+                    }
                 }
 
-                return _context;
+                return _contextTransform;
             }
         }
 #endif
@@ -1572,7 +1580,7 @@ namespace Zenject
             else
             {
                 // This ensures it gets added to the right scene instead of just the active scene
-                initialParent = Context.transform;
+                initialParent = ContextTransform;
             }
 
             GameObject gameObj;
@@ -1608,7 +1616,7 @@ namespace Zenject
 
                 if(parent == null)
                 {
-                    gameObj.transform.SetParent(Context.transform, false);
+                    gameObj.transform.SetParent(ContextTransform, false);
                 }
             }
 #endif
@@ -1645,7 +1653,7 @@ namespace Zenject
             if (parent == null)
             {
                 // This ensures it gets added to the right scene instead of just the active scene
-                gameObj.transform.SetParent(Context.transform, false);
+                gameObj.transform.SetParent(ContextTransform, false);
                 gameObj.transform.SetParent(null, false);
             }
             else
@@ -1722,7 +1730,7 @@ namespace Zenject
         GameObject CreateTransformGroup(string groupName)
         {
             var gameObj = new GameObject(groupName);
-            gameObj.transform.SetParent(Context.transform, false);
+            gameObj.transform.SetParent(ContextTransform, false);
             gameObj.transform.SetParent(null, false);
             return gameObj;
         }

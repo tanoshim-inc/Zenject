@@ -1,5 +1,5 @@
 {
-    "name": "Zenject-Editor-PoolMonitor",
+    "name": "Zenject-PoolMonitor-Editor",
     "references": [
         "Zenject",
         "Zenject-Editor"

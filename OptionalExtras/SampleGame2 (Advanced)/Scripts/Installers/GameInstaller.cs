@@ -18,7 +18,9 @@ namespace Zenject.SpaceFighter
             Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
 
             Container.BindFactory<float, float, EnemyFacade, EnemyFacade.Factory>()
-                .FromPoolableMemoryPool<EnemyFacade, EnemyFacadePool>(poolBinder => poolBinder
+                // We could just use FromMonoPoolableMemoryPool here instead, but
+                // for IL2CPP to work we need our pool class to be used explicitly here
+                .FromPoolableMemoryPool<float, float, EnemyFacade, EnemyFacadePool>(poolBinder => poolBinder
                     // Spawn 5 enemies right off the bat so that we don't incur spikes at runtime
                     .WithInitialSize(5)
                     .FromSubContainerResolve()
@@ -27,7 +29,9 @@ namespace Zenject.SpaceFighter
                     .UnderTransformGroup("Enemies"));
 
             Container.BindFactory<float, float, BulletTypes, Bullet, Bullet.Factory>()
-                .FromPoolableMemoryPool<Bullet, BulletPool>(poolBinder => poolBinder
+                // We could just use FromMonoPoolableMemoryPool here instead, but
+                // for IL2CPP to work we need our pool class to be used explicitly here
+                .FromPoolableMemoryPool<float, float, BulletTypes, Bullet, BulletPool>(poolBinder => poolBinder
                     // Spawn 20 right off the bat so that we don't incur spikes at runtime
                     .WithInitialSize(20)
                     // Bullets are simple enough that we don't need to make a subcontainer for them
@@ -38,6 +42,8 @@ namespace Zenject.SpaceFighter
             Container.Bind<LevelBoundary>().AsSingle();
 
             Container.BindFactory<Explosion, Explosion.Factory>()
+                // We could just use FromMonoPoolableMemoryPool here instead, but
+                // for IL2CPP to work we need our pool class to be used explicitly here
                 .FromPoolableMemoryPool<Explosion, ExplosionPool>(poolBinder => poolBinder
                     // Spawn 4 right off the bat so that we don't incur spikes at runtime
                     .WithInitialSize(4)
@@ -61,6 +67,8 @@ namespace Zenject.SpaceFighter
             public GameObject ExplosionPrefab;
         }
 
+        // We could just use FromMonoPoolableMemoryPool above, but we have to use these instead
+        // for IL2CPP to work
         class EnemyFacadePool : MonoPoolableMemoryPool<float, float, IMemoryPool, EnemyFacade>
         {
         }
