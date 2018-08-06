@@ -23,6 +23,11 @@ namespace Zenject
             return From(x => x.FromResolve().AsCached());
         }
 
+        public SignalCopyBinder FromResolveAll()
+        {
+            return From(x => x.FromResolveAll().AsCached());
+        }
+
         public SignalCopyBinder FromNew()
         {
             return From(x => x.FromNew().AsCached());
