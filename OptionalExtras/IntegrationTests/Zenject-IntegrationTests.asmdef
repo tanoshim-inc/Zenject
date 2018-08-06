@@ -1,11 +1,8 @@
 {
     "name": "Zenject-IntegrationTests",
     "references": [
-        "Zenject-TestFramework",
         "Zenject"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": []
 }

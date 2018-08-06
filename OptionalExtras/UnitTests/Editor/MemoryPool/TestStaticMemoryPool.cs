@@ -22,6 +22,7 @@ namespace Zenject.Tests
             var pool = Foo.Pool;
 
             pool.Clear();
+            pool.ClearActiveCount();
 
             Assert.IsEqual(pool.NumActive, 0);
             Assert.IsEqual(pool.NumInactive, 0);
@@ -70,6 +71,9 @@ namespace Zenject.Tests
         public void TestListPool()
         {
             var pool = ListPool<string>.Instance;
+
+            pool.Clear();
+            pool.ClearActiveCount();
 
             Assert.IsEqual(pool.NumActive, 0);
             Assert.IsEqual(pool.NumInactive, 0);
@@ -123,6 +127,7 @@ namespace Zenject.Tests
             var pool = Foo.Pool;
 
             pool.Clear();
+            pool.ClearActiveCount();
 
             Assert.IsEqual(pool.NumActive, 0);
             Assert.IsEqual(pool.NumInactive, 0);
@@ -146,7 +151,9 @@ namespace Zenject.Tests
         public void TestResize()
         {
             var pool = Bar.Pool;
+
             pool.Clear();
+            pool.ClearActiveCount();
 
             Assert.IsEqual(pool.NumActive, 0);
             Assert.IsEqual(pool.NumTotal, 0);
