@@ -30,7 +30,7 @@ namespace Zenject
             get { return _sceneContainer; }
         }
 
-        protected IReadOnlyList<DiContainer> SceneContainers
+        protected IEnumerable<DiContainer> SceneContainers
         {
             get { return _sceneContainers; }
         }
