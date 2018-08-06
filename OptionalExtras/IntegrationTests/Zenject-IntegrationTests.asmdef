@@ -4,9 +4,7 @@
         "Zenject-TestFramework",
         "Zenject"
     ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
-    ],
+    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false

@@ -5,6 +5,10 @@
         "Zenject",
         "Zenject-IntegrationTests"
     ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
     "includePlatforms": [],
-    "excludePlatforms": []
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
 }
