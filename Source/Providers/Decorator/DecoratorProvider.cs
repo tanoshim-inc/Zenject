@@ -68,34 +68,21 @@ namespace Zenject.Internal
             var rawInstances = provider.GetAllInstances(context);
             var decoratedInstances = new List<object>(rawInstances.Count);
 
-            if (context.Container.IsValidating)
-            {
-                for (int i = 0; i < rawInstances.Count; i++)
-                {
-                    for (int j = 0; j < _decoratorFactories.Count; j++)
-                    {
-                        decoratedInstances.Add(
-                            _decoratorFactories[j].Create(default(TContract)));
-                    }
-                }
-
-                return decoratedInstances;
-            }
-
             for (int i = 0; i < rawInstances.Count; i++)
             {
-                decoratedInstances.Add(DecorateInstance(
-                    (TContract)rawInstances[i]));
+                decoratedInstances.Add(
+                    DecorateInstance(rawInstances[i], context));
             }
 
             return decoratedInstances;
         }
 
-        TContract DecorateInstance(TContract instance)
+        object DecorateInstance(object instance, InjectContext context)
         {
             for (int i = 0; i < _decoratorFactories.Count; i++)
             {
-                instance = _decoratorFactories[i].Create(instance);
+                instance = _decoratorFactories[i].Create(
+                    context.Container.IsValidating ? default(TContract) : (TContract)instance);
             }
 
             return instance;
