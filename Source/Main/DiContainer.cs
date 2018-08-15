@@ -1130,14 +1130,35 @@ namespace Zenject
 
         List<object> GetDecoratedInstances(IProvider provider, InjectContext context)
         {
-            IDecoratorProvider decoratorProvider;
+            // TODO:  This is flawed since it doesn't allow binding new decorators in subcontainers
+            var decoratorProvider = TryGetDecoratorProvider(context.BindingId.Type);
 
-            if (_decorators.TryGetValue(context.BindingId.Type, out decoratorProvider))
+            if (decoratorProvider != null)
             {
                 return decoratorProvider.GetAllInstances(provider, context);
             }
 
             return provider.GetAllInstances(context);
+        }
+
+        IDecoratorProvider TryGetDecoratorProvider(Type contractType)
+        {
+            IDecoratorProvider decoratorProvider;
+
+            if (_decorators.TryGetValue(contractType, out decoratorProvider))
+            {
+                return decoratorProvider;
+            }
+
+            for (int i = 0; i < _ancestorContainers.Length; i++)
+            {
+                if (_ancestorContainers[i]._decorators.TryGetValue(contractType, out decoratorProvider))
+                {
+                    return decoratorProvider;
+                }
+            }
+
+            return null;
         }
 
         int GetContainerHeirarchyDistance(DiContainer container)
