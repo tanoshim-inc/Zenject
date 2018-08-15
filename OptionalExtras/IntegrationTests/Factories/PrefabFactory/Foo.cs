@@ -13,5 +13,13 @@ namespace Zenject.Tests.Factories.PrefabFactory
         {
             WasInitialized = true;
         }
+
+        public class Factory : PlaceholderFactory<UnityEngine.Object, Foo>
+        {
+        }
+
+        public class Factory2 : PlaceholderFactory<string, Foo>
+        {
+        }
     }
 }
