@@ -29,29 +29,33 @@ namespace Zenject
             set { _finalizerWrapper.SubFinalizer = value; }
         }
 
-        public ScopeConditionCopyNonLazyBinder ByInstaller<TInstaller>()
+        public DefaultParentScopeConditionCopyNonLazyBinder ByInstaller<TInstaller>()
             where TInstaller : InstallerBase
         {
             return ByInstaller(typeof(TInstaller));
         }
 
-        public ScopeConditionCopyNonLazyBinder ByInstaller(Type installerType)
+        public DefaultParentScopeConditionCopyNonLazyBinder ByInstaller(Type installerType)
         {
             Assert.That(installerType.DerivesFrom<InstallerBase>(),
                 "Invalid installer type given during bind command.  Expected type '{0}' to derive from 'Installer<>'", installerType);
 
-            SubFinalizer = new SubContainerInstallerBindingFinalizer(
-                _bindInfo, installerType, _subIdentifier, _resolveAll);
+            var subContainerBindInfo = new SubContainerCreatorBindInfo();
 
-            return new ScopeConditionCopyNonLazyBinder(_bindInfo);
+            SubFinalizer = new SubContainerInstallerBindingFinalizer(
+                _bindInfo, subContainerBindInfo, installerType, _subIdentifier, _resolveAll);
+
+            return new DefaultParentScopeConditionCopyNonLazyBinder(subContainerBindInfo, _bindInfo);
         }
 
-        public ScopeConditionCopyNonLazyBinder ByMethod(Action<DiContainer> installerMethod)
+        public DefaultParentScopeConditionCopyNonLazyBinder ByMethod(Action<DiContainer> installerMethod)
         {
-            SubFinalizer = new SubContainerMethodBindingFinalizer(
-                _bindInfo, installerMethod, _subIdentifier, _resolveAll);
+            var subContainerBindInfo = new SubContainerCreatorBindInfo();
 
-            return new ScopeConditionCopyNonLazyBinder(_bindInfo);
+            SubFinalizer = new SubContainerMethodBindingFinalizer(
+                _bindInfo, subContainerBindInfo, installerMethod, _subIdentifier, _resolveAll);
+
+            return new DefaultParentScopeConditionCopyNonLazyBinder(subContainerBindInfo, _bindInfo);
         }
 
 #if !NOT_UNITY3D

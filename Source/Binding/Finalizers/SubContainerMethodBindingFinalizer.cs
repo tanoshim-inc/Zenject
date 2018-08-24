@@ -9,11 +9,16 @@ namespace Zenject
         readonly object _subIdentifier;
         readonly Action<DiContainer> _installMethod;
         readonly bool _resolveAll;
+        readonly SubContainerCreatorBindInfo _containerBindInfo;
 
         public SubContainerMethodBindingFinalizer(
-            BindInfo bindInfo, Action<DiContainer> installMethod, object subIdentifier, bool resolveAll)
+            BindInfo bindInfo,
+            SubContainerCreatorBindInfo containerBindInfo,
+            Action<DiContainer> installMethod,
+            object subIdentifier, bool resolveAll)
             : base(bindInfo)
         {
+            _containerBindInfo = containerBindInfo;
             _subIdentifier = subIdentifier;
             _installMethod = installMethod;
             _resolveAll = resolveAll;
@@ -46,13 +51,15 @@ namespace Zenject
                         concreteTypes,
                         (contractType, concreteType) => new SubContainerDependencyProvider(
                             concreteType, _subIdentifier,
-                            new SubContainerCreatorByMethod(container, _installMethod), _resolveAll));
+                            new SubContainerCreatorByMethod(
+                                container, _containerBindInfo, _installMethod), _resolveAll));
                     break;
                 }
                 case ScopeTypes.Singleton:
                 {
                     var creator = new SubContainerCreatorCached(
-                        new SubContainerCreatorByMethod(container, _installMethod));
+                        new SubContainerCreatorByMethod(
+                            container, _containerBindInfo, _installMethod));
 
                     // Note: each contract/concrete pair gets its own container
                     RegisterProvidersForAllContractsPerConcreteType(
@@ -82,13 +89,14 @@ namespace Zenject
                         (_, contractType) => new SubContainerDependencyProvider(
                             contractType, _subIdentifier,
                             new SubContainerCreatorByMethod(
-                                container, _installMethod), _resolveAll));
+                                container, _containerBindInfo, _installMethod), _resolveAll));
                     break;
                 }
                 case ScopeTypes.Singleton:
                 {
                     var containerCreator = new SubContainerCreatorCached(
-                        new SubContainerCreatorByMethod(container, _installMethod));
+                        new SubContainerCreatorByMethod(
+                            container, _containerBindInfo, _installMethod));
 
                     RegisterProviderPerContract(
                         container,

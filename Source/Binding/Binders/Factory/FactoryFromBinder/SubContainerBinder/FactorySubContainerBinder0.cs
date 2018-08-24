@@ -12,15 +12,17 @@ namespace Zenject
         {
         }
 
-        public ConditionCopyNonLazyBinder ByMethod(Action<DiContainer> installerMethod)
+        public DefaultParentConditionCopyNonLazyBinder ByMethod(Action<DiContainer> installerMethod)
         {
+            var subcontainerBindInfo = new SubContainerCreatorBindInfo();
+
             ProviderFunc =
                 (container) => new SubContainerDependencyProvider(
                     ContractType, SubIdentifier,
                     new SubContainerCreatorByMethod(
-                        container, installerMethod), false);
+                        container, subcontainerBindInfo, installerMethod), false);
 
-            return new ConditionCopyNonLazyBinder(BindInfo);
+            return new DefaultParentConditionCopyNonLazyBinder(subcontainerBindInfo, BindInfo);
         }
 
 #if !NOT_UNITY3D

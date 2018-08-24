@@ -9,14 +9,17 @@ namespace Zenject
         readonly object _subIdentifier;
         readonly Type _installerType;
         readonly bool _resolveAll;
+        readonly SubContainerCreatorBindInfo _subContainerBindInfo;
 
         public SubContainerInstallerBindingFinalizer(
-            BindInfo bindInfo, Type installerType, object subIdentifier, bool resolveAll)
+            BindInfo bindInfo, SubContainerCreatorBindInfo subContainerBindInfo,
+            Type installerType, object subIdentifier, bool resolveAll)
             : base(bindInfo)
         {
             _subIdentifier = subIdentifier;
             _installerType = installerType;
             _resolveAll = resolveAll;
+            _subContainerBindInfo = subContainerBindInfo;
         }
 
         protected override void OnFinalizeBinding(DiContainer container)
@@ -35,7 +38,8 @@ namespace Zenject
         ISubContainerCreator CreateContainerCreator(DiContainer container)
         {
             return new SubContainerCreatorCached(
-                new SubContainerCreatorByInstaller(container, _installerType));
+                new SubContainerCreatorByInstaller(
+                    container, _subContainerBindInfo, _installerType));
         }
 
         void FinalizeBindingConcrete(DiContainer container, List<Type> concreteTypes)

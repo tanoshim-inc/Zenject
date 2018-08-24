@@ -11,19 +11,21 @@ namespace Zenject
         {
         }
 
-        public ConditionCopyNonLazyBinder ByMethod(
+        public DefaultParentConditionCopyNonLazyBinder ByMethod(
 #if !NET_4_6
             ModestTree.Util.
 #endif
             Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> installerMethod)
         {
+            var subcontainerBindInfo = new SubContainerCreatorBindInfo();
+
             ProviderFunc =
                 (container) => new SubContainerDependencyProvider(
                     ContractType, SubIdentifier,
                     new SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5>(
-                        container, installerMethod), false);
+                        container, subcontainerBindInfo, installerMethod), false);
 
-            return new ConditionCopyNonLazyBinder(BindInfo);
+            return new DefaultParentConditionCopyNonLazyBinder(subcontainerBindInfo, BindInfo);
         }
 
 #if !NOT_UNITY3D
