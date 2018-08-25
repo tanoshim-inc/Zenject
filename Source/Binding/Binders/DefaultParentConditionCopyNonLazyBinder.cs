@@ -17,7 +17,7 @@ namespace Zenject
             get; private set;
         }
 
-        public ConditionCopyNonLazyBinder UsingDefaultGameObjectParent(string defaultParentName)
+        public ConditionCopyNonLazyBinder WithDefaultGameObjectParent(string defaultParentName)
         {
             SubContainerCreatorBindInfo.DefaultParentName = defaultParentName;
             return this;
