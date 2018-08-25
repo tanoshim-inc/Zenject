@@ -33,8 +33,20 @@ namespace Zenject
             {
                 var parentContainer = subContainer.ParentContainers.OnlyOrDefault();
                 Assert.IsNotNull(parentContainer, "Could not find unique container when using WithKernel!");
-                parentContainer.BindInterfacesTo<Kernel>().FromSubContainerResolve().ByInstance(subContainer).AsCached();
-                subContainer.Bind<Kernel>().AsCached();
+
+                if (subContainerBindInfo.KernelType != null)
+                {
+                    parentContainer.Bind(typeof(Kernel).Interfaces()).To(subContainerBindInfo.KernelType)
+                        .FromSubContainerResolve()
+                        .ByInstance(subContainer).AsCached();
+                    subContainer.Bind(subContainerBindInfo.KernelType).AsCached();
+                }
+                else
+                {
+                    parentContainer.BindInterfacesTo<Kernel>().FromSubContainerResolve()
+                        .ByInstance(subContainer).AsCached();
+                    subContainer.Bind<Kernel>().AsCached();
+                }
             }
         }
 

@@ -14,5 +14,10 @@ namespace Zenject
         {
             get; set;
         }
+
+        public Type KernelType
+        {
+            get; set;
+        }
     }
 }
