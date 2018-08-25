@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using ModestTree;
 
 namespace Zenject
 {
@@ -10,6 +11,7 @@ namespace Zenject
         {
             if (subContainerBindInfo.DefaultParentName != null)
             {
+#if !ZEN_TESTS_OUTSIDE_UNITY
                 var defaultParent = new GameObject(
                     subContainerBindInfo.DefaultParentName);
 
@@ -24,6 +26,15 @@ namespace Zenject
                 // Always destroy the default parent last so that the non-monobehaviours get a chance
                 // to clean it up if they want to first
                 subContainer.BindDisposableExecutionOrder<DefaultParentObjectDestroyer>(int.MinValue);
+#endif
+            }
+
+            if (subContainerBindInfo.CreateKernel)
+            {
+                var parentContainer = subContainer.ParentContainers.OnlyOrDefault();
+                Assert.IsNotNull(parentContainer, "Could not find unique container when using WithKernel!");
+                parentContainer.BindInterfacesTo<Kernel>().FromSubContainerResolve().ByInstance(subContainer).AsCached();
+                subContainer.Bind<Kernel>().AsCached();
             }
         }
 

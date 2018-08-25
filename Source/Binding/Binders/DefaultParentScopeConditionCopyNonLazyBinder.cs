@@ -5,18 +5,21 @@ namespace Zenject
 {
     public class DefaultParentScopeConditionCopyNonLazyBinder : ScopeConditionCopyNonLazyBinder
     {
-        SubContainerCreatorBindInfo _subContainerBindInfo;
-
         public DefaultParentScopeConditionCopyNonLazyBinder(
             SubContainerCreatorBindInfo subContainerBindInfo, BindInfo bindInfo)
             : base(bindInfo)
         {
-            _subContainerBindInfo = subContainerBindInfo;
+            SubContainerCreatorBindInfo = subContainerBindInfo;
+        }
+
+        protected SubContainerCreatorBindInfo SubContainerCreatorBindInfo
+        {
+            get; private set;
         }
 
         public ScopeConditionCopyNonLazyBinder UsingDefaultGameObjectParent(string defaultParentName)
         {
-            _subContainerBindInfo.DefaultParentName = defaultParentName;
+            SubContainerCreatorBindInfo.DefaultParentName = defaultParentName;
             return this;
         }
     }

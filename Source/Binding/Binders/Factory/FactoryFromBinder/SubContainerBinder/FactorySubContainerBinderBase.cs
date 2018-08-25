@@ -50,13 +50,13 @@ namespace Zenject
             get { return typeof(TContract); }
         }
 
-        public DefaultParentArgConditionCopyNonLazyBinder ByInstaller<TInstaller>()
+        public WithKernelDefaultParentArgConditionCopyNonLazyBinder ByInstaller<TInstaller>()
             where TInstaller : InstallerBase
         {
             return ByInstaller(typeof(TInstaller));
         }
 
-        public DefaultParentArgConditionCopyNonLazyBinder ByInstaller(Type installerType)
+        public WithKernelDefaultParentArgConditionCopyNonLazyBinder ByInstaller(Type installerType)
         {
             Assert.That(installerType.DerivesFrom<InstallerBase>(),
                 "Invalid installer type given during bind command.  Expected type '{0}' to derive from 'Installer<>'", installerType);
@@ -69,7 +69,7 @@ namespace Zenject
                     new SubContainerCreatorByInstaller(
                         container, subcontainerBindInfo, installerType, BindInfo.Arguments), false);
 
-            return new DefaultParentArgConditionCopyNonLazyBinder(subcontainerBindInfo, BindInfo);
+            return new WithKernelDefaultParentArgConditionCopyNonLazyBinder(subcontainerBindInfo, BindInfo);
         }
 
 #if !NOT_UNITY3D

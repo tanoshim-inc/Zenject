@@ -9,5 +9,10 @@ namespace Zenject
         {
             get; set;
         }
+
+        public bool CreateKernel
+        {
+            get; set;
+        }
     }
 }
