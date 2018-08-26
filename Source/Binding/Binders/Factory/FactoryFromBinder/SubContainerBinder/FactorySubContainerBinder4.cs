@@ -11,7 +11,13 @@ namespace Zenject
         {
         }
 
-        public DefaultParentConditionCopyNonLazyBinder ByMethod(
+        public 
+#if NOT_UNITY3D
+            ConditionCopyNonLazyBinder
+#else
+            DefaultParentConditionCopyNonLazyBinder
+#endif
+            ByMethod(
 #if !NET_4_6
             ModestTree.Util.
 #endif
@@ -25,7 +31,11 @@ namespace Zenject
                     new SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4>(
                         container, subcontainerBindInfo, installerMethod), false);
 
+#if NOT_UNITY3D
+            return new ConditionCopyNonLazyBinder(BindInfo);
+#else
             return new DefaultParentConditionCopyNonLazyBinder(subcontainerBindInfo, BindInfo);
+#endif
         }
 
 #if !NOT_UNITY3D

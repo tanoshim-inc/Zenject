@@ -38,13 +38,25 @@ namespace Zenject
             return new ScopeConditionCopyNonLazyBinder(_bindInfo);
         }
 
-        public WithKernelDefaultParentScopeConditionCopyNonLazyBinder ByInstaller<TInstaller>()
+        public
+#if NOT_UNITY3D
+            WithKernelScopeConditionCopyNonLazyBinder
+#else
+            WithKernelDefaultParentScopeConditionCopyNonLazyBinder
+#endif
+            ByInstaller<TInstaller>()
             where TInstaller : InstallerBase
         {
             return ByInstaller(typeof(TInstaller));
         }
 
-        public WithKernelDefaultParentScopeConditionCopyNonLazyBinder ByInstaller(Type installerType)
+        public
+#if NOT_UNITY3D
+            WithKernelScopeConditionCopyNonLazyBinder
+#else
+            WithKernelDefaultParentScopeConditionCopyNonLazyBinder
+#endif
+            ByInstaller(Type installerType)
         {
             Assert.That(installerType.DerivesFrom<InstallerBase>(),
                 "Invalid installer type given during bind command.  Expected type '{0}' to derive from 'Installer<>'", installerType);
@@ -55,10 +67,22 @@ namespace Zenject
                 _bindInfo, _subIdentifier, _resolveAll,
                 (container) => new SubContainerCreatorByInstaller(container, subContainerBindInfo, installerType));
 
-            return new WithKernelDefaultParentScopeConditionCopyNonLazyBinder(subContainerBindInfo, _bindInfo);
+            return new
+#if NOT_UNITY3D
+                WithKernelScopeConditionCopyNonLazyBinder
+#else
+                WithKernelDefaultParentScopeConditionCopyNonLazyBinder
+#endif
+                (subContainerBindInfo, _bindInfo);
         }
 
-        public WithKernelDefaultParentScopeConditionCopyNonLazyBinder ByMethod(Action<DiContainer> installerMethod)
+        public
+#if NOT_UNITY3D
+            WithKernelScopeConditionCopyNonLazyBinder
+#else
+            WithKernelDefaultParentScopeConditionCopyNonLazyBinder
+#endif
+            ByMethod(Action<DiContainer> installerMethod)
         {
             var subContainerBindInfo = new SubContainerCreatorBindInfo();
 
@@ -66,7 +90,13 @@ namespace Zenject
                 _bindInfo, _subIdentifier, _resolveAll,
                 (container) => new SubContainerCreatorByMethod(container, subContainerBindInfo, installerMethod));
 
-            return new WithKernelDefaultParentScopeConditionCopyNonLazyBinder(subContainerBindInfo, _bindInfo);
+            return new
+#if NOT_UNITY3D
+                WithKernelScopeConditionCopyNonLazyBinder
+#else
+                WithKernelDefaultParentScopeConditionCopyNonLazyBinder
+#endif
+                (subContainerBindInfo, _bindInfo);
         }
 
 #if !NOT_UNITY3D

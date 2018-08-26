@@ -47,6 +47,9 @@ namespace Zenject
 #if !NOT_UNITY3D
         Transform _contextTransform;
         bool _hasLookedUpContextTransform;
+        Transform _inheritedDefaultParent;
+        Transform _explicitDefaultParent;
+        bool _hasExplicitDefaultParent;
 #endif
 
         ZenjectSettings _settings;
@@ -58,9 +61,6 @@ namespace Zenject
 #if DEBUG || UNITY_EDITOR
         bool _hasDisplayedInstallWarning;
 #endif
-        Transform _inheritedDefaultParent;
-        Transform _explicitDefaultParent;
-        bool _hasExplicitDefaultParent;
 
         public DiContainer(bool isValidating)
         {

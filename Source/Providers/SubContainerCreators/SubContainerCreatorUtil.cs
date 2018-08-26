@@ -1,5 +1,7 @@
 using System;
+#if !NOT_UNITY3D
 using UnityEngine;
+#endif
 using ModestTree;
 
 namespace Zenject
@@ -11,7 +13,7 @@ namespace Zenject
         {
             if (subContainerBindInfo.DefaultParentName != null)
             {
-#if !ZEN_TESTS_OUTSIDE_UNITY
+#if !ZEN_TESTS_OUTSIDE_UNITY && !NOT_UNITY3D
                 var defaultParent = new GameObject(
                     subContainerBindInfo.DefaultParentName);
 
@@ -50,6 +52,7 @@ namespace Zenject
             }
         }
 
+#if !NOT_UNITY3D
         class DefaultParentObjectDestroyer : IDisposable
         {
             readonly GameObject _gameObject;
@@ -64,5 +67,6 @@ namespace Zenject
                 GameObject.Destroy(_gameObject);
             }
         }
+#endif
     }
 }
