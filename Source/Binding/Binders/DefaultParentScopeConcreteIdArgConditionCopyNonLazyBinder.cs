@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace Zenject
 {
-    public class DefaultParentArgConditionCopyNonLazyBinder : ArgConditionCopyNonLazyBinder
+    public class DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder : ScopeConcreteIdArgConditionCopyNonLazyBinder
     {
-        public DefaultParentArgConditionCopyNonLazyBinder(
+        public DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder(
             SubContainerCreatorBindInfo subContainerBindInfo, BindInfo bindInfo)
             : base(bindInfo)
         {
@@ -17,11 +17,10 @@ namespace Zenject
             get; private set;
         }
 
-        public ArgConditionCopyNonLazyBinder WithDefaultGameObjectParent(string defaultParentName)
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder WithDefaultGameObjectParent(string defaultParentName)
         {
             SubContainerCreatorBindInfo.DefaultParentName = defaultParentName;
             return this;
         }
     }
 }
-

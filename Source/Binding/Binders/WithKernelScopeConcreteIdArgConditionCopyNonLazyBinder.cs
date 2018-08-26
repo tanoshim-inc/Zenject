@@ -3,18 +3,18 @@ using System.Linq;
 
 namespace Zenject
 {
-    public class WithKernelScopeConditionCopyNonLazyBinder : ScopeConditionCopyNonLazyBinder
+    public class WithKernelScopeConcreteIdArgConditionCopyNonLazyBinder : ScopeConcreteIdArgConditionCopyNonLazyBinder
     {
         SubContainerCreatorBindInfo _subContainerBindInfo;
 
-        public WithKernelScopeConditionCopyNonLazyBinder(
+        public WithKernelScopeConcreteIdArgConditionCopyNonLazyBinder(
             SubContainerCreatorBindInfo subContainerBindInfo, BindInfo bindInfo)
             : base(bindInfo)
         {
             _subContainerBindInfo = subContainerBindInfo;
         }
 
-        public ScopeConditionCopyNonLazyBinder WithKernel()
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder WithKernel()
         {
             _subContainerBindInfo.CreateKernel = true;
             return this;
@@ -22,7 +22,7 @@ namespace Zenject
 
         // This would be used in cases where you want to control the execution order for the
         // subcontainer
-        public ScopeConditionCopyNonLazyBinder WithKernel<TKernel>()
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder WithKernel<TKernel>()
             where TKernel : Kernel
         {
             _subContainerBindInfo.CreateKernel = true;

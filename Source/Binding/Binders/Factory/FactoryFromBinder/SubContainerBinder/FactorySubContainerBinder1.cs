@@ -13,9 +13,9 @@ namespace Zenject
 
         public
 #if NOT_UNITY3D
-            ConditionCopyNonLazyBinder
+            ScopeConcreteIdArgConditionCopyNonLazyBinder
 #else
-            DefaultParentConditionCopyNonLazyBinder
+            DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder
 #endif
             ByMethod(Action<DiContainer, TParam1> installerMethod)
         {
@@ -30,12 +30,12 @@ namespace Zenject
 #if NOT_UNITY3D
             return new ConditionCopyNonLazyBinder(BindInfo);
 #else
-            return new DefaultParentConditionCopyNonLazyBinder(subcontainerBindInfo, BindInfo);
+            return new DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder(subcontainerBindInfo, BindInfo);
 #endif
         }
 
 #if !NOT_UNITY3D
-        public NameTransformConditionCopyNonLazyBinder ByNewPrefabMethod(
+        public NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder ByNewPrefabMethod(
             UnityEngine.Object prefab, Action<DiContainer, TParam1> installerMethod)
         {
             BindingUtil.AssertIsValidPrefab(prefab);
@@ -50,10 +50,10 @@ namespace Zenject
                         new PrefabProvider(prefab),
                         gameObjectInfo, installerMethod), false);
 
-            return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
+            return new NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
 
-        public NameTransformConditionCopyNonLazyBinder ByNewPrefabResourceMethod(
+        public NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder ByNewPrefabResourceMethod(
             string resourcePath, Action<DiContainer, TParam1> installerMethod)
         {
             BindingUtil.AssertIsValidResourcePath(resourcePath);
@@ -68,7 +68,7 @@ namespace Zenject
                         new PrefabProviderResource(resourcePath),
                         gameObjectInfo, installerMethod), false);
 
-            return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
+            return new NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
 #endif
     }

@@ -36,6 +36,22 @@ namespace Zenject.Tests.Bindings
         }
 
         [Test]
+        public void TestFactoryScopeDefault()
+        {
+            Container.BindFactory<Foo, Foo.Factory>();
+
+            Assert.IsEqual(Container.Resolve<Foo.Factory>(), Container.Resolve<Foo.Factory>());
+        }
+
+        [Test]
+        public void TestFactoryScopeTransient()
+        {
+            Container.BindFactory<Foo, Foo.Factory>().AsTransient();
+
+            Assert.IsNotEqual(Container.Resolve<Foo.Factory>(), Container.Resolve<Foo.Factory>());
+        }
+
+        [Test]
         public void TestConcrete()
         {
             Container.BindFactory<IFoo, IFooFactory>().To<Foo>().NonLazy();

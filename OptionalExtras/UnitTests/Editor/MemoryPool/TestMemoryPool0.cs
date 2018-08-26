@@ -63,6 +63,22 @@ namespace Zenject.Tests.Bindings
         }
 
         [Test]
+        public void TestFactoryScopeDefault()
+        {
+            Container.BindMemoryPool<Foo, Foo.Pool>();
+
+            Assert.IsEqual(Container.Resolve<Foo.Pool>(), Container.Resolve<Foo.Pool>());
+        }
+
+        [Test]
+        public void TestFactoryScopeTransient()
+        {
+            Container.BindMemoryPool<Foo, Foo.Pool>().AsTransient();
+
+            Assert.IsNotEqual(Container.Resolve<Foo.Pool>(), Container.Resolve<Foo.Pool>());
+        }
+
+        [Test]
         public void TestFactoryPropertiesDefault()
         {
             Container.BindMemoryPool<Foo>();

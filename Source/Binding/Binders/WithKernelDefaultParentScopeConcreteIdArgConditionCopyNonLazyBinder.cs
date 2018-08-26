@@ -3,23 +3,23 @@ using System.Linq;
 
 namespace Zenject
 {
-    public class WithKernelDefaultParentScopeConditionCopyNonLazyBinder : DefaultParentScopeConditionCopyNonLazyBinder
+    public class WithKernelDefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder : DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder
     {
-        public WithKernelDefaultParentScopeConditionCopyNonLazyBinder(
+        public WithKernelDefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder(
             SubContainerCreatorBindInfo subContainerBindInfo, BindInfo bindInfo)
             : base(subContainerBindInfo, bindInfo)
         {
         }
 
-        public DefaultParentScopeConditionCopyNonLazyBinder WithKernel()
+        public DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder WithKernel()
         {
             SubContainerCreatorBindInfo.CreateKernel = true;
             return this;
         }
 
-        // This would be used in cases where you want to control the execution order for the 
+        // This would be used in cases where you want to control the execution order for the
         // subcontainer
-        public DefaultParentScopeConditionCopyNonLazyBinder WithKernel<TKernel>()
+        public DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder WithKernel<TKernel>()
             where TKernel : Kernel
         {
             SubContainerCreatorBindInfo.CreateKernel = true;
