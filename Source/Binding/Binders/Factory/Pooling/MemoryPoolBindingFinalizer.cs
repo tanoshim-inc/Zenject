@@ -34,7 +34,7 @@ namespace Zenject
                 container,
                 _factoryBindInfo.Arguments.Concat(
                     InjectUtil.CreateArgListExplicit(factory, settings)).ToList(),
-                BindInfo.ContextInfo, BindInfo.ConcreteIdentifier);
+                BindInfo.ContextInfo, BindInfo.ConcreteIdentifier, null);
 
             IProvider mainProvider;
 

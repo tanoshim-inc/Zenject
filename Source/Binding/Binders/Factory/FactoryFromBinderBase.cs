@@ -19,7 +19,8 @@ namespace Zenject
             ContractType = contractType;
             factoryBindInfo.ProviderFunc =
                 (container) => new TransientProvider(
-                    ContractType, container, BindInfo.Arguments, BindInfo.ContextInfo, BindInfo.ConcreteIdentifier);
+                    ContractType, container, BindInfo.Arguments, BindInfo.ContextInfo, BindInfo.ConcreteIdentifier,
+                    BindInfo.InstantiatedCallback);
         }
 
         // Don't use this

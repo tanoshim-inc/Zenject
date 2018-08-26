@@ -30,7 +30,7 @@ namespace Zenject
                     InjectUtil.CreateArgListExplicit(
                         provider,
                         new InjectContext(container, typeof(TContract)))).ToList(),
-                        BindInfo.ContextInfo, BindInfo.ConcreteIdentifier);
+                BindInfo.ContextInfo, BindInfo.ConcreteIdentifier, null);
 
             IProvider mainProvider;
 
