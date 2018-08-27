@@ -28,7 +28,7 @@ namespace Zenject
                         container, subcontainerBindInfo, installerMethod), false);
 
 #if NOT_UNITY3D
-            return new ConditionCopyNonLazyBinder(BindInfo);
+            return new ScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo);
 #else
             return new DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder(subcontainerBindInfo, BindInfo);
 #endif

@@ -44,9 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Binding\Binders\ArgConditionCopyNonLazyBinder.cs" />
-    <Compile Include="Binding\Binders\ArgNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\ConcreteIdArgConditionCopyNonLazyBinder.cs" />
-    <Compile Include="Binding\Binders\ConcreteIdArgNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\ConditionCopyNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\CopyNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryArgumentsToChoiceBinder\FactoryArgumentsToChoiceBinder0.cs" />
@@ -78,13 +76,11 @@
     <Compile Include="Binding\Binders\Factory\Pooling\MemoryPoolExpandBinder.cs" />
     <Compile Include="Binding\Binders\Factory\Pooling\MemoryPoolInitialSizeBinder.cs" />
     <Compile Include="Binding\Binders\IdBinder.cs" />
-    <Compile Include="Binding\Binders\IdScopeConditionCopyNonLazyBinder.cs" />
+    <Compile Include="Binding\Binders\IdScopeConcreteIdArgConditionCopyNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\IfNotBoundBinder.cs" />
+    <Compile Include="Binding\Binders\InstantiateCallbackConditionCopyNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\ScopeConcreteIdArgConditionCopyNonLazyBinder.cs" />
-    <Compile Include="Binding\Binders\ScopeConcreteIdArgNonLazyBinder.cs" />
-    <Compile Include="Binding\Binders\ScopeConditionCopyNonLazyBinder.cs" />
-    <Compile Include="Binding\Binders\ScopeNonLazyBinder.cs" />
-    <Compile Include="Binding\Binders\WithKernelScopeConditionCopyNonLazyBinder.cs" />
+    <Compile Include="Binding\Binders\WithKernelScopeConcreteIdArgConditionCopyNonLazyBinder.cs" />
     <Compile Include="Binding\BindInfo\FactoryBindInfo.cs" />
     <Compile Include="Binding\BindInfo\GameObjectCreationParameters.cs" />
     <Compile Include="Binding\BindInfo\MemoryPoolBindInfo.cs" />
