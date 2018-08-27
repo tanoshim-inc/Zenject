@@ -84,10 +84,12 @@
     <Compile Include="Binding\Binders\ScopeConcreteIdArgNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\ScopeConditionCopyNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\ScopeNonLazyBinder.cs" />
+    <Compile Include="Binding\Binders\WithKernelScopeConditionCopyNonLazyBinder.cs" />
     <Compile Include="Binding\BindInfo\FactoryBindInfo.cs" />
     <Compile Include="Binding\BindInfo\GameObjectCreationParameters.cs" />
     <Compile Include="Binding\BindInfo\MemoryPoolBindInfo.cs" />
     <Compile Include="Binding\Finalizers\NullBindingFinalizer.cs" />
+    <Compile Include="Binding\Finalizers\SubContainerBindingFinalizer.cs" />
     <Compile Include="Factories\FactoryProviderWrapper.cs" />
     <Compile Include="Factories\PlaceholderFactory.cs" />
     <Compile Include="Factories\PlaceholderFactoryBase.cs" />
@@ -154,6 +156,9 @@
     <Compile Include="Providers\MethodProviderMultiple.cs" />
     <Compile Include="Providers\MethodProviderUntyped.cs" />
     <Compile Include="Providers\PoolableMemoryPoolProvider.cs" />
+    <Compile Include="Providers\SubContainerCreators\SubContainerCreatorBindInfo.cs" />
+    <Compile Include="Providers\SubContainerCreators\SubContainerCreatorByInstance.cs" />
+    <Compile Include="Providers\SubContainerCreators\SubContainerCreatorUtil.cs" />
     <Compile Include="Runtime\GuiRenderableManager.cs" />
     <Compile Include="Runtime\Kernels\Kernel.cs" />
     <Compile Include="Runtime\PoolableManager.cs" />
@@ -210,10 +215,8 @@
     <Compile Include="Binding\Finalizers\BindFinalizerWrapper.cs" />
     <Compile Include="Binding\Finalizers\SingleProviderBindingFinalizer.cs" />
     <Compile Include="Binding\Binders\SubContainerBinder.cs" />
-    <Compile Include="Binding\Finalizers\SubContainerInstallerBindingFinalizer.cs" />
     <Compile Include="Binding\Finalizers\PrefabBindingFinalizer.cs" />
     <Compile Include="Binding\Finalizers\PrefabResourceBindingFinalizer.cs" />
-    <Compile Include="Binding\Finalizers\SubContainerMethodBindingFinalizer.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryFromBinderBase.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryFromBinder\SubContainerBinder\FactorySubContainerBinder0.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryFromBinder\SubContainerBinder\FactorySubContainerBinderBase.cs" />

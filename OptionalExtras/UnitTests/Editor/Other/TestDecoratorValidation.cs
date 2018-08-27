@@ -53,11 +53,8 @@ namespace Zenject.Tests.Other
 
         public class Foo
         {
-            readonly ISaveHandler _saveHandler;
-
             public Foo(ISaveHandler saveHandler)
             {
-                _saveHandler = saveHandler;
             }
         }
 
