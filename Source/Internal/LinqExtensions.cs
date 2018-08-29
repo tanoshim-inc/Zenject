@@ -237,36 +237,5 @@ namespace ModestTree
             // Use object.Equals to support null values
             return list.Where(x => object.Equals(x, value)).Any();
         }
-
-        // We call it Zipper instead of Zip to avoid naming conflicts with .NET 4
-        public static IEnumerable<T> Zipper<A, B, T>(
-            this IEnumerable<A> seqA, IEnumerable<B> seqB, Func<A, B, T> func)
-        {
-            using (var iteratorA = seqA.GetEnumerator())
-            using (var iteratorB = seqB.GetEnumerator())
-            {
-                while (true)
-                {
-                    bool isDoneA = !iteratorA.MoveNext();
-                    bool isDoneB = !iteratorB.MoveNext();
-
-                    Assert.That(isDoneA == isDoneB,
-                        "Given collections have different length in Zip operator");
-
-                    if (isDoneA || isDoneB)
-                    {
-                        break;
-                    }
-
-                    yield return func(iteratorA.Current, iteratorB.Current);
-                }
-            }
-        }
-
-        public static IEnumerable<ValuePair<A, B>> Zipper<A, B>(
-            this IEnumerable<A> seqA, IEnumerable<B> seqB)
-        {
-            return seqA.Zipper<A, B, ValuePair<A, B>>(seqB, ValuePair.New);
-        }
     }
 }
