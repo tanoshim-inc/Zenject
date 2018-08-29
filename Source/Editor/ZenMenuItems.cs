@@ -97,7 +97,7 @@ namespace Zenject.Internal
         [MenuItem("Assets/Create/Zenject/Scriptable Object Installer", false, 1)]
         public static void CreateScriptableObjectInstaller()
         {
-            AddCSharpClassTemplate("Scriptable Object Installer", "UntitledInstaller", 
+            AddCSharpClassTemplate("Scriptable Object Installer", "UntitledInstaller",
                   "using UnityEngine;"
                 + "\nusing Zenject;"
                 + "\n"
@@ -113,11 +113,11 @@ namespace Zenject.Internal
         [MenuItem("Assets/Create/Zenject/Mono Installer", false, 1)]
         public static void CreateMonoInstaller()
         {
-            AddCSharpClassTemplate("Mono Installer", "UntitledInstaller", 
+            AddCSharpClassTemplate("Mono Installer", "UntitledInstaller",
                   "using UnityEngine;"
                 + "\nusing Zenject;"
                 + "\n"
-                + "\npublic class CLASS_NAME : MonoInstaller<CLASS_NAME>"
+                + "\npublic class CLASS_NAME : MonoInstaller"
                 + "\n{"
                 + "\n    public override void InstallBindings()"
                 + "\n    {"
@@ -128,7 +128,7 @@ namespace Zenject.Internal
         [MenuItem("Assets/Create/Zenject/Installer", false, 1)]
         public static void CreateInstaller()
         {
-            AddCSharpClassTemplate("Installer", "UntitledInstaller", 
+            AddCSharpClassTemplate("Installer", "UntitledInstaller",
                   "using UnityEngine;"
                 + "\nusing Zenject;"
                 + "\n"
@@ -143,7 +143,7 @@ namespace Zenject.Internal
         [MenuItem("Assets/Create/Zenject/Editor Window", false, 20)]
         public static void CreateEditorWindow()
         {
-            AddCSharpClassTemplate("Editor Window", "UntitledEditorWindow", 
+            AddCSharpClassTemplate("Editor Window", "UntitledEditorWindow",
                   "using UnityEngine;"
                 + "\nusing UnityEditor;"
                 + "\nusing Zenject;"
