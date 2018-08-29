@@ -15,7 +15,10 @@ namespace Zenject
         public StaticMemoryPoolBase(Action<TValue> onDespawnedMethod)
         {
             _onDespawnedMethod = onDespawnedMethod;
+
+#if UNITY_EDITOR
             StaticMemoryPoolRegistry.Add(this);
+#endif
         }
 
         public Action<TValue> OnDespawnedMethod
@@ -62,7 +65,9 @@ namespace Zenject
 
         public void Dispose()
         {
+#if UNITY_EDITOR
             StaticMemoryPoolRegistry.Remove(this);
+#endif
         }
 
         public void ClearActiveCount()

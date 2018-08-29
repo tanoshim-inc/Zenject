@@ -8,8 +8,10 @@ namespace Zenject
 {
     public class InjectContext : IDisposable
     {
-        public static readonly StaticMemoryPool<DiContainer, Type, InjectContext> Pool =
+#if !ZEN_MULTITHREADING
+        static readonly StaticMemoryPool<DiContainer, Type, InjectContext> Pool =
             new StaticMemoryPool<DiContainer, Type, InjectContext>(OnSpawned, OnDespawned);
+#endif
 
         readonly BindingId _bindingId = new BindingId();
 
@@ -28,6 +30,16 @@ namespace Zenject
             SetDefaults();
         }
 
+        public static InjectContext Spawn(DiContainer container, Type memberType)
+        {
+#if ZEN_MULTITHREADING
+            return new InjectContext(container, memberType);
+#else
+            return Pool.Spawn(container, memberType);
+#endif
+        }
+
+#if !ZEN_MULTITHREADING
         static void OnSpawned(DiContainer container, Type memberType, InjectContext that)
         {
             Assert.IsNull(that._container);
@@ -40,6 +52,7 @@ namespace Zenject
         {
             that.SetDefaults();
         }
+#endif
 
         public InjectContext(DiContainer container, Type memberType)
             : this()
@@ -62,7 +75,9 @@ namespace Zenject
 
         public void Dispose()
         {
+#if !ZEN_MULTITHREADING
             Pool.Despawn(this);
+#endif
         }
 
         void SetDefaults()

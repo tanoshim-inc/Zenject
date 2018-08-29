@@ -68,7 +68,9 @@ namespace Zenject
                 }
             }
 
+#if UNITY_EDITOR
             StaticMemoryPoolRegistry.Add(this);
+#endif
         }
 
         protected DiContainer Container
@@ -103,7 +105,9 @@ namespace Zenject
 
         public void Dispose()
         {
+#if UNITY_EDITOR
             StaticMemoryPoolRegistry.Remove(this);
+#endif
         }
 
         void IMemoryPool.Despawn(object item)

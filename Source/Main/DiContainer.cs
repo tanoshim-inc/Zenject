@@ -368,10 +368,8 @@ namespace Zenject
                 var bindId = rootBindings[i];
                 var providerInfo = rootProviders[i];
 
-                using (var block = DisposeBlock.Spawn())
+                using (var context = InjectContext.Spawn(this, bindId.Type))
                 {
-                    var context = block.Spawn(InjectContext.Pool, this, bindId.Type);
-
                     context.Identifier = bindId.Identifier;
                     context.SourceType = InjectSources.Local;
 
@@ -393,13 +391,19 @@ namespace Zenject
             Assert.That(!_hasResolvedRoots);
             Assert.That(IsValidating);
 
+#if !ZEN_MULTITHREADING
             using (var block = DisposeBlock.Spawn())
+#endif
             {
+#if !ZEN_MULTITHREADING
                 foreach (var bindingId in block.SpawnList<BindingId>(_providers.Keys))
+#else
+                foreach (var bindingId in _providers.Keys.ToList())
+#endif
                 {
                     if (!bindingId.Type.IsOpenGenericType())
                     {
-                        using (var context = InjectContext.Pool.Spawn(this, bindingId.Type))
+                        using (var context = InjectContext.Spawn(this, bindingId.Type))
                         {
                             context.Identifier = bindingId.Identifier;
                             context.SourceType = InjectSources.Local;
@@ -420,9 +424,16 @@ namespace Zenject
 #if !NOT_UNITY3D && !ZEN_TESTS_OUTSIDE_UNITY
             Assert.That(Application.isEditor);
 #endif
+
+#if !ZEN_MULTITHREADING
             using (var block = DisposeBlock.Spawn())
+#endif
             {
+#if !ZEN_MULTITHREADING
                 var validatables = block.SpawnList<IValidatable>();
+#else
+                var validatables = new List<IValidatable>();
+#endif
 
                 // Repeatedly flush the validation queue until it's empty, to account for
                 // cases where calls to Validate() add more objects to the queue
@@ -490,9 +501,16 @@ namespace Zenject
             Assert.IsNotNull(context);
             Assert.That(buffer.IsEmpty());
 
+#if !ZEN_MULTITHREADING
             using (var block = DisposeBlock.Spawn())
+#endif
             {
+
+#if ZEN_MULTITHREADING
+                var allMatches = new List<ProviderInfo>();
+#else
                 var allMatches = block.SpawnList<ProviderInfo>();
+#endif
 
                 GetProvidersForContract(
                     context.BindingId, context.SourceType, allMatches);
@@ -517,9 +535,15 @@ namespace Zenject
 
             ForAllContainersToLookup(sourceType, container => container.FlushBindings());
 
+#if !ZEN_MULTITHREADING
             using (var block = DisposeBlock.Spawn())
+#endif
             {
+#if !ZEN_MULTITHREADING
                 var localProviders = block.SpawnList<ProviderInfo>();
+#else
+                var localProviders = new List<ProviderInfo>();
+#endif
 
                 ProviderInfo selected = null;
                 int selectedDistance = Int32.MaxValue;
@@ -720,9 +744,15 @@ namespace Zenject
 
         public IList ResolveAll(InjectContext context)
         {
+#if !ZEN_MULTITHREADING
             using (var block = DisposeBlock.Spawn())
+#endif
             {
+#if !ZEN_MULTITHREADING
                 var buffer = block.SpawnList<object>();
+#else
+                var buffer = new List<object>();
+#endif
                 ResolveAllInternal(context, buffer);
                 return ReflectionUtil.CreateGenericList(context.MemberType, buffer);
             }
@@ -736,9 +766,15 @@ namespace Zenject
             FlushBindings();
             CheckForInstallWarning(context);
 
+#if !ZEN_MULTITHREADING
             using (var block = DisposeBlock.Spawn())
+#endif
             {
+#if !ZEN_MULTITHREADING
                 var matches = block.SpawnList<ProviderInfo>();
+#else
+                var matches = new List<ProviderInfo>();
+#endif
 
                 GetProviderMatches(context, matches);
 
@@ -753,7 +789,11 @@ namespace Zenject
                     return;
                 }
 
+#if !ZEN_MULTITHREADING
                 var allInstances = block.SpawnList<object>();
+#else
+                var allInstances = new List<object>();
+#endif
 
                 for (int i = 0; i < matches.Count; i++)
                 {
@@ -855,7 +895,7 @@ namespace Zenject
         // This is safe to use within installers
         public Type ResolveType(Type type)
         {
-            using (var context = InjectContext.Pool.Spawn(this, type))
+            using (var context = InjectContext.Spawn(this, type))
             {
                 return ResolveType(context);
             }
@@ -891,7 +931,7 @@ namespace Zenject
 
         public List<Type> ResolveTypeAll(Type type, object identifier)
         {
-            using (var context = InjectContext.Pool.Spawn(this, type))
+            using (var context = InjectContext.Spawn(this, type))
             {
                 context.Identifier = identifier;
                 return ResolveTypeAll(context);
@@ -905,9 +945,15 @@ namespace Zenject
 
             FlushBindings();
 
+#if !ZEN_MULTITHREADING
             using (var block = DisposeBlock.Spawn())
+#endif
             {
+#if !ZEN_MULTITHREADING
                 var matches = block.SpawnList<ProviderInfo>();
+#else
+                var matches = new List<ProviderInfo>();
+#endif
 
                 GetProviderMatches(context, matches);
 
@@ -924,7 +970,7 @@ namespace Zenject
 
         public object Resolve(BindingId id)
         {
-            using (var context = InjectContext.Pool.Spawn(this, id.Type))
+            using (var context = InjectContext.Spawn(this, id.Type))
             {
                 context.Identifier = id.Identifier;
                 return Resolve(context);
@@ -973,9 +1019,15 @@ namespace Zenject
                     // than always requiring that they explicitly mark their array types as optional
                     subContext.Optional = true;
 
+#if !ZEN_MULTITHREADING
                     using (var block = DisposeBlock.Spawn())
+#endif
                     {
+#if !ZEN_MULTITHREADING
                         var instances = block.SpawnList<object>();
+#else
+                        var instances = new List<object>();
+#endif
                         ResolveAllInternal(subContext, instances);
                         return ReflectionUtil.CreateArray(subContext.MemberType, instances);
                     }
@@ -2294,7 +2346,7 @@ namespace Zenject
 
         public object ResolveId(Type contractType, object identifier)
         {
-            using (var context = InjectContext.Pool.Spawn(this, contractType))
+            using (var context = InjectContext.Spawn(this, contractType))
             {
                 context.Identifier = identifier;
                 return Resolve(context);
@@ -2323,7 +2375,7 @@ namespace Zenject
 
         public object TryResolveId(Type contractType, object identifier)
         {
-            using (var context = InjectContext.Pool.Spawn(this, contractType))
+            using (var context = InjectContext.Spawn(this, contractType))
             {
                 context.Identifier = identifier;
                 context.Optional = true;
@@ -2349,7 +2401,7 @@ namespace Zenject
 
         public IList ResolveIdAll(Type contractType, object identifier)
         {
-            using (var context = InjectContext.Pool.Spawn(this, contractType))
+            using (var context = InjectContext.Spawn(this, contractType))
             {
                 context.Identifier = identifier;
                 context.Optional = true;
@@ -2469,7 +2521,7 @@ namespace Zenject
 
         public bool HasBindingId(Type contractType, object identifier, InjectSources sourceType)
         {
-            using (var ctx = InjectContext.Pool.Spawn(this, contractType))
+            using (var ctx = InjectContext.Spawn(this, contractType))
             {
                 ctx.Identifier = identifier;
                 ctx.SourceType = sourceType;
@@ -2484,9 +2536,15 @@ namespace Zenject
 
             FlushBindings();
 
+#if !ZEN_MULTITHREADING
             using (var block = DisposeBlock.Spawn())
+#endif
             {
+#if !ZEN_MULTITHREADING
                 var matches = block.SpawnList<ProviderInfo>();
+#else
+                var matches = new List<ProviderInfo>();
+#endif
 
                 GetProviderMatches(context, matches);
 
