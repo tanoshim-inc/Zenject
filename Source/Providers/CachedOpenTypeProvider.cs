@@ -10,6 +10,10 @@ namespace Zenject
         readonly IProvider _creator;
         readonly Dictionary<Type, CachedProvider> _providerMap = new Dictionary<Type, CachedProvider>();
 
+#if ZEN_MULTITHREADING
+        readonly object _locker = new object();
+#endif
+
         public CachedOpenTypeProvider(IProvider creator)
         {
             Assert.That(creator.TypeVariesBasedOnMemberType);
@@ -32,14 +36,27 @@ namespace Zenject
 
         public int NumInstances
         {
-            get { return _providerMap.Values.Select(x => x.NumInstances).Sum(); }
+            get
+            {
+#if ZEN_MULTITHREADING
+                lock (_locker)
+#endif
+                {
+                    return _providerMap.Values.Select(x => x.NumInstances).Sum();
+                }
+            }
         }
 
         // This method can be called if you want to clear the memory for an AsSingle instance,
         // See isssue https://github.com/modesttree/Zenject/issues/441
         public void ClearCache()
         {
-            _providerMap.Clear();
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
+            {
+                _providerMap.Clear();
+            }
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -54,10 +71,15 @@ namespace Zenject
 
             CachedProvider provider;
 
-            if (!_providerMap.TryGetValue(context.MemberType, out provider))
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
             {
-                provider = new CachedProvider(_creator);
-                _providerMap.Add(context.MemberType, provider);
+                if (!_providerMap.TryGetValue(context.MemberType, out provider))
+                {
+                    provider = new CachedProvider(_creator);
+                    _providerMap.Add(context.MemberType, provider);
+                }
             }
 
             return provider.GetAllInstancesWithInjectSplit(
