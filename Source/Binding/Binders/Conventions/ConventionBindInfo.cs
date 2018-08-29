@@ -12,6 +12,9 @@ namespace Zenject
         readonly List<Func<Type, bool>> _typeFilters = new List<Func<Type, bool>>();
         readonly List<Func<Assembly, bool>> _assemblyFilters = new List<Func<Assembly, bool>>();
 
+#if ZEN_MULTITHREADING
+        readonly object _locker = new object();
+#endif
         static Dictionary<Assembly, Type[]> _assemblyTypeCache = new Dictionary<Assembly, Type[]>();
 
         public void AddAssemblyFilter(Func<Assembly, bool> predicate)
@@ -45,11 +48,16 @@ namespace Zenject
         {
             Type[] types;
 
-            // This is much faster than calling assembly.GetTypes() every time
-            if (!_assemblyTypeCache.TryGetValue(assembly, out types))
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
             {
-                types = assembly.GetTypes();
-                _assemblyTypeCache[assembly] = types;
+                // This is much faster than calling assembly.GetTypes() every time
+                if (!_assemblyTypeCache.TryGetValue(assembly, out types))
+                {
+                    types = assembly.GetTypes();
+                    _assemblyTypeCache[assembly] = types;
+                }
             }
 
             return types;
