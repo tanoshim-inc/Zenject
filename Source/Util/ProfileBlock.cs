@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 #if UNITY_EDITOR
 using UnityEngine.Profiling;
+using System.Threading;
 #endif
 using ModestTree;
 using Zenject.Internal;
@@ -22,6 +23,11 @@ namespace Zenject
 
         ProfileBlock()
         {
+        }
+
+        public static Thread UnityMainThread
+        {
+            get; set;
         }
 
         public static Regex ProfilePattern
@@ -58,6 +64,12 @@ namespace Zenject
 #if ZEN_TESTS_OUTSIDE_UNITY
             return null;
 #else
+            if (UnityMainThread == null
+                || !UnityMainThread.Equals(System.Threading.Thread.CurrentThread))
+            {
+                return null;
+            }
+
             if (!Profiler.enabled)
             {
                 return null;
@@ -86,6 +98,12 @@ namespace Zenject
 #if ZEN_TESTS_OUTSIDE_UNITY
             return null;
 #else
+            if (UnityMainThread == null
+                || !UnityMainThread.Equals(System.Threading.Thread.CurrentThread))
+            {
+                return null;
+            }
+
             if (!Profiler.enabled)
             {
                 return null;
@@ -114,6 +132,12 @@ namespace Zenject
 #if ZEN_TESTS_OUTSIDE_UNITY
             return null;
 #else
+            if (UnityMainThread == null
+                || !UnityMainThread.Equals(System.Threading.Thread.CurrentThread))
+            {
+                return null;
+            }
+
             if (!Profiler.enabled)
             {
                 return null;
