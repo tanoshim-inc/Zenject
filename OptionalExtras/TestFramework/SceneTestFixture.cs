@@ -78,10 +78,10 @@ namespace Zenject
                         .TryGetSceneContextForScene(scene);
                 }
 
-                _sceneContainers.Add(sceneContext.Container);
+                _sceneContainers.Add(sceneContext == null ? null : sceneContext.Container);
             }
 
-            _sceneContainer = _sceneContainers.Where(x => x != null).Last();
+            _sceneContainer = _sceneContainers.Where(x => x != null).LastOrDefault();
 
             if (_sceneContainer != null)
             {
