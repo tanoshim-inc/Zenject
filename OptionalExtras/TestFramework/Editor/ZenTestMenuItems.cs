@@ -72,7 +72,7 @@ namespace Zenject.Internal
                 + "\n    [UnityTest]"
                 + "\n    public IEnumerator TestScene()"
                 + "\n    {"
-                + "\n        yield return LoadScene(InsertSceneNameHere);"
+                + "\n        yield return LoadScene(\"InsertSceneNameHere\");"
                 + "\n"
                 + "\n        // TODO: Add assertions here now that the scene has started"
                 + "\n        // Or you can just uncomment to simply wait some time to make sure the scene plays without errors"
