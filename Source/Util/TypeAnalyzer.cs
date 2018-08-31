@@ -354,7 +354,7 @@ namespace Zenject
                 // If there is only one public constructor then use that
                 // This makes decent sense but is also necessary on WSA sometimes since the WSA generated
                 // constructor can sometimes be private with zero parameters
-                var singlePublicConstructor = constructors.Where(x => !x.IsPrivate).OnlyOrDefault();
+                var singlePublicConstructor = constructors.Where(x => x.IsPublic).OnlyOrDefault();
 
                 if (singlePublicConstructor != null)
                 {
