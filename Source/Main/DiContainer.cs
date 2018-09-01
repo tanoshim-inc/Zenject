@@ -391,26 +391,17 @@ namespace Zenject
             Assert.That(!_hasResolvedRoots);
             Assert.That(IsValidating);
 
-#if !ZEN_MULTITHREADING
-            using (var block = DisposeBlock.Spawn())
-#endif
+            foreach (var bindingId in _providers.Keys.ToList())
             {
-#if !ZEN_MULTITHREADING
-                foreach (var bindingId in block.SpawnList<BindingId>(_providers.Keys))
-#else
-                foreach (var bindingId in _providers.Keys.ToList())
-#endif
+                if (!bindingId.Type.IsOpenGenericType())
                 {
-                    if (!bindingId.Type.IsOpenGenericType())
+                    using (var context = InjectContext.Spawn(this, bindingId.Type))
                     {
-                        using (var context = InjectContext.Spawn(this, bindingId.Type))
-                        {
-                            context.Identifier = bindingId.Identifier;
-                            context.SourceType = InjectSources.Local;
-                            context.Optional = true;
+                        context.Identifier = bindingId.Identifier;
+                        context.SourceType = InjectSources.Local;
+                        context.Optional = true;
 
-                            ResolveAll(context);
-                        }
+                        ResolveAll(context);
                     }
                 }
             }
@@ -425,28 +416,19 @@ namespace Zenject
             Assert.That(Application.isEditor);
 #endif
 
-#if !ZEN_MULTITHREADING
-            using (var block = DisposeBlock.Spawn())
-#endif
+            var validatables = new List<IValidatable>();
+
+            // Repeatedly flush the validation queue until it's empty, to account for
+            // cases where calls to Validate() add more objects to the queue
+            while (_validationQueue.Any())
             {
-#if !ZEN_MULTITHREADING
-                var validatables = block.SpawnList<IValidatable>();
-#else
-                var validatables = new List<IValidatable>();
-#endif
+                validatables.Clear();
+                validatables.AddRange(_validationQueue);
+                _validationQueue.Clear();
 
-                // Repeatedly flush the validation queue until it's empty, to account for
-                // cases where calls to Validate() add more objects to the queue
-                while (_validationQueue.Any())
+                for (int i = 0; i < validatables.Count; i++)
                 {
-                    validatables.Clear();
-                    validatables.AddRange(_validationQueue);
-                    _validationQueue.Clear();
-
-                    for (int i = 0; i < validatables.Count; i++)
-                    {
-                        validatables[i].Validate();
-                    }
+                    validatables[i].Validate();
                 }
             }
         }
@@ -501,17 +483,10 @@ namespace Zenject
             Assert.IsNotNull(context);
             Assert.That(buffer.IsEmpty());
 
-#if !ZEN_MULTITHREADING
-            using (var block = DisposeBlock.Spawn())
-#endif
+            var allMatches = ListPool<ProviderInfo>.Instance.Spawn();
+
+            try
             {
-
-#if ZEN_MULTITHREADING
-                var allMatches = new List<ProviderInfo>();
-#else
-                var allMatches = block.SpawnList<ProviderInfo>();
-#endif
-
                 GetProvidersForContract(
                     context.BindingId, context.SourceType, allMatches);
 
@@ -525,6 +500,10 @@ namespace Zenject
                     }
                 }
             }
+            finally
+            {
+                ListPool<ProviderInfo>.Instance.Despawn(allMatches);
+            }
         }
 
         ProviderInfo TryGetUniqueProvider(InjectContext context)
@@ -535,16 +514,10 @@ namespace Zenject
 
             ForAllContainersToLookup(sourceType, container => container.FlushBindings());
 
-#if !ZEN_MULTITHREADING
-            using (var block = DisposeBlock.Spawn())
-#endif
-            {
-#if !ZEN_MULTITHREADING
-                var localProviders = block.SpawnList<ProviderInfo>();
-#else
-                var localProviders = new List<ProviderInfo>();
-#endif
+            var localProviders = ListPool<ProviderInfo>.Instance.Spawn();
 
+            try
+            {
                 ProviderInfo selected = null;
                 int selectedDistance = Int32.MaxValue;
                 bool selectedHasCondition = false;
@@ -630,6 +603,10 @@ namespace Zenject
                 }
 
                 return selected;
+            }
+            finally
+            {
+                ListPool<ProviderInfo>.Instance.Despawn(localProviders);
             }
         }
 
@@ -744,17 +721,17 @@ namespace Zenject
 
         public IList ResolveAll(InjectContext context)
         {
-#if !ZEN_MULTITHREADING
-            using (var block = DisposeBlock.Spawn())
-#endif
+            var buffer = ListPool<object>.Instance.Spawn();
+
+            try
             {
-#if !ZEN_MULTITHREADING
-                var buffer = block.SpawnList<object>();
-#else
-                var buffer = new List<object>();
-#endif
                 ResolveAllInternal(context, buffer);
+
                 return ReflectionUtil.CreateGenericList(context.MemberType, buffer);
+            }
+            finally
+            {
+                ListPool<object>.Instance.Despawn(buffer);
             }
         }
 
@@ -766,16 +743,11 @@ namespace Zenject
             FlushBindings();
             CheckForInstallWarning(context);
 
-#if !ZEN_MULTITHREADING
-            using (var block = DisposeBlock.Spawn())
-#endif
-            {
-#if !ZEN_MULTITHREADING
-                var matches = block.SpawnList<ProviderInfo>();
-#else
-                var matches = new List<ProviderInfo>();
-#endif
+            var matches = ListPool<ProviderInfo>.Instance.Spawn();
+            var allInstances = ListPool<object>.Instance.Spawn();
 
+            try
+            {
                 GetProviderMatches(context, matches);
 
                 if (matches.IsEmpty())
@@ -788,12 +760,6 @@ namespace Zenject
 
                     return;
                 }
-
-#if !ZEN_MULTITHREADING
-                var allInstances = block.SpawnList<object>();
-#else
-                var allInstances = new List<object>();
-#endif
 
                 for (int i = 0; i < matches.Count; i++)
                 {
@@ -826,6 +792,11 @@ namespace Zenject
                 }
 
                 buffer.AddRange(allInstances);
+            }
+            finally
+            {
+                ListPool<ProviderInfo>.Instance.Despawn(matches);
+                ListPool<object>.Instance.Despawn(allInstances);
             }
         }
 
@@ -945,16 +916,10 @@ namespace Zenject
 
             FlushBindings();
 
-#if !ZEN_MULTITHREADING
-            using (var block = DisposeBlock.Spawn())
-#endif
-            {
-#if !ZEN_MULTITHREADING
-                var matches = block.SpawnList<ProviderInfo>();
-#else
-                var matches = new List<ProviderInfo>();
-#endif
+            var matches = ListPool<ProviderInfo>.Instance.Spawn();
 
+            try
+            {
                 GetProviderMatches(context, matches);
 
                 if (matches.Count > 0 )
@@ -965,6 +930,10 @@ namespace Zenject
                 }
 
                 return new List<Type> {};
+            }
+            finally
+            {
+                ListPool<ProviderInfo>.Instance.Despawn(matches);
             }
         }
 
@@ -1019,17 +988,16 @@ namespace Zenject
                     // than always requiring that they explicitly mark their array types as optional
                     subContext.Optional = true;
 
-#if !ZEN_MULTITHREADING
-                    using (var block = DisposeBlock.Spawn())
-#endif
+                    var instances = ListPool<object>.Instance.Spawn();
+
+                    try
                     {
-#if !ZEN_MULTITHREADING
-                        var instances = block.SpawnList<object>();
-#else
-                        var instances = new List<object>();
-#endif
                         ResolveAllInternal(subContext, instances);
                         return ReflectionUtil.CreateArray(subContext.MemberType, instances);
+                    }
+                    finally
+                    {
+                        ListPool<object>.Instance.Despawn(instances);
                     }
                 }
 
@@ -1309,56 +1277,63 @@ namespace Zenject
                     "More than one (or zero) constructors found for type '{0}' when creating dependencies.  Use one [Inject] attribute to specify which to use.", concreteType);
 
                 // Make a copy since we remove from it below
-                var paramValues = new List<object>();
+                var paramValues = ListPool<object>.Instance.Spawn();
 
-                for (int i = 0; i < typeInfo.ConstructorInjectables.Count; i++)
+                try
                 {
-                    var injectInfo = typeInfo.ConstructorInjectables[i];
-
-                    object value;
-
-                    if (!InjectUtil.PopValueWithType(
-                        args.ExtraArgs, injectInfo.MemberType, out value))
+                    for (int i = 0; i < typeInfo.ConstructorInjectables.Count; i++)
                     {
-                        using (var context = injectInfo.SpawnInjectContext(
-                            this, args.Context, null, args.ConcreteIdentifier))
+                        var injectInfo = typeInfo.ConstructorInjectables[i];
+
+                        object value;
+
+                        if (!InjectUtil.PopValueWithType(
+                            args.ExtraArgs, injectInfo.MemberType, out value))
                         {
-                            value = Resolve(context);
+                            using (var context = injectInfo.SpawnInjectContext(
+                                this, args.Context, null, args.ConcreteIdentifier))
+                            {
+                                value = Resolve(context);
+                            }
+                        }
+
+                        if (value is ValidationMarker)
+                        {
+                            Assert.That(IsValidating);
+                            paramValues.Add(injectInfo.MemberType.GetDefaultValue());
+                        }
+                        else
+                        {
+                            paramValues.Add(value);
                         }
                     }
 
-                    if (value is ValidationMarker)
+                    if (!IsValidating || allowDuringValidation)
                     {
-                        Assert.That(IsValidating);
-                        paramValues.Add(injectInfo.MemberType.GetDefaultValue());
-                    }
-                    else
-                    {
-                        paramValues.Add(value);
-                    }
-                }
-
-                if (!IsValidating || allowDuringValidation)
-                {
-                    //ModestTree.Log.Debug("Zenject: Instantiating type '{0}'", concreteType);
-                    try
-                    {
+                        //ModestTree.Log.Debug("Zenject: Instantiating type '{0}'", concreteType);
+                        try
+                        {
 #if UNITY_EDITOR
                         using (ProfileBlock.Start("{0}.{1}()", concreteType, concreteType.Name))
 #endif
+                            {
+                                newObj = typeInfo.InjectConstructor.Invoke(paramValues.ToArray());
+                            }
+                        }
+                        catch (Exception e)
                         {
-                            newObj = typeInfo.InjectConstructor.Invoke(paramValues.ToArray());
+                            throw Assert.CreateException(
+                                e, "Error occurred while instantiating object with type '{0}'", concreteType);
                         }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        throw Assert.CreateException(
-                            e, "Error occurred while instantiating object with type '{0}'", concreteType);
+                        newObj = new ValidationMarker(concreteType);
                     }
                 }
-                else
+                finally
                 {
-                    newObj = new ValidationMarker(concreteType);
+                    ListPool<object>.Instance.Despawn(paramValues);
                 }
             }
 
@@ -1524,12 +1499,10 @@ namespace Zenject
             for (int i = 0; i < typeInfo.PostInjectMethods.Count; i++)
             {
                 var method = typeInfo.PostInjectMethods[i];
-#if UNITY_EDITOR
-                using (ProfileBlock.Start("{0}.{1}()", injectableType, method.MethodInfo.Name))
-#endif
-                {
-                    var paramValues = new List<object>();
+                var paramValues = ListPool<object>.Instance.Spawn();
 
+                try
+                {
                     for (int k = 0; k < method.InjectableInfo.Count; k++)
                     {
                         var injectInfo = method.InjectableInfo[k];
@@ -1567,9 +1540,18 @@ namespace Zenject
                         else
 #endif
                         {
-                            method.MethodInfo.Invoke(injectable, paramValues.ToArray());
+#if UNITY_EDITOR
+                            using (ProfileBlock.Start("{0}.{1}()", injectableType, method.MethodInfo.Name))
+#endif
+                            {
+                                method.MethodInfo.Invoke(injectable, paramValues.ToArray());
+                            }
                         }
                     }
+                }
+                finally
+                {
+                    ListPool<object>.Instance.Despawn(paramValues);
                 }
             }
 
@@ -2227,12 +2209,19 @@ namespace Zenject
 
             ZenUtilInternal.AddStateMachineBehaviourAutoInjectersUnderGameObject(gameObject);
 
-            var monoBehaviours = new List<MonoBehaviour>();
-            ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(gameObject, monoBehaviours);
-
-            for (int i = 0; i < monoBehaviours.Count; i++)
+            var monoBehaviours = ListPool<MonoBehaviour>.Instance.Spawn();
+            try
             {
-                Inject(monoBehaviours[i]);
+                ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(gameObject, monoBehaviours);
+
+                for (int i = 0; i < monoBehaviours.Count; i++)
+                {
+                    Inject(monoBehaviours[i]);
+                }
+            }
+            finally
+            {
+                ListPool<MonoBehaviour>.Instance.Despawn(monoBehaviours);
             }
         }
 
@@ -2287,20 +2276,28 @@ namespace Zenject
 
             ZenUtilInternal.AddStateMachineBehaviourAutoInjectersUnderGameObject(gameObject);
 
-            var injectableMonoBehaviours = new List<MonoBehaviour>();
-            ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(gameObject, injectableMonoBehaviours);
-
-            for (int i = 0; i < injectableMonoBehaviours.Count; i++)
+            var injectableMonoBehaviours = ListPool<MonoBehaviour>.Instance.Spawn();
+            try
             {
-                var monoBehaviour = injectableMonoBehaviours[i];
-                if (monoBehaviour.GetType().DerivesFromOrEqual(componentType))
+
+                ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(gameObject, injectableMonoBehaviours);
+
+                for (int i = 0; i < injectableMonoBehaviours.Count; i++)
                 {
-                    InjectExplicit(monoBehaviour, monoBehaviour.GetType(), args);
+                    var monoBehaviour = injectableMonoBehaviours[i];
+                    if (monoBehaviour.GetType().DerivesFromOrEqual(componentType))
+                    {
+                        InjectExplicit(monoBehaviour, monoBehaviour.GetType(), args);
+                    }
+                    else
+                    {
+                        Inject(monoBehaviour);
+                    }
                 }
-                else
-                {
-                    Inject(monoBehaviour);
-                }
+            }
+            finally
+            {
+                ListPool<MonoBehaviour>.Instance.Despawn(injectableMonoBehaviours);
             }
 
             var matches = gameObject.GetComponentsInChildren(componentType, true);
@@ -2547,19 +2544,16 @@ namespace Zenject
 
             FlushBindings();
 
-#if !ZEN_MULTITHREADING
-            using (var block = DisposeBlock.Spawn())
-#endif
+            var matches = ListPool<ProviderInfo>.Instance.Spawn();
+
+            try
             {
-#if !ZEN_MULTITHREADING
-                var matches = block.SpawnList<ProviderInfo>();
-#else
-                var matches = new List<ProviderInfo>();
-#endif
-
                 GetProviderMatches(context, matches);
-
                 return matches.Count > 0;
+            }
+            finally
+            {
+                ListPool<ProviderInfo>.Instance.Despawn(matches);
             }
         }
 

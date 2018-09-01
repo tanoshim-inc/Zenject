@@ -12,6 +12,10 @@ namespace Zenject
         Action<TValue> _onDespawnedMethod;
         int _activeCount;
 
+#if ZEN_MULTITHREADING
+        protected readonly object _locker = new object();
+#endif
+
         public StaticMemoryPoolBase(Action<TValue> onDespawnedMethod)
         {
             _onDespawnedMethod = onDespawnedMethod;
@@ -119,20 +123,25 @@ namespace Zenject
 
         public void Despawn(TValue element)
         {
-            if (_onDespawnedMethod != null)
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
             {
-                _onDespawnedMethod(element);
+                if (_onDespawnedMethod != null)
+                {
+                    _onDespawnedMethod(element);
+                }
+
+                if (_stack.Count > 0 && ReferenceEquals(_stack.Peek(), element))
+                {
+                    ModestTree.Log.Error("Despawn error. Trying to destroy object that is already released to pool.");
+                }
+
+                Assert.That(!_stack.Contains(element), "Attempted to despawn element twice!");
+
+                _activeCount--;
+                _stack.Push(element);
             }
-
-            if (_stack.Count > 0 && ReferenceEquals(_stack.Peek(), element))
-            {
-                ModestTree.Log.Error("Despawn error. Trying to destroy object that is already released to pool.");
-            }
-
-            Assert.That(!_stack.Contains(element), "Attempted to despawn element twice!");
-
-            _activeCount--;
-            _stack.Push(element);
         }
     }
 
@@ -157,14 +166,19 @@ namespace Zenject
 
         public TValue Spawn()
         {
-            var item = SpawnInternal();
-
-            if (_onSpawnMethod != null)
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
             {
-                _onSpawnMethod(item);
-            }
+                var item = SpawnInternal();
 
-            return item;
+                if (_onSpawnMethod != null)
+                {
+                    _onSpawnMethod(item);
+                }
+
+                return item;
+            }
         }
     }
 
@@ -191,14 +205,19 @@ namespace Zenject
 
         public TValue Spawn(TParam1 param)
         {
-            var item = SpawnInternal();
-
-            if (_onSpawnMethod != null)
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
             {
-                _onSpawnMethod(param, item);
-            }
+                var item = SpawnInternal();
 
-            return item;
+                if (_onSpawnMethod != null)
+                {
+                    _onSpawnMethod(param, item);
+                }
+
+                return item;
+            }
         }
     }
 
@@ -225,14 +244,19 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2)
         {
-            var item = SpawnInternal();
-
-            if (_onSpawnMethod != null)
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
             {
-                _onSpawnMethod(p1, p2, item);
-            }
+                var item = SpawnInternal();
 
-            return item;
+                if (_onSpawnMethod != null)
+                {
+                    _onSpawnMethod(p1, p2, item);
+                }
+
+                return item;
+            }
         }
     }
 
@@ -259,14 +283,19 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3)
         {
-            var item = SpawnInternal();
-
-            if (_onSpawnMethod != null)
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
             {
-                _onSpawnMethod(p1, p2, p3, item);
-            }
+                var item = SpawnInternal();
 
-            return item;
+                if (_onSpawnMethod != null)
+                {
+                    _onSpawnMethod(p1, p2, p3, item);
+                }
+
+                return item;
+            }
         }
     }
 
@@ -303,14 +332,19 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4)
         {
-            var item = SpawnInternal();
-
-            if (_onSpawnMethod != null)
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
             {
-                _onSpawnMethod(p1, p2, p3, p4, item);
-            }
+                var item = SpawnInternal();
 
-            return item;
+                if (_onSpawnMethod != null)
+                {
+                    _onSpawnMethod(p1, p2, p3, p4, item);
+                }
+
+                return item;
+            }
         }
     }
 
@@ -347,14 +381,19 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5)
         {
-            var item = SpawnInternal();
-
-            if (_onSpawnMethod != null)
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
             {
-                _onSpawnMethod(p1, p2, p3, p4, p5, item);
-            }
+                var item = SpawnInternal();
 
-            return item;
+                if (_onSpawnMethod != null)
+                {
+                    _onSpawnMethod(p1, p2, p3, p4, p5, item);
+                }
+
+                return item;
+            }
         }
     }
 
@@ -391,14 +430,19 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5, TParam6 p6)
         {
-            var item = SpawnInternal();
-
-            if (_onSpawnMethod != null)
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
             {
-                _onSpawnMethod(p1, p2, p3, p4, p5, p6, item);
-            }
+                var item = SpawnInternal();
 
-            return item;
+                if (_onSpawnMethod != null)
+                {
+                    _onSpawnMethod(p1, p2, p3, p4, p5, p6, item);
+                }
+
+                return item;
+            }
         }
     }
 
@@ -435,14 +479,19 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5, TParam6 p6, TParam7 p7)
         {
-            var item = SpawnInternal();
-
-            if (_onSpawnMethod != null)
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
             {
-                _onSpawnMethod(p1, p2, p3, p4, p5, p6, p7, item);
-            }
+                var item = SpawnInternal();
 
-            return item;
+                if (_onSpawnMethod != null)
+                {
+                    _onSpawnMethod(p1, p2, p3, p4, p5, p6, p7, item);
+                }
+
+                return item;
+            }
         }
     }
 }
