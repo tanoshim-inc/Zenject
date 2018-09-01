@@ -644,26 +644,26 @@ namespace Zenject
                 }
                 case InjectSources.Parent:
                 {
-                    foreach (var parentContainer in _parentContainers)
+                    for (int i = 0; i < _parentContainers.Length; i++)
                     {
-                        action(parentContainer);
+                        action(_parentContainers[i]);
                     }
                     break;
                 }
                 case InjectSources.Any:
                 {
                     action(this);
-                    foreach (var ancestor in _ancestorContainers)
+                    for (int i = 0; i < _ancestorContainers.Length; i++)
                     {
-                        action(ancestor);
+                        action(_ancestorContainers[i]);
                     }
                     break;
                 }
                 case InjectSources.AnyParent:
                 {
-                    foreach (var ancestor in _ancestorContainers)
+                    for (int i = 0; i < _ancestorContainers.Length; i++)
                     {
-                        action(ancestor);
+                        action(_ancestorContainers[i]);
                     }
                     break;
                 }
@@ -1240,8 +1240,10 @@ namespace Zenject
 
             int? result = null;
 
-            foreach (var parent in _parentContainers)
+            for (int i = 0; i < _parentContainers.Length; i++)
             {
+                var parent = _parentContainers[i];
+
                 var distance = parent.GetContainerHeirarchyDistance(container, depth + 1);
 
                 if (distance.HasValue && (!result.HasValue || distance.Value < result.Value))
@@ -1309,8 +1311,10 @@ namespace Zenject
                 // Make a copy since we remove from it below
                 var paramValues = new List<object>();
 
-                foreach (var injectInfo in typeInfo.ConstructorInjectables)
+                for (int i = 0; i < typeInfo.ConstructorInjectables.Count; i++)
                 {
+                    var injectInfo = typeInfo.ConstructorInjectables[i];
+
                     object value;
 
                     if (!InjectUtil.PopValueWithType(
@@ -1468,9 +1472,10 @@ namespace Zenject
             FlushBindings();
             CheckForInstallWarning(args.Context);
 
-            foreach (var injectInfo in typeInfo.FieldInjectables.Concat(
-                typeInfo.PropertyInjectables))
+            for (int i = 0; i < typeInfo.MemberInjectables.Count; i++)
             {
+                var injectInfo = typeInfo.MemberInjectables[i];
+
                 object value;
 
                 if (InjectUtil.PopValueWithType(args.ExtraArgs, injectInfo.MemberType, out value))
@@ -1516,16 +1521,19 @@ namespace Zenject
                 }
             }
 
-            foreach (var method in typeInfo.PostInjectMethods)
+            for (int i = 0; i < typeInfo.PostInjectMethods.Count; i++)
             {
+                var method = typeInfo.PostInjectMethods[i];
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.{1}()", injectableType, method.MethodInfo.Name))
 #endif
                 {
                     var paramValues = new List<object>();
 
-                    foreach (var injectInfo in method.InjectableInfo)
+                    for (int k = 0; k < method.InjectableInfo.Count; k++)
                     {
+                        var injectInfo = method.InjectableInfo[k];
+
                         object value;
 
                         if (!InjectUtil.PopValueWithType(args.ExtraArgs, injectInfo.MemberType, out value))
@@ -1980,7 +1988,7 @@ namespace Zenject
 
             InjectGameObject(gameObj);
 
-            if (shouldMakeActive)
+            if (shouldMakeActive && !IsValidating)
             {
                 gameObj.SetActive(true);
             }
@@ -2221,9 +2229,10 @@ namespace Zenject
 
             var monoBehaviours = new List<MonoBehaviour>();
             ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(gameObject, monoBehaviours);
-            foreach (var monoBehaviour in monoBehaviours)
+
+            for (int i = 0; i < monoBehaviours.Count; i++)
             {
-                Inject(monoBehaviour);
+                Inject(monoBehaviours[i]);
             }
         }
 
@@ -2280,8 +2289,10 @@ namespace Zenject
 
             var injectableMonoBehaviours = new List<MonoBehaviour>();
             ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(gameObject, injectableMonoBehaviours);
-            foreach (var monoBehaviour in injectableMonoBehaviours)
+
+            for (int i = 0; i < injectableMonoBehaviours.Count; i++)
             {
+                var monoBehaviour = injectableMonoBehaviours[i];
                 if (monoBehaviour.GetType().DerivesFromOrEqual(componentType))
                 {
                     InjectExplicit(monoBehaviour, monoBehaviour.GetType(), args);
@@ -2788,8 +2799,10 @@ namespace Zenject
         // bindings are finalized one at a time
         public void BindInstances(params object[] instances)
         {
-            foreach (var instance in instances)
+            for (int i = 0; i < instances.Length; i++)
             {
+                var instance = instances[i];
+
                 Assert.That(!ZenUtilInternal.IsNull(instance),
                     "Found null instance provided to BindInstances method");
 
@@ -3192,7 +3205,7 @@ namespace Zenject
         public object InstantiateExplicit(Type concreteType, bool autoInject, InjectArgs args)
         {
 #if UNITY_EDITOR
-            using (ProfileBlock.Start("Zenject.Instantiate({0})", concreteType))
+            //using (ProfileBlock.Start("Zenject.Instantiate({0})", concreteType))
 #endif
             {
                 if (IsValidating)
@@ -3321,7 +3334,7 @@ namespace Zenject
             var component = InjectGameObjectForComponentExplicit(
                 gameObj, componentType, args);
 
-            if (shouldMakeActive)
+            if (shouldMakeActive && !IsValidating)
             {
                 gameObj.SetActive(true);
             }

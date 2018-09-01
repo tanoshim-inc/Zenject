@@ -44,7 +44,7 @@ namespace Zenject
 
             _container.Inject(context);
 
-            if (shouldMakeActive)
+            if (shouldMakeActive && !_container.IsValidating)
             {
                 gameObj.SetActive(true);
             }
