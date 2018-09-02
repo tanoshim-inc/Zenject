@@ -81,6 +81,7 @@
     <Compile Include="Binding\Binders\InstantiateCallbackConditionCopyNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\ScopeConcreteIdArgConditionCopyNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\WithKernelScopeConcreteIdArgConditionCopyNonLazyBinder.cs" />
+    <Compile Include="Binding\BindInfo\BindStatement.cs" />
     <Compile Include="Binding\BindInfo\FactoryBindInfo.cs" />
     <Compile Include="Binding\BindInfo\GameObjectCreationParameters.cs" />
     <Compile Include="Binding\BindInfo\MemoryPoolBindInfo.cs" />
@@ -143,6 +144,7 @@
     <Compile Include="Injection\InjectUtil.cs" />
     <Compile Include="Internal\ValuePair.cs" />
     <Compile Include="Main\LazyInstanceInjector.cs" />
+    <Compile Include="Main\LookupId.cs" />
     <Compile Include="Main\SingletonMarkRegistry.cs" />
     <Compile Include="Main\ZenjectSettings.cs" />
     <Compile Include="Providers\CachedOpenTypeProvider.cs" />
@@ -162,6 +164,7 @@
     <Compile Include="Util\DisposeBlock.cs" />
     <Compile Include="Util\ProfileBlock.cs" />
     <Compile Include="Util\ReflectionUtil.cs" />
+    <Compile Include="Util\ZenPools.cs" />
     <Compile Include="Validation\IValidatable.cs" />
     <Compile Include="Factories\KeyedFactory.cs" />
     <Compile Include="Injection\InjectableInfo.cs" />
@@ -208,7 +211,6 @@
     <Compile Include="Binding\Finalizers\ScopableBindingFinalizer.cs" />
     <Compile Include="Binding\Finalizers\ProviderBindingFinalizer.cs" />
     <Compile Include="Binding\Finalizers\IBindingFinalizer.cs" />
-    <Compile Include="Binding\Finalizers\BindFinalizerWrapper.cs" />
     <Compile Include="Binding\Finalizers\SingleProviderBindingFinalizer.cs" />
     <Compile Include="Binding\Binders\SubContainerBinder.cs" />
     <Compile Include="Binding\Finalizers\PrefabBindingFinalizer.cs" />
