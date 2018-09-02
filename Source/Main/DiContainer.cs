@@ -1559,21 +1559,11 @@ namespace Zenject
 
                     if (!isDryRun)
                     {
-#if !NOT_UNITY3D
-                        // Handle IEnumerators (Coroutines) as a special case by calling StartCoroutine() instead of invoking directly.
-                        if (method.MethodInfo.ReturnType == typeof(IEnumerator))
-                        {
-                            StartCoroutine(injectable, method, paramValues);
-                        }
-                        else
-#endif
-                        {
 #if UNITY_EDITOR
-                            using (ProfileBlock.Start("{0}.{1}()", injectableType, method.MethodInfo.Name))
+                        using (ProfileBlock.Start("{0}.{1}()", injectableType, method.MethodInfo.Name))
 #endif
-                            {
-                                method.MethodInfo.Invoke(injectable, paramValues.ToArray());
-                            }
+                        {
+                            method.MethodInfo.Invoke(injectable, paramValues.ToArray());
                         }
                     }
                 }
@@ -1592,29 +1582,6 @@ namespace Zenject
         }
 
 #if !NOT_UNITY3D
-
-        void StartCoroutine(object injectable, PostInjectableInfo method, List<object> paramValues)
-        {
-            var startCoroutineOn = injectable as MonoBehaviour;
-
-            // If the injectable isn't a MonoBehaviour, then start the coroutine on the context associated
-            // with this container
-            if (startCoroutineOn == null)
-            {
-                startCoroutineOn = TryResolve<Context>();
-            }
-
-            if (startCoroutineOn == null)
-            {
-                throw Assert.CreateException(
-                    "Unable to find a suitable MonoBehaviour to start the '{0}.{1}' coroutine on.",
-                    method.MethodInfo.DeclaringType, method.MethodInfo.Name);
-            }
-
-            var result = method.MethodInfo.Invoke(injectable, paramValues.ToArray()) as IEnumerator;
-
-            startCoroutineOn.StartCoroutine(result);
-        }
 
         // Don't use this unless you know what you're doing
         // You probably want to use InstantiatePrefab instead
