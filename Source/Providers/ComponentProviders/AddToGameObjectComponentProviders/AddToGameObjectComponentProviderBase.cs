@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Zenject.Internal;
 using ModestTree;
 using UnityEngine;
 
@@ -18,12 +19,12 @@ namespace Zenject
 
         public AddToGameObjectComponentProviderBase(
             DiContainer container, Type componentType,
-            List<TypeValuePair> extraArguments, object concreteIdentifier,
+            IEnumerable<TypeValuePair> extraArguments, object concreteIdentifier,
             Action<InjectContext, object> instantiateCallback)
         {
             Assert.That(componentType.DerivesFrom<Component>());
 
-            _extraArguments = extraArguments;
+            _extraArguments = extraArguments.ToList();
             _componentType = componentType;
             _container = container;
             _concreteIdentifier = concreteIdentifier;
@@ -105,14 +106,16 @@ namespace Zenject
             {
                 try
                 {
-                    var injectArgs = new InjectArgs()
-                    {
-                        ExtraArgs = _extraArguments.Concat(args).ToList(),
-                        Context = context,
-                        ConcreteIdentifier = _concreteIdentifier
-                    };
+                    var extraArgs = ZenPools.SpawnList<TypeValuePair>();
 
-                    _container.InjectExplicit(instance, _componentType, injectArgs);
+                    extraArgs.AllocFreeAddRange(_extraArguments);
+                    extraArgs.AllocFreeAddRange(args);
+
+                    _container.InjectExplicit(instance, _componentType, extraArgs, context, _concreteIdentifier);
+
+                    Assert.That(extraArgs.Count == 0);
+
+                    ZenPools.DespawnList<TypeValuePair>(extraArgs);
 
                     if (_instantiateCallback != null)
                     {

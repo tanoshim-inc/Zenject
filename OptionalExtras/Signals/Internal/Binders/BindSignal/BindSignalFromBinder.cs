@@ -5,15 +5,15 @@ namespace Zenject
 {
     public class BindSignalFromBinder<TObject, TSignal>
     {
-        readonly BindFinalizerWrapper _finalizerWrapper;
+        readonly BindStatement _bindStatement;
         readonly Func<TObject, Action<TSignal>> _methodGetter;
         readonly DiContainer _container;
 
         public BindSignalFromBinder(
-            BindFinalizerWrapper finalizerWrapper, Func<TObject, Action<TSignal>> methodGetter,
+            BindStatement bindStatement, Func<TObject, Action<TSignal>> methodGetter,
             DiContainer container)
         {
-            _finalizerWrapper = finalizerWrapper;
+            _bindStatement = bindStatement;
             _methodGetter = methodGetter;
             _container = container;
         }
@@ -35,8 +35,8 @@ namespace Zenject
 
         public SignalCopyBinder From(Action<ConcreteBinderGeneric<TObject>> objectBindCallback)
         {
-            Assert.IsNull(_finalizerWrapper.SubFinalizer);
-            _finalizerWrapper.SubFinalizer = new NullBindingFinalizer();
+            Assert.That(!_bindStatement.HasFinalizer);
+            _bindStatement.SetFinalizer(new NullBindingFinalizer());
 
             var objectLookupId = Guid.NewGuid();
 

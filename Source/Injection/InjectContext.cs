@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ModestTree;
+using Zenject.Internal;
 
 namespace Zenject
 {
     public class InjectContext : IDisposable
     {
-        public static readonly StaticMemoryPool<DiContainer, Type, InjectContext> Pool =
-            new StaticMemoryPool<DiContainer, Type, InjectContext>(OnSpawned, OnDespawned);
-
         BindingId _bindingId;
         Type _objectType;
         InjectContext _parentContext;
@@ -24,20 +22,8 @@ namespace Zenject
 
         public InjectContext()
         {
-            SetDefaults();
-        }
-
-        static void OnSpawned(DiContainer container, Type memberType, InjectContext that)
-        {
-            Assert.IsNull(that._container);
-
-            that._container = container;
-            that._bindingId.Type = memberType;
-        }
-
-        static void OnDespawned(InjectContext that)
-        {
-            that.SetDefaults();
+            _bindingId = new BindingId();
+            Reset();
         }
 
         public InjectContext(DiContainer container, Type memberType)
@@ -61,22 +47,19 @@ namespace Zenject
 
         public void Dispose()
         {
-            Pool.Despawn(this);
+            ZenPools.DespawnInjectContext(this);
         }
 
-        void SetDefaults()
+        public void Reset()
         {
             _objectType = null;
             _parentContext = null;
             _objectInstance = null;
             _memberName = "";
-            _bindingId.Identifier = null;
-            _bindingId.Type = null;
             _optional = false;
             _sourceType = InjectSources.Any;
             _fallBackValue = null;
             _container = null;
-
             _bindingId.Type = null;
             _bindingId.Identifier = null;
         }

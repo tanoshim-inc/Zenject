@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Zenject.Internal;
 using ModestTree;
 using UnityEngine;
 using Zenject;
@@ -19,12 +20,12 @@ namespace Zenject
 
         public AddToCurrentGameObjectComponentProvider(
             DiContainer container, Type componentType,
-            List<TypeValuePair> extraArguments, object concreteIdentifier,
+            IEnumerable<TypeValuePair> extraArguments, object concreteIdentifier,
             Action<InjectContext, object> instantiateCallback)
         {
             Assert.That(componentType.DerivesFrom<Component>());
 
-            _extraArguments = extraArguments;
+            _extraArguments = extraArguments.ToList();
             _componentType = componentType;
             _container = container;
             _concreteIdentifier = concreteIdentifier;
@@ -90,18 +91,17 @@ namespace Zenject
             // Note that we don't just use InstantiateComponentOnNewGameObjectExplicit here
             // because then circular references don't work
 
-            var injectArgs = new InjectArgs()
-            {
-                ExtraArgs = _extraArguments.Concat(args).ToList(),
-                Context = context,
-                ConcreteIdentifier = _concreteIdentifier
-            };
-
             injectAction = () =>
             {
-                _container.InjectExplicit(instance, _componentType, injectArgs);
+                var extraArgs = ZenPools.SpawnList<TypeValuePair>();
 
-                Assert.That(injectArgs.ExtraArgs.IsEmpty());
+                extraArgs.AllocFreeAddRange(_extraArguments);
+                extraArgs.AllocFreeAddRange(args);
+
+                _container.InjectExplicit(instance, _componentType, extraArgs, context, _concreteIdentifier);
+
+                Assert.That(extraArgs.IsEmpty());
+                ZenPools.DespawnList<TypeValuePair>(extraArgs);
 
                 if (_instantiateCallback != null)
                 {

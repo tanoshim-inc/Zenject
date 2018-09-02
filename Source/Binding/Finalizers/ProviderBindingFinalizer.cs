@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ModestTree;
+using Zenject.Internal;
 using TypeExtensions = ModestTree.TypeExtensions;
 
 namespace Zenject
@@ -208,11 +209,7 @@ namespace Zenject
             Assert.That(!BindInfo.ContractTypes.IsEmpty());
             Assert.That(!concreteTypes.IsEmpty());
 
-#if ZEN_MULTITHREADING
-            var providerMap = new Dictionary<Type, IProvider>();
-#else
-            var providerMap = DictionaryPool<Type, IProvider>.Instance.Spawn();
-#endif
+            var providerMap = ZenPools.SpawnDictionary<Type, IProvider>();
             try
             {
                 foreach (var concreteType in concreteTypes)
@@ -244,11 +241,8 @@ namespace Zenject
             }
             finally
             {
-#if !ZEN_MULTITHREADING
-                DictionaryPool<Type, IProvider>.Instance.Despawn(providerMap);
-#endif
+                ZenPools.DespawnDictionary(providerMap);
             }
         }
     }
 }
-

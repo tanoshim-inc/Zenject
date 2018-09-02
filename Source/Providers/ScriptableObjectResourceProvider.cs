@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Zenject.Internal;
 using ModestTree;
 using UnityEngine;
 
@@ -20,14 +21,14 @@ namespace Zenject
 
         public ScriptableObjectResourceProvider(
             string resourcePath, Type resourceType,
-            DiContainer container, List<TypeValuePair> extraArguments,
+            DiContainer container, IEnumerable<TypeValuePair> extraArguments,
             bool createNew, object concreteIdentifier,
             Action<InjectContext, object> instantiateCallback)
         {
             _container = container;
             Assert.DerivesFromOrEqual<ScriptableObject>(resourceType);
 
-            _extraArguments = extraArguments;
+            _extraArguments = extraArguments.ToList();
             _resourceType = resourceType;
             _resourcePath = resourcePath;
             _createNew = createNew;
@@ -73,21 +74,21 @@ namespace Zenject
             Assert.That(buffer.Count > 0,
             "Could not find resource at path '{0}' with type '{1}'", _resourcePath, _resourceType);
 
-            var injectArgs = new InjectArgs()
-            {
-                ExtraArgs = _extraArguments.Concat(args).ToList(),
-                Context = context,
-                ConcreteIdentifier = _concreteIdentifier,
-            };
-
             injectAction = () =>
             {
                 for (int i = 0; i < buffer.Count; i++)
                 {
                     var obj = buffer[i];
 
+                    var extraArgs = ZenPools.SpawnList<TypeValuePair>();
+
+                    extraArgs.AllocFreeAddRange(_extraArguments);
+                    extraArgs.AllocFreeAddRange(args);
+
                     _container.InjectExplicit(
-                        obj, _resourceType, injectArgs);
+                        obj, _resourceType, extraArgs, context, _concreteIdentifier);
+
+                    ZenPools.DespawnList<TypeValuePair>(extraArgs);
 
                     if (_instantiateCallback != null)
                     {

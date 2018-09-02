@@ -36,7 +36,7 @@ namespace Zenject
         public void GetAllInstancesWithInjectSplit(
             InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
-            Assert.IsEmpty(args);
+            Assert.That(args.Count == 0);
             Assert.IsNotNull(context);
 
             Assert.That(_instanceType.DerivesFromOrEqual(context.MemberType));

@@ -14,8 +14,8 @@ namespace Zenject
         public FromBinderGeneric(
             DiContainer bindContainer,
             BindInfo bindInfo,
-            BindFinalizerWrapper finalizerWrapper)
-            : base(bindContainer, bindInfo, finalizerWrapper)
+            BindStatement bindStatement)
+            : base(bindContainer, bindInfo, bindStatement)
         {
             BindingUtil.AssertIsDerivedFromTypes(typeof(TContract), BindInfo.ContractTypes);
         }

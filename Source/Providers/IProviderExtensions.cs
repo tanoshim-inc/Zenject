@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ModestTree;
+using Zenject.Internal;
 
 namespace Zenject
 {
@@ -44,7 +45,7 @@ namespace Zenject
         public static object TryGetInstance(
             this IProvider creator, InjectContext context, List<TypeValuePair> args)
         {
-            var allInstances = ListPool<object>.Instance.Spawn();
+            var allInstances = ZenPools.SpawnList<object>();
 
             try
             {
@@ -62,7 +63,7 @@ namespace Zenject
             }
             finally
             {
-                ListPool<object>.Instance.Despawn(allInstances);
+                ZenPools.DespawnList<object>(allInstances);
             }
         }
 
@@ -75,7 +76,7 @@ namespace Zenject
         public static object GetInstance(
             this IProvider creator, InjectContext context, List<TypeValuePair> args)
         {
-            var allInstances = ListPool<object>.Instance.Spawn();
+            var allInstances = ZenPools.SpawnList<object>();
 
             try
             {
@@ -91,9 +92,8 @@ namespace Zenject
             }
             finally
             {
-                ListPool<object>.Instance.Despawn(allInstances);
+                ZenPools.DespawnList<object>(allInstances);
             }
         }
     }
 }
-

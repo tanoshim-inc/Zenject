@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Zenject.Internal;
 using ModestTree;
 
 namespace Zenject
@@ -80,8 +81,16 @@ namespace Zenject
             context.AddNormalInstaller(
                 new ActionInstaller((subContainer) =>
                     {
+                        var extraArgs = ZenPools.SpawnList<TypeValuePair>();
+
+                        extraArgs.AllocFreeAddRange(_extraArgs);
+                        extraArgs.AllocFreeAddRange(args);
+
                         var installer = (InstallerBase)subContainer.InstantiateExplicit(
-                            _installerType, args.Concat(_extraArgs).ToList());
+                            _installerType, extraArgs);
+
+                        ZenPools.DespawnList<TypeValuePair>(extraArgs);
+
                         installer.InstallBindings();
                     }));
         }

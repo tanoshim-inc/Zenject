@@ -6,7 +6,7 @@ using ModestTree;
 namespace Zenject
 {
     [System.Diagnostics.DebuggerStepThrough]
-    public class TypeValuePair
+    public struct TypeValuePair
     {
         public Type Type;
         public object Value;

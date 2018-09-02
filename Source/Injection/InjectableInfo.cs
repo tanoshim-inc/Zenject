@@ -1,4 +1,5 @@
 using System;
+using Zenject.Internal;
 
 namespace Zenject
 {
@@ -40,7 +41,7 @@ namespace Zenject
         public InjectContext SpawnInjectContext(
             DiContainer container, InjectContext currentContext, object targetInstance, object concreteIdentifier)
         {
-            var context = InjectContext.Pool.Spawn(container, MemberType);
+            var context = ZenPools.SpawnInjectContext(container, MemberType);
 
             context.ObjectType = ObjectType;
             context.ParentContext = currentContext;

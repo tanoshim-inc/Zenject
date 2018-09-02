@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Zenject.Internal;
 using ModestTree;
 
 namespace Zenject
@@ -15,17 +16,17 @@ namespace Zenject
 
         public TransientProvider(
             Type concreteType, DiContainer container,
-            List<TypeValuePair> extraArguments, string bindingContext,
+            IEnumerable<TypeValuePair> extraArguments, string bindingContext,
             object concreteIdentifier,
             Action<InjectContext, object> instantiateCallback)
         {
             Assert.That(!concreteType.IsAbstract(),
                 "Expected non-abstract type for given binding but instead found type '{0}'{1}",
-                concreteType, bindingContext == null ? "" : " when binding '{0}'".Fmt(bindingContext) );
+                concreteType, bindingContext == null ? "" : " when binding '{0}'".Fmt(bindingContext));
 
             _container = container;
             _concreteType = concreteType;
-            _extraArguments = extraArguments ?? new List<TypeValuePair>();
+            _extraArguments = extraArguments.ToList();
             _concreteIdentifier = concreteIdentifier;
             _instantiateCallback = instantiateCallback;
         }
@@ -57,20 +58,20 @@ namespace Zenject
 
             var instanceType = GetTypeToCreate(context.MemberType);
 
-            var injectArgs = new InjectArgs()
-            {
-                ExtraArgs = _extraArguments.Concat(args).ToList(),
-                Context = context,
-                ConcreteIdentifier = _concreteIdentifier
-            };
+            var extraArgs = ZenPools.SpawnList<TypeValuePair>();
 
-            var instance = _container.InstantiateExplicit(
-                instanceType, false, injectArgs);
+            extraArgs.AllocFreeAddRange(_extraArguments);
+            extraArgs.AllocFreeAddRange(args);
+
+            var instance = _container.InstantiateExplicit(instanceType, false, extraArgs, context, _concreteIdentifier);
 
             injectAction = () =>
             {
                 _container.InjectExplicit(
-                    instance, instanceType, injectArgs);
+                    instance, instanceType, extraArgs, context, _concreteIdentifier);
+
+                Assert.That(extraArgs.Count == 0);
+                ZenPools.DespawnList<TypeValuePair>(extraArgs);
 
                 if (_instantiateCallback != null)
                 {

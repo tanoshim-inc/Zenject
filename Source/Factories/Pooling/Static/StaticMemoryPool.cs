@@ -7,6 +7,7 @@ namespace Zenject
     public abstract class StaticMemoryPoolBase<TValue> : IDespawnableMemoryPool<TValue>, IDisposable
         where TValue : class, new()
     {
+        // I also tried using ConcurrentBag instead of Stack + lock here but that performed much much worse
         readonly Stack<TValue> _stack = new Stack<TValue>();
 
         Action<TValue> _onDespawnedMethod;
@@ -37,12 +38,28 @@ namespace Zenject
 
         public int NumActive
         {
-            get { return _activeCount; }
+            get
+            {
+#if ZEN_MULTITHREADING
+                lock (_locker)
+#endif
+                {
+                    return _activeCount;
+                }
+            }
         }
 
         public int NumInactive
         {
-            get { return _stack.Count; }
+            get
+            {
+#if ZEN_MULTITHREADING
+                lock (_locker)
+#endif
+                {
+                    return _stack.Count;
+                }
+            }
         }
 
         public Type ItemType
@@ -51,6 +68,17 @@ namespace Zenject
         }
 
         public void Resize(int desiredPoolSize)
+        {
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
+            {
+                ResizeInternal(desiredPoolSize);
+            }
+        }
+
+        // We assume here that we're in a lock
+        void ResizeInternal(int desiredPoolSize)
         {
             Assert.That(desiredPoolSize >= 0, "Attempted to resize the pool to a negative amount");
 
@@ -76,7 +104,12 @@ namespace Zenject
 
         public void ClearActiveCount()
         {
-            _activeCount = 0;
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
+            {
+                _activeCount = 0;
+            }
         }
 
         public void Clear()
@@ -86,12 +119,22 @@ namespace Zenject
 
         public void ShrinkBy(int numToRemove)
         {
-            Resize(_stack.Count - numToRemove);
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
+            {
+                ResizeInternal(_stack.Count - numToRemove);
+            }
         }
 
         public void ExpandBy(int numToAdd)
         {
-            Resize(_stack.Count + numToAdd);
+#if ZEN_MULTITHREADING
+            lock (_locker)
+#endif
+            {
+                ResizeInternal(_stack.Count + numToAdd);
+            }
         }
 
         TValue Alloc()
@@ -99,6 +142,7 @@ namespace Zenject
             return new TValue();
         }
 
+        // We assume here that we're in a lock
         protected TValue SpawnInternal()
         {
             TValue element;
@@ -123,20 +167,15 @@ namespace Zenject
 
         public void Despawn(TValue element)
         {
+            if (_onDespawnedMethod != null)
+            {
+                _onDespawnedMethod(element);
+            }
+
 #if ZEN_MULTITHREADING
             lock (_locker)
 #endif
             {
-                if (_onDespawnedMethod != null)
-                {
-                    _onDespawnedMethod(element);
-                }
-
-                if (_stack.Count > 0 && ReferenceEquals(_stack.Peek(), element))
-                {
-                    ModestTree.Log.Error("Despawn error. Trying to destroy object that is already released to pool.");
-                }
-
                 Assert.That(!_stack.Contains(element), "Attempted to despawn element twice!");
 
                 _activeCount--;
