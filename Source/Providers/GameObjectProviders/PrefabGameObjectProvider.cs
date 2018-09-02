@@ -31,12 +31,12 @@ namespace Zenject
             return typeof(GameObject);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             var instance = _prefabCreator.Instantiate(args, out injectAction);
 
-            return new List<object>() { instance };
+            buffer.Add(instance);
         }
     }
 }

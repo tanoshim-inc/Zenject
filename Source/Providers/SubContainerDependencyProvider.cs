@@ -52,8 +52,8 @@ namespace Zenject
             return subContext;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsNotNull(context);
 
@@ -65,13 +65,11 @@ namespace Zenject
 
             if (_resolveAll)
             {
-                return subContainer.ResolveAll(subContext).Cast<object>().ToList();
+                subContainer.ResolveAll(subContext, buffer);
+                return;
             }
 
-            return new List<object>()
-            {
-                subContainer.Resolve(subContext),
-            };
+            buffer.Add(subContainer.Resolve(subContext));
         }
     }
 }

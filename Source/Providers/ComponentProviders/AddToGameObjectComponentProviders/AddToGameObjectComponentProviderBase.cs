@@ -60,8 +60,8 @@ namespace Zenject
             return _componentType;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsNotNull(context);
 
@@ -82,10 +82,10 @@ namespace Zenject
             if (!_container.IsValidating || TypeAnalyzer.ShouldAllowDuringValidation(_componentType))
             {
                 if (_componentType == typeof(Transform))
-                // Treat transform as a special case because it's the one component that's always automatically added
-                // Otherwise, calling AddComponent below will fail and return null
-                // This is nice to allow doing things like
-                //      Container.Bind<Transform>().FromNewComponentOnNewGameObject();
+                    // Treat transform as a special case because it's the one component that's always automatically added
+                    // Otherwise, calling AddComponent below will fail and return null
+                    // This is nice to allow doing things like
+                    //      Container.Bind<Transform>().FromNewComponentOnNewGameObject();
                 {
                     instance = gameObj.transform;
                 }
@@ -127,7 +127,8 @@ namespace Zenject
                     }
                 }
             };
-            return new List<object>() { instance };
+
+            buffer.Add(instance);
         }
 
         protected abstract GameObject GetGameObject(InjectContext context);

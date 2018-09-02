@@ -34,8 +34,8 @@ namespace Zenject
             return context.MemberType;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEmpty(args);
             Assert.IsNotNull(context);
@@ -43,7 +43,7 @@ namespace Zenject
             injectAction = null;
             if (_container.IsValidating && !TypeAnalyzer.ShouldAllowDuringValidation(context.MemberType))
             {
-                return new List<object>() { new ValidationMarker(context.MemberType) };
+                buffer.Add(new ValidationMarker(context.MemberType));
             }
             else
             {
@@ -56,7 +56,10 @@ namespace Zenject
                         _method.ToDebugString(), context.GetObjectGraphString());
                 }
 
-                return result.ToList();
+                foreach (var obj in result)
+                {
+                    buffer.Add(obj);
+                }
             }
         }
     }

@@ -40,7 +40,7 @@ namespace Zenject
         public InjectContext SpawnInjectContext(
             DiContainer container, InjectContext currentContext, object targetInstance, object concreteIdentifier)
         {
-            var context = InjectContext.Spawn(container, MemberType);
+            var context = InjectContext.Pool.Spawn(container, MemberType);
 
             context.ObjectType = ObjectType;
             context.ParentContext = currentContext;

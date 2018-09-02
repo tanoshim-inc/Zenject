@@ -56,14 +56,14 @@ namespace Zenject
             return _componentType;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsNotNull(context);
 
             Assert.That(context.ObjectType.DerivesFrom<Component>(),
-                "Object '{0}' can only be injected into MonoBehaviour's since it was bound with 'FromNewComponentSibling'. Attempted to inject into non-MonoBehaviour '{1}'",
-                context.MemberType, context.ObjectType);
+            "Object '{0}' can only be injected into MonoBehaviour's since it was bound with 'FromNewComponentSibling'. Attempted to inject into non-MonoBehaviour '{1}'",
+            context.MemberType, context.ObjectType);
 
             object instance;
 
@@ -76,7 +76,8 @@ namespace Zenject
                 if (instance != null)
                 {
                     injectAction = null;
-                    return new List<object>() { instance };
+                    buffer.Add(instance);
+                    return;
                 }
 
                 instance = gameObj.AddComponent(_componentType);
@@ -108,7 +109,7 @@ namespace Zenject
                 }
             };
 
-            return new List<object>() { instance };
+            buffer.Add(instance);
         }
     }
 }

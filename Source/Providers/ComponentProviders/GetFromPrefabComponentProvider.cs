@@ -38,8 +38,8 @@ namespace Zenject
             return _componentType;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsNotNull(context);
 
@@ -54,18 +54,19 @@ namespace Zenject
                 var match = gameObject.GetComponentInChildren(_componentType, true);
 
                 Assert.IsNotNull(match, "Could not find component with type '{0}' on prefab '{1}'",
-                    _componentType, _prefabInstantiator.GetPrefab().name);
+                _componentType, _prefabInstantiator.GetPrefab().name);
 
-                return new List<object>() { match };
+                buffer.Add(match);
+                return;
             }
 
             var allComponents = gameObject.GetComponentsInChildren(_componentType, true);
 
             Assert.That(allComponents.Length >= 1,
-                "Expected to find at least one component with type '{0}' on prefab '{1}'",
-                _componentType, _prefabInstantiator.GetPrefab().name);
+            "Expected to find at least one component with type '{0}' on prefab '{1}'",
+            _componentType, _prefabInstantiator.GetPrefab().name);
 
-            return allComponents.Cast<object>().ToList();
+            buffer.Add(allComponents);
         }
     }
 }

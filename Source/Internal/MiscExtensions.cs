@@ -23,6 +23,16 @@ namespace ModestTree
             return string.Join(separator, values.ToArray());
         }
 
+        // When using C# 4.6, for some reason the normal AddRange causes some allocations
+        // https://issuetracker.unity3d.com/issues/dot-net-4-dot-6-unexpected-gc-allocations-in-list-dot-addrange
+        public static void AllocFreeAddRange<T>(this IList<T> list, IList<T> items)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                list.Add(items[i]);
+            }
+        }
+
         // Most of the time when you call remove you always intend on removing something
         // so assert in that case
         public static void RemoveWithConfirm<T>(this IList<T> list, T item)

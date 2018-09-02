@@ -50,8 +50,8 @@ namespace Zenject
             return GetTypeToCreate(context.MemberType);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsNotNull(context);
 
@@ -61,24 +61,24 @@ namespace Zenject
             {
                 ExtraArgs = _extraArguments.Concat(args).ToList(),
                 Context = context,
-                ConcreteIdentifier = _concreteIdentifier,
+                ConcreteIdentifier = _concreteIdentifier
             };
 
             var instance = _container.InstantiateExplicit(
                 instanceType, false, injectArgs);
 
             injectAction = () =>
+            {
+                _container.InjectExplicit(
+                    instance, instanceType, injectArgs);
+
+                if (_instantiateCallback != null)
                 {
-                    _container.InjectExplicit(
-                        instance, instanceType, injectArgs);
+                    _instantiateCallback(context, instance);
+                }
+            };
 
-                    if (_instantiateCallback != null)
-                    {
-                        _instantiateCallback(context, instance);
-                    }
-                };
-
-            return new List<object>() { instance };
+            buffer.Add(instance);
         }
 
         Type GetTypeToCreate(Type contractType)

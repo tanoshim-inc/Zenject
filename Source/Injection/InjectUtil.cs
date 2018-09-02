@@ -107,16 +107,16 @@ namespace Zenject
         public static bool PopValueWithType(
             List<TypeValuePair> extraArgMap, Type injectedFieldType, out object value)
         {
-            var match = extraArgMap
-                .Where(x => x.Type.DerivesFromOrEqual(injectedFieldType))
-                .FirstOrDefault();
-
-            if (match != null)
+            for (int i = 0; i < extraArgMap.Count; i++)
             {
-                // Note that this will only remove the first element which is what we want
-                extraArgMap.RemoveWithConfirm(match);
-                value = match.Value;
-                return true;
+                var arg = extraArgMap[i];
+
+                if (arg.Type.DerivesFromOrEqual(injectedFieldType))
+                {
+                    value = arg.Value;
+                    extraArgMap.RemoveAt(i);
+                    return true;
+                }
             }
 
             value = injectedFieldType.GetDefaultValue();

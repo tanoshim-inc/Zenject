@@ -50,26 +50,28 @@ namespace Zenject
             return _resourceType;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsNotNull(context);
 
-            List<object> objects;
-
             if (_createNew)
             {
-                objects = Resources.LoadAll(_resourcePath, _resourceType)
-                    .Select(x => ScriptableObject.Instantiate(x)).Cast<object>().ToList();
+                var objects = Resources.LoadAll(_resourcePath, _resourceType);
+
+                for (int i = 0; i < objects.Length; i++)
+                {
+                    buffer.Add(ScriptableObject.Instantiate(objects[i]));
+                }
             }
             else
             {
-                objects = Resources.LoadAll(_resourcePath, _resourceType)
-                    .Cast<object>().ToList();
+                buffer.AllocFreeAddRange(
+                    Resources.LoadAll(_resourcePath, _resourceType));
             }
 
-            Assert.That(!objects.IsEmpty(),
-                "Could not find resource at path '{0}' with type '{1}'", _resourcePath, _resourceType);
+            Assert.That(buffer.Count > 0,
+            "Could not find resource at path '{0}' with type '{1}'", _resourcePath, _resourceType);
 
             var injectArgs = new InjectArgs()
             {
@@ -80,8 +82,10 @@ namespace Zenject
 
             injectAction = () =>
             {
-                foreach (var obj in objects)
+                for (int i = 0; i < buffer.Count; i++)
                 {
+                    var obj = buffer[i];
+
                     _container.InjectExplicit(
                         obj, _resourceType, injectArgs);
 
@@ -91,8 +95,6 @@ namespace Zenject
                     }
                 }
             };
-
-            return objects;
         }
     }
 }

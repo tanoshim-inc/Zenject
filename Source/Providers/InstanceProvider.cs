@@ -33,8 +33,8 @@ namespace Zenject
             return _instanceType;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEmpty(args);
             Assert.IsNotNull(context);
@@ -42,7 +42,8 @@ namespace Zenject
             Assert.That(_instanceType.DerivesFromOrEqual(context.MemberType));
 
             injectAction = () => _container.LazyInject(_instance);
-            return new List<object>() { _instance };
+
+            buffer.Add(_instance);
         }
     }
 }
