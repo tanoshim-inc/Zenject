@@ -30,7 +30,7 @@
     <IntermediateOutputPath>..\..\..\..\..\..\NonUnityBuild\Temp\Release\</IntermediateOutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\..\NonUnityBuild\Temp\Release\</BaseIntermediateOutputPath>
     <OutputPath>..\..\..\..\..\NonUnityBuild\Bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NOT_UNITY3D;ZEN_MULTITHREADING</DefineConstants>
+    <DefineConstants>TRACE;NOT_UNITY3D;ZEN_MULTITHREADING;ZEN_INTERNAL_NO_POOLS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
