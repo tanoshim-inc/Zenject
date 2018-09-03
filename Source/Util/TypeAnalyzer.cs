@@ -8,6 +8,7 @@ namespace Zenject
 {
     public static class TypeAnalyzer
     {
+        static readonly HashSet<Type> _injectAttributeTypes;
         static Dictionary<Type, ZenjectTypeInfo> _typeInfo = new Dictionary<Type, ZenjectTypeInfo>();
 
 #if UNITY_EDITOR
@@ -17,9 +18,27 @@ namespace Zenject
         static Dictionary<Type, bool> _allowDuringValidation = new Dictionary<Type, bool>();
 #endif
 
+        static TypeAnalyzer()
+        {
+            _injectAttributeTypes = new HashSet<Type>();
+            _injectAttributeTypes.Add(typeof(InjectAttributeBase));
+        }
+
         public static ZenjectTypeInfo GetInfo<T>()
         {
             return GetInfo(typeof(T));
+        }
+
+        public static void AddCustomInjectAttribute<T>()
+            where T : Attribute
+        {
+            AddCustomInjectAttribute(typeof(T));
+        }
+
+        public static void AddCustomInjectAttribute(Type type)
+        {
+            Assert.That(type.DerivesFrom<Attribute>());
+            _injectAttributeTypes.Add(type);
         }
 
         public static bool ShouldAllowDuringValidation<T>()
@@ -160,7 +179,7 @@ namespace Zenject
             // otherwise a base class method marked with [Inject] would cause all overridden
             // derived methods to be added as well
             var methods = type.GetAllInstanceMethods()
-                .Where(x => x.GetCustomAttributes(typeof(InjectAttribute), false).Any()).ToList();
+                .Where(x => _injectAttributeTypes.Any(a => x.GetCustomAttributes(a, false).Any())).ToList();
 
             var heirarchyList = type.Yield().Concat(type.GetParentTypes()).Reverse().ToList();
 
@@ -174,9 +193,13 @@ namespace Zenject
             {
                 var paramsInfo = methodInfo.GetParameters();
 
-                var injectAttr = methodInfo.AllAttributes<InjectAttribute>().Single();
-                Assert.That(!injectAttr.Optional && injectAttr.Id == null && injectAttr.Source == InjectSources.Any,
-                    "Parameters of InjectAttribute do not apply to constructors and methods");
+                var injectAttr = methodInfo.AllAttributes<InjectAttributeBase>().SingleOrDefault();
+
+                if (injectAttr != null)
+                {
+                    Assert.That(!injectAttr.Optional && injectAttr.Id == null && injectAttr.Source == InjectSources.Any,
+                        "Parameters of InjectAttribute do not apply to constructors and methods");
+                }
 
                 postInjectInfos.Add(
                     new PostInjectableInfo(
@@ -191,7 +214,7 @@ namespace Zenject
         static IEnumerable<InjectableInfo> GetPropertyInjectables(Type type)
         {
             var propInfos = type.GetAllInstanceProperties()
-                .Where(x => x.HasAttribute(typeof(InjectAttributeBase)));
+                .Where(x => _injectAttributeTypes.Any(a => x.HasAttribute(a)));
 
             foreach (var propInfo in propInfos)
             {
@@ -202,7 +225,7 @@ namespace Zenject
         static IEnumerable<InjectableInfo> GetFieldInjectables(Type type)
         {
             var fieldInfos = type.GetAllInstanceFields()
-                .Where(x => x.HasAttribute(typeof(InjectAttributeBase)));
+                .Where(x => _injectAttributeTypes.Any(a => x.HasAttribute(a)));
 
             foreach (var fieldInfo in fieldInfos)
             {
@@ -321,7 +344,7 @@ namespace Zenject
 
             if (constructors.HasMoreThan(1))
             {
-                var explicitConstructor = (from c in constructors where c.HasAttribute<InjectAttribute>() select c).SingleOrDefault();
+                var explicitConstructor = (from c in constructors where _injectAttributeTypes.Any(a => c.HasAttribute(a)) select c).SingleOrDefault();
 
                 if (explicitConstructor != null)
                 {
@@ -331,7 +354,7 @@ namespace Zenject
                 // If there is only one public constructor then use that
                 // This makes decent sense but is also necessary on WSA sometimes since the WSA generated
                 // constructor can sometimes be private with zero parameters
-                var singlePublicConstructor = constructors.Where(x => !x.IsPrivate).OnlyOrDefault();
+                var singlePublicConstructor = constructors.Where(x => x.IsPublic).OnlyOrDefault();
 
                 if (singlePublicConstructor != null)
                 {

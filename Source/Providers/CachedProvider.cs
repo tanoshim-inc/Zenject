@@ -65,8 +65,8 @@ namespace Zenject
             return _creator.GetInstanceType(context);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsNotNull(context);
 
@@ -77,7 +77,8 @@ namespace Zenject
                 if (_instances != null)
                 {
                     injectAction = null;
-                    return _instances;
+                    buffer.AllocFreeAddRange(_instances);
+                    return;
                 }
 
 #if !ZEN_MULTITHREADING
@@ -94,13 +95,14 @@ namespace Zenject
                 _isCreatingInstance = true;
 #endif
 
-                _instances = _creator.GetAllInstancesWithInjectSplit(context, args, out injectAction);
+                _instances = new List<object>();
+                _creator.GetAllInstancesWithInjectSplit(context, args, out injectAction, _instances);
                 Assert.IsNotNull(_instances);
 
 #if !ZEN_MULTITHREADING
                 _isCreatingInstance = false;
 #endif
-                return _instances;
+                buffer.AllocFreeAddRange(_instances);
             }
         }
     }

@@ -32,8 +32,8 @@ namespace Zenject
             return context.MemberType;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEmpty(args);
             Assert.IsNotNull(context);
@@ -41,7 +41,7 @@ namespace Zenject
             injectAction = null;
             if (_container.IsValidating && !TypeAnalyzer.ShouldAllowDuringValidation(context.MemberType))
             {
-                return new List<object>() { new ValidationMarker(context.MemberType) };
+                buffer.Add(new ValidationMarker(context.MemberType));
             }
             else
             {
@@ -50,14 +50,14 @@ namespace Zenject
                 if (result == null)
                 {
                     Assert.That(!context.MemberType.IsPrimitive(),
-                        "Invalid value returned from FromMethod.  Expected non-null.");
+                    "Invalid value returned from FromMethod.  Expected non-null.");
                 }
                 else
                 {
                     Assert.That(result.GetType().DerivesFromOrEqual(context.MemberType));
                 }
 
-                return new List<object>() { result };
+                buffer.Add(result);
             }
         }
     }

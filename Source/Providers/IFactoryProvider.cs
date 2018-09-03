@@ -40,8 +40,8 @@ namespace Zenject
             return typeof(TContract);
         }
 
-        public abstract List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction);
+        public abstract void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer);
     }
 
     // Zero parameters
@@ -54,8 +54,8 @@ namespace Zenject
         {
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.That(args.IsEmpty());
 
@@ -71,11 +71,11 @@ namespace Zenject
             {
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                buffer.Add(new ValidationMarker(typeof(TContract)));
             }
             else
             {
-                return new List<object>() { ((IFactory<TContract>)factory).Create() };
+                buffer.Add(((IFactory<TContract>)factory).Create());
             }
         }
     }
@@ -89,8 +89,8 @@ namespace Zenject
         {
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 1);
             Assert.IsNotNull(context);
@@ -106,14 +106,12 @@ namespace Zenject
             {
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                return new List<object>() { new ValidationMarker(typeof(TContract)) };
+
+                buffer.Add(new ValidationMarker(typeof(TContract)));
             }
             else
             {
-                return new List<object>()
-                {
-                    ((IFactory<TParam1, TContract>)factory).Create((TParam1)args[0].Value)
-                };
+                buffer.Add(((IFactory<TParam1, TContract>)factory).Create((TParam1)args[0].Value));
             }
         }
     }
@@ -127,8 +125,8 @@ namespace Zenject
         {
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 2);
             Assert.IsNotNull(context);
@@ -145,16 +143,14 @@ namespace Zenject
             {
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                buffer.Add(new ValidationMarker(typeof(TContract)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     ((IFactory<TParam1, TParam2, TContract>)factory).Create(
                         (TParam1)args[0].Value,
-                        (TParam2)args[1].Value)
-                };
+                        (TParam2)args[1].Value));
             }
         }
     }
@@ -168,8 +164,8 @@ namespace Zenject
         {
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 3);
             Assert.IsNotNull(context);
@@ -187,17 +183,15 @@ namespace Zenject
             {
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                buffer.Add(new ValidationMarker(typeof(TContract)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     ((IFactory<TParam1, TParam2, TParam3, TContract>)factory).Create(
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value,
-                        (TParam3)args[2].Value)
-                };
+                        (TParam3)args[2].Value));
             }
         }
     }
@@ -211,8 +205,8 @@ namespace Zenject
         {
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 4);
             Assert.IsNotNull(context);
@@ -231,18 +225,16 @@ namespace Zenject
             {
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                buffer.Add(new ValidationMarker(typeof(TContract)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     ((IFactory<TParam1, TParam2, TParam3, TParam4, TContract>)factory).Create(
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value,
                         (TParam3)args[2].Value,
-                        (TParam4)args[3].Value)
-                };
+                        (TParam4)args[3].Value));
             }
         }
     }
@@ -256,8 +248,8 @@ namespace Zenject
         {
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 5);
             Assert.IsNotNull(context);
@@ -277,19 +269,17 @@ namespace Zenject
             {
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                buffer.Add(new ValidationMarker(typeof(TContract)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     ((IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>)factory).Create(
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value,
                         (TParam3)args[2].Value,
                         (TParam4)args[3].Value,
-                        (TParam5)args[4].Value)
-                };
+                        (TParam5)args[4].Value));
             }
         }
     }
@@ -303,8 +293,8 @@ namespace Zenject
         {
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 6);
             Assert.IsNotNull(context);
@@ -325,20 +315,18 @@ namespace Zenject
             {
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                buffer.Add(new ValidationMarker(typeof(TContract)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     ((IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract>)factory).Create(
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value,
                         (TParam3)args[2].Value,
                         (TParam4)args[3].Value,
                         (TParam5)args[4].Value,
-                        (TParam6)args[5].Value)
-                };
+                        (TParam6)args[5].Value));
             }
         }
     }
@@ -352,8 +340,8 @@ namespace Zenject
         {
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 10);
             Assert.IsNotNull(context);
@@ -378,12 +366,11 @@ namespace Zenject
             {
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
-                return new List<object>() { new ValidationMarker(typeof(TContract)) };
+                buffer.Add(new ValidationMarker(typeof(TContract)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     ((IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>)factory).Create(
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value,
@@ -394,8 +381,7 @@ namespace Zenject
                         (TParam7)args[6].Value,
                         (TParam8)args[7].Value,
                         (TParam9)args[8].Value,
-                        (TParam10)args[9].Value)
-                };
+                        (TParam10)args[9].Value));
             }
         }
     }

@@ -3,18 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ModestTree;
+using Zenject.Internal;
 
 namespace Zenject
 {
     public class InjectContext : IDisposable
     {
-#if !ZEN_MULTITHREADING
-        static readonly StaticMemoryPool<DiContainer, Type, InjectContext> Pool =
-            new StaticMemoryPool<DiContainer, Type, InjectContext>(OnSpawned, OnDespawned);
-#endif
-
-        readonly BindingId _bindingId = new BindingId();
-
+        BindingId _bindingId;
         Type _objectType;
         InjectContext _parentContext;
         object _objectInstance;
@@ -27,32 +22,9 @@ namespace Zenject
 
         public InjectContext()
         {
-            SetDefaults();
+            _bindingId = new BindingId();
+            Reset();
         }
-
-        public static InjectContext Spawn(DiContainer container, Type memberType)
-        {
-#if ZEN_MULTITHREADING
-            return new InjectContext(container, memberType);
-#else
-            return Pool.Spawn(container, memberType);
-#endif
-        }
-
-#if !ZEN_MULTITHREADING
-        static void OnSpawned(DiContainer container, Type memberType, InjectContext that)
-        {
-            Assert.IsNull(that._container);
-
-            that._container = container;
-            that._bindingId.Type = memberType;
-        }
-
-        static void OnDespawned(InjectContext that)
-        {
-            that.SetDefaults();
-        }
-#endif
 
         public InjectContext(DiContainer container, Type memberType)
             : this()
@@ -75,23 +47,21 @@ namespace Zenject
 
         public void Dispose()
         {
-#if !ZEN_MULTITHREADING
-            Pool.Despawn(this);
-#endif
+            ZenPools.DespawnInjectContext(this);
         }
 
-        void SetDefaults()
+        public void Reset()
         {
             _objectType = null;
             _parentContext = null;
             _objectInstance = null;
             _memberName = "";
-            _bindingId.Identifier = null;
-            _bindingId.Type = null;
             _optional = false;
             _sourceType = InjectSources.Any;
             _fallBackValue = null;
             _container = null;
+            _bindingId.Type = null;
+            _bindingId.Identifier = null;
         }
 
         public BindingId BindingId

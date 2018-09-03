@@ -150,7 +150,7 @@ namespace Zenject
             var gameObj = container.CreateAndParentPrefabResource(
                 resourcePath, GameObjectCreationParameters.Default, null, out shouldMakeActive);
 
-            if (shouldMakeActive)
+            if (shouldMakeActive && !container.IsValidating)
             {
                 gameObj.SetActive(true);
             }

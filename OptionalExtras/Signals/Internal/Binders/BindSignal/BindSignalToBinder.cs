@@ -6,21 +6,20 @@ namespace Zenject
     public class BindSignalToBinder<TSignal>
     {
         DiContainer _container;
-        BindFinalizerWrapper _finalizerWrapper;
+        BindStatement _bindStatement;
 
         public BindSignalToBinder(DiContainer container)
         {
             _container = container;
 
             // This will ensure that they finish the binding
-            _finalizerWrapper = container.StartBinding(
-                "Missing method/object for BindSignal< {0} >".Fmt(typeof(TSignal).PrettyName()));
+            _bindStatement = container.StartBinding();
         }
 
         public SignalCopyBinder ToMethod(Action<TSignal> callback)
         {
-            Assert.IsNull(_finalizerWrapper.SubFinalizer);
-            _finalizerWrapper.SubFinalizer = new NullBindingFinalizer();
+            Assert.That(!_bindStatement.HasFinalizer);
+            _bindStatement.SetFinalizer(new NullBindingFinalizer());
 
             var bindInfo = _container.Bind<IDisposable>()
                 .To<SignalCallbackWrapper>()
@@ -52,7 +51,7 @@ namespace Zenject
         public BindSignalFromBinder<TObject, TSignal> ToMethod<TObject>(Func<TObject, Action<TSignal>> handlerGetter)
         {
             return new BindSignalFromBinder<TObject, TSignal>(
-                _finalizerWrapper, handlerGetter, _container);
+                _bindStatement, handlerGetter, _container);
         }
     }
 }

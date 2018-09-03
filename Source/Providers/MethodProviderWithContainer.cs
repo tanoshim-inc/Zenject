@@ -30,8 +30,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEmpty(args);
             Assert.IsNotNull(context);
@@ -42,11 +42,11 @@ namespace Zenject
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                buffer.Add(new ValidationMarker(typeof(TValue)));
             }
             else
             {
-                return new List<object>() { _method(context.Container) };
+                buffer.Add(_method(context.Container));
             }
         }
     }
@@ -77,8 +77,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 1);
             Assert.IsNotNull(context);
@@ -90,16 +90,14 @@ namespace Zenject
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                buffer.Add(new ValidationMarker(typeof(TValue)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     _method(
                         context.Container,
-                        (TParam1)args[0].Value)
-                };
+                        (TParam1)args[0].Value));
             }
         }
     }
@@ -130,8 +128,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 2);
             Assert.IsNotNull(context);
@@ -144,17 +142,15 @@ namespace Zenject
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                buffer.Add(new ValidationMarker(typeof(TValue)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     _method(
                         context.Container,
                         (TParam1)args[0].Value,
-                        (TParam2)args[1].Value)
-                };
+                        (TParam2)args[1].Value));
             }
         }
     }
@@ -185,8 +181,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 3);
             Assert.IsNotNull(context);
@@ -200,18 +196,16 @@ namespace Zenject
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                buffer.Add(new ValidationMarker(typeof(TValue)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     _method(
                         context.Container,
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value,
-                        (TParam3)args[2].Value)
-                };
+                        (TParam3)args[2].Value));
             }
         }
     }
@@ -250,8 +244,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 4);
             Assert.IsNotNull(context);
@@ -266,19 +260,17 @@ namespace Zenject
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                buffer.Add(new ValidationMarker(typeof(TValue)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     _method(
                         context.Container,
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value,
                         (TParam3)args[2].Value,
-                        (TParam4)args[3].Value)
-                };
+                        (TParam4)args[3].Value));
             }
         }
     }
@@ -317,8 +309,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 5);
             Assert.IsNotNull(context);
@@ -334,20 +326,18 @@ namespace Zenject
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                buffer.Add(new ValidationMarker(typeof(TValue)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     _method(
                         context.Container,
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value,
                         (TParam3)args[2].Value,
                         (TParam4)args[3].Value,
-                        (TParam5)args[4].Value)
-                };
+                        (TParam5)args[4].Value));
             }
         }
     }
@@ -386,8 +376,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 5);
             Assert.IsNotNull(context);
@@ -404,12 +394,11 @@ namespace Zenject
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                buffer.Add(new ValidationMarker(typeof(TValue)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     _method(
                         context.Container,
                         (TParam1)args[0].Value,
@@ -417,8 +406,7 @@ namespace Zenject
                         (TParam3)args[2].Value,
                         (TParam4)args[3].Value,
                         (TParam5)args[4].Value,
-                        (TParam6)args[5].Value)
-                };
+                        (TParam6)args[5].Value));
             }
         }
     }
@@ -457,8 +445,8 @@ namespace Zenject
             return typeof(TValue);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 10);
             Assert.IsNotNull(context);
@@ -479,12 +467,11 @@ namespace Zenject
             if (context.Container.IsValidating)
             {
                 // Don't do anything when validating, we can't make any assumptions on the given method
-                return new List<object>() { new ValidationMarker(typeof(TValue)) };
+                buffer.Add(new ValidationMarker(typeof(TValue)));
             }
             else
             {
-                return new List<object>()
-                {
+                buffer.Add(
                     _method(
                         context.Container,
                         (TParam1)args[0].Value,
@@ -496,8 +483,7 @@ namespace Zenject
                         (TParam7)args[6].Value,
                         (TParam8)args[7].Value,
                         (TParam9)args[8].Value,
-                        (TParam10)args[9].Value)
-                };
+                        (TParam10)args[9].Value));
             }
         }
     }

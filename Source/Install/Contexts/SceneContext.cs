@@ -121,8 +121,6 @@ namespace Zenject
             // We always want to initialize ProjectContext as early as possible
             ProjectContext.Instance.EnsureIsInitialized();
 
-            Assert.That(!IsValidating);
-
 #if UNITY_EDITOR
             using (ProfileBlock.Start("SceneContext.Install"))
 #endif

@@ -3,14 +3,10 @@ using System;
 namespace Zenject
 {
     [System.Diagnostics.DebuggerStepThrough]
-    public class BindingId : IEquatable<BindingId>
+    public struct BindingId : IEquatable<BindingId>
     {
         Type _type;
         object _identifier;
-
-        public BindingId()
-        {
-        }
 
         public BindingId(Type type, object identifier)
         {

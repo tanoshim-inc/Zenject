@@ -40,8 +40,8 @@ namespace Zenject
             return typeof(TContract);
         }
 
-        public abstract List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction);
+        public abstract void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer);
     }
 
     // Zero parameters
@@ -63,8 +63,8 @@ namespace Zenject
             Container.ResolveId<TMemoryPool>(PoolId);
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.That(args.IsEmpty());
 
@@ -79,7 +79,7 @@ namespace Zenject
                 _pool = Container.ResolveId<TMemoryPool>(PoolId);
             }
 
-            return new List<object>() { _pool.Spawn(_pool) };
+            buffer.Add(_pool.Spawn(_pool));
         }
     }
 
@@ -102,8 +102,8 @@ namespace Zenject
             Container.ResolveId<TMemoryPool>(PoolId);
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 1);
             Assert.IsNotNull(context);
@@ -118,7 +118,7 @@ namespace Zenject
                 _pool = Container.ResolveId<TMemoryPool>(PoolId);
             }
 
-            return new List<object>() { _pool.Spawn((TParam1)args[0].Value, _pool) };
+            buffer.Add(_pool.Spawn((TParam1)args[0].Value, _pool));
         }
     }
 
@@ -141,8 +141,8 @@ namespace Zenject
             Container.ResolveId<TMemoryPool>(PoolId);
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 2);
             Assert.IsNotNull(context);
@@ -158,10 +158,10 @@ namespace Zenject
                 _pool = Container.ResolveId<TMemoryPool>(PoolId);
             }
 
-            return new List<object>() { _pool.Spawn(
+            buffer.Add(_pool.Spawn(
                 (TParam1)args[0].Value,
                 (TParam2)args[1].Value,
-                _pool) };
+                _pool));
         }
     }
 
@@ -184,8 +184,8 @@ namespace Zenject
             Container.ResolveId<TMemoryPool>(PoolId);
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 3);
             Assert.IsNotNull(context);
@@ -202,11 +202,11 @@ namespace Zenject
                 _pool = Container.ResolveId<TMemoryPool>(PoolId);
             }
 
-            return new List<object>() { _pool.Spawn(
+            buffer.Add(_pool.Spawn(
                 (TParam1)args[0].Value,
                 (TParam2)args[1].Value,
                 (TParam3)args[2].Value,
-                _pool) };
+                _pool));
         }
     }
 
@@ -229,8 +229,8 @@ namespace Zenject
             Container.ResolveId<TMemoryPool>(PoolId);
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 4);
             Assert.IsNotNull(context);
@@ -248,12 +248,12 @@ namespace Zenject
                 _pool = Container.ResolveId<TMemoryPool>(PoolId);
             }
 
-            return new List<object>() { _pool.Spawn(
+            buffer.Add(_pool.Spawn(
                 (TParam1)args[0].Value,
                 (TParam2)args[1].Value,
                 (TParam3)args[2].Value,
                 (TParam4)args[3].Value,
-                _pool) };
+                _pool));
         }
     }
 
@@ -276,8 +276,8 @@ namespace Zenject
             Container.ResolveId<TMemoryPool>(PoolId);
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 5);
             Assert.IsNotNull(context);
@@ -296,13 +296,13 @@ namespace Zenject
                 _pool = Container.ResolveId<TMemoryPool>(PoolId);
             }
 
-            return new List<object>() { _pool.Spawn(
+            buffer.Add(_pool.Spawn(
                 (TParam1)args[0].Value,
                 (TParam2)args[1].Value,
                 (TParam3)args[2].Value,
                 (TParam4)args[3].Value,
                 (TParam5)args[4].Value,
-                _pool) };
+                _pool));
         }
     }
 
@@ -325,8 +325,8 @@ namespace Zenject
             Container.ResolveId<TMemoryPool>(PoolId);
         }
 
-        public override List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public override void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsEqual(args.Count, 6);
             Assert.IsNotNull(context);
@@ -346,14 +346,14 @@ namespace Zenject
                 _pool = Container.ResolveId<TMemoryPool>(PoolId);
             }
 
-            return new List<object>() { _pool.Spawn(
+            buffer.Add(_pool.Spawn(
                 (TParam1)args[0].Value,
                 (TParam2)args[1].Value,
                 (TParam3)args[2].Value,
                 (TParam4)args[3].Value,
                 (TParam5)args[4].Value,
                 (TParam6)args[5].Value,
-                _pool) };
+                _pool));
         }
     }
 }

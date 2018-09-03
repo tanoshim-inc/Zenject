@@ -23,10 +23,8 @@ namespace Zenject
             where TConcrete : TContract
         {
             BindInfo.ToChoice = ToChoices.Concrete;
-            BindInfo.ToTypes = new List<Type>()
-            {
-                typeof(TConcrete)
-            };
+            BindInfo.ToTypes.Clear();
+            BindInfo.ToTypes.Add(typeof(TConcrete));
 
             return new FactoryFromBinder<TParam1, TConcrete>(BindContainer, BindInfo, FactoryBindInfo);
         }

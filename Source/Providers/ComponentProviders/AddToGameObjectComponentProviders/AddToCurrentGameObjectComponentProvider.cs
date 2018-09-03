@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Zenject.Internal;
 using ModestTree;
 using UnityEngine;
 using Zenject;
@@ -19,12 +20,12 @@ namespace Zenject
 
         public AddToCurrentGameObjectComponentProvider(
             DiContainer container, Type componentType,
-            List<TypeValuePair> extraArguments, object concreteIdentifier,
+            IEnumerable<TypeValuePair> extraArguments, object concreteIdentifier,
             Action<InjectContext, object> instantiateCallback)
         {
             Assert.That(componentType.DerivesFrom<Component>());
 
-            _extraArguments = extraArguments;
+            _extraArguments = extraArguments.ToList();
             _componentType = componentType;
             _container = container;
             _concreteIdentifier = concreteIdentifier;
@@ -56,14 +57,14 @@ namespace Zenject
             return _componentType;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public void GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args, out Action injectAction, List<object> buffer)
         {
             Assert.IsNotNull(context);
 
             Assert.That(context.ObjectType.DerivesFrom<Component>(),
-                "Object '{0}' can only be injected into MonoBehaviour's since it was bound with 'FromNewComponentSibling'. Attempted to inject into non-MonoBehaviour '{1}'",
-                context.MemberType, context.ObjectType);
+            "Object '{0}' can only be injected into MonoBehaviour's since it was bound with 'FromNewComponentSibling'. Attempted to inject into non-MonoBehaviour '{1}'",
+            context.MemberType, context.ObjectType);
 
             object instance;
 
@@ -76,7 +77,8 @@ namespace Zenject
                 if (instance != null)
                 {
                     injectAction = null;
-                    return new List<object>() { instance };
+                    buffer.Add(instance);
+                    return;
                 }
 
                 instance = gameObj.AddComponent(_componentType);
@@ -89,18 +91,17 @@ namespace Zenject
             // Note that we don't just use InstantiateComponentOnNewGameObjectExplicit here
             // because then circular references don't work
 
-            var injectArgs = new InjectArgs()
-            {
-                ExtraArgs = _extraArguments.Concat(args).ToList(),
-                Context = context,
-                ConcreteIdentifier = _concreteIdentifier
-            };
-
             injectAction = () =>
             {
-                _container.InjectExplicit(instance, _componentType, injectArgs);
+                var extraArgs = ZenPools.SpawnList<TypeValuePair>();
 
-                Assert.That(injectArgs.ExtraArgs.IsEmpty());
+                extraArgs.AllocFreeAddRange(_extraArguments);
+                extraArgs.AllocFreeAddRange(args);
+
+                _container.InjectExplicit(instance, _componentType, extraArgs, context, _concreteIdentifier);
+
+                Assert.That(extraArgs.IsEmpty());
+                ZenPools.DespawnList<TypeValuePair>(extraArgs);
 
                 if (_instantiateCallback != null)
                 {
@@ -108,7 +109,7 @@ namespace Zenject
                 }
             };
 
-            return new List<object>() { instance };
+            buffer.Add(instance);
         }
     }
 }

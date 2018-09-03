@@ -6,27 +6,27 @@ namespace Zenject
     public class SubContainerBinder
     {
         readonly BindInfo _bindInfo;
-        readonly BindFinalizerWrapper _finalizerWrapper;
+        readonly BindStatement _bindStatement;
         readonly object _subIdentifier;
         readonly bool _resolveAll;
 
         public SubContainerBinder(
             BindInfo bindInfo,
-            BindFinalizerWrapper finalizerWrapper,
+            BindStatement bindStatement,
             object subIdentifier, bool resolveAll)
         {
             _bindInfo = bindInfo;
-            _finalizerWrapper = finalizerWrapper;
+            _bindStatement = bindStatement;
             _subIdentifier = subIdentifier;
             _resolveAll = resolveAll;
 
             // Reset in case the user ends the binding here
-            finalizerWrapper.SubFinalizer = null;
+            bindStatement.SetFinalizer(null);
         }
 
         protected IBindingFinalizer SubFinalizer
         {
-            set { _finalizerWrapper.SubFinalizer = value; }
+            set { _bindStatement.SetFinalizer(value); }
         }
 
         public ScopeConcreteIdArgConditionCopyNonLazyBinder ByInstance(DiContainer subContainer)

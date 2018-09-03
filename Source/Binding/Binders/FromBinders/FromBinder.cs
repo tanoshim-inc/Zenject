@@ -15,10 +15,10 @@ namespace Zenject
     {
         public FromBinder(
             DiContainer bindContainer, BindInfo bindInfo,
-            BindFinalizerWrapper finalizerWrapper)
+            BindStatement bindStatement)
             : base(bindInfo)
         {
-            FinalizerWrapper = finalizerWrapper;
+            BindStatement = bindStatement;
             BindContainer = bindContainer;
         }
 
@@ -27,7 +27,7 @@ namespace Zenject
             get; private set;
         }
 
-        protected BindFinalizerWrapper FinalizerWrapper
+        protected BindStatement BindStatement
         {
             get;
             private set;
@@ -35,7 +35,7 @@ namespace Zenject
 
         protected IBindingFinalizer SubFinalizer
         {
-            set { FinalizerWrapper.SubFinalizer = value; }
+            set { BindStatement.SetFinalizer(value); }
         }
 
         protected IEnumerable<Type> AllParentTypes
@@ -140,7 +140,7 @@ namespace Zenject
             BindInfo.MarkAsCreationBinding = false;
 
             return new SubContainerBinder(
-                BindInfo, FinalizerWrapper, subIdentifier, resolveAll);
+                BindInfo, BindStatement, subIdentifier, resolveAll);
         }
 
         protected ScopeConcreteIdArgConditionCopyNonLazyBinder FromIFactoryBase<TContract>(

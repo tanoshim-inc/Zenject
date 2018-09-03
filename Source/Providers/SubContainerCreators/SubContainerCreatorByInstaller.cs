@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Zenject.Internal;
 using ModestTree;
 
 namespace Zenject
@@ -16,11 +17,11 @@ namespace Zenject
             DiContainer container,
             SubContainerCreatorBindInfo containerBindInfo,
             Type installerType,
-            List<TypeValuePair> extraArgs)
+            IEnumerable<TypeValuePair> extraArgs)
         {
             _installerType = installerType;
             _container = container;
-            _extraArgs = extraArgs;
+            _extraArgs = extraArgs.ToList();
             _containerBindInfo = containerBindInfo;
 
             Assert.That(installerType.DerivesFrom<InstallerBase>(),
@@ -41,8 +42,16 @@ namespace Zenject
 
             SubContainerCreatorUtil.ApplyBindSettings(_containerBindInfo, subContainer);
 
+            var extraArgs = ZenPools.SpawnList<TypeValuePair>();
+
+            extraArgs.AllocFreeAddRange(_extraArgs);
+            extraArgs.AllocFreeAddRange(args);
+
             var installer = (InstallerBase)subContainer.InstantiateExplicit(
-                _installerType, args.Concat(_extraArgs).ToList());
+                _installerType, extraArgs);
+
+            ZenPools.DespawnList<TypeValuePair>(extraArgs);
+
             installer.InstallBindings();
 
             subContainer.ResolveRoots();

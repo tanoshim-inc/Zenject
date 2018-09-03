@@ -33,6 +33,19 @@ namespace ModestTree
 #if ZEN_STRIP_ASSERTS_IN_BUILDS
         [Conditional("UNITY_EDITOR")]
 #endif
+        // This is better because IsEmpty with IEnumerable causes a memory alloc
+        public static void IsEmpty<T>(IList<T> list)
+        {
+            if (list.Count != 0)
+            {
+                throw CreateException(
+                    "Expected collection to be empty but instead found '{0}' elements", list.Count);
+            }
+        }
+
+#if ZEN_STRIP_ASSERTS_IN_BUILDS
+        [Conditional("UNITY_EDITOR")]
+#endif
         public static void IsEmpty<T>(IEnumerable<T> sequence)
         {
             if (!sequence.IsEmpty())
