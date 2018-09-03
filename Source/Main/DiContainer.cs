@@ -721,7 +721,6 @@ namespace Zenject
             try
             {
                 ResolveAll(context, buffer);
-
                 return ReflectionUtil.CreateGenericList(context.MemberType, buffer);
             }
             finally

@@ -63,10 +63,10 @@ namespace Zenject
             var allComponents = gameObject.GetComponentsInChildren(_componentType, true);
 
             Assert.That(allComponents.Length >= 1,
-            "Expected to find at least one component with type '{0}' on prefab '{1}'",
-            _componentType, _prefabInstantiator.GetPrefab().name);
+                "Expected to find at least one component with type '{0}' on prefab '{1}'",
+                _componentType, _prefabInstantiator.GetPrefab().name);
 
-            buffer.Add(allComponents);
+            buffer.AllocFreeAddRange(allComponents);
         }
     }
 }
