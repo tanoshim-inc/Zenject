@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using ModestTree;
 using System;
 using System.Collections.Generic;
@@ -122,9 +123,29 @@ namespace Zenject
                 type,
                 GetPostInjectMethods(type),
                 constructor,
+                CreateFactoryMethod(type, constructor),
                 GetFieldInjectables(type).ToList(),
                 GetPropertyInjectables(type).ToList(),
                 GetConstructorInjectables(type, constructor).ToList());
+        }
+
+        static Func<object[], object> CreateFactoryMethod(
+            Type type, ConstructorInfo constructor)
+        {
+            ParameterInfo[] par = constructor.GetParameters();
+            Expression[] args = new Expression[par.Length];
+            ParameterExpression param = Expression.Parameter(typeof(object[]));
+
+            for (int i = 0; i != par.Length; ++i)
+            {
+                args[i] = Expression.Convert(
+                    Expression.ArrayIndex(
+                        param, Expression.Constant(i)), par[i].ParameterType);
+            }
+
+            return Expression.Lambda<Func<object[], object>>(
+                Expression.Convert(
+                    Expression.New(constructor, args), typeof(object)), param).Compile();
         }
 
         static IEnumerable<InjectableInfo> GetConstructorInjectables(Type parentType, ConstructorInfo constructorInfo)
@@ -204,11 +225,32 @@ namespace Zenject
                 postInjectInfos.Add(
                     new PostInjectableInfo(
                         methodInfo,
+                        CreateActionForMethod(methodInfo),
                         paramsInfo.Select(paramInfo =>
                             CreateInjectableInfoForParam(type, paramInfo)).ToList()));
             }
 
             return postInjectInfos;
+        }
+
+        static Action<object[], object> CreateActionForMethod(MethodInfo methodInfo)
+        {
+            ParameterInfo[] par = methodInfo.GetParameters();
+            Expression[] args = new Expression[par.Length];
+            ParameterExpression argsParam = Expression.Parameter(typeof(object[]));
+            ParameterExpression instanceParam = Expression.Parameter(typeof(object));
+
+            for (int i = 0; i != par.Length; ++i)
+            {
+                args[i] = Expression.Convert(
+                    Expression.ArrayIndex(
+                        argsParam, Expression.Constant(i)), par[i].ParameterType);
+            }
+
+            return Expression.Lambda<Action<object[], object>>(
+                Expression.Call(
+                    Expression.Convert(instanceParam, methodInfo.DeclaringType), methodInfo, args),
+                argsParam, instanceParam).Compile();
         }
 
         static IEnumerable<InjectableInfo> GetPropertyInjectables(Type type)
@@ -272,7 +314,7 @@ namespace Zenject
             var injectAttributes = memInfo.AllAttributes<InjectAttributeBase>().ToList();
 
             Assert.That(injectAttributes.Count <= 1,
-                "Found multiple 'Inject' attributes on type field '{0}' of type '{1}'.  Field should only container one Inject attribute", memInfo.Name, parentType);
+            "Found multiple 'Inject' attributes on type field '{0}' of type '{1}'.  Field should only container one Inject attribute", memInfo.Name, parentType);
 
             var injectAttr = injectAttributes.SingleOrDefault();
 
@@ -287,34 +329,10 @@ namespace Zenject
                 sourceType = injectAttr.Source;
             }
 
-            Type memberType;
-            Action<object, object> setter;
+            Type memberType = memInfo is FieldInfo
+                ? ((FieldInfo)memInfo).FieldType : ((PropertyInfo)memInfo).PropertyType;
 
-            if (memInfo is FieldInfo)
-            {
-                var fieldInfo = (FieldInfo)memInfo;
-                setter = ((object injectable, object value) => fieldInfo.SetValue(injectable, value));
-                memberType = fieldInfo.FieldType;
-            }
-            else
-            {
-                Assert.That(memInfo is PropertyInfo);
-                var propInfo = (PropertyInfo)memInfo;
-                memberType = propInfo.PropertyType;
-
-#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
-                setter = ((object injectable, object value) => propInfo.SetValue(injectable, value, null));
-#else
-                if (propInfo.CanWrite)
-                {
-                    setter = ((object injectable, object value) => propInfo.SetValue(injectable, value, null));
-                }
-                else
-                {
-                    setter = GetOnlyPropertySetter(parentType, propInfo.Name);
-                }
-#endif
-            }
+            var setter = GetSetter(parentType, memInfo);
 
             return new InjectableInfo(
                 isOptional,
@@ -325,6 +343,47 @@ namespace Zenject
                 setter,
                 null,
                 sourceType);
+        }
+
+        static Action<object, object> GetSetter(Type parentType, MemberInfo memInfo)
+        {
+            var fieldInfo = memInfo as FieldInfo;
+            var propInfo = memInfo as PropertyInfo;
+
+            Type memberType = fieldInfo != null
+                ? fieldInfo.FieldType : propInfo.PropertyType;
+
+            // It seems that for readonly fields, we have to use the slower approach below
+            // As discussed here: https://www.productiverage.com/trying-to-set-a-readonly-autoproperty-value-externally-plus-a-little-benchmarkdotnet
+            if (fieldInfo == null || !fieldInfo.IsInitOnly)
+            {
+                var typeParam = Expression.Parameter(typeof(object));
+                var valueParam = Expression.Parameter(typeof(object));
+
+                return Expression.Lambda<Action<object, object>>(
+                    Expression.Assign(
+                        Expression.MakeMemberAccess(Expression.Convert(typeParam, parentType), memInfo),
+                        Expression.Convert(valueParam, memberType)),
+                        typeParam, valueParam).Compile();
+            }
+
+            if (fieldInfo != null)
+            {
+                return ((object injectable, object value) => fieldInfo.SetValue(injectable, value));
+            }
+
+            Assert.IsNotNull(propInfo);
+
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return ((object injectable, object value) => propInfo.SetValue(injectable, value, null));
+#else
+            if (propInfo.CanWrite)
+            {
+                return ((object injectable, object value) => propInfo.SetValue(injectable, value, null));
+            }
+
+            return GetOnlyPropertySetter(parentType, propInfo.Name);
+#endif
         }
 
         static ConstructorInfo GetInjectConstructor(Type parentType)
