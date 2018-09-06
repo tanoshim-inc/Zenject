@@ -1301,7 +1301,7 @@ namespace Zenject
             else
 #endif
             {
-                Assert.IsNotNull(typeInfo.InjectConstructor,
+                Assert.IsNotNull(typeInfo.FactoryMethod,
                     "More than one (or zero) constructors found for type '{0}' when creating dependencies.  Use one [Inject] attribute to specify which to use.", concreteType);
 
                 // Make a copy since we remove from it below
@@ -1343,14 +1343,7 @@ namespace Zenject
                             using (ProfileBlock.Start("{0}.{1}()", concreteType, concreteType.Name))
 #endif
                             {
-                                if (typeInfo.FactoryMethod != null)
-                                {
-                                    newObj = typeInfo.FactoryMethod(paramValues.ToArray());
-                                }
-                                else
-                                {
-                                    newObj = typeInfo.InjectConstructor.Invoke(paramValues.ToArray());
-                                }
+                                newObj = typeInfo.FactoryMethod(paramValues.ToArray());
                             }
                         }
                         catch (Exception e)
@@ -1568,17 +1561,10 @@ namespace Zenject
                     if (!isDryRun)
                     {
 #if UNITY_EDITOR
-                        using (ProfileBlock.Start("{0}.{1}()", injectableType, method.MethodInfo.Name))
+                        using (ProfileBlock.Start("{0}.{1}()", injectableType, method.Name))
 #endif
                         {
-                            if (method.Action != null)
-                            {
-                                method.Action(paramValues.ToArray(), injectable);
-                            }
-                            else
-                            {
-                                method.MethodInfo.Invoke(injectable, paramValues.ToArray());
-                            }
+                            method.Action(injectable, paramValues.ToArray());
                         }
                     }
                 }

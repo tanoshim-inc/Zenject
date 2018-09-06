@@ -1,12 +1,9 @@
+using System.Linq.Expressions;
 using ModestTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-
-#if NET_4_6 && !ENABLE_IL2CPP
-using System.Linq.Expressions;
-#endif
 
 namespace Zenject
 {
@@ -122,11 +119,17 @@ namespace Zenject
         {
             var constructor = GetInjectConstructor(type);
 
+            var factoryMethod = TryCreateFactoryMethod(type, constructor);
+
+            if (factoryMethod == null)
+            {
+                factoryMethod = constructor.Invoke;
+            }
+
             return new ZenjectTypeInfo(
                 type,
                 GetPostInjectMethods(type),
-                constructor,
-                TryCreateFactoryMethod(type, constructor),
+                factoryMethod,
                 GetFieldInjectables(type).ToList(),
                 GetPropertyInjectables(type).ToList(),
                 GetConstructorInjectables(type, constructor).ToList());
@@ -229,18 +232,25 @@ namespace Zenject
                         "Parameters of InjectAttribute do not apply to constructors and methods");
                 }
 
+                var action = TryCreateActionForMethod(methodInfo);
+
+                if (action == null)
+                {
+                    action = (obj, args) => methodInfo.Invoke(obj, args);
+                }
+
                 postInjectInfos.Add(
                     new PostInjectableInfo(
-                        methodInfo,
-                        TryCreateActionForMethod(methodInfo),
+                        action,
                         paramsInfo.Select(paramInfo =>
-                            CreateInjectableInfoForParam(type, paramInfo)).ToList()));
+                            CreateInjectableInfoForParam(type, paramInfo)).ToList(),
+                        methodInfo.Name));
             }
 
             return postInjectInfos;
         }
 
-        static Action<object[], object> TryCreateActionForMethod(MethodInfo methodInfo)
+        static Action<object, object[]> TryCreateActionForMethod(MethodInfo methodInfo)
         {
 #if NET_4_6 && !ENABLE_IL2CPP
             ParameterInfo[] par = methodInfo.GetParameters();
@@ -255,10 +265,10 @@ namespace Zenject
                         argsParam, Expression.Constant(i)), par[i].ParameterType);
             }
 
-            return Expression.Lambda<Action<object[], object>>(
+            return Expression.Lambda<Action<object, object[]>>(
                 Expression.Call(
                     Expression.Convert(instanceParam, methodInfo.DeclaringType), methodInfo, args),
-                argsParam, instanceParam).Compile();
+                instanceParam, argsParam).Compile();
 #else
             return null;
 #endif
