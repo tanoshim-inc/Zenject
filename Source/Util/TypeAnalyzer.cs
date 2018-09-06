@@ -1,9 +1,12 @@
-using System.Linq.Expressions;
 using ModestTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
+#if NET_4_6 && !ENABLE_IL2CPP
+using System.Linq.Expressions;
+#endif
 
 namespace Zenject
 {
@@ -123,15 +126,16 @@ namespace Zenject
                 type,
                 GetPostInjectMethods(type),
                 constructor,
-                CreateFactoryMethod(type, constructor),
+                TryCreateFactoryMethod(type, constructor),
                 GetFieldInjectables(type).ToList(),
                 GetPropertyInjectables(type).ToList(),
                 GetConstructorInjectables(type, constructor).ToList());
         }
 
-        static Func<object[], object> CreateFactoryMethod(
+        static Func<object[], object> TryCreateFactoryMethod(
             Type type, ConstructorInfo constructor)
         {
+#if NET_4_6 && !ENABLE_IL2CPP
             ParameterInfo[] par = constructor.GetParameters();
             Expression[] args = new Expression[par.Length];
             ParameterExpression param = Expression.Parameter(typeof(object[]));
@@ -146,6 +150,9 @@ namespace Zenject
             return Expression.Lambda<Func<object[], object>>(
                 Expression.Convert(
                     Expression.New(constructor, args), typeof(object)), param).Compile();
+#else
+            return null;
+#endif
         }
 
         static IEnumerable<InjectableInfo> GetConstructorInjectables(Type parentType, ConstructorInfo constructorInfo)
@@ -225,7 +232,7 @@ namespace Zenject
                 postInjectInfos.Add(
                     new PostInjectableInfo(
                         methodInfo,
-                        CreateActionForMethod(methodInfo),
+                        TryCreateActionForMethod(methodInfo),
                         paramsInfo.Select(paramInfo =>
                             CreateInjectableInfoForParam(type, paramInfo)).ToList()));
             }
@@ -233,8 +240,9 @@ namespace Zenject
             return postInjectInfos;
         }
 
-        static Action<object[], object> CreateActionForMethod(MethodInfo methodInfo)
+        static Action<object[], object> TryCreateActionForMethod(MethodInfo methodInfo)
         {
+#if NET_4_6 && !ENABLE_IL2CPP
             ParameterInfo[] par = methodInfo.GetParameters();
             Expression[] args = new Expression[par.Length];
             ParameterExpression argsParam = Expression.Parameter(typeof(object[]));
@@ -251,6 +259,9 @@ namespace Zenject
                 Expression.Call(
                     Expression.Convert(instanceParam, methodInfo.DeclaringType), methodInfo, args),
                 argsParam, instanceParam).Compile();
+#else
+            return null;
+#endif
         }
 
         static IEnumerable<InjectableInfo> GetPropertyInjectables(Type type)
@@ -350,13 +361,14 @@ namespace Zenject
             var fieldInfo = memInfo as FieldInfo;
             var propInfo = memInfo as PropertyInfo;
 
-            Type memberType = fieldInfo != null
-                ? fieldInfo.FieldType : propInfo.PropertyType;
-
+#if NET_4_6 && !ENABLE_IL2CPP
             // It seems that for readonly fields, we have to use the slower approach below
             // As discussed here: https://www.productiverage.com/trying-to-set-a-readonly-autoproperty-value-externally-plus-a-little-benchmarkdotnet
             if (fieldInfo == null || !fieldInfo.IsInitOnly)
             {
+                Type memberType = fieldInfo != null
+                    ? fieldInfo.FieldType : propInfo.PropertyType;
+
                 var typeParam = Expression.Parameter(typeof(object));
                 var valueParam = Expression.Parameter(typeof(object));
 
@@ -366,6 +378,7 @@ namespace Zenject
                         Expression.Convert(valueParam, memberType)),
                         typeParam, valueParam).Compile();
             }
+#endif
 
             if (fieldInfo != null)
             {
