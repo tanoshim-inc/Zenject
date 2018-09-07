@@ -7,19 +7,28 @@ namespace Zenject
 {
     public class PostInjectableInfo
     {
-        readonly MethodInfo _methodInfo;
         readonly List<InjectableInfo> _injectableInfo;
+        readonly Action<object, object[]> _action;
+        readonly string _name;
 
         public PostInjectableInfo(
-            MethodInfo methodInfo, List<InjectableInfo> injectableInfo)
+            Action<object, object[]> action,
+            List<InjectableInfo> injectableInfo,
+            string name)
         {
-            _methodInfo = methodInfo;
             _injectableInfo = injectableInfo;
+            _action = action;
+            _name = name;
         }
 
-        public MethodInfo MethodInfo
+        public string Name
         {
-            get { return _methodInfo; }
+            get { return _name; }
+        }
+
+        public Action<object, object[]> Action
+        {
+            get { return _action; }
         }
 
         public List<InjectableInfo> InjectableInfo
@@ -34,13 +43,13 @@ namespace Zenject
         readonly List<InjectableInfo> _constructorInjectables;
         readonly List<InjectableInfo> _fieldInjectables;
         readonly List<InjectableInfo> _propertyInjectables;
-        readonly ConstructorInfo _injectConstructor;
+        readonly Func<object[], object> _factoryMethod;
         readonly Type _typeAnalyzed;
 
         public ZenjectTypeInfo(
             Type typeAnalyzed,
             List<PostInjectableInfo> postInjectMethods,
-            ConstructorInfo injectConstructor,
+            Func<object[], object> factoryMethod,
             List<InjectableInfo> fieldInjectables,
             List<InjectableInfo> propertyInjectables,
             List<InjectableInfo> constructorInjectables)
@@ -49,8 +58,8 @@ namespace Zenject
             _fieldInjectables = fieldInjectables;
             _propertyInjectables = propertyInjectables;
             _constructorInjectables = constructorInjectables;
-            _injectConstructor = injectConstructor;
             _typeAnalyzed = typeAnalyzed;
+            _factoryMethod = factoryMethod;
 
             MemberInjectables = new List<InjectableInfo>();
             MemberInjectables.AddRange(fieldInjectables);
@@ -96,10 +105,9 @@ namespace Zenject
             get { return _constructorInjectables; }
         }
 
-        // May be null
-        public ConstructorInfo InjectConstructor
+        public Func<object[], object> FactoryMethod
         {
-            get { return _injectConstructor; }
+            get { return _factoryMethod; }
         }
     }
 }

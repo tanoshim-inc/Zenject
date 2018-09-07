@@ -1301,7 +1301,7 @@ namespace Zenject
             else
 #endif
             {
-                Assert.IsNotNull(typeInfo.InjectConstructor,
+                Assert.IsNotNull(typeInfo.FactoryMethod,
                     "More than one (or zero) constructors found for type '{0}' when creating dependencies.  Use one [Inject] attribute to specify which to use.", concreteType);
 
                 // Make a copy since we remove from it below
@@ -1324,9 +1324,8 @@ namespace Zenject
                             }
                         }
 
-                        if (value is ValidationMarker)
+                        if (value == null || value is ValidationMarker)
                         {
-                            Assert.That(IsValidating);
                             paramValues.Add(injectInfo.MemberType.GetDefaultValue());
                         }
                         else
@@ -1344,7 +1343,7 @@ namespace Zenject
                             using (ProfileBlock.Start("{0}.{1}()", concreteType, concreteType.Name))
 #endif
                             {
-                                newObj = typeInfo.InjectConstructor.Invoke(paramValues.ToArray());
+                                newObj = typeInfo.FactoryMethod(paramValues.ToArray());
                             }
                         }
                         catch (Exception e)
@@ -1467,8 +1466,11 @@ namespace Zenject
             }
 
 #if !NOT_UNITY3D
-            Assert.That(injectableType != typeof(GameObject),
-            "Use InjectGameObject to Inject game objects instead of Inject method");
+            if (injectableType == typeof(GameObject))
+            {
+                Assert.CreateException(
+                    "Use InjectGameObject to Inject game objects instead of Inject method. Object graph: {0}", context.GetObjectGraphString());
+            }
 #endif
 
             FlushBindings();
@@ -1559,10 +1561,10 @@ namespace Zenject
                     if (!isDryRun)
                     {
 #if UNITY_EDITOR
-                        using (ProfileBlock.Start("{0}.{1}()", injectableType, method.MethodInfo.Name))
+                        using (ProfileBlock.Start("{0}.{1}()", injectableType, method.Name))
 #endif
                         {
-                            method.MethodInfo.Invoke(injectable, paramValues.ToArray());
+                            method.Action(injectable, paramValues.ToArray());
                         }
                     }
                 }
@@ -3211,35 +3213,30 @@ namespace Zenject
 
         public object InstantiateExplicit(Type concreteType, bool autoInject, List<TypeValuePair> extraArgs, InjectContext context, object concreteIdentifier)
         {
-#if UNITY_EDITOR
-            //using (ProfileBlock.Start("Zenject.Instantiate({0})", concreteType))
-#endif
+            if (IsValidating)
             {
-                if (IsValidating)
-                {
-                    if (_settings.ValidationErrorResponse == ValidationErrorResponses.Throw)
-                    {
-                        return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
-                    }
-                    else
-                    {
-                        // In this case, just log it and continue to print out multiple validation errors
-                        // at once
-                        try
-                        {
-                            return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
-                        }
-                        catch (Exception e)
-                        {
-                            ModestTree.Log.ErrorException(e);
-                            return new ValidationMarker(concreteType, true);
-                        }
-                    }
-                }
-                else
+                if (_settings.ValidationErrorResponse == ValidationErrorResponses.Throw)
                 {
                     return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
                 }
+                else
+                {
+                    // In this case, just log it and continue to print out multiple validation errors
+                    // at once
+                    try
+                    {
+                        return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
+                    }
+                    catch (Exception e)
+                    {
+                        ModestTree.Log.ErrorException(e);
+                        return new ValidationMarker(concreteType, true);
+                    }
+                }
+            }
+            else
+            {
+                return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
             }
         }
 
