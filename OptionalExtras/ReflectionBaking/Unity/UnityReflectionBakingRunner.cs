@@ -49,7 +49,7 @@ namespace Zenject.ReflectionBaking
             }
         }
 
-        static ZenjectReflectionBakingSettings TryCreateSettingsInstance()
+        public static ZenjectReflectionBakingSettings TryCreateSettingsInstance()
         {
             string[] guids = AssetDatabase.FindAssets("t:ZenjectReflectionBakingSettings");
 

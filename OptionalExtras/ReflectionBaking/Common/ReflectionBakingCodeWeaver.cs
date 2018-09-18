@@ -519,7 +519,8 @@ namespace Zenject.ReflectionBaking
 
             var baseType = typeInfo.Type.BaseType;
 
-            if (baseType == null || !TypeAnalyzer.ShouldAnalyzeType(baseType))
+            if (baseType == null || baseType == typeof(object)
+                || !TypeAnalyzer.ShouldAnalyzeNamespace(baseType.Namespace))
             {
                 instructions.Add(Instruction.Create(OpCodes.Ldnull));
             }
