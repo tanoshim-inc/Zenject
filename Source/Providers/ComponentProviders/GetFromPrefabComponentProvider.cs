@@ -7,6 +7,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class GetFromPrefabComponentProvider : IProvider
     {
         readonly IPrefabInstantiator _prefabInstantiator;

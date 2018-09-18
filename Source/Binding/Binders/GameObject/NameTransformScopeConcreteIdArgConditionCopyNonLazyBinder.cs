@@ -2,6 +2,7 @@
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder : TransformScopeConcreteIdArgConditionCopyNonLazyBinder
     {
         public NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder(

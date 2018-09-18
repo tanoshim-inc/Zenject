@@ -8,6 +8,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class ConventionFilterTypesBinder : ConventionAssemblySelectionBinder
     {
         public ConventionFilterTypesBinder(ConventionBindInfo bindInfo)

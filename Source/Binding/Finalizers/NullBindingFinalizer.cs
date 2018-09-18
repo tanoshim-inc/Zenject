@@ -1,5 +1,6 @@
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class NullBindingFinalizer : IBindingFinalizer
     {
         public BindingInheritanceMethods BindingInheritanceMethod

@@ -1,5 +1,6 @@
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class ConcreteIdBinderNonGeneric : ConcreteBinderNonGeneric
     {
         public ConcreteIdBinderNonGeneric(

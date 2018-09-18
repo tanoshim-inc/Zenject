@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class FactoryBindInfo
     {
         public FactoryBindInfo(Type factoryType)

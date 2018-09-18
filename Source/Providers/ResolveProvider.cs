@@ -5,6 +5,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class ResolveProvider : IProvider
     {
         readonly object _identifier;

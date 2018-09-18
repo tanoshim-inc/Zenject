@@ -7,6 +7,7 @@ using System.Reflection;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class ConventionAssemblySelectionBinder
     {
         public ConventionAssemblySelectionBinder(ConventionBindInfo bindInfo)

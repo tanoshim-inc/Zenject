@@ -10,6 +10,8 @@ namespace Zenject.Tests.Injection
     [TestFixture]
     public class TestAllInjectionTypes : ZenjectUnitTestFixture
     {
+        static int InjectCounter;
+
         [Test]
         // Test all variations of injection
         public void TestCase1()
@@ -17,10 +19,18 @@ namespace Zenject.Tests.Injection
             Container.Bind<Test0>().FromInstance(new Test0()).NonLazy();
             Container.Bind<IFoo>().To<FooDerived>().AsSingle().NonLazy();
 
+            InjectCounter = 1;
+
             var foo = Container.Resolve<IFoo>();
 
             Assert.That(foo.DidPostInjectBase);
             Assert.That(foo.DidPostInjectDerived);
+
+            Assert.IsEqual(foo.BaseTypePropertyInjectCount, 1);
+            Assert.IsEqual(foo.DerivedTypePropertyInjectCount, 2);
+
+            Assert.IsEqual(foo.BaseTypeMethodInjectCount, 3);
+            Assert.IsEqual(foo.DerivedTypeMethodInjectCount, 4);
         }
 
         class Test0
@@ -35,6 +45,26 @@ namespace Zenject.Tests.Injection
             }
 
             bool DidPostInjectDerived
+            {
+                get;
+            }
+
+            int BaseTypePropertyInjectCount
+            {
+                get;
+            }
+
+            int DerivedTypePropertyInjectCount
+            {
+                get;
+            }
+
+            int BaseTypeMethodInjectCount
+            {
+                get;
+            }
+
+            int DerivedTypeMethodInjectCount
             {
                 get;
             }
@@ -82,13 +112,19 @@ namespace Zenject.Tests.Injection
             Test0 BaseFieldPrivate = null;
 
             [Inject]
-            protected Test0 BaseFieldProtected = null;
+            protected readonly Test0 BaseFieldProtected = null;
+
+            Test0 _basePropertyPublicValue;
 
             [Inject]
             public Test0 BasePropertyPublic
             {
-                get;
-                set;
+                get { return _basePropertyPublicValue; }
+                set
+                {
+                    BaseTypePropertyInjectCount = InjectCounter++;
+                    _basePropertyPublicValue = value;
+                }
             }
 
             [Inject]
@@ -122,6 +158,8 @@ namespace Zenject.Tests.Injection
                 Assert.IsNotNull(BasePropertyPrivate);
                 Assert.IsNotNull(BasePropertyProtected);
 
+                BaseTypeMethodInjectCount = InjectCounter++;
+
                 _didPostInjectBase = true;
             }
 
@@ -134,6 +172,26 @@ namespace Zenject.Tests.Injection
             }
 
             public abstract bool DidPostInjectDerived
+            {
+                get;
+            }
+
+            public int BaseTypePropertyInjectCount
+            {
+                get; set;
+            }
+
+            public int BaseTypeMethodInjectCount
+            {
+                get; set;
+            }
+
+            public abstract int DerivedTypeMethodInjectCount
+            {
+                get;
+            }
+
+            public abstract int DerivedTypePropertyInjectCount
             {
                 get;
             }
@@ -206,6 +264,8 @@ namespace Zenject.Tests.Injection
                 Assert.IsNotNull(DerivedPropertyProtected);
                 Assert.IsNotNull(ConstructorParam);
 
+                _derivedTypeMethodInjectCount = InjectCounter++;
+
                 _didPostInject = true;
             }
 
@@ -218,11 +278,17 @@ namespace Zenject.Tests.Injection
             [Inject]
             protected Test0 DerivedFieldProtected = null;
 
+            Test0 _derivedPropertyPublicValue;
+
             [Inject]
             public Test0 DerivedPropertyPublic
             {
-                get;
-                set;
+                get { return _derivedPropertyPublicValue; }
+                set
+                {
+                    _derivedTypePropertyInjectCount = InjectCounter++;
+                    _derivedPropertyPublicValue = value;
+                }
             }
 
             [Inject]
@@ -237,6 +303,20 @@ namespace Zenject.Tests.Injection
             {
                 get;
                 set;
+            }
+
+            int _derivedTypeMethodInjectCount;
+
+            public override int DerivedTypeMethodInjectCount
+            {
+                get { return _derivedTypeMethodInjectCount; }
+            }
+
+            int _derivedTypePropertyInjectCount;
+
+            public override int DerivedTypePropertyInjectCount
+            {
+                get { return _derivedTypePropertyInjectCount; }
             }
         }
     }

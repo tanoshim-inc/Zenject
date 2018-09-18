@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class FactoryFromBinderBase : ScopeConcreteIdArgConditionCopyNonLazyBinder
     {
         public FactoryFromBinderBase(

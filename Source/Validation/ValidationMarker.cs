@@ -2,6 +2,7 @@ using System;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class ValidationMarker
     {
         public ValidationMarker(

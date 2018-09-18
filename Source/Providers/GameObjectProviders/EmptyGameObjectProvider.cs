@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class EmptyGameObjectProvider : IProvider
     {
         readonly DiContainer _container;

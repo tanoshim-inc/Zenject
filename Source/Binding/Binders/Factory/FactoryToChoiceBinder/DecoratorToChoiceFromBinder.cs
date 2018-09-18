@@ -4,6 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class DecoratorToChoiceFromBinder<TContract>
     {
         DiContainer _bindContainer;

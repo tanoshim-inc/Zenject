@@ -2,6 +2,7 @@ using System;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class FactoryFromBinderUntyped : FactoryFromBinderBase
     {
         public FactoryFromBinderUntyped(

@@ -3,6 +3,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class SubContainerBinder
     {
         readonly BindInfo _bindInfo;

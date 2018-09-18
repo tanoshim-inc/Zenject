@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class FromBinderNonGeneric : FromBinder
     {
         public FromBinderNonGeneric(

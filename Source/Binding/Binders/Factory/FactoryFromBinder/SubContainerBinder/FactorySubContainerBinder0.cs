@@ -3,6 +3,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class FactorySubContainerBinder<TContract>
         : FactorySubContainerBinderBase<TContract>
     {

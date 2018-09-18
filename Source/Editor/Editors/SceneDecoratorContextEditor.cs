@@ -13,6 +13,7 @@ using ModestTree;
 namespace Zenject
 {
     [CustomEditor(typeof(SceneDecoratorContext))]
+    [NoReflectionCodeWeaving]
     public class SceneDecoratorContextEditor : ContextEditor
     {
         SerializedProperty _decoratedContractNameProperty;

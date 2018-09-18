@@ -5,6 +5,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class GetterProvider<TObj, TResult> : IProvider
     {
         readonly DiContainer _container;

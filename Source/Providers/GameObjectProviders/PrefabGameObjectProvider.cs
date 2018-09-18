@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class PrefabGameObjectProvider : IProvider
     {
         readonly IPrefabInstantiator _prefabCreator;

@@ -15,6 +15,7 @@ namespace Zenject
     // So in order to do this, we add the initial pool of instances to this class then
     // notify this class whenever an instance is resolved via a FromInstance binding
     // That way we can lazily call inject on-demand whenever the instance is requested
+    [NoReflectionCodeWeaving]
     public class LazyInstanceInjector
     {
         readonly DiContainer _container;

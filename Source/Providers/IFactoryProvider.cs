@@ -46,6 +46,7 @@ namespace Zenject
 
     // Zero parameters
 
+    [NoReflectionCodeWeaving]
     public class IFactoryProvider<TContract> : IFactoryProviderBase<TContract>
     {
         public IFactoryProvider(
@@ -82,6 +83,7 @@ namespace Zenject
 
     // One parameter
 
+    [NoReflectionCodeWeaving]
     public class IFactoryProvider<TParam1, TContract> : IFactoryProviderBase<TContract>
     {
         public IFactoryProvider(DiContainer container, Guid factoryId)
@@ -118,6 +120,7 @@ namespace Zenject
 
     // Two parameters
 
+    [NoReflectionCodeWeaving]
     public class IFactoryProvider<TParam1, TParam2, TContract> : IFactoryProviderBase<TContract>
     {
         public IFactoryProvider(DiContainer container, Guid factoryId)
@@ -157,6 +160,7 @@ namespace Zenject
 
     // Three parameters
 
+    [NoReflectionCodeWeaving]
     public class IFactoryProvider<TParam1, TParam2, TParam3, TContract> : IFactoryProviderBase<TContract>
     {
         public IFactoryProvider(DiContainer container, Guid factoryId)
@@ -198,6 +202,7 @@ namespace Zenject
 
     // Four parameters
 
+    [NoReflectionCodeWeaving]
     public class IFactoryProvider<TParam1, TParam2, TParam3, TParam4, TContract> : IFactoryProviderBase<TContract>
     {
         public IFactoryProvider(DiContainer container, Guid factoryId)
@@ -241,6 +246,7 @@ namespace Zenject
 
     // Five parameters
 
+    [NoReflectionCodeWeaving]
     public class IFactoryProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TContract> : IFactoryProviderBase<TContract>
     {
         public IFactoryProvider(DiContainer container, Guid factoryId)
@@ -286,6 +292,7 @@ namespace Zenject
 
     // Six parameters
 
+    [NoReflectionCodeWeaving]
     public class IFactoryProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract> : IFactoryProviderBase<TContract>
     {
         public IFactoryProvider(DiContainer container, Guid factoryId)
@@ -333,6 +340,7 @@ namespace Zenject
 
     // Ten parameters
 
+    [NoReflectionCodeWeaving]
     public class IFactoryProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract> : IFactoryProviderBase<TContract>
     {
         public IFactoryProvider(DiContainer container, Guid factoryId)

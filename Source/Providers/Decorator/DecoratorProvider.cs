@@ -11,6 +11,7 @@ namespace Zenject.Internal
             IProvider provider, InjectContext context, List<object> buffer);
     }
 
+    [NoReflectionCodeWeaving]
     public class DecoratorProvider<TContract> : IDecoratorProvider
     {
         readonly Dictionary<IProvider, List<object>> _cachedInstances =

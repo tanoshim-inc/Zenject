@@ -2,6 +2,7 @@
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class ConventionSelectTypesBinder
     {
         readonly ConventionBindInfo _bindInfo;

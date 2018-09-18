@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ModestTree;
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class CopyNonLazyBinder : NonLazyBinder
     {
         List<BindInfo> _secondaryBindInfos;

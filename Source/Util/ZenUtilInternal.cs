@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Zenject.Internal
 {
-    public class ZenUtilInternal
+    public static class ZenUtilInternal
     {
         // Due to the way that Unity overrides the Equals operator,
         // normal null checks such as (x == null) do not always work as

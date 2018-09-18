@@ -3,6 +3,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class SingleProviderBindingFinalizer : ProviderBindingFinalizer
     {
         readonly Func<DiContainer, Type, IProvider> _providerFactory;

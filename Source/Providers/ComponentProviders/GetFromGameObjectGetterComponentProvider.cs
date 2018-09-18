@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class GetFromGameObjectGetterComponentProvider : IProvider
     {
         readonly Func<InjectContext, GameObject> _gameObjectGetter;

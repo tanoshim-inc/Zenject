@@ -4,6 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class InstanceProvider : IProvider
     {
         readonly object _instance;

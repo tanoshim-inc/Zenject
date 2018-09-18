@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class CachedOpenTypeProvider : IProvider
     {
         readonly IProvider _creator;

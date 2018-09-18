@@ -162,9 +162,14 @@
     <Compile Include="Runtime\PoolableManager.cs" />
     <Compile Include="Util\ActionInstaller.cs" />
     <Compile Include="Util\DisposeBlock.cs" />
+    <Compile Include="Util\InjectTypeInfo.cs" />
+    <Compile Include="Util\NoReflectionCodeWeavingAttribute.cs" />
     <Compile Include="Util\ProfileBlock.cs" />
+    <Compile Include="Util\ReflectionInfoTypeInfoConverter.cs" />
+    <Compile Include="Util\ReflectionTypeInfo.cs" />
     <Compile Include="Util\ReflectionUtil.cs" />
     <Compile Include="Util\ZenPools.cs" />
+    <Compile Include="Util\ZenReflectionTypeAnalyzer.cs" />
     <Compile Include="Validation\IValidatable.cs" />
     <Compile Include="Factories\KeyedFactory.cs" />
     <Compile Include="Injection\InjectableInfo.cs" />

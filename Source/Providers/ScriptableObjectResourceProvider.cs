@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class ScriptableObjectResourceProvider : IProvider
     {
         readonly DiContainer _container;

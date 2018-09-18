@@ -33,6 +33,12 @@ namespace Zenject
         bool _parentNewObjectsUnderContext = true;
 
         [SerializeField]
+        ReflectionBakingCoverageModes _editorReflectionBakingCoverageMode;
+
+        [SerializeField]
+        ReflectionBakingCoverageModes _buildsReflectionBakingCoverageMode;
+
+        [SerializeField]
         ZenjectSettings _settings = null;
 
         DiContainer _container;
@@ -76,14 +82,25 @@ namespace Zenject
 
         public static GameObject TryGetPrefab()
         {
-            var prefab = (GameObject)Resources.Load(ProjectContextResourcePath);
+            var prefabs = Resources.LoadAll(ProjectContextResourcePath, typeof(GameObject));
 
-            if (prefab == null)
+            if (prefabs.Length > 0)
             {
-                prefab = (GameObject)Resources.Load(ProjectContextResourcePathOld);
+                Assert.That(prefabs.Length == 1,
+                    "Found multiple project context prefabs at resource path '{0}'", ProjectContextResourcePath);
+                return (GameObject)prefabs[0];
             }
 
-            return prefab;
+            prefabs = Resources.LoadAll(ProjectContextResourcePathOld, typeof(GameObject));
+
+            if (prefabs.Length > 0)
+            {
+                Assert.That(prefabs.Length == 1,
+                    "Found multiple project context prefabs at resource path '{0}'", ProjectContextResourcePathOld);
+                return (GameObject)prefabs[0];
+            }
+
+            return null;
         }
 
         static void InstantiateAndInitialize()
@@ -177,6 +194,15 @@ namespace Zenject
         void Initialize()
         {
             Assert.IsNull(_container);
+
+            if (Application.isEditor)
+            {
+                TypeAnalyzer.ReflectionBakingCoverageMode = _editorReflectionBakingCoverageMode;
+            }
+            else
+            {
+                TypeAnalyzer.ReflectionBakingCoverageMode = _buildsReflectionBakingCoverageMode;
+            }
 
             bool isValidating = false;
 

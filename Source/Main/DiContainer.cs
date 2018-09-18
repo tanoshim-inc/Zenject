@@ -18,6 +18,7 @@ namespace Zenject
     // - Expose methods to configure object graph via BindX() methods
     // - Look up bound values via Resolve() method
     // - Instantiate new values via InstantiateX() methods
+    [NoReflectionCodeWeaving]
     public class DiContainer : IInstantiator
     {
         readonly Dictionary<Type, IDecoratorProvider> _decorators = new Dictionary<Type, IDecoratorProvider>();
@@ -1260,9 +1261,14 @@ namespace Zenject
         {
             FlushBindings();
 
-            foreach (var injectMember in TypeAnalyzer.GetInfo(contract).AllInjectables)
+            var info = TypeAnalyzer.TryGetInfo(contract);
+
+            if (info != null)
             {
-                yield return injectMember.MemberType;
+                foreach (var injectMember in info.AllInjectables)
+                {
+                    yield return injectMember.MemberType;
+                }
             }
         }
 
@@ -1278,7 +1284,10 @@ namespace Zenject
             FlushBindings();
             CheckForInstallWarning(context);
 
-            var typeInfo = TypeAnalyzer.GetInfo(concreteType);
+            var typeInfo = TypeAnalyzer.TryGetInfo(concreteType);
+
+            Assert.IsNotNull(typeInfo, "Tried to create type '{0}' but could not find type information", concreteType);
+
             bool allowDuringValidation = TypeAnalyzer.ShouldAllowDuringValidation(concreteType);
 
             object newObj;
@@ -1286,7 +1295,7 @@ namespace Zenject
 #if !NOT_UNITY3D
             if (concreteType.DerivesFrom<ScriptableObject>())
             {
-                Assert.That( typeInfo.ConstructorInjectables.Count == 0,
+                Assert.That(typeInfo.InjectConstructor.Parameters.Length == 0,
                     "Found constructor parameters on ScriptableObject type '{0}'.  This is not allowed.  Use an [Inject] method or fields instead.");
 
                 if (!IsValidating || allowDuringValidation)
@@ -1301,7 +1310,7 @@ namespace Zenject
             else
 #endif
             {
-                Assert.IsNotNull(typeInfo.FactoryMethod,
+                Assert.IsNotNull(typeInfo.InjectConstructor.Factory,
                     "More than one (or zero) constructors found for type '{0}' when creating dependencies.  Use one [Inject] attribute to specify which to use.", concreteType);
 
                 // Make a copy since we remove from it below
@@ -1309,16 +1318,17 @@ namespace Zenject
 
                 try
                 {
-                    for (int i = 0; i < typeInfo.ConstructorInjectables.Count; i++)
+                    for (int i = 0; i < typeInfo.InjectConstructor.Parameters.Length; i++)
                     {
-                        var injectInfo = typeInfo.ConstructorInjectables[i];
+                        var injectInfo = typeInfo.InjectConstructor.Parameters[i];
 
                         object value;
 
                         if (!InjectUtil.PopValueWithType(
                             extraArgs, injectInfo.MemberType, out value))
                         {
-                            using (var subContext = injectInfo.SpawnInjectContext(this, context, null, concreteIdentifier))
+                            using (var subContext = injectInfo.SpawnInjectContext(
+                                this, context, null, injectInfo.ObjectType, concreteIdentifier))
                             {
                                 value = Resolve(subContext);
                             }
@@ -1343,7 +1353,7 @@ namespace Zenject
                             using (ProfileBlock.Start("{0}.{1}()", concreteType, concreteType.Name))
 #endif
                             {
-                                newObj = typeInfo.FactoryMethod(paramValues.ToArray());
+                                newObj = typeInfo.InjectConstructor.Factory(paramValues.ToArray());
                             }
                         }
                         catch (Exception e)
@@ -1449,12 +1459,145 @@ namespace Zenject
             }
         }
 
+        void CallInjectMethodsTopDown(
+            object injectable, Type injectableType,
+            InjectTypeInfo typeInfo, List<TypeValuePair> extraArgs,
+            InjectContext context, object concreteIdentifier, bool isDryRun)
+        {
+            if (typeInfo.BaseTypeInfo != null)
+            {
+                CallInjectMethodsTopDown(
+                    injectable, injectableType, typeInfo.BaseTypeInfo, extraArgs,
+                    context, concreteIdentifier, isDryRun);
+            }
+
+            for (int i = 0; i < typeInfo.InjectMethods.Length; i++)
+            {
+                var method = typeInfo.InjectMethods[i];
+                var paramValues = ZenPools.SpawnList<object>();
+
+                try
+                {
+                    for (int k = 0; k < method.Parameters.Length; k++)
+                    {
+                        var injectInfo = method.Parameters[k];
+
+                        object value;
+
+                        if (!InjectUtil.PopValueWithType(extraArgs, injectInfo.MemberType, out value))
+                        {
+                            using (var subContext = injectInfo.SpawnInjectContext(
+                                this, context, injectable, injectableType, concreteIdentifier))
+                            {
+                                value = Resolve(subContext);
+                            }
+                        }
+
+                        if (value is ValidationMarker)
+                        {
+                            Assert.That(IsValidating);
+                            paramValues.Add(injectInfo.MemberType.GetDefaultValue());
+                        }
+                        else
+                        {
+                            paramValues.Add(value);
+                        }
+                    }
+
+                    if (!isDryRun)
+                    {
+#if UNITY_EDITOR
+                        using (ProfileBlock.Start("{0}.{1}()", typeInfo.Type, method.Name))
+#endif
+                        {
+                            method.Action(injectable, paramValues.ToArray());
+                        }
+                    }
+                }
+                finally
+                {
+                    ZenPools.DespawnList(paramValues);
+                }
+            }
+        }
+
+        void InjectMembersTopDown(
+            object injectable, Type injectableType,
+            InjectTypeInfo typeInfo, List<TypeValuePair> extraArgs,
+            InjectContext context, object concreteIdentifier, bool isDryRun)
+        {
+            if (typeInfo.BaseTypeInfo != null)
+            {
+                InjectMembersTopDown(
+                    injectable, injectableType, typeInfo.BaseTypeInfo, extraArgs,
+                    context, concreteIdentifier, isDryRun);
+            }
+
+            for (int i = 0; i < typeInfo.InjectMembers.Length; i++)
+            {
+                var injectInfo = typeInfo.InjectMembers[i].Info;
+                var setterMethod = typeInfo.InjectMembers[i].Setter;
+
+                object value;
+
+                if (InjectUtil.PopValueWithType(extraArgs, injectInfo.MemberType, out value))
+                {
+                    if (!isDryRun)
+                    {
+                        if (value is ValidationMarker)
+                        {
+                            Assert.That(IsValidating);
+                        }
+                        else
+                        {
+                            setterMethod(injectable, value);
+                        }
+                    }
+                }
+                else
+                {
+                    using (var subContext = injectInfo.SpawnInjectContext(
+                        this, context, injectable, injectableType, concreteIdentifier))
+                    {
+                        value = Resolve(subContext);
+                    }
+
+                    if (injectInfo.Optional && value == null)
+                    {
+                        // Do not override in this case so it retains the hard-coded value
+                    }
+                    else
+                    {
+                        if (!isDryRun)
+                        {
+                            if (value is ValidationMarker)
+                            {
+                                Assert.That(IsValidating);
+                            }
+                            else
+                            {
+                                setterMethod(injectable, value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         void InjectExplicitInternal(
-            object injectable, Type injectableType, List<TypeValuePair> extraArgs, InjectContext context, object concreteIdentifier)
+            object injectable, Type injectableType, List<TypeValuePair> extraArgs,
+            InjectContext context, object concreteIdentifier)
         {
             Assert.That(injectable != null);
 
-            var typeInfo = TypeAnalyzer.GetInfo(injectableType);
+            var typeInfo = TypeAnalyzer.TryGetInfo(injectableType);
+
+            if (typeInfo == null)
+            {
+                Assert.That(extraArgs.IsEmpty());
+                return;
+            }
+
             var allowDuringValidation = TypeAnalyzer.ShouldAllowDuringValidation(injectableType);
 
             // Installers are the only things that we instantiate/inject on during validation
@@ -1476,103 +1619,11 @@ namespace Zenject
             FlushBindings();
             CheckForInstallWarning(context);
 
-            for (int i = 0; i < typeInfo.MemberInjectables.Count; i++)
-            {
-                var injectInfo = typeInfo.MemberInjectables[i];
+            InjectMembersTopDown(
+                injectable, injectableType, typeInfo, extraArgs, context, concreteIdentifier, isDryRun);
 
-                object value;
-
-                if (InjectUtil.PopValueWithType(extraArgs, injectInfo.MemberType, out value))
-                {
-                    if (!isDryRun)
-                    {
-                        if (value is ValidationMarker)
-                        {
-                            Assert.That(IsValidating);
-                        }
-                        else
-                        {
-                            injectInfo.Setter(injectable, value);
-                        }
-                    }
-                }
-                else
-                {
-                    using (var subContext = injectInfo.SpawnInjectContext(
-                        this, context, injectable, concreteIdentifier))
-                    {
-                        value = Resolve(subContext);
-                    }
-
-                    if (injectInfo.Optional && value == null)
-                    {
-                        // Do not override in this case so it retains the hard-coded value
-                    }
-                    else
-                    {
-                        if (!isDryRun)
-                        {
-                            if (value is ValidationMarker)
-                            {
-                                Assert.That(IsValidating);
-                            }
-                            else
-                            {
-                                injectInfo.Setter(injectable, value);
-                            }
-                        }
-                    }
-                }
-            }
-
-            for (int i = 0; i < typeInfo.PostInjectMethods.Count; i++)
-            {
-                var method = typeInfo.PostInjectMethods[i];
-                var paramValues = ZenPools.SpawnList<object>();
-
-                try
-                {
-                    for (int k = 0; k < method.InjectableInfo.Count; k++)
-                    {
-                        var injectInfo = method.InjectableInfo[k];
-
-                        object value;
-
-                        if (!InjectUtil.PopValueWithType(extraArgs, injectInfo.MemberType, out value))
-                        {
-                            using (var subContext = injectInfo.SpawnInjectContext(
-                                this, context, injectable, concreteIdentifier))
-                            {
-                                value = Resolve(subContext);
-                            }
-                        }
-
-                        if (value is ValidationMarker)
-                        {
-                            Assert.That(IsValidating);
-                            paramValues.Add(injectInfo.MemberType.GetDefaultValue());
-                        }
-                        else
-                        {
-                            paramValues.Add(value);
-                        }
-                    }
-
-                    if (!isDryRun)
-                    {
-#if UNITY_EDITOR
-                        using (ProfileBlock.Start("{0}.{1}()", injectableType, method.Name))
-#endif
-                        {
-                            method.Action(injectable, paramValues.ToArray());
-                        }
-                    }
-                }
-                finally
-                {
-                    ZenPools.DespawnList(paramValues);
-                }
-            }
+            CallInjectMethodsTopDown(
+                injectable, injectableType, typeInfo, extraArgs, context, concreteIdentifier, isDryRun);
 
             if (extraArgs.Count > 0)
             {

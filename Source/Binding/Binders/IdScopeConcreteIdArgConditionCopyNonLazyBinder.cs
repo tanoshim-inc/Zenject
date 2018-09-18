@@ -1,5 +1,6 @@
 namespace Zenject
 {
+    [NoReflectionCodeWeaving]
     public class IdScopeConcreteIdArgConditionCopyNonLazyBinder : ScopeConcreteIdArgConditionCopyNonLazyBinder
     {
         public IdScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo bindInfo)
