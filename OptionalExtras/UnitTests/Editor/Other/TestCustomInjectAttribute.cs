@@ -21,7 +21,7 @@ namespace Zenject.Tests.Other
         {
         }
 
-        [NoReflectionCodeWeaving]
+        [NoReflectionBakingAttribute]
         class Foo
         {
             [InjectCustom]

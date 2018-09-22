@@ -11,10 +11,9 @@ namespace Zenject.ReflectionBaking
     [CustomEditor(typeof(ZenjectReflectionBakingSettings))]
     public class ZenjectReflectionBakingSettingsEditor : Editor
     {
-        SerializedProperty _modesProperty;
         SerializedProperty _weavedAssemblies;
         SerializedProperty _namespacePatterns;
-        SerializedProperty _allAssemblies;
+        SerializedProperty _isEnabled;
 
         // Lists
         ReorderableList _weavedAssembliesList;
@@ -40,10 +39,9 @@ namespace Zenject.ReflectionBaking
 
         void OnEnable()
         {
-            _modesProperty = serializedObject.FindProperty("_executionMode");
             _weavedAssemblies = serializedObject.FindProperty("_weavedAssemblies");
             _namespacePatterns = serializedObject.FindProperty("_namespacePatterns");
-            _allAssemblies = serializedObject.FindProperty("_allAssemblies");
+            _isEnabled = serializedObject.FindProperty("_isEnabled");
 
             _namespacePatternsList = new ReorderableList(serializedObject, _namespacePatterns);
             _namespacePatternsList.drawHeaderCallback += OnNamespacePatternsDrawHeader;
@@ -83,40 +81,9 @@ namespace Zenject.ReflectionBaking
             {
                 GUILayout.Label("Settings", EditorStyles.boldLabel);
 
-                EditorGUILayout.PropertyField(_modesProperty, true);
+                EditorGUILayout.PropertyField(_isEnabled, true);
 
-#if !UNITY_2018
-                if (_modesProperty.intValue == 1)
-                {
-                    EditorGUILayout.HelpBox(
-                        "InEditorAndBuilds mode is not supported in Unity 2017!  Will only work in builds currently", MessageType.Error);
-                }
-                else if (_modesProperty.intValue == 2)
-                {
-                    EditorGUILayout.HelpBox(
-                        "InEditorOnly mode is not supported in Unity 2017!  Please use BuildsOnly instead", MessageType.Error);
-                }
-#endif
-
-                EditorGUILayout.PropertyField(_allAssemblies, true);
-
-                if (_allAssemblies.boolValue)
-                {
-                    GUI.enabled = false;
-
-                    try
-                    {
-                        _weavedAssembliesList.DoLayoutList();
-                    }
-                    finally
-                    {
-                        GUI.enabled = true;
-                    }
-                }
-                else
-                {
-                    _weavedAssembliesList.DoLayoutList();
-                }
+                _weavedAssembliesList.DoLayoutList();
 
                 _namespacePatternsList.DoLayoutList();
             }
@@ -126,10 +93,10 @@ namespace Zenject.ReflectionBaking
                 _hasModifiedProperties = true;
             }
 
-            if (GUILayout.Button("Force Full Unity Compile"))
-            {
-                ReflectionBakingInternalUtil.DirtyAllScripts();
-            }
+            //if (GUILayout.Button("Run Test"))
+            //{
+                //ReflectionBakingBuildObserver.ExecuteBaking();
+            //}
 
             if (_hasModifiedProperties)
             {
@@ -142,7 +109,6 @@ namespace Zenject.ReflectionBaking
         {
             serializedObject.ApplyModifiedProperties();
             serializedObject.Update();
-            ReflectionBakingSaveData.ClearLastUpdateTime();
         }
 
         void OnWeavedAssemblyElementAdded(ReorderableList list)

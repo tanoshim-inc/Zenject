@@ -6,7 +6,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerCreatorByInstaller : ISubContainerCreator
     {
         readonly Type _installerType;

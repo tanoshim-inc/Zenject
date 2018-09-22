@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class RunnableContextEditor : ContextEditor
     {
         SerializedProperty _autoRun;

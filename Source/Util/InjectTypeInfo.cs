@@ -9,11 +9,10 @@ namespace Zenject.Internal
     public delegate object ZenFactoryMethod(object[] args);
     public delegate void ZenMemberSetterMethod(object obj, object value);
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class InjectTypeInfo
     {
         public readonly Type Type;
-        public readonly InjectTypeInfo BaseTypeInfo;
         public readonly InjectMethodInfo[] InjectMethods;
         public readonly InjectMemberInfo[] InjectMembers;
         public readonly InjectConstructorInfo InjectConstructor;
@@ -22,14 +21,18 @@ namespace Zenject.Internal
             Type type,
             InjectConstructorInfo injectConstructor,
             InjectMethodInfo[] injectMethods,
-            InjectMemberInfo[] injectMembers,
-            InjectTypeInfo baseTypeInfo)
+            InjectMemberInfo[] injectMembers)
         {
             Type = type;
-            BaseTypeInfo = baseTypeInfo;
             InjectMethods = injectMethods;
             InjectMembers = injectMembers;
             InjectConstructor = injectConstructor;
+        }
+
+        // Filled in later
+        public InjectTypeInfo BaseTypeInfo
+        {
+            get; set;
         }
 
         public IEnumerable<InjectableInfo> AllInjectables
@@ -42,7 +45,7 @@ namespace Zenject.Internal
             }
         }
 
-        [NoReflectionCodeWeaving]
+        [NoReflectionBaking]
         public class InjectMemberInfo
         {
             public readonly ZenMemberSetterMethod Setter;
@@ -57,7 +60,7 @@ namespace Zenject.Internal
             }
         }
 
-        [NoReflectionCodeWeaving]
+        [NoReflectionBaking]
         public class InjectConstructorInfo
         {
             // Null for abstract types
@@ -74,7 +77,7 @@ namespace Zenject.Internal
             }
         }
 
-        [NoReflectionCodeWeaving]
+        [NoReflectionBaking]
         public class InjectMethodInfo
         {
             public readonly string Name;

@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class PrefabInstantiator : IPrefabInstantiator
     {
         readonly IPrefabProvider _prefabProvider;

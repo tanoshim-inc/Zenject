@@ -4,7 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class MemoryPoolExpandBinder<TContract> : FactoryArgumentsToChoiceBinder<TContract>
     {
         public MemoryPoolExpandBinder(

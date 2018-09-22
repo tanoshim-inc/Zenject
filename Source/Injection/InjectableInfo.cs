@@ -7,6 +7,7 @@ namespace Zenject.Internal
 {
     // An injectable is a field or property with [Inject] attribute
     // Or a constructor parameter
+    [NoReflectionBaking]
     public class InjectableInfo
     {
         public readonly bool Optional;
@@ -19,16 +20,13 @@ namespace Zenject.Internal
         // The field type or property type from source code
         public readonly Type MemberType;
 
-        public readonly Type ObjectType;
-
         public readonly object DefaultValue;
 
         public InjectableInfo(
             bool optional, object identifier, string memberName, Type memberType,
-            Type objectType, object defaultValue, InjectSources sourceType)
+            object defaultValue, InjectSources sourceType)
         {
             Optional = optional;
-            ObjectType = objectType;
             MemberType = memberType;
             MemberName = memberName;
             Identifier = identifier;
@@ -41,8 +39,6 @@ namespace Zenject.Internal
             object targetInstance, Type targetType, object concreteIdentifier)
         {
             var context = ZenPools.SpawnInjectContext(container, MemberType);
-
-            Assert.That(targetType.DerivesFromOrEqual(ObjectType));
 
             context.ObjectType = targetType;
             context.ParentContext = currentContext;

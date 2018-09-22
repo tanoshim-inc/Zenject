@@ -8,7 +8,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class FactoryFromBinder<TContract> : FactoryFromBinderBase
     {
         public FactoryFromBinder(

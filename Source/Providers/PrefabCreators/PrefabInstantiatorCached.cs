@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class PrefabInstantiatorCached : IPrefabInstantiator
     {
         readonly IPrefabInstantiator _subInstantiator;

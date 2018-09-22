@@ -2,7 +2,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class IdBinder
     {
         BindInfo _bindInfo;

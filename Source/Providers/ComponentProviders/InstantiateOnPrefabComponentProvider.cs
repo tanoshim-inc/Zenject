@@ -7,7 +7,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class InstantiateOnPrefabComponentProvider : IProvider
     {
         readonly IPrefabInstantiator _prefabInstantiator;

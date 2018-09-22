@@ -15,7 +15,7 @@ namespace Zenject
     // So in order to do this, we add the initial pool of instances to this class then
     // notify this class whenever an instance is resolved via a FromInstance binding
     // That way we can lazily call inject on-demand whenever the instance is requested
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class LazyInstanceInjector
     {
         readonly DiContainer _container;
@@ -52,7 +52,7 @@ namespace Zenject
         public void LazyInjectAll()
         {
 #if UNITY_EDITOR
-            using (ProfileBlock.Start("LazyInstanceInjector.LazyInjectAll"))
+            using (ProfileBlock.Start("Zenject.LazyInstanceInjector.LazyInjectAll"))
 #endif
             {
                 var tempList = new List<object>();

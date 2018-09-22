@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 using ModestTree;
 using UnityEngine;
@@ -7,6 +8,15 @@ namespace Zenject.ReflectionBaking
 {
     public static class ReflectionBakingInternalUtil
     {
+        public static string ConvertAssetPathToSystemPath(string assetPath)
+        {
+            string path = Application.dataPath;
+            int pathLength = path.Length;
+            path = path.Substring(0, pathLength - /* Assets */ 6);
+            path = Path.Combine(path, assetPath);
+            return path;
+        }
+
         public static string ConvertAbsoluteToAssetPath(string systemPath)
         {
             var projectPath = Application.dataPath;

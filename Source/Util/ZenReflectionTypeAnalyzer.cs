@@ -143,7 +143,6 @@ namespace Zenject.Internal
                     identifier,
                     paramInfo.Name,
                     paramInfo.ParameterType,
-                    parentType,
                     isOptionalWithADefaultValue ? paramInfo.DefaultValue : null,
                     sourceType));
         }
@@ -176,7 +175,6 @@ namespace Zenject.Internal
                 identifier,
                 memInfo.Name,
                 memberType,
-                parentType,
                 null,
                 sourceType);
         }

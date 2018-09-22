@@ -14,7 +14,7 @@ using Zenject.Internal;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class ProfileBlock : IDisposable
     {
 #if UNITY_EDITOR

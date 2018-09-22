@@ -5,7 +5,7 @@ using UnityEditor;
 namespace Zenject
 {
     [CustomEditor(typeof(GameObjectContext))]
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class GameObjectContextEditor : RunnableContextEditor
     {
         SerializedProperty _kernel;

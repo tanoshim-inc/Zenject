@@ -4,6 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public abstract class StaticMemoryPoolBase<TValue> : IDespawnableMemoryPool<TValue>, IDisposable
         where TValue : class, new()
     {
@@ -186,6 +187,7 @@ namespace Zenject
 
     // Zero parameters
 
+    [NoReflectionBaking]
     public class StaticMemoryPool<TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TValue>
         where TValue : class, new()
     {
@@ -223,6 +225,7 @@ namespace Zenject
 
     // One parameter
 
+    [NoReflectionBaking]
     public class StaticMemoryPool<TParam1, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TValue>
         where TValue : class, new()
     {
@@ -262,6 +265,7 @@ namespace Zenject
 
     // Two parameter
 
+    [NoReflectionBaking]
     public class StaticMemoryPool<TParam1, TParam2, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TValue>
         where TValue : class, new()
     {
@@ -301,6 +305,7 @@ namespace Zenject
 
     // Three parameters
 
+    [NoReflectionBaking]
     public class StaticMemoryPool<TParam1, TParam2, TParam3, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TValue>
         where TValue : class, new()
     {
@@ -340,6 +345,7 @@ namespace Zenject
 
     // Four parameters
 
+    [NoReflectionBaking]
     public class StaticMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue>
         where TValue : class, new()
     {
@@ -389,6 +395,7 @@ namespace Zenject
 
     // Five parameters
 
+    [NoReflectionBaking]
     public class StaticMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue>
         where TValue : class, new()
     {
@@ -438,6 +445,7 @@ namespace Zenject
 
     // Six parameters
 
+    [NoReflectionBaking]
     public class StaticMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue>
         where TValue : class, new()
     {
@@ -487,6 +495,7 @@ namespace Zenject
 
     // Seven parameters
 
+    [NoReflectionBaking]
     public class StaticMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TValue> : StaticMemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TValue>
         where TValue : class, new()
     {

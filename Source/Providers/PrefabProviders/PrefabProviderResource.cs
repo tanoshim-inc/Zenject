@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class PrefabProviderResource : IPrefabProvider
     {
         readonly string _resourcePath;

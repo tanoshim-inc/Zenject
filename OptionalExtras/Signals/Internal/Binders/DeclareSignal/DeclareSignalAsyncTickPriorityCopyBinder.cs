@@ -3,6 +3,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class DeclareSignalAsyncTickPriorityCopyBinder : SignalTickPriorityCopyBinder
     {
         public DeclareSignalAsyncTickPriorityCopyBinder(SignalDeclarationBindInfo signalBindInfo)

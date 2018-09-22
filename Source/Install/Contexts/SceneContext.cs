@@ -122,13 +122,13 @@ namespace Zenject
             ProjectContext.Instance.EnsureIsInitialized();
 
 #if UNITY_EDITOR
-            using (ProfileBlock.Start("SceneContext.Install"))
+            using (ProfileBlock.Start("Zenject.SceneContext.Install"))
 #endif
             {
                 Install();
             }
 #if UNITY_EDITOR
-            using (ProfileBlock.Start("SceneContext.Resolve"))
+            using (ProfileBlock.Start("Zenject.SceneContext.Resolve"))
 #endif
             {
                 Resolve();

@@ -2,6 +2,7 @@ using ModestTree;
 
 namespace Zenject.Internal
 {
+    [NoReflectionBaking]
     public class LookupId
     {
         public IProvider Provider;

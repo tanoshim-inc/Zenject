@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class ConcreteBinderGeneric<TContract> : FromBinderGeneric<TContract>
     {
         public ConcreteBinderGeneric(

@@ -11,21 +11,13 @@ namespace Zenject.ReflectionBaking
     public class ZenjectReflectionBakingSettings : ScriptableObject
     {
         [SerializeField]
-        ExecutionModes _executionMode;
-
-        [SerializeField]
-        bool _allAssemblies;
+        bool _isEnabled;
 
         [SerializeField]
         List<string> _weavedAssemblies;
 
         [SerializeField]
         List<string> _namespacePatterns;
-
-        public bool AllAssemblies
-        {
-            get { return _allAssemblies; }
-        }
 
         public List<string> NamespacePatterns
         {
@@ -37,33 +29,9 @@ namespace Zenject.ReflectionBaking
             get { return _weavedAssemblies; }
         }
 
-        public ExecutionModes ExecutionMode
+        public bool IsEnabled
         {
-            get { return _executionMode; }
-        }
-
-        [UsedImplicitly]
-        void OnEnable()
-        {
-            AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
-        }
-
-        void OnBeforeAssemblyReload()
-        {
-#if UNITY_2018
-            if (_executionMode == ExecutionModes.InEditorAndBuilds || _executionMode == ExecutionModes.InEditorOnly)
-            {
-                UnityReflectionBakingRunner.Run(this);
-            }
-#endif
-        }
-
-        public enum ExecutionModes
-        {
-            Disabled,
-            InEditorAndBuilds,
-            InEditorOnly,
-            BuildsOnly,
+            get { return _isEnabled; }
         }
     }
 }

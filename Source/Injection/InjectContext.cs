@@ -7,6 +7,7 @@ using Zenject.Internal;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class InjectContext : IDisposable
     {
         BindingId _bindingId;

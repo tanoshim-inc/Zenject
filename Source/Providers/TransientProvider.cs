@@ -6,7 +6,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class TransientProvider : IProvider
     {
         readonly DiContainer _container;

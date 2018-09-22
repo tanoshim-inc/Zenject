@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class ConventionBindInfo
     {
         readonly List<Func<Type, bool>> _typeFilters = new List<Func<Type, bool>>();

@@ -1,3 +1,5 @@
+//#define ZEN_DO_NOT_USE_COMPILED_EXPRESSIONS
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -99,7 +101,7 @@ namespace Zenject.Internal
         static ZenFactoryMethod TryCreateFactoryMethodCompiledLambdaExpression(
             Type type, ConstructorInfo constructor)
         {
-#if NET_4_6 && !ENABLE_IL2CPP
+#if NET_4_6 && !ENABLE_IL2CPP && !ZEN_DO_NOT_USE_COMPILED_EXPRESSIONS
 
             if (type.ContainsGenericParameters)
             {
@@ -137,7 +139,7 @@ namespace Zenject.Internal
 
         static ZenInjectMethod TryCreateActionForMethod(MethodInfo methodInfo)
         {
-#if NET_4_6 && !ENABLE_IL2CPP
+#if NET_4_6 && !ENABLE_IL2CPP && !ZEN_DO_NOT_USE_COMPILED_EXPRESSIONS
 
             if (methodInfo.DeclaringType.ContainsGenericParameters)
             {
@@ -238,7 +240,7 @@ namespace Zenject.Internal
 
         static ZenMemberSetterMethod TryGetSetterAsCompiledExpression(Type parentType, MemberInfo memInfo)
         {
-#if NET_4_6 && !ENABLE_IL2CPP
+#if NET_4_6 && !ENABLE_IL2CPP && !ZEN_DO_NOT_USE_COMPILED_EXPRESSIONS
 
             if (parentType.ContainsGenericParameters)
             {

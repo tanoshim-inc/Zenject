@@ -33,7 +33,7 @@ namespace Zenject
         MoveDirectOnly,
     }
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class BindInfo : IDisposable
     {
         public bool MarkAsCreationBinding;

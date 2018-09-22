@@ -5,7 +5,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerCreatorByNewPrefab : ISubContainerCreator
     {
         readonly GameObjectCreationParameters _gameObjectBindInfo;

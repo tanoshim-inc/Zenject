@@ -6,7 +6,7 @@ using ModestTree.Util;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class MethodMultipleProviderUntyped : IProvider
     {
         readonly DiContainer _container;

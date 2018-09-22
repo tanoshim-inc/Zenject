@@ -6,6 +6,7 @@ namespace Zenject
 {
     // Zero parameters
 
+    [NoReflectionBaking]
     public abstract class SubContainerCreatorByMethodBase : ISubContainerCreator
     {
         readonly DiContainer _container;
@@ -29,7 +30,7 @@ namespace Zenject
         }
     }
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerCreatorByMethod : SubContainerCreatorByMethodBase
     {
         readonly Action<DiContainer> _installMethod;
@@ -59,7 +60,7 @@ namespace Zenject
 
     // One parameters
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerCreatorByMethod<TParam1> : SubContainerCreatorByMethodBase
     {
         readonly Action<DiContainer, TParam1> _installMethod;
@@ -90,7 +91,7 @@ namespace Zenject
 
     // Two parameters
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerCreatorByMethod<TParam1, TParam2> : SubContainerCreatorByMethodBase
     {
         readonly Action<DiContainer, TParam1, TParam2> _installMethod;
@@ -125,7 +126,7 @@ namespace Zenject
 
     // Three parameters
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3> : SubContainerCreatorByMethodBase
     {
         readonly Action<DiContainer, TParam1, TParam2, TParam3> _installMethod;
@@ -162,7 +163,7 @@ namespace Zenject
 
     // Four parameters
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4> : SubContainerCreatorByMethodBase
     {
         readonly
@@ -208,7 +209,7 @@ namespace Zenject
 
     // Five parameters
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5> : SubContainerCreatorByMethodBase
     {
         readonly
@@ -256,7 +257,7 @@ namespace Zenject
 
     // Six parameters
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> : SubContainerCreatorByMethodBase
     {
         readonly
@@ -306,7 +307,7 @@ namespace Zenject
 
     // 10 parameters
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> : SubContainerCreatorByMethodBase
     {
         readonly

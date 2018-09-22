@@ -8,7 +8,7 @@ using Zenject.Internal;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerCreatorByNewPrefabWithParams : ISubContainerCreator
     {
         readonly DiContainer _container;

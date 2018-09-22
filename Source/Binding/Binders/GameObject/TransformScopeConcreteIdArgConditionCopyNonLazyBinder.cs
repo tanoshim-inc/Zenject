@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class TransformScopeConcreteIdArgConditionCopyNonLazyBinder : ScopeConcreteIdArgConditionCopyNonLazyBinder
     {
         public TransformScopeConcreteIdArgConditionCopyNonLazyBinder(

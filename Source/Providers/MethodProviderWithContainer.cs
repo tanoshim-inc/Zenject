@@ -6,7 +6,7 @@ namespace Zenject
 {
     // Zero params
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class MethodProviderWithContainer<TValue> : IProvider
     {
         readonly Func<DiContainer, TValue> _method;
@@ -54,7 +54,7 @@ namespace Zenject
 
     // One params
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class MethodProviderWithContainer<TParam1, TValue> : IProvider
     {
         readonly Func<DiContainer, TParam1, TValue> _method;
@@ -106,7 +106,7 @@ namespace Zenject
 
     // Two params
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class MethodProviderWithContainer<TParam1, TParam2, TValue> : IProvider
     {
         readonly Func<DiContainer, TParam1, TParam2, TValue> _method;
@@ -160,7 +160,7 @@ namespace Zenject
 
     // Three params
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TValue> : IProvider
     {
         readonly Func<DiContainer, TParam1, TParam2, TParam3, TValue> _method;
@@ -216,7 +216,7 @@ namespace Zenject
 
     // Four params
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TValue> : IProvider
     {
         readonly
@@ -282,7 +282,7 @@ namespace Zenject
 
     // Five params
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> : IProvider
     {
         readonly
@@ -350,7 +350,7 @@ namespace Zenject
 
     // Six params
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue> : IProvider
     {
         readonly
@@ -420,7 +420,7 @@ namespace Zenject
 
     // Ten params
 
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TValue> : IProvider
     {
         readonly

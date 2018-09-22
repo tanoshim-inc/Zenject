@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using ModestTree;
 using Mono.Cecil;
 using System.Linq;
@@ -16,9 +17,10 @@ using UnityEngine;
 
 namespace Zenject.ReflectionBaking
 {
-    public class ReflectionBakingCodeWeaver
+    public class ReflectionBakingModuleEditor
     {
         ModuleDefinition _module;
+        Assembly _assembly;
 
         MethodReference _zenjectTypeInfoConstructor;
         MethodReference _injectableInfoConstructor;
@@ -30,74 +32,61 @@ namespace Zenject.ReflectionBaking
         MethodReference _funcConstructor;
         MethodReference _funcPostInject;
         MethodReference _funcMemberSetter;
+        MethodReference _preserveConstructor;
 
         TypeReference _injectMethodInfoType;
         TypeReference _injectMemberInfoType;
         TypeReference _injectableInfoType;
         TypeReference _objectArrayType;
-        TypeReference _zenjectTypeInfoRef;
+        TypeReference _zenjectTypeInfoType;
 
-        public const string FactoryMethodName = "__zenCreate";
+        MethodDefinition _entryPointMethod;
 
-        public ReflectionBakingCodeWeaver(ModuleDefinition module)
+        public ReflectionBakingModuleEditor(
+            ModuleDefinition module, Assembly assembly)
         {
             _module = module;
+            _assembly = assembly;
 
-            _zenjectTypeInfoRef = module.Import(typeof(InjectTypeInfo));
-            _zenjectTypeInfoConstructor = module.Import(
-                _zenjectTypeInfoRef.Resolve().GetMethod(".ctor"));
-
-            var injectableInfoReference = module.Import(typeof(InjectableInfo));
-            TypeDefinition injectableInfoDef = injectableInfoReference.Resolve();
-            _injectableInfoConstructor = module.Import(injectableInfoDef.GetMethod(".ctor"));
-
-            var typeAnalyzerReference = module.Import(typeof(Zenject.TypeAnalyzer));
-            TypeDefinition typeAnalyzerInfo = typeAnalyzerReference.Resolve();
-
-            _getTypeInfoMethod = module.Import(typeAnalyzerInfo.GetMethod("TryGetInfo", 1));
-
-            var typeTypeReference = module.Import(typeof(Type));
-            TypeDefinition typeTypeDef = typeTypeReference.Resolve();
-
-            _getTypeFromHandleMethod = module.Import(typeTypeDef.GetMethod("GetTypeFromHandle", 1));
-
-            _injectMethodInfoType = module.Import(typeof(InjectTypeInfo.InjectMethodInfo));
-            _injectMethodInfoConstructor = module.Import(
-                _injectMethodInfoType.Resolve().GetMethod(".ctor"));
-
-            _injectMemberInfoType = module.Import(typeof(InjectTypeInfo.InjectMemberInfo));
-            _injectMemberInfoConstructor = module.Import(
-                _injectMemberInfoType.Resolve().GetMethod(".ctor"));
-
-            var constructorInfoType = module.Import(typeof(InjectTypeInfo.InjectConstructorInfo));
-            _constructorInfoConstructor = module.Import(
-                constructorInfoType.Resolve().GetMethod(".ctor"));
-
-            _injectableInfoType = module.Import(typeof(InjectableInfo));
-
-            _objectArrayType = module.Import(typeof(object[]));
-
-            var factoryMethodType = module.Import(typeof(ZenFactoryMethod));
-
-            _funcConstructor = module.Import(
-                factoryMethodType.Resolve().GetMethod(".ctor", 2));
-
-            var postInjectMethodType = module.Import(typeof(ZenInjectMethod));
-
-            _funcPostInject = module.Import(
-                postInjectMethodType.Resolve().GetMethod(".ctor", 2));
-
-            var setterMethodType = module.Import(typeof(ZenMemberSetterMethod));
-
-            _funcMemberSetter = module.Import(
-                setterMethodType.Resolve().GetMethod(".ctor", 2));
+            SaveImports();
         }
 
-        public bool EditType(TypeDefinition typeDef, Type actualType)
+        void SaveImports()
+        {
+            _zenjectTypeInfoType = _module.ImportType<InjectTypeInfo>();
+            _zenjectTypeInfoConstructor = _module.ImportMethod<InjectTypeInfo>(".ctor");
+
+            _injectableInfoConstructor = _module.ImportMethod<InjectableInfo>(".ctor");
+
+            _getTypeInfoMethod = _module.ImportMethod(typeof(Zenject.TypeAnalyzer), "TryGetInfo", 1);
+
+            _getTypeFromHandleMethod = _module.ImportMethod<Type>("GetTypeFromHandle", 1);
+
+            _injectMethodInfoType = _module.ImportType<InjectTypeInfo.InjectMethodInfo>();
+            _injectMethodInfoConstructor = _module.ImportMethod<InjectTypeInfo.InjectMethodInfo>(".ctor");
+
+            _injectMemberInfoType = _module.ImportType<InjectTypeInfo.InjectMemberInfo>();
+            _injectMemberInfoConstructor = _module.ImportMethod<InjectTypeInfo.InjectMemberInfo>(".ctor");
+
+            _preserveConstructor = _module.ImportMethod<UnityEngine.Scripting.PreserveAttribute>(".ctor");
+            _constructorInfoConstructor = _module.ImportMethod<InjectTypeInfo.InjectConstructorInfo>(".ctor");
+
+            _injectableInfoType = _module.ImportType<InjectableInfo>();
+
+            _objectArrayType = _module.Import(typeof(object[]));
+
+            _funcConstructor = _module.ImportMethod<ZenFactoryMethod>(".ctor", 2);
+
+            _funcPostInject = _module.ImportMethod<ZenInjectMethod>(".ctor", 2);
+
+            _funcMemberSetter = _module.ImportMethod<ZenMemberSetterMethod>(".ctor", 2);
+        }
+
+        public bool TryEditType(TypeDefinition typeDef, Type actualType)
         {
             if (actualType.IsEnum || actualType.IsValueType || actualType.IsInterface
-                    || actualType.HasAttribute<NoReflectionCodeWeavingAttribute>()
-                    || IsStaticClass(actualType))
+                || actualType.HasAttribute<NoReflectionBakingAttribute>()
+                || IsStaticClass(actualType) || actualType.DerivesFromOrEqual<Delegate>() || actualType.DerivesFromOrEqual<Attribute>())
             {
                 return false;
             }
@@ -159,7 +148,7 @@ namespace Zenject.ReflectionBaking
             }
             else if (type.IsValueType)
             {
-                processor.Emit(OpCodes.Unbox_Any, _module.Import(type));
+                processor.Emit(OpCodes.Unbox_Any, _module.ImportType(type));
             }
             else
             {
@@ -202,7 +191,7 @@ namespace Zenject.ReflectionBaking
             }
 
             var factoryMethod = new MethodDefinition(
-                FactoryMethodName,
+                TypeAnalyzer.ReflectionBakingFactoryMethodName,
                 Mono.Cecil.MethodAttributes.Private | Mono.Cecil.MethodAttributes.HideBySig |
                 Mono.Cecil.MethodAttributes.Static,
                 _module.TypeSystem.Object);
@@ -316,7 +305,7 @@ namespace Zenject.ReflectionBaking
             {
                 postInjectMethods.Add(
                     AddPostInjectMethod(
-                        "__zenInjectMethod" + i.ToString(), typeInfo.InjectMethods[i], typeDef, genericTypeDef));
+                        TypeAnalyzer.ReflectionBakingInjectMethodPrefix + i.ToString(), typeInfo.InjectMethods[i], typeDef, genericTypeDef));
             }
 
             return postInjectMethods;
@@ -388,7 +377,7 @@ namespace Zenject.ReflectionBaking
             {
                 methodDefs.Add(
                     AddSetterMethod(
-                        "__zenPropertySetter" + i.ToString(),
+                        TypeAnalyzer.ReflectionBakingPropertySetterPrefix + i.ToString(),
                         typeInfo.InjectProperties[i].PropertyInfo, typeDef, genericTypeDef));
             }
 
@@ -404,7 +393,7 @@ namespace Zenject.ReflectionBaking
             {
                 methodDefs.Add(
                     AddSetterMethod(
-                        "__zenFieldSetter" + i.ToString(),
+                        TypeAnalyzer.ReflectionBakingFieldSetterPrefix + i.ToString(),
                         typeInfo.InjectFields[i].FieldInfo, typeDef, genericTypeDef));
             }
 
@@ -420,9 +409,12 @@ namespace Zenject.ReflectionBaking
                 TypeAnalyzer.ReflectionBakingGetInjectInfoMethodName,
                 Mono.Cecil.MethodAttributes.Private | Mono.Cecil.MethodAttributes.HideBySig |
                 Mono.Cecil.MethodAttributes.Static,
-                _zenjectTypeInfoRef);
+                _zenjectTypeInfoType);
 
             typeDef.Methods.Add(getInfoMethodDef);
+
+            getInfoMethodDef.CustomAttributes.Add(
+                new CustomAttribute(_preserveConstructor));
 
             var returnValueVar = new VariableDefinition(_module.TypeSystem.Object);
 
@@ -443,7 +435,7 @@ namespace Zenject.ReflectionBaking
             else
             {
                 instructions.Add(Instruction.Create(OpCodes.Ldnull));
-                instructions.Add(Instruction.Create(OpCodes.Ldftn, ChangeDeclaringType(factoryMethod, genericTypeDef)));
+                instructions.Add(Instruction.Create(OpCodes.Ldftn, factoryMethod.ChangeDeclaringType(genericTypeDef)));
                 instructions.Add(Instruction.Create(OpCodes.Newobj, _funcConstructor));
             }
 
@@ -458,7 +450,7 @@ namespace Zenject.ReflectionBaking
                 instructions.Add(Instruction.Create(OpCodes.Ldc_I4, i));
 
                 EmitNewInjectableInfoInstructions(
-                    instructions, injectableInfo, typeDef, genericTypeDef);
+                    instructions, injectableInfo, typeDef);
 
                 instructions.Add(Instruction.Create(OpCodes.Stelem_Ref));
             }
@@ -517,29 +509,6 @@ namespace Zenject.ReflectionBaking
                 instructions.Add(Instruction.Create(OpCodes.Stelem_Ref));
             }
 
-            var baseType = typeInfo.Type.BaseType;
-
-            if (baseType == null || baseType == typeof(object)
-                || !TypeAnalyzer.ShouldAnalyzeNamespace(baseType.Namespace))
-            {
-                instructions.Add(Instruction.Create(OpCodes.Ldnull));
-            }
-            else
-            {
-                var specificBaseType = TryGetSpecificBaseTypeRef(typeDef, genericTypeDef);
-
-                if (specificBaseType == null)
-                {
-                    instructions.Add(Instruction.Create(OpCodes.Ldnull));
-                }
-                else
-                {
-                    instructions.Add(Instruction.Create(OpCodes.Ldtoken, specificBaseType));
-                    instructions.Add(Instruction.Create(OpCodes.Call, _getTypeFromHandleMethod));
-                    instructions.Add(Instruction.Create(OpCodes.Call, _getTypeInfoMethod));
-                }
-            }
-
             instructions.Add(Instruction.Create(OpCodes.Newobj, _zenjectTypeInfoConstructor));
 
             instructions.Add(Instruction.Create(OpCodes.Stloc_0));
@@ -568,58 +537,17 @@ namespace Zenject.ReflectionBaking
             }
         }
 
-        IEnumerable<TypeDefPair> IterateBaseTypesAndSelf(TypeReference specificTypeRef)
-        {
-            var typeDef = specificTypeRef.Resolve();
-
-            yield return new TypeDefPair(typeDef, specificTypeRef);
-
-            var specificBaseTypeRef = TryGetSpecificBaseTypeRef(typeDef, specificTypeRef);
-
-            if (specificBaseTypeRef != null)
-            {
-                foreach (var typePair in IterateBaseTypesAndSelf(specificBaseTypeRef))
-                {
-                    yield return typePair;
-                }
-            }
-        }
-
-        TypeReference TryGetSpecificBaseTypeRef(TypeDefinition typeDef, TypeReference specificTypeRef)
-        {
-            Assert.IsNotNull(typeDef.BaseType);
-            Assert.That(typeDef.BaseType.FullName != "System.Object");
-
-            var specificBaseTypeRef = typeDef.BaseType;
-
-            if (specificBaseTypeRef.ContainsGenericParameter)
-            {
-                var genericArgMap = new Dictionary<string, TypeReference>();
-                var specificTypeRefGenericInstance = (GenericInstanceType)specificTypeRef;
-
-                for (int i = 0; i < typeDef.GenericParameters.Count; i++)
-                {
-                    genericArgMap[typeDef.GenericParameters[i].Name] = specificTypeRefGenericInstance.GenericArguments[i];
-                }
-
-                specificBaseTypeRef = FillInGenericParameters(specificBaseTypeRef, genericArgMap);
-            }
-
-            return specificBaseTypeRef;
-        }
-
         MethodReference FindLocalPropertySetMethod(
             TypeReference specificTypeRef, string memberName)
         {
-            foreach (var typePair in IterateBaseTypesAndSelf(specificTypeRef))
+            foreach (var typeRef in specificTypeRef.GetSpecificBaseTypesAndSelf())
             {
-                var candidatePropertyDef = typePair.TypeDefinition.Properties
+                var candidatePropertyDef = typeRef.Resolve().Properties
                     .Where(x => x.Name == memberName).SingleOrDefault();
 
                 if (candidatePropertyDef != null)
                 {
-                    return ChangeDeclaringType(
-                        candidatePropertyDef.SetMethod, typePair.TypeReference);
+                    return candidatePropertyDef.SetMethod.ChangeDeclaringType(typeRef);
                 }
             }
 
@@ -629,15 +557,14 @@ namespace Zenject.ReflectionBaking
         FieldReference FindLocalField(
             TypeReference specificTypeRef, string fieldName)
         {
-            foreach (var typePair in IterateBaseTypesAndSelf(specificTypeRef))
+            foreach (var typeRef in specificTypeRef.GetSpecificBaseTypesAndSelf())
             {
-                var candidateFieldDef = typePair.TypeDefinition.Fields
+                var candidateFieldDef = typeRef.Resolve().Fields
                     .Where(x => x.Name == fieldName).SingleOrDefault();
 
                 if (candidateFieldDef != null)
                 {
-                    return ChangeDeclaringType(
-                        candidateFieldDef, typePair.TypeReference);
+                    return candidateFieldDef.ChangeDeclaringType(typeRef);
                 }
             }
 
@@ -647,16 +574,15 @@ namespace Zenject.ReflectionBaking
         bool TryFindLocalMethod(
             TypeReference specificTypeRef, string methodName, out TypeReference declaringTypeRef, out MethodReference methodRef)
         {
-            foreach (var typePair in IterateBaseTypesAndSelf(specificTypeRef))
+            foreach (var typeRef in specificTypeRef.GetSpecificBaseTypesAndSelf())
             {
-                var candidateMethodDef = typePair.TypeDefinition.Methods
+                var candidateMethodDef = typeRef.Resolve().Methods
                     .Where(x => x.Name == methodName).SingleOrDefault();
 
                 if (candidateMethodDef != null)
                 {
-                    declaringTypeRef = typePair.TypeReference;
-                    methodRef = ChangeDeclaringType(
-                        candidateMethodDef, typePair.TypeReference);
+                    declaringTypeRef = typeRef;
+                    methodRef = candidateMethodDef.ChangeDeclaringType(typeRef);
                     return true;
                 }
             }
@@ -664,56 +590,6 @@ namespace Zenject.ReflectionBaking
             declaringTypeRef = null;
             methodRef = null;
             return false;
-        }
-
-        TypeReference FillInGenericParameters(
-            TypeReference type, Dictionary<string, TypeReference> genericArgMap)
-        {
-            var genericType = type as GenericInstanceType;
-            Assert.IsNotNull(genericType);
-
-            var genericTypeClone = new GenericInstanceType(_module.Import(type.Resolve()));
-
-            for (int i = 0; i < genericType.GenericArguments.Count; i++)
-            {
-                var arg = genericType.GenericArguments[i];
-
-                if (arg.IsGenericParameter)
-                {
-                    Assert.That(genericArgMap.ContainsKey(arg.Name), "Could not find key '{0}' for type '{1}'", arg.Name, type.FullName);
-
-                    genericTypeClone.GenericArguments.Add(genericArgMap[arg.Name]);
-                }
-                else
-                {
-                    genericTypeClone.GenericArguments.Add(arg);
-                }
-            }
-
-            return genericTypeClone;
-        }
-
-        MethodReference ChangeDeclaringType(MethodDefinition methodDef, TypeReference typeRef)
-        {
-            var newMethodRef = new MethodReference(
-                methodDef.Name, methodDef.ReturnType, typeRef);
-
-            newMethodRef.HasThis = methodDef.HasThis;
-
-            foreach (var arg in methodDef.Parameters)
-            {
-                var paramDef = new ParameterDefinition(arg.ParameterType);
-
-                newMethodRef.Parameters.Add(paramDef);
-            }
-
-            return newMethodRef;
-        }
-
-        FieldReference ChangeDeclaringType(FieldReference fieldDef, TypeReference typeRef)
-        {
-            return new FieldReference(
-                fieldDef.Name, fieldDef.FieldType, typeRef);
         }
 
         void AddObjectInstructions(
@@ -784,11 +660,11 @@ namespace Zenject.ReflectionBaking
             MethodDefinition methodDef)
         {
             instructions.Add(Instruction.Create(OpCodes.Ldnull));
-            instructions.Add(Instruction.Create(OpCodes.Ldftn, ChangeDeclaringType(methodDef, genericTypeDef)));
+            instructions.Add(Instruction.Create(OpCodes.Ldftn, methodDef.ChangeDeclaringType(genericTypeDef)));
             instructions.Add(Instruction.Create(OpCodes.Newobj, _funcMemberSetter));
 
             EmitNewInjectableInfoInstructions(
-                instructions, injectableInfo, typeDef, genericTypeDef);
+                instructions, injectableInfo, typeDef);
 
             instructions.Add(Instruction.Create(OpCodes.Newobj, _injectMemberInfoConstructor));
         }
@@ -800,7 +676,7 @@ namespace Zenject.ReflectionBaking
             MethodDefinition methodDef)
         {
             instructions.Add(Instruction.Create(OpCodes.Ldnull));
-            instructions.Add(Instruction.Create(OpCodes.Ldftn, ChangeDeclaringType(methodDef, genericTypeDef)));
+            instructions.Add(Instruction.Create(OpCodes.Ldftn, methodDef.ChangeDeclaringType(genericTypeDef)));
             instructions.Add(Instruction.Create(OpCodes.Newobj, _funcPostInject));
 
             instructions.Add(Instruction.Create(OpCodes.Ldc_I4, injectMethod.Parameters.Count));
@@ -814,7 +690,7 @@ namespace Zenject.ReflectionBaking
                 instructions.Add(Instruction.Create(OpCodes.Ldc_I4, i));
 
                 EmitNewInjectableInfoInstructions(
-                    instructions, injectableInfo, typeDef, genericTypeDef);
+                    instructions, injectableInfo, typeDef);
 
                 instructions.Add(Instruction.Create(OpCodes.Stelem_Ref));
             }
@@ -827,7 +703,7 @@ namespace Zenject.ReflectionBaking
         void EmitNewInjectableInfoInstructions(
             List<Instruction> instructions,
             InjectableInfo injectableInfo,
-            TypeDefinition typeDef, TypeReference genericTypeDef)
+            TypeDefinition typeDef)
         {
             if (injectableInfo.Optional)
             {
@@ -844,9 +720,6 @@ namespace Zenject.ReflectionBaking
 
             instructions.Add(Instruction.Create(OpCodes.Ldtoken, CreateGenericInstanceIfNecessary(injectableInfo.MemberType, typeDef.GenericParameters)));
 
-            instructions.Add(Instruction.Create(OpCodes.Call, _getTypeFromHandleMethod));
-
-            instructions.Add(Instruction.Create(OpCodes.Ldtoken, genericTypeDef));
             instructions.Add(Instruction.Create(OpCodes.Call, _getTypeFromHandleMethod));
 
             AddObjectInstructions(instructions, injectableInfo.DefaultValue);

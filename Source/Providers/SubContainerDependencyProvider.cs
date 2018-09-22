@@ -5,7 +5,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerDependencyProvider : IProvider
     {
         readonly ISubContainerCreator _subContainerCreator;

@@ -15,7 +15,7 @@ namespace Zenject.ReflectionBaking
             return assembly.GetType(reflectionName);
         }
 
-        static string GetReflectionName(this TypeReference type)
+        static string GetReflectionName(TypeReference type)
         {
             if (type.IsGenericInstance)
             {
@@ -29,26 +29,61 @@ namespace Zenject.ReflectionBaking
             return type.FullName;
         }
 
-        public static List<TypeDefinition> LoopupAllTypes(this ModuleDefinition module)
+        public static List<TypeDefinition> LookupAllTypes(this ModuleDefinition module)
         {
             var allTypes = new List<TypeDefinition>();
 
             foreach (var type in module.Types)
             {
-                LoopupAllTypesInternal(type, allTypes);
+                LookupAllTypesInternal(type, allTypes);
             }
 
             return allTypes;
         }
 
-        static void LoopupAllTypesInternal(TypeDefinition type, List<TypeDefinition> buffer)
+        static void LookupAllTypesInternal(TypeDefinition type, List<TypeDefinition> buffer)
         {
             buffer.Add(type);
 
             foreach (var nestedType in type.NestedTypes)
             {
-                LoopupAllTypesInternal(nestedType, buffer);
+                LookupAllTypesInternal(nestedType, buffer);
             }
+        }
+
+        public static TypeReference ImportType<T>(this ModuleDefinition module)
+        {
+            return module.ImportType(typeof(T));
+        }
+
+        public static TypeReference ImportType(this ModuleDefinition module, Type type)
+        {
+            return module.Import(type);
+        }
+
+        public static MethodReference ImportMethod<T>(this ModuleDefinition module, string methodName)
+        {
+            return module.ImportMethod(typeof(T), methodName);
+        }
+
+        public static MethodReference ImportMethod(
+            this ModuleDefinition module, Type type, string methodName)
+        {
+            return module.Import(
+                module.ImportType(type).Resolve().GetMethod(methodName));
+        }
+
+        public static MethodReference ImportMethod<T>(
+            this ModuleDefinition module, string methodName, int numArgs)
+        {
+            return module.ImportMethod(typeof(T), methodName, numArgs);
+        }
+
+        public static MethodReference ImportMethod(
+            this ModuleDefinition module, Type type, string methodName, int numArgs)
+        {
+            return module.Import(
+                module.ImportType(type).Resolve().GetMethod(methodName, numArgs));
         }
 
         public static MethodDefinition GetMethod(this TypeDefinition instance, string name)
@@ -139,7 +174,7 @@ namespace Zenject.ReflectionBaking
             return null;
         }
 
-        public static PropertyDefinition GetProperty(this TypeDefinition instance, string name)
+        public static PropertyDefinition GetPropertyDefinition(this TypeDefinition instance, string name)
         {
             for (int i = 0; i < instance.Properties.Count; i++)
             {
@@ -156,23 +191,55 @@ namespace Zenject.ReflectionBaking
 
         public static bool HasCustomAttribute<T>(this ICustomAttributeProvider instance)
         {
-            if (!instance.HasCustomAttributes) return false;
+            if (!instance.HasCustomAttributes)
+            {
+                return false;
+            }
 
             Collection<CustomAttribute> attributes = instance.CustomAttributes;
 
             for(int i = 0;  i < attributes.Count; i++)
             {
-                if(attributes[i].AttributeType.FullName.Equals(typeof(T).FullName, StringComparison.Ordinal))
+                if (attributes[i].AttributeType.FullName.Equals(typeof(T).FullName, StringComparison.Ordinal))
                 {
                     return true;
                 }
             }
+
             return false;
+        }
+
+        public static MethodReference ChangeDeclaringType(
+            this MethodReference methodDef, TypeReference typeRef)
+        {
+            var newMethodRef = new MethodReference(
+                methodDef.Name, methodDef.ReturnType, typeRef);
+
+            newMethodRef.HasThis = methodDef.HasThis;
+
+            foreach (var arg in methodDef.Parameters)
+            {
+                var paramDef = new ParameterDefinition(arg.ParameterType);
+
+                newMethodRef.Parameters.Add(paramDef);
+            }
+
+            return newMethodRef;
+        }
+
+        public static FieldReference ChangeDeclaringType(
+            this FieldReference fieldDef, TypeReference typeRef)
+        {
+            return new FieldReference(
+                fieldDef.Name, fieldDef.FieldType, typeRef);
         }
 
         public static CustomAttribute GetCustomAttribute<T>(this ICustomAttributeProvider instance)
         {
-            if (!instance.HasCustomAttributes) return null;
+            if (!instance.HasCustomAttributes)
+            {
+                return null;
+            }
 
             Collection<CustomAttribute> attributes = instance.CustomAttributes;
 
@@ -184,6 +251,130 @@ namespace Zenject.ReflectionBaking
                 }
             }
             return null;
+        }
+
+        public static IEnumerable<TypeReference> GetSpecificBaseTypesAndSelf(
+            this TypeReference specificTypeRef)
+        {
+            yield return specificTypeRef;
+
+            foreach (var ancestor in specificTypeRef.GetSpecificBaseTypesAndSelf())
+            {
+                yield return ancestor;
+            }
+        }
+
+        public static IEnumerable<TypeReference> GetSpecificBaseTypes(
+            this TypeReference specificTypeRef)
+        {
+            var specificBaseTypeRef = specificTypeRef.TryGetSpecificBaseType();
+
+            if (specificBaseTypeRef != null)
+            {
+                yield return specificBaseTypeRef;
+
+                foreach (var ancestor in GetSpecificBaseTypes(specificBaseTypeRef))
+                {
+                    yield return ancestor;
+                }
+            }
+        }
+
+        public static IEnumerable<TypeReference> AllNestParentsAndSelf(this TypeReference specificTypeRef)
+        {
+            yield return specificTypeRef;
+
+            foreach (var ancestor in specificTypeRef.AllNestParents())
+            {
+                yield return ancestor;
+            }
+        }
+
+        public static IEnumerable<TypeReference> AllNestParents(this TypeReference specificTypeRef)
+        {
+            if (specificTypeRef.DeclaringType != null)
+            {
+                yield return specificTypeRef.DeclaringType;
+
+                foreach (var ancestor in specificTypeRef.DeclaringType.AllNestParents())
+                {
+                    yield return ancestor;
+                }
+            }
+        }
+
+        public static TypeReference TryResolve(this TypeReference typeRef)
+        {
+            try
+            {
+                return typeRef.Resolve();
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        public static TypeReference TryGetSpecificBaseType(this TypeReference specificTypeRef)
+        {
+            var typeDef = specificTypeRef.Resolve();
+
+            if (typeDef.BaseType == null
+                || typeDef.BaseType.FullName == "System.Object")
+            {
+                return null;
+            }
+
+            var specificBaseTypeRef = typeDef.BaseType;
+
+            if (specificBaseTypeRef.ContainsGenericParameter)
+            {
+                var genericArgMap = new Dictionary<string, TypeReference>();
+
+                foreach (var ancestor in specificTypeRef.AllNestParentsAndSelf())
+                {
+                    var specificTypeRefGenericInstance = ancestor as GenericInstanceType;
+
+                    if (specificTypeRefGenericInstance != null)
+                    {
+                        for (int i = 0; i < typeDef.GenericParameters.Count; i++)
+                        {
+                            genericArgMap[typeDef.GenericParameters[i].Name] = specificTypeRefGenericInstance.GenericArguments[i];
+                        }
+                    }
+                }
+
+                specificBaseTypeRef = FillInGenericParameters(specificBaseTypeRef, genericArgMap);
+            }
+
+            return specificBaseTypeRef;
+        }
+
+        public static TypeReference FillInGenericParameters(
+            TypeReference type, Dictionary<string, TypeReference> genericArgMap)
+        {
+            var genericType = type as GenericInstanceType;
+            Assert.IsNotNull(genericType);
+
+            var genericTypeClone = new GenericInstanceType(type.Resolve());
+
+            for (int i = 0; i < genericType.GenericArguments.Count; i++)
+            {
+                var arg = genericType.GenericArguments[i];
+
+                if (arg.IsGenericParameter)
+                {
+                    Assert.That(genericArgMap.ContainsKey(arg.Name), "Could not find key '{0}' for type '{1}'", arg.Name, type.FullName);
+
+                    genericTypeClone.GenericArguments.Add(genericArgMap[arg.Name]);
+                }
+                else
+                {
+                    genericTypeClone.GenericArguments.Add(arg);
+                }
+            }
+
+            return genericTypeClone;
         }
     }
 }

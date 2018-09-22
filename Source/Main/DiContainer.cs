@@ -18,7 +18,7 @@ namespace Zenject
     // - Expose methods to configure object graph via BindX() methods
     // - Look up bound values via Resolve() method
     // - Instantiate new values via InstantiateX() methods
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class DiContainer : IInstantiator
     {
         readonly Dictionary<Type, IDecoratorProvider> _decorators = new Dictionary<Type, IDecoratorProvider>();
@@ -1272,7 +1272,8 @@ namespace Zenject
             }
         }
 
-        object InstantiateInternal(Type concreteType, bool autoInject, List<TypeValuePair> extraArgs, InjectContext context, object concreteIdentifier)
+        object InstantiateInternal(
+            Type concreteType, bool autoInject, List<TypeValuePair> extraArgs, InjectContext context, object concreteIdentifier)
         {
 #if !NOT_UNITY3D
             Assert.That(!concreteType.DerivesFrom<UnityEngine.Component>(),
@@ -1328,7 +1329,7 @@ namespace Zenject
                             extraArgs, injectInfo.MemberType, out value))
                         {
                             using (var subContext = injectInfo.SpawnInjectContext(
-                                this, context, null, injectInfo.ObjectType, concreteIdentifier))
+                                this, context, null, concreteType, concreteIdentifier))
                             {
                                 value = Resolve(subContext);
                             }

@@ -1,6 +1,6 @@
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class ConcreteIdBinderGeneric<TContract> : ConcreteBinderGeneric<TContract>
     {
         public ConcreteIdBinderGeneric(

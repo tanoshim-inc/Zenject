@@ -14,6 +14,8 @@ using Zenject.Internal;
 
 namespace Zenject
 {
+    public delegate InjectTypeInfo ZenTypeInfoGetter();
+
     public enum ReflectionBakingCoverageModes
     {
         FallbackToDirectReflection,
@@ -32,7 +34,13 @@ namespace Zenject
         static Dictionary<Type, bool> _allowDuringValidation = new Dictionary<Type, bool>();
 #endif
 
-        public const string ReflectionBakingGetInjectInfoMethodName = "__zenGetTypeInfo";
+        // Use double underscores for generated methods since this is also what the C# compiler does
+        // for things like anonymous methods
+        public const string ReflectionBakingGetInjectInfoMethodName = "__zenCreateInjectTypeInfo";
+        public const string ReflectionBakingFactoryMethodName = "__zenCreate";
+        public const string ReflectionBakingInjectMethodPrefix = "__zenInjectMethod";
+        public const string ReflectionBakingFieldSetterPrefix = "__zenFieldSetter";
+        public const string ReflectionBakingPropertySetterPrefix = "__zenPropertySetter";
 
         public static ReflectionBakingCoverageModes ReflectionBakingCoverageMode
         {
@@ -105,33 +113,47 @@ namespace Zenject
 
         public static InjectTypeInfo TryGetInfo(Type type)
         {
+            InjectTypeInfo info;
+
+#if ZEN_MULTITHREADING
+            lock (_typeInfo)
+#endif
+            {
+                if (_typeInfo.TryGetValue(type, out info))
+                {
+                    return info;
+                }
+            }
+
+#if ZEN_INTERNAL_PROFILING
+            using (ProfileTimers.CreateTimedBlock(InternalTimers.TypeAnalysisTotal))
+#endif
 #if UNITY_EDITOR
             using (ProfileBlock.Start("Zenject Reflection"))
 #endif
             {
-                InjectTypeInfo info;
-
-#if ZEN_MULTITHREADING
-                lock (_typeInfo)
-#endif
-                {
-                    if (_typeInfo.TryGetValue(type, out info))
-                    {
-                        return info;
-                    }
-                }
-
                 info = GetInfoInternal(type);
+            }
+
+            if (info != null)
+            {
+                Assert.IsEqual(info.Type, type);
+                Assert.IsNull(info.BaseTypeInfo);
+
+                if (type.BaseType != null && ShouldAnalyzeType(type.BaseType))
+                {
+                    info.BaseTypeInfo = TryGetInfo(type.BaseType);
+                }
+            }
 
 #if ZEN_MULTITHREADING
-                lock (_typeInfo)
+            lock (_typeInfo)
 #endif
-                {
-                    _typeInfo.Add(type, info);
-                }
-
-                return info;
+            {
+                _typeInfo.Add(type, info);
             }
+
+            return info;
         }
 
         static InjectTypeInfo GetInfoInternal(Type type)
@@ -141,17 +163,28 @@ namespace Zenject
                 return null;
             }
 
-            var getInfoMethod = type.GetMethod(
-                ReflectionBakingGetInjectInfoMethodName, BindingFlags.Static | BindingFlags.NonPublic);
+            ZenTypeInfoGetter infoGetter = null;
 
-            // Try to get the reflection info from the reflection baked method first
-            // before resorting to more detailed reflection
-            if (getInfoMethod != null)
+#if ZEN_INTERNAL_PROFILING
+            using (ProfileTimers.CreateTimedBlock(InternalTimers.TypeAnalysisLookingUpBakedGetter))
+#endif
             {
-                var infoGetter = ((Func<InjectTypeInfo>)Delegate.CreateDelegate(
-                    typeof(Func<InjectTypeInfo>), getInfoMethod));
+                var getInfoMethod = type.GetMethod(
+                    ReflectionBakingGetInjectInfoMethodName,
+                    BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
 
-                if (infoGetter != null)
+                if (getInfoMethod != null)
+                {
+                    infoGetter = ((ZenTypeInfoGetter)Delegate.CreateDelegate(
+                        typeof(ZenTypeInfoGetter), getInfoMethod));
+                }
+            }
+
+            if (infoGetter != null)
+            {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock(InternalTimers.TypeAnalysisCallingBakedGetter))
+#endif
                 {
                     return infoGetter();
                 }
@@ -170,13 +203,18 @@ namespace Zenject
                 Log.Warn("No reflection baking information found for type '{0}' - using more costly direct reflection instead", type);
             }
 
-            return CreateTypeInfoFromReflection(type);
+#if ZEN_INTERNAL_PROFILING
+            using (ProfileTimers.CreateTimedBlock(InternalTimers.TypeAnalysisActualReflection))
+#endif
+            {
+                return CreateTypeInfoFromReflection(type);
+            }
         }
 
         public static bool ShouldAnalyzeType(Type type)
         {
             if (type == null || type.IsEnum || type.IsArray || type.IsInterface()
-                || type.ContainsGenericParameters || IsStaticType(type) 
+                || type.ContainsGenericParameters || IsStaticType(type)
                 || type == typeof(object))
             {
                 return false;
@@ -203,13 +241,6 @@ namespace Zenject
         {
             var reflectionInfo = ReflectionTypeAnalyzer.GetReflectionInfo(type);
 
-            InjectTypeInfo baseTypeInfo = null;
-
-            if (reflectionInfo.BaseType != null && ShouldAnalyzeType(reflectionInfo.BaseType))
-            {
-                baseTypeInfo = TypeAnalyzer.TryGetInfo(reflectionInfo.BaseType);
-            }
-
             var injectConstructor = ReflectionInfoTypeInfoConverter.ConvertConstructor(
                 reflectionInfo.InjectConstructor, type);
 
@@ -222,7 +253,7 @@ namespace Zenject
                         x => ReflectionInfoTypeInfoConverter.ConvertProperty(type, x))).ToArray();
 
             return new InjectTypeInfo(
-                type, injectConstructor, injectMethods, memberInfos, baseTypeInfo);
+                type, injectConstructor, injectMethods, memberInfos);
         }
     }
 }

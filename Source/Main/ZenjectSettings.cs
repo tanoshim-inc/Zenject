@@ -32,6 +32,7 @@ namespace Zenject
 
     [Serializable]
     [ZenjectAllowDuringValidation]
+    [NoReflectionBaking]
     public class ZenjectSettings
     {
         public static ZenjectSettings Default = new ZenjectSettings();

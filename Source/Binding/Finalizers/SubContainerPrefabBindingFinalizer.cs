@@ -6,7 +6,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SubContainerPrefabBindingFinalizer : ProviderBindingFinalizer
     {
         readonly object _subIdentifier;

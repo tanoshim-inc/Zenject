@@ -4,7 +4,7 @@ using ModestTree;
 
 namespace Zenject.Internal
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class SingletonMarkRegistry
     {
         readonly HashSet<Type> _boundSingletons = new HashSet<Type>();

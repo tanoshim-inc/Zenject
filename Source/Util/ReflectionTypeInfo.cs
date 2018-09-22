@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Zenject.Internal
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class ReflectionTypeInfo
     {
         public readonly Type Type;
@@ -31,7 +31,7 @@ namespace Zenject.Internal
             InjectProperties = injectProperties;
         }
 
-        [NoReflectionCodeWeaving]
+        [NoReflectionBaking]
         public class InjectFieldInfo
         {
             public readonly FieldInfo FieldInfo;
@@ -46,7 +46,7 @@ namespace Zenject.Internal
             }
         }
 
-        [NoReflectionCodeWeaving]
+        [NoReflectionBaking]
         public class InjectParameterInfo
         {
             public readonly ParameterInfo ParameterInfo;
@@ -61,7 +61,7 @@ namespace Zenject.Internal
             }
         }
 
-        [NoReflectionCodeWeaving]
+        [NoReflectionBaking]
         public class InjectPropertyInfo
         {
             public readonly PropertyInfo PropertyInfo;
@@ -76,7 +76,7 @@ namespace Zenject.Internal
             }
         }
 
-        [NoReflectionCodeWeaving]
+        [NoReflectionBaking]
         public class InjectMethodInfo
         {
             public readonly MethodInfo MethodInfo;
@@ -91,7 +91,7 @@ namespace Zenject.Internal
             }
         }
 
-        [NoReflectionCodeWeaving]
+        [NoReflectionBaking]
         public class InjectConstructorInfo
         {
             public readonly ConstructorInfo ConstructorInfo;

@@ -4,7 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    [NoReflectionCodeWeaving]
+    [NoReflectionBaking]
     public class ArgConditionCopyNonLazyBinder : InstantiateCallbackConditionCopyNonLazyBinder
     {
         public ArgConditionCopyNonLazyBinder(BindInfo bindInfo)
