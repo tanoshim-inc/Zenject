@@ -14,6 +14,7 @@ namespace Zenject.ReflectionBaking
         SerializedProperty _weavedAssemblies;
         SerializedProperty _namespacePatterns;
         SerializedProperty _isEnabled;
+        SerializedProperty _allGeneratedAssemblies;
 
         // Lists
         ReorderableList _weavedAssembliesList;
@@ -42,6 +43,7 @@ namespace Zenject.ReflectionBaking
             _weavedAssemblies = serializedObject.FindProperty("_weavedAssemblies");
             _namespacePatterns = serializedObject.FindProperty("_namespacePatterns");
             _isEnabled = serializedObject.FindProperty("_isEnabled");
+            _allGeneratedAssemblies = serializedObject.FindProperty("_allGeneratedAssemblies");
 
             _namespacePatternsList = new ReorderableList(serializedObject, _namespacePatterns);
             _namespacePatternsList.drawHeaderCallback += OnNamespacePatternsDrawHeader;
@@ -83,7 +85,25 @@ namespace Zenject.ReflectionBaking
 
                 EditorGUILayout.PropertyField(_isEnabled, true);
 
-                _weavedAssembliesList.DoLayoutList();
+                EditorGUILayout.PropertyField(_allGeneratedAssemblies, true);
+
+                if (_allGeneratedAssemblies.boolValue)
+                {
+                    GUI.enabled = false;
+
+                    try
+                    {
+                        _weavedAssembliesList.DoLayoutList();
+                    }
+                    finally
+                    {
+                        GUI.enabled = true;
+                    }
+                }
+                else
+                {
+                    _weavedAssembliesList.DoLayoutList();
+                }
 
                 _namespacePatternsList.DoLayoutList();
             }

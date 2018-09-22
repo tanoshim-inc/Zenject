@@ -20,14 +20,12 @@ namespace Zenject.ReflectionBaking
     public class ReflectionBakingModuleEditor
     {
         ModuleDefinition _module;
-        Assembly _assembly;
 
         MethodReference _zenjectTypeInfoConstructor;
         MethodReference _injectableInfoConstructor;
         MethodReference _injectMethodInfoConstructor;
         MethodReference _injectMemberInfoConstructor;
         MethodReference _constructorInfoConstructor;
-        MethodReference _getTypeInfoMethod;
         MethodReference _getTypeFromHandleMethod;
         MethodReference _funcConstructor;
         MethodReference _funcPostInject;
@@ -40,13 +38,9 @@ namespace Zenject.ReflectionBaking
         TypeReference _objectArrayType;
         TypeReference _zenjectTypeInfoType;
 
-        MethodDefinition _entryPointMethod;
-
-        public ReflectionBakingModuleEditor(
-            ModuleDefinition module, Assembly assembly)
+        public ReflectionBakingModuleEditor(ModuleDefinition module)
         {
             _module = module;
-            _assembly = assembly;
 
             SaveImports();
         }
@@ -57,8 +51,6 @@ namespace Zenject.ReflectionBaking
             _zenjectTypeInfoConstructor = _module.ImportMethod<InjectTypeInfo>(".ctor");
 
             _injectableInfoConstructor = _module.ImportMethod<InjectableInfo>(".ctor");
-
-            _getTypeInfoMethod = _module.ImportMethod(typeof(Zenject.TypeAnalyzer), "TryGetInfo", 1);
 
             _getTypeFromHandleMethod = _module.ImportMethod<Type>("GetTypeFromHandle", 1);
 
@@ -101,11 +93,7 @@ namespace Zenject.ReflectionBaking
             {
                 var typeInfo = ReflectionTypeAnalyzer.GetReflectionInfo(actualType);
 
-                // Should be false when defining a static constructor according to msdn
-                typeDef.IsBeforeFieldInit = false;
-
                 var factoryMethod = TryAddFactoryMethod(typeDef, typeInfo);
-
                 var genericTypeDef = CreateGenericInstanceWithParameters(typeDef);
                 var fieldSetMethods = AddFieldSetters(typeDef, genericTypeDef, typeInfo);
                 var propertySetMethods = AddPropertySetters(typeDef, genericTypeDef, typeInfo);
@@ -520,20 +508,6 @@ namespace Zenject.ReflectionBaking
             foreach (var instruction in instructions)
             {
                 processor.Append(instruction);
-            }
-        }
-
-        class TypeDefPair
-        {
-            public readonly TypeDefinition TypeDefinition;
-            public readonly TypeReference TypeReference;
-
-            public TypeDefPair(
-                TypeDefinition typeDefinition,
-                TypeReference typeReference)
-            {
-                TypeDefinition = typeDefinition;
-                TypeReference = typeReference;
             }
         }
 

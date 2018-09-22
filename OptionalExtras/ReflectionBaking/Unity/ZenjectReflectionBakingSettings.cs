@@ -14,6 +14,9 @@ namespace Zenject.ReflectionBaking
         bool _isEnabled;
 
         [SerializeField]
+        bool _allGeneratedAssemblies;
+
+        [SerializeField]
         List<string> _weavedAssemblies;
 
         [SerializeField]
@@ -32,6 +35,11 @@ namespace Zenject.ReflectionBaking
         public bool IsEnabled
         {
             get { return _isEnabled; }
+        }
+
+        public bool AllGeneratedAssemblies
+        {
+            get { return _allGeneratedAssemblies; }
         }
     }
 }
