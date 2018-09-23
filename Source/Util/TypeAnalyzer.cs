@@ -203,10 +203,12 @@ namespace Zenject
                 return null;
             }
 
+#if !(UNITY_WSA && ENABLE_DOTNET) || UNITY_EDITOR
             if (ReflectionBakingCoverageMode == ReflectionBakingCoverageModes.FallbackToDirectReflectionWithWarning)
             {
                 Log.Warn("No reflection baking information found for type '{0}' - using more costly direct reflection instead", type);
             }
+#endif
 
 #if ZEN_INTERNAL_PROFILING
             using (ProfileTimers.CreateTimedBlock("Type Analysis - Direct Reflection"))
