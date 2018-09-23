@@ -137,9 +137,11 @@ namespace Zenject
                 Assert.IsEqual(info.Type, type);
                 Assert.IsNull(info.BaseTypeInfo);
 
-                if (type.BaseType != null && ShouldAnalyzeType(type.BaseType))
+                var baseType = type.BaseType();
+
+                if (baseType != null && ShouldAnalyzeType(baseType))
                 {
-                    info.BaseTypeInfo = TryGetInfo(type.BaseType);
+                    info.BaseTypeInfo = TryGetInfo(baseType);
                 }
             }
 
@@ -178,8 +180,13 @@ namespace Zenject
 
                 if (getInfoMethod != null)
                 {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+                    var infoGetter = (ZenTypeInfoGetter)getInfoMethod.CreateDelegate(
+                        typeof(ZenTypeInfoGetter), null);
+#else
                     var infoGetter = ((ZenTypeInfoGetter)Delegate.CreateDelegate(
                         typeof(ZenTypeInfoGetter), getInfoMethod));
+#endif
 
                     if (infoGetter != null)
                     {
@@ -211,8 +218,8 @@ namespace Zenject
 
         public static bool ShouldAnalyzeType(Type type)
         {
-            if (type == null || type.IsEnum || type.IsArray || type.IsInterface()
-                || type.ContainsGenericParameters || IsStaticType(type)
+            if (type == null || type.IsEnum() || type.IsArray || type.IsInterface()
+                || type.ContainsGenericParameters() || IsStaticType(type)
                 || type == typeof(object))
             {
                 return false;
@@ -224,7 +231,7 @@ namespace Zenject
         static bool IsStaticType(Type type)
         {
             // Apparently this is unique to static classes
-            return type.IsAbstract && type.IsSealed;
+            return type.IsAbstract() && type.IsSealed();
         }
 
         public static bool ShouldAnalyzeNamespace(string ns)

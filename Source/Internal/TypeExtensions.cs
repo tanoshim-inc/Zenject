@@ -178,12 +178,30 @@ namespace ModestTree
 #endif
         }
 
+        public static bool ContainsGenericParameters(this Type type)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return type.GetTypeInfo().ContainsGenericParameters;
+#else
+            return type.ContainsGenericParameters;
+#endif
+        }
+
         public static bool IsAbstract(this Type type)
         {
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
             return type.GetTypeInfo().IsAbstract;
 #else
             return type.IsAbstract;
+#endif
+        }
+
+        public static bool IsSealed(this Type type)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return type.GetTypeInfo().IsSealed;
+#else
+            return type.IsSealed;
 #endif
         }
 

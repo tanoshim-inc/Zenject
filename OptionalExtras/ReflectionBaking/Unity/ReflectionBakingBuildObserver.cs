@@ -28,7 +28,15 @@ namespace Zenject.ReflectionBaking
             {
                 // Only need to do this once
                 _hasExecutedReflectionBakingForBuild = true;
-                ExecuteBaking();
+
+                if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WSAPlayer)
+                {
+                    Log.Warn("Zenject reflection baking skipped because it is not currently supported on WSA platform!");
+                }
+                else
+                {
+                    ExecuteBaking();
+                }
             }
         }
 
@@ -43,6 +51,7 @@ namespace Zenject.ReflectionBaking
             else
             {
                 Assert.That(settings.IsEnabled);
+
                 ReflectionBakingRunner.Run(settings);
             }
         }
