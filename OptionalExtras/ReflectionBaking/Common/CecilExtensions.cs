@@ -309,7 +309,7 @@ namespace Zenject.ReflectionBaking
             {
                 return typeRef.Resolve();
             }
-            catch (Exception e)
+            catch
             {
                 return null;
             }

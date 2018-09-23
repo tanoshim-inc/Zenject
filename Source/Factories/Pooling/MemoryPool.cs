@@ -13,6 +13,9 @@ namespace Zenject
 
             if (!Container.IsValidating)
             {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
 #endif
@@ -44,6 +47,9 @@ namespace Zenject
 
             if (!Container.IsValidating)
             {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
 #endif
@@ -76,6 +82,9 @@ namespace Zenject
 
             if (!Container.IsValidating)
             {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
 #endif
@@ -108,6 +117,9 @@ namespace Zenject
 
             if (!Container.IsValidating)
             {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
 #endif
@@ -139,6 +151,9 @@ namespace Zenject
 
             if (!Container.IsValidating)
             {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
 #endif
@@ -170,6 +185,9 @@ namespace Zenject
             var item = GetInternal();
             if (!Container.IsValidating)
             {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
 #endif
@@ -203,6 +221,9 @@ namespace Zenject
 
             if (!Container.IsValidating)
             {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
 #endif
@@ -236,6 +257,9 @@ namespace Zenject
 
             if (!Container.IsValidating)
             {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
 #endif
@@ -269,6 +293,9 @@ namespace Zenject
 
             if (!Container.IsValidating)
             {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
 #endif

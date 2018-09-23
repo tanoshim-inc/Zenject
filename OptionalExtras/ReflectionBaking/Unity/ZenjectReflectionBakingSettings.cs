@@ -7,7 +7,6 @@ using UnityEditor;
 
 namespace Zenject.ReflectionBaking
 {
-    [CreateAssetMenu(menuName = "Zenject/Reflection Baking Settings", fileName = "Zenject Reflection Baking Settings")]
     public class ZenjectReflectionBakingSettings : ScriptableObject
     {
         [SerializeField]

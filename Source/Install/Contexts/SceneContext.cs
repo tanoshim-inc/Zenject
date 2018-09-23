@@ -103,7 +103,12 @@ namespace Zenject
 
         public void Awake()
         {
-            Initialize();
+#if ZEN_INTERNAL_PROFILING
+            using (ProfileTimers.CreateTimedBlock("SceneContext Awake - Other"))
+#endif
+            {
+                Initialize();
+            }
         }
 
 #if UNITY_EDITOR
@@ -127,6 +132,7 @@ namespace Zenject
             {
                 Install();
             }
+
 #if UNITY_EDITOR
             using (ProfileBlock.Start("Zenject.SceneContext.Resolve"))
 #endif

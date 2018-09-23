@@ -125,9 +125,6 @@ namespace Zenject
                 }
             }
 
-#if ZEN_INTERNAL_PROFILING
-            using (ProfileTimers.CreateTimedBlock(InternalTimers.TypeAnalysisTotal))
-#endif
 #if UNITY_EDITOR
             using (ProfileBlock.Start("Zenject Reflection"))
 #endif
@@ -163,10 +160,16 @@ namespace Zenject
                 return null;
             }
 
-            ZenTypeInfoGetter infoGetter = null;
+#if ZEN_INTERNAL_PROFILING
+            // Make sure that the static constructor logic doesn't inflate our profile measurements
+            using (ProfileTimers.CreateTimedBlock("User Code"))
+            {
+                System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+            }
+#endif
 
 #if ZEN_INTERNAL_PROFILING
-            using (ProfileTimers.CreateTimedBlock(InternalTimers.TypeAnalysisLookingUpBakedGetter))
+            using (ProfileTimers.CreateTimedBlock("Type Analysis - Calling Baked Reflection Getter"))
 #endif
             {
                 var getInfoMethod = type.GetMethod(
@@ -175,18 +178,13 @@ namespace Zenject
 
                 if (getInfoMethod != null)
                 {
-                    infoGetter = ((ZenTypeInfoGetter)Delegate.CreateDelegate(
+                    var infoGetter = ((ZenTypeInfoGetter)Delegate.CreateDelegate(
                         typeof(ZenTypeInfoGetter), getInfoMethod));
-                }
-            }
 
-            if (infoGetter != null)
-            {
-#if ZEN_INTERNAL_PROFILING
-                using (ProfileTimers.CreateTimedBlock(InternalTimers.TypeAnalysisCallingBakedGetter))
-#endif
-                {
-                    return infoGetter();
+                    if (infoGetter != null)
+                    {
+                        return infoGetter();
+                    }
                 }
             }
 
@@ -204,7 +202,7 @@ namespace Zenject
             }
 
 #if ZEN_INTERNAL_PROFILING
-            using (ProfileTimers.CreateTimedBlock(InternalTimers.TypeAnalysisActualReflection))
+            using (ProfileTimers.CreateTimedBlock("Type Analysis - Direct Reflection"))
 #endif
             {
                 return CreateTypeInfoFromReflection(type);

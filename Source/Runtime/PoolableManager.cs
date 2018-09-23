@@ -37,6 +37,9 @@ namespace Zenject
 
             for (int i = 0; i < _poolables.Count; i++)
             {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.OnSpawned", _poolables[i].GetType()))
 #endif
@@ -54,6 +57,9 @@ namespace Zenject
             // Call OnDespawned in the reverse order just like how dispose works
             for (int i = _poolables.Count - 1; i >= 0; i--)
             {
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                 using (ProfileBlock.Start("{0}.OnDespawned", _poolables[i].GetType()))
 #endif

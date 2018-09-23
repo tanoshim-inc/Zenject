@@ -14,20 +14,7 @@ namespace Zenject
         public override void Start()
         {
             base.Start();
-
-            var result = new StringBuilder();
-
-            result.Append("Completed scene startup.  Profile info:");
-
-            for (int i = 0; i < (int)InternalTimers.Count; i++)
-            {
-                var type = (InternalTimers)i;
-                var time = ProfileTimers.GetTime(type);
-
-                result.Append("\n    {0}: {1:0.0000} seconds".Fmt(type, time));
-            }
-
-            Log.Info(result.ToString());
+            Log.Info(ProfileTimers.FormatResults());
         }
 #endif
     }

@@ -113,7 +113,7 @@ namespace Zenject.ReflectionBaking
                 _hasModifiedProperties = true;
             }
 
-            //if (GUILayout.Button("Run Test"))
+            //if (GUILayout.Button("Force Run"))
             //{
                 //ReflectionBakingBuildObserver.ExecuteBaking();
             //}

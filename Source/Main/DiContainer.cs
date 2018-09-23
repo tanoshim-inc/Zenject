@@ -954,134 +954,139 @@ namespace Zenject
 
         public object Resolve(InjectContext context)
         {
-            // Note: context.Container is not necessarily equal to this, since
-            // you can have some lookups recurse to parent containers
-            Assert.IsNotNull(context);
-
-            var memberType = context.MemberType;
-
-            FlushBindings();
-            CheckForInstallWarning(context);
-
-            var lookupContext = context;
-
-            // The context used for lookups is always the same as the given context EXCEPT for LazyInject<>
-            // In CreateLazyBinding above, we forward the context to a new instance of LazyInject<>
-            // The problem is, we want the binding for Bind(typeof(LazyInject<>)) to always match even
-            // for members that are marked for a specific ID, so we need to discard the identifier
-            // for this one particular case
-            if (memberType.IsGenericType() && memberType.GetGenericTypeDefinition() == typeof(LazyInject<>))
+#if ZEN_INTERNAL_PROFILING
+            using (ProfileTimers.CreateTimedBlock("DiContainer.Resolve"))
+#endif
             {
-                lookupContext = context.Clone();
-                lookupContext.Identifier = null;
-                lookupContext.SourceType = InjectSources.Local;
-                lookupContext.Optional = false;
-            }
+                // Note: context.Container is not necessarily equal to this, since
+                // you can have some lookups recurse to parent containers
+                Assert.IsNotNull(context);
 
-            var providerInfo = TryGetUniqueProvider(lookupContext);
+                var memberType = context.MemberType;
 
-            if (providerInfo == null)
-            {
-                // If it's an array try matching to multiple values using its array type
-                if (memberType.IsArray && memberType.GetArrayRank() == 1)
+                FlushBindings();
+                CheckForInstallWarning(context);
+
+                var lookupContext = context;
+
+                // The context used for lookups is always the same as the given context EXCEPT for LazyInject<>
+                // In CreateLazyBinding above, we forward the context to a new instance of LazyInject<>
+                // The problem is, we want the binding for Bind(typeof(LazyInject<>)) to always match even
+                // for members that are marked for a specific ID, so we need to discard the identifier
+                // for this one particular case
+                if (memberType.IsGenericType() && memberType.GetGenericTypeDefinition() == typeof(LazyInject<>))
                 {
-                    var subType = memberType.GetElementType();
+                    lookupContext = context.Clone();
+                    lookupContext.Identifier = null;
+                    lookupContext.SourceType = InjectSources.Local;
+                    lookupContext.Optional = false;
+                }
 
-                    var subContext = context.Clone();
-                    subContext.MemberType = subType;
-                    // By making this optional this means that all injected fields of type T[]
-                    // will pass validation, which could be error prone, but I think this is better
-                    // than always requiring that they explicitly mark their array types as optional
-                    subContext.Optional = true;
+                var providerInfo = TryGetUniqueProvider(lookupContext);
 
+                if (providerInfo == null)
+                {
+                    // If it's an array try matching to multiple values using its array type
+                    if (memberType.IsArray && memberType.GetArrayRank() == 1)
+                    {
+                        var subType = memberType.GetElementType();
+
+                        var subContext = context.Clone();
+                        subContext.MemberType = subType;
+                        // By making this optional this means that all injected fields of type T[]
+                        // will pass validation, which could be error prone, but I think this is better
+                        // than always requiring that they explicitly mark their array types as optional
+                        subContext.Optional = true;
+
+                        var instances = ZenPools.SpawnList<object>();
+
+                        try
+                        {
+                            ResolveAll(subContext, instances);
+                            return ReflectionUtil.CreateArray(subContext.MemberType, instances);
+                        }
+                        finally
+                        {
+                            ZenPools.DespawnList(instances);
+                        }
+                    }
+
+                    // If it's a generic list then try matching multiple instances to its generic type
+                    if (memberType.IsGenericType()
+                        && (memberType.GetGenericTypeDefinition() == typeof(List<>)
+                            || memberType.GetGenericTypeDefinition() == typeof(IList<>)
+#if NET_4_6
+                            || memberType.GetGenericTypeDefinition() == typeof(IReadOnlyList<>)
+#endif
+                            || memberType.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                    {
+                        var subType = memberType.GenericArguments().Single();
+
+                        var subContext = context.Clone();
+                        subContext.MemberType = subType;
+                        // By making this optional this means that all injected fields of type List<>
+                        // will pass validation, which could be error prone, but I think this is better
+                        // than always requiring that they explicitly mark their list types as optional
+                        subContext.Optional = true;
+
+                        return ResolveAll(subContext);
+                    }
+
+                    if (context.Optional)
+                    {
+                        return context.FallBackValue;
+                    }
+
+                    throw Assert.CreateException("Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
+                        memberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                        (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
+                        context.GetObjectGraphString());
+                }
+                else
+                {
                     var instances = ZenPools.SpawnList<object>();
 
                     try
                     {
-                        ResolveAll(subContext, instances);
-                        return ReflectionUtil.CreateArray(subContext.MemberType, instances);
+                        SafeGetInstances(providerInfo, context, instances);
+
+                        if (instances.Count == 0)
+                        {
+                            if (context.Optional)
+                            {
+                                return context.FallBackValue;
+                            }
+
+                            throw Assert.CreateException(
+                                "Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
+                                memberType.ToString() + (context.Identifier == null
+                                    ? ""
+                                    : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                                    (context.ObjectType == null
+                                     ? ""
+                                     : " while building object with type '{0}'".Fmt(context.ObjectType)),
+                                     context.GetObjectGraphString());
+                        }
+
+                        if (instances.Count() > 1)
+                        {
+                            throw Assert.CreateException(
+                                "Provider returned multiple instances when only one was expected!  While resolving type '{0}'{1}. \nObject graph:\n{2}",
+                                memberType.ToString() + (context.Identifier == null
+                                    ? ""
+                                    : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                                    (context.ObjectType == null
+                                     ? ""
+                                     : " while building object with type '{0}'".Fmt(context.ObjectType)),
+                                     context.GetObjectGraphString());
+                        }
+
+                        return instances.First();
                     }
                     finally
                     {
                         ZenPools.DespawnList(instances);
                     }
-                }
-
-                // If it's a generic list then try matching multiple instances to its generic type
-                if (memberType.IsGenericType()
-                    && (memberType.GetGenericTypeDefinition() == typeof(List<>)
-                        || memberType.GetGenericTypeDefinition() == typeof(IList<>)
-#if NET_4_6
-                        || memberType.GetGenericTypeDefinition() == typeof(IReadOnlyList<>)
-#endif
-                        || memberType.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
-                {
-                    var subType = memberType.GenericArguments().Single();
-
-                    var subContext = context.Clone();
-                    subContext.MemberType = subType;
-                    // By making this optional this means that all injected fields of type List<>
-                    // will pass validation, which could be error prone, but I think this is better
-                    // than always requiring that they explicitly mark their list types as optional
-                    subContext.Optional = true;
-
-                    return ResolveAll(subContext);
-                }
-
-                if (context.Optional)
-                {
-                    return context.FallBackValue;
-                }
-
-                throw Assert.CreateException("Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
-                    memberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
-                    (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
-                    context.GetObjectGraphString());
-            }
-            else
-            {
-                var instances = ZenPools.SpawnList<object>();
-
-                try
-                {
-                    SafeGetInstances(providerInfo, context, instances);
-
-                    if (instances.Count == 0)
-                    {
-                        if (context.Optional)
-                        {
-                            return context.FallBackValue;
-                        }
-
-                        throw Assert.CreateException(
-                            "Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
-                            memberType.ToString() + (context.Identifier == null
-                                ? ""
-                                : " with ID '{0}'".Fmt(context.Identifier.ToString())),
-                                (context.ObjectType == null
-                                 ? ""
-                                 : " while building object with type '{0}'".Fmt(context.ObjectType)),
-                                 context.GetObjectGraphString());
-                    }
-
-                    if (instances.Count() > 1)
-                    {
-                        throw Assert.CreateException(
-                            "Provider returned multiple instances when only one was expected!  While resolving type '{0}'{1}. \nObject graph:\n{2}",
-                            memberType.ToString() + (context.Identifier == null
-                                ? ""
-                                : " with ID '{0}'".Fmt(context.Identifier.ToString())),
-                                (context.ObjectType == null
-                                 ? ""
-                                 : " while building object with type '{0}'".Fmt(context.ObjectType)),
-                                 context.GetObjectGraphString());
-                    }
-
-                    return instances.First();
-                }
-                finally
-                {
-                    ZenPools.DespawnList(instances);
                 }
             }
         }
@@ -1350,6 +1355,9 @@ namespace Zenject
                         //ModestTree.Log.Debug("Zenject: Instantiating type '{0}'", concreteType);
                         try
                         {
+#if ZEN_INTERNAL_PROFILING
+                            using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                             using (ProfileBlock.Start("{0}.{1}()", concreteType, concreteType.Name))
 #endif
@@ -1424,39 +1432,44 @@ namespace Zenject
             object injectable, Type injectableType,
             List<TypeValuePair> extraArgs, InjectContext context, object concreteIdentifier)
         {
-            if (IsValidating)
+#if ZEN_INTERNAL_PROFILING
+            using (ProfileTimers.CreateTimedBlock("DiContainer.Inject"))
+#endif
             {
-                var marker = injectable as ValidationMarker;
-
-                if (marker != null && marker.InstantiateFailed)
+                if (IsValidating)
                 {
-                    // Do nothing in this case because it already failed and so there
-                    // could be many knock-on errors that aren't related to the user
-                    return;
-                }
+                    var marker = injectable as ValidationMarker;
 
-                if (_settings.ValidationErrorResponse == ValidationErrorResponses.Throw)
-                {
-                    InjectExplicitInternal(
-                        injectable, injectableType, extraArgs, context, concreteIdentifier);
+                    if (marker != null && marker.InstantiateFailed)
+                    {
+                        // Do nothing in this case because it already failed and so there
+                        // could be many knock-on errors that aren't related to the user
+                        return;
+                    }
+
+                    if (_settings.ValidationErrorResponse == ValidationErrorResponses.Throw)
+                    {
+                        InjectExplicitInternal(
+                            injectable, injectableType, extraArgs, context, concreteIdentifier);
+                    }
+                    else
+                    {
+                        // In this case, just log it and continue to print out multiple validation errors
+                        // at once
+                        try
+                        {
+                            InjectExplicitInternal(injectable, injectableType, extraArgs, context, concreteIdentifier);
+                        }
+                        catch (Exception e)
+                        {
+                            ModestTree.Log.ErrorException(e);
+                        }
+                    }
                 }
                 else
                 {
-                    // In this case, just log it and continue to print out multiple validation errors
-                    // at once
-                    try
-                    {
-                        InjectExplicitInternal(injectable, injectableType, extraArgs, context, concreteIdentifier);
-                    }
-                    catch (Exception e)
-                    {
-                        ModestTree.Log.ErrorException(e);
-                    }
+                    InjectExplicitInternal(injectable, injectableType, extraArgs, context, concreteIdentifier);
                 }
-            }
-            else
-            {
-                InjectExplicitInternal(injectable, injectableType, extraArgs, context, concreteIdentifier);
             }
         }
 
@@ -1507,6 +1520,9 @@ namespace Zenject
 
                     if (!isDryRun)
                     {
+#if ZEN_INTERNAL_PROFILING
+                        using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
 #if UNITY_EDITOR
                         using (ProfileBlock.Start("{0}.{1}()", typeInfo.Type, method.Name))
 #endif
@@ -2726,10 +2742,15 @@ namespace Zenject
         ConcreteIdBinderNonGeneric BindInternal(
             BindInfo bindInfo, BindStatement bindingFinalizer)
         {
-            Assert.That(bindInfo.ContractTypes.All(x => !x.DerivesFrom<IPlaceholderFactory>()),
-                "You should not use Container.Bind for factory classes.  Use Container.BindFactory instead.");
+#if ZEN_INTERNAL_PROFILING
+            using (ProfileTimers.CreateTimedBlock("DiContainer.Bind"))
+#endif
+            {
+                Assert.That(bindInfo.ContractTypes.All(x => !x.DerivesFrom<IPlaceholderFactory>()),
+                    "You should not use Container.Bind for factory classes.  Use Container.BindFactory instead.");
 
-            return new ConcreteIdBinderNonGeneric(this, bindInfo, bindingFinalizer);
+                return new ConcreteIdBinderNonGeneric(this, bindInfo, bindingFinalizer);
+            }
         }
 
 #if !(UNITY_WSA && ENABLE_DOTNET)
@@ -3265,30 +3286,35 @@ namespace Zenject
 
         public object InstantiateExplicit(Type concreteType, bool autoInject, List<TypeValuePair> extraArgs, InjectContext context, object concreteIdentifier)
         {
-            if (IsValidating)
+#if ZEN_INTERNAL_PROFILING
+            using (ProfileTimers.CreateTimedBlock("DiContainer.Instantiate"))
+#endif
             {
-                if (_settings.ValidationErrorResponse == ValidationErrorResponses.Throw)
+                if (IsValidating)
                 {
-                    return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
-                }
-                else
-                {
-                    // In this case, just log it and continue to print out multiple validation errors
-                    // at once
-                    try
+                    if (_settings.ValidationErrorResponse == ValidationErrorResponses.Throw)
                     {
                         return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
                     }
-                    catch (Exception e)
+                    else
                     {
-                        ModestTree.Log.ErrorException(e);
-                        return new ValidationMarker(concreteType, true);
+                        // In this case, just log it and continue to print out multiple validation errors
+                        // at once
+                        try
+                        {
+                            return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
+                        }
+                        catch (Exception e)
+                        {
+                            ModestTree.Log.ErrorException(e);
+                            return new ValidationMarker(concreteType, true);
+                        }
                     }
                 }
-            }
-            else
-            {
-                return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
+                else
+                {
+                    return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
+                }
             }
         }
 

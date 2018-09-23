@@ -1,99 +1,157 @@
 #if ZEN_INTERNAL_PROFILING
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using ModestTree;
+using System.Linq;
 
 namespace Zenject
 {
-    public enum InternalTimers
-    {
-        TypeAnalysisTotal,
-        TypeAnalysisLookingUpBakedGetter,
-        TypeAnalysisCallingBakedGetter,
-        TypeAnalysisActualReflection,
-        Count
-    }
-
     // Similar to ProfileBlock except used for measuring speed of zenject specifically
     // And does not use unity's profiler
     public static class ProfileTimers
     {
-        static Stopwatch[] _timers;
+        static Dictionary<string, TimerInfo> _timers = new Dictionary<string, TimerInfo>();
 
-        static ProfileTimers()
+        public static string FormatResults()
         {
-            _timers = new Stopwatch[(int)InternalTimers.Count];
+            var result = new StringBuilder();
 
-            for (int i = 0; i < (int)InternalTimers.Count; i++)
+            var validTimers = _timers.Where(x => x.Key != "User Code");
+
+            var total = validTimers.Select(x => x.Value.TotalMilliseconds).Sum();
+
+            result.Append("Total time tracked: {0:0.00} ms.  Details:".Fmt(total));
+
+            foreach (var pair in validTimers.OrderByDescending(x => x.Value.TotalMilliseconds))
             {
-                _timers[i] = new Stopwatch();
+                var time = pair.Value.TotalMilliseconds;
+                var percent = 100.0 * (time / total);
+                var name = pair.Key;
+
+                result.Append("\n  {0:00.0}% ({1:00000}x) ({2:0000} ms) {3}".Fmt(percent, pair.Value.CallCount, time, name));
             }
+
+            return result.ToString();
         }
 
-        static Stopwatch GetTimer(InternalTimers type)
+        public static double GetTimerElapsedMilliseconds(string name)
         {
-            return _timers[(int)type];
+            return _timers[name].TotalMilliseconds;
         }
 
-        public static double GetTime(InternalTimers type)
+        public static IDisposable CreateTimedBlock(string name)
         {
-            return GetTimer(type).Elapsed.TotalSeconds;
-        }
+            TimerInfo timer;
 
-        public static IDisposable CreateTimedBlock(InternalTimers type)
-        {
-            return TimedBlock.Pool.Spawn(GetTimer(type));
-        }
+            if (!_timers.TryGetValue(name, out timer))
+            {
+                timer = new TimerInfo(_timers.Values.Where(x => x.IsRunning));
+                _timers.Add(name, timer);
+            }
 
-        public static IDisposable CreatePauseBlock(InternalTimers type)
-        {
-            return PausedBlock.Pool.Spawn(GetTimer(type));
+            timer.CallCount++;
+
+            if (timer.IsRunning)
+            {
+                return null;
+            }
+
+            return TimedBlock.Pool.Spawn(_timers.Values, timer);
         }
 
         class TimedBlock : IDisposable
         {
-            public static StaticMemoryPool<Stopwatch, TimedBlock> Pool =
-                new StaticMemoryPool<Stopwatch, TimedBlock>(OnSpawned);
+            public static StaticMemoryPool<IEnumerable<TimerInfo>, TimerInfo, TimedBlock> Pool =
+                new StaticMemoryPool<IEnumerable<TimerInfo>, TimerInfo, TimedBlock>(OnSpawned, OnDespawned);
 
-            Stopwatch _stopwatch;
+            readonly List<TimerInfo> _pausedTimers = new List<TimerInfo>();
 
-            static void OnSpawned(Stopwatch stopwatch, TimedBlock instance)
+            TimerInfo _exclusiveTimer;
+
+            static void OnSpawned(
+                IEnumerable<TimerInfo> timers, TimerInfo exclusiveTimer, TimedBlock instance)
             {
-                instance._stopwatch = stopwatch;
+                Assert.That(instance._pausedTimers.IsEmpty());
 
-                Assert.That(!stopwatch.IsRunning);
-                stopwatch.Start();
+                instance._exclusiveTimer = exclusiveTimer;
+
+                foreach (var timer in timers)
+                {
+                    if (exclusiveTimer == timer)
+                    {
+                        Assert.That(!timer.IsRunning);
+                        timer.Resume();
+                    }
+                    else if (timer.IsRunning)
+                    {
+                        timer.Pause();
+                        instance._pausedTimers.Add(timer);
+                    }
+                }
+            }
+
+            static void OnDespawned(TimedBlock instance)
+            {
+                Assert.That(instance._exclusiveTimer.IsRunning);
+                instance._exclusiveTimer.Pause();
+
+                foreach (var timer in instance._pausedTimers)
+                {
+                    Assert.That(!timer.IsRunning);
+                    timer.Resume();
+                }
+
+                instance._pausedTimers.Clear();
             }
 
             public void Dispose()
             {
-                Assert.That(_stopwatch.IsRunning);
-                _stopwatch.Stop();
                 Pool.Despawn(this);
             }
         }
 
-        class PausedBlock : IDisposable
+        public class TimerInfo
         {
-            public static StaticMemoryPool<Stopwatch, PausedBlock> Pool =
-                new StaticMemoryPool<Stopwatch, PausedBlock>(OnSpawned);
+            readonly Stopwatch _timer;
 
-            Stopwatch _stopwatch;
-
-            static void OnSpawned(Stopwatch stopwatch, PausedBlock instance)
+            public TimerInfo(IEnumerable<TimerInfo> parents)
             {
-                instance._stopwatch = stopwatch;
+                _timer = new Stopwatch();
 
-                Assert.That(stopwatch.IsRunning);
-                stopwatch.Stop();
+                Parents = parents.ToList();
             }
 
-            public void Dispose()
+            public int CallCount
             {
-                Assert.That(!_stopwatch.IsRunning);
-                _stopwatch.Start();
-                Pool.Despawn(this);
+                get; set;
+            }
+
+            public List<TimerInfo> Parents
+            {
+                get; private set;
+            }
+
+            public double TotalMilliseconds
+            {
+                get { return _timer.Elapsed.TotalMilliseconds; }
+            }
+
+            public bool IsRunning
+            {
+                get { return _timer.IsRunning; }
+            }
+
+            public void Resume()
+            {
+                _timer.Start();
+            }
+
+            public void Pause()
+            {
+                _timer.Stop();
             }
         }
     }

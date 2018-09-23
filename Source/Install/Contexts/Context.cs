@@ -183,7 +183,14 @@ namespace Zenject
 
             foreach (var installerType in normalInstallerTypes)
             {
-                ((InstallerBase)Container.Instantiate(installerType)).InstallBindings();
+                var installer = (InstallerBase)Container.Instantiate(installerType);
+
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
+                {
+                    installer.InstallBindings();
+                }
             }
 
             foreach (var installer in allInstallers)
@@ -192,7 +199,13 @@ namespace Zenject
                     "Found null installer in '{0}'", this.GetType());
 
                 Container.Inject(installer);
-                installer.InstallBindings();
+
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
+                {
+                    installer.InstallBindings();
+                }
             }
         }
 
