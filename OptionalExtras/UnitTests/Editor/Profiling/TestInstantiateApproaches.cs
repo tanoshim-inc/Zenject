@@ -8,8 +8,6 @@ using ModestTree;
 using Zenject.Internal;
 using Assert=ModestTree.Assert;
 
-#pragma warning disable 414
-
 namespace Zenject.Tests.Injection
 {
     //[TestFixture]

@@ -21,13 +21,6 @@ namespace Zenject.ReflectionBaking
     {
         static bool _hasExecutedReflectionBakingForBuild;
 
-        [UsedImplicitly]
-        [InitializeOnLoadMethod]
-        static void Initialize()
-        {
-            TryCreateSettingsInstance();
-        }
-
         [PostProcessScene]
         public static void PostprocessScene()
         {
@@ -41,19 +34,20 @@ namespace Zenject.ReflectionBaking
 
         public static void ExecuteBaking()
         {
-            var settings = TryCreateSettingsInstance();
+            var settings = TryGetEnabledSettingsInstance();
 
             if (settings == null)
             {
                 Log.Info("Skipping reflection baking since no settings object was found");
             }
-            else if (settings.IsEnabled)
+            else
             {
+                Assert.That(settings.IsEnabled);
                 ReflectionBakingRunner.Run(settings);
             }
         }
 
-        static ZenjectReflectionBakingSettings TryCreateSettingsInstance()
+        static ZenjectReflectionBakingSettings TryGetEnabledSettingsInstance()
         {
             string[] guids = AssetDatabase.FindAssets("t:ZenjectReflectionBakingSettings");
 
@@ -62,15 +56,22 @@ namespace Zenject.ReflectionBaking
                 return null;
             }
 
-            if (guids.Length > 1)
+            ZenjectReflectionBakingSettings enabledSettings = null;
+
+            foreach (var guid in guids)
             {
-                UnityEngine.Debug.LogError(
-                    "Zenject code weaving failed!  Found multiple ZenjectReflectionBakingSettings objects!");
-                return null;
+                var candidate = AssetDatabase.LoadAssetAtPath<ZenjectReflectionBakingSettings>(
+                    AssetDatabase.GUIDToAssetPath(guid));
+
+                if (candidate.IsEnabled)
+                {
+                    Assert.IsNull(enabledSettings, "Found multiple enabled ZenjectReflectionBakingSettings objects!  Please disable/delete one to continue.");
+                    enabledSettings = candidate;
+                }
             }
 
-            return AssetDatabase.LoadAssetAtPath<ZenjectReflectionBakingSettings>(
-                AssetDatabase.GUIDToAssetPath(guids[0]));
+            return enabledSettings;
+
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Zenject.Internal
 
         public static ReflectionTypeInfo GetReflectionInfo(Type type)
         {
-            Assert.That(!type.IsEnum, "Tried to analyze enum type '{0}'.  This is not supported", type);
+            Assert.That(!type.IsEnum(), "Tried to analyze enum type '{0}'.  This is not supported", type);
             Assert.That(!type.IsArray, "Tried to analyze array type '{0}'.  This is not supported", type);
 
             var baseType = type.BaseType();
