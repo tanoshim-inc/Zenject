@@ -3,6 +3,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class SubContainerCreatorCached : ISubContainerCreator
     {
         readonly ISubContainerCreator _subCreator;

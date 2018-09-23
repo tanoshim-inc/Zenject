@@ -3,6 +3,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class SignalDeclarationBindInfo
     {
         public SignalDeclarationBindInfo(Type signalType)

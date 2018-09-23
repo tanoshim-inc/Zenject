@@ -4,6 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class MemoryPoolMaxSizeBinder<TContract> : MemoryPoolExpandBinder<TContract>
     {
         public MemoryPoolMaxSizeBinder(
@@ -19,6 +20,7 @@ namespace Zenject
         }
     }
 
+    [NoReflectionBaking]
     public class MemoryPoolInitialSizeMaxSizeBinder<TContract> : MemoryPoolMaxSizeBinder<TContract>
     {
         public MemoryPoolInitialSizeMaxSizeBinder(
@@ -42,6 +44,7 @@ namespace Zenject
         }
     }
 
+    [NoReflectionBaking]
     public class MemoryPoolIdInitialSizeMaxSizeBinder<TContract> : MemoryPoolInitialSizeMaxSizeBinder<TContract>
     {
         public MemoryPoolIdInitialSizeMaxSizeBinder(

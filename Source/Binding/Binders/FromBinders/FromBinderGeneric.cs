@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class FromBinderGeneric<TContract> : FromBinder
     {
         public FromBinderGeneric(

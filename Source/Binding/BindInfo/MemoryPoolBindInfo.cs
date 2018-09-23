@@ -9,6 +9,7 @@ namespace Zenject
         Disabled,
     }
 
+    [NoReflectionBaking]
     public class MemoryPoolBindInfo
     {
         public MemoryPoolBindInfo()

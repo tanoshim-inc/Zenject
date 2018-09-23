@@ -8,6 +8,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public abstract class SubContainerCreatorByNewPrefabDynamicContext : ISubContainerCreator
     {
         readonly GameObjectCreationParameters _gameObjectBindInfo;
@@ -58,6 +59,7 @@ namespace Zenject
         protected abstract void AddInstallers(List<TypeValuePair> args, GameObjectContext context);
     }
 
+    [NoReflectionBaking]
     public class SubContainerCreatorByNewPrefabInstaller : SubContainerCreatorByNewPrefabDynamicContext
     {
         readonly Type _installerType;
@@ -96,6 +98,7 @@ namespace Zenject
         }
     }
 
+    [NoReflectionBaking]
     public class SubContainerCreatorByNewPrefabMethod : SubContainerCreatorByNewPrefabDynamicContext
     {
         readonly Action<DiContainer> _installerMethod;
@@ -117,6 +120,7 @@ namespace Zenject
         }
     }
 
+    [NoReflectionBaking]
     public class SubContainerCreatorByNewPrefabMethod<TParam1> : SubContainerCreatorByNewPrefabDynamicContext
     {
         readonly Action<DiContainer, TParam1> _installerMethod;
@@ -143,6 +147,7 @@ namespace Zenject
         }
     }
 
+    [NoReflectionBaking]
     public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2> : SubContainerCreatorByNewPrefabDynamicContext
     {
         readonly Action<DiContainer, TParam1, TParam2> _installerMethod;
@@ -172,6 +177,7 @@ namespace Zenject
         }
     }
 
+    [NoReflectionBaking]
     public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3> : SubContainerCreatorByNewPrefabDynamicContext
     {
         readonly Action<DiContainer, TParam1, TParam2, TParam3> _installerMethod;
@@ -203,6 +209,7 @@ namespace Zenject
         }
     }
 
+    [NoReflectionBaking]
     public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4> : SubContainerCreatorByNewPrefabDynamicContext
     {
         readonly
@@ -243,6 +250,7 @@ namespace Zenject
         }
     }
 
+    [NoReflectionBaking]
     public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4, TParam5> : SubContainerCreatorByNewPrefabDynamicContext
     {
         readonly
@@ -285,6 +293,7 @@ namespace Zenject
         }
     }
 
+    [NoReflectionBaking]
     public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> : SubContainerCreatorByNewPrefabDynamicContext
     {
         readonly
@@ -329,6 +338,7 @@ namespace Zenject
         }
     }
 
+    [NoReflectionBaking]
     public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> : SubContainerCreatorByNewPrefabDynamicContext
     {
         readonly

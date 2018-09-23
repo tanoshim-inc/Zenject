@@ -3,6 +3,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class SignalCopyBinder
     {
         readonly List<BindInfo> _bindInfos;

@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class GameObjectCreationParameters
     {
         public string Name

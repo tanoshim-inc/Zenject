@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class GetFromGameObjectComponentProvider : IProvider
     {
         readonly GameObject _gameObject;

@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder : ScopeConcreteIdArgConditionCopyNonLazyBinder
     {
         public DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder(

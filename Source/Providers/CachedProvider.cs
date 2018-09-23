@@ -4,6 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class CachedProvider : IProvider
     {
         readonly IProvider _creator;

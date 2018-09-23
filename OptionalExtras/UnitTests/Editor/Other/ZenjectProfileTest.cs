@@ -28,8 +28,6 @@ namespace Zenject.Tests.Other
 
         class Test1
         {
-
-
             [Inject]
             public Test0 TestB
             {
@@ -55,7 +53,6 @@ namespace Zenject.Tests.Other
 
         class Test2
         {
-
             [Inject]
             public Test1 TestB
             {

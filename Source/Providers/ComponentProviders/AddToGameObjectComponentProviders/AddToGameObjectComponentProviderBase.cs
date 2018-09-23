@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public abstract class AddToGameObjectComponentProviderBase : IProvider
     {
         readonly Type _componentType;

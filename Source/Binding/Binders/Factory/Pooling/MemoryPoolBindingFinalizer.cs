@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class MemoryPoolBindingFinalizer<TContract> : ProviderBindingFinalizer
     {
         readonly MemoryPoolBindInfo _poolBindInfo;

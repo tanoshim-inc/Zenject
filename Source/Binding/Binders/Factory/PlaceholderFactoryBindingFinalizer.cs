@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class PlaceholderFactoryBindingFinalizer<TContract> : ProviderBindingFinalizer
     {
         readonly FactoryBindInfo _factoryBindInfo;

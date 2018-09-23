@@ -4,6 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class DisposeBlock : IDisposable
     {
         static readonly StaticMemoryPool<DisposeBlock> _pool =

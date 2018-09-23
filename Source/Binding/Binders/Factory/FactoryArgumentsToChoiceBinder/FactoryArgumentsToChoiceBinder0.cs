@@ -5,6 +5,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class FactoryArgumentsToChoiceBinder<TContract> : FactoryToChoiceBinder<TContract>
     {
         public FactoryArgumentsToChoiceBinder(

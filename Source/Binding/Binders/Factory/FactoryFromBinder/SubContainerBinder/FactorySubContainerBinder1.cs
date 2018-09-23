@@ -2,6 +2,7 @@ using System;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class FactorySubContainerBinder<TParam1, TContract>
         : FactorySubContainerBinderWithParams<TContract>
     {

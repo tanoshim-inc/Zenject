@@ -4,6 +4,7 @@ using ModestTree;
 namespace Zenject
 {
     [ZenjectAllowDuringValidationAttribute]
+    [NoReflectionBaking]
     public class LazyInject<T> : IValidatable
     {
         readonly DiContainer _container;
