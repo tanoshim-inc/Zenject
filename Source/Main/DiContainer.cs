@@ -1320,7 +1320,7 @@ namespace Zenject
                     "More than one (or zero) constructors found for type '{0}' when creating dependencies.  Use one [Inject] attribute to specify which to use.", concreteType);
 
                 // Make a copy since we remove from it below
-                var paramValues = ZenPools.SpawnList<object>();
+                var paramValues = ZenPools.SpawnArray<object>(typeInfo.InjectConstructor.Parameters.Length);
 
                 try
                 {
@@ -1333,8 +1333,8 @@ namespace Zenject
                         if (!InjectUtil.PopValueWithType(
                             extraArgs, injectInfo.MemberType, out value))
                         {
-                            using (var subContext = injectInfo.SpawnInjectContext(
-                                this, context, null, concreteType, concreteIdentifier))
+                            using (var subContext = ZenPools.SpawnInjectContext(
+                                this, injectInfo, context, null, concreteType, concreteIdentifier))
                             {
                                 value = Resolve(subContext);
                             }
@@ -1342,11 +1342,11 @@ namespace Zenject
 
                         if (value == null || value is ValidationMarker)
                         {
-                            paramValues.Add(injectInfo.MemberType.GetDefaultValue());
+                            paramValues[i] = injectInfo.MemberType.GetDefaultValue();
                         }
                         else
                         {
-                            paramValues.Add(value);
+                            paramValues[i] = value;
                         }
                     }
 
@@ -1362,7 +1362,7 @@ namespace Zenject
                             using (ProfileBlock.Start("{0}.{1}()", concreteType, concreteType.Name))
 #endif
                             {
-                                newObj = typeInfo.InjectConstructor.Factory(paramValues.ToArray());
+                                newObj = typeInfo.InjectConstructor.Factory(paramValues);
                             }
                         }
                         catch (Exception e)
@@ -1378,7 +1378,7 @@ namespace Zenject
                 }
                 finally
                 {
-                    ZenPools.DespawnList(paramValues);
+                    ZenPools.DespawnArray(paramValues);
                 }
             }
 
@@ -1488,7 +1488,7 @@ namespace Zenject
             for (int i = 0; i < typeInfo.InjectMethods.Length; i++)
             {
                 var method = typeInfo.InjectMethods[i];
-                var paramValues = ZenPools.SpawnList<object>();
+                var paramValues = ZenPools.SpawnArray<object>(method.Parameters.Length);
 
                 try
                 {
@@ -1500,8 +1500,8 @@ namespace Zenject
 
                         if (!InjectUtil.PopValueWithType(extraArgs, injectInfo.MemberType, out value))
                         {
-                            using (var subContext = injectInfo.SpawnInjectContext(
-                                this, context, injectable, injectableType, concreteIdentifier))
+                            using (var subContext = ZenPools.SpawnInjectContext(
+                                this, injectInfo, context, injectable, injectableType, concreteIdentifier))
                             {
                                 value = Resolve(subContext);
                             }
@@ -1510,11 +1510,12 @@ namespace Zenject
                         if (value is ValidationMarker)
                         {
                             Assert.That(IsValidating);
-                            paramValues.Add(injectInfo.MemberType.GetDefaultValue());
+
+                            paramValues[k] = injectInfo.MemberType.GetDefaultValue();
                         }
                         else
                         {
-                            paramValues.Add(value);
+                            paramValues[k] = value;
                         }
                     }
 
@@ -1527,13 +1528,13 @@ namespace Zenject
                         using (ProfileBlock.Start("{0}.{1}()", typeInfo.Type, method.Name))
 #endif
                         {
-                            method.Action(injectable, paramValues.ToArray());
+                            method.Action(injectable, paramValues);
                         }
                     }
                 }
                 finally
                 {
-                    ZenPools.DespawnList(paramValues);
+                    ZenPools.DespawnArray(paramValues);
                 }
             }
         }
@@ -1573,8 +1574,8 @@ namespace Zenject
                 }
                 else
                 {
-                    using (var subContext = injectInfo.SpawnInjectContext(
-                        this, context, injectable, injectableType, concreteIdentifier))
+                    using (var subContext = ZenPools.SpawnInjectContext(
+                        this, injectInfo, context, injectable, injectableType, concreteIdentifier))
                     {
                         value = Resolve(subContext);
                     }

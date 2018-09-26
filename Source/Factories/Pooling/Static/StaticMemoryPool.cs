@@ -5,8 +5,8 @@ using ModestTree;
 namespace Zenject
 {
     [NoReflectionBaking]
-    public abstract class StaticMemoryPoolBase<TValue> : IDespawnableMemoryPool<TValue>, IDisposable
-        where TValue : class, new()
+    public abstract class StaticMemoryPoolBaseBase<TValue> : IDespawnableMemoryPool<TValue>, IDisposable
+        where TValue : class
     {
         // I also tried using ConcurrentBag instead of Stack + lock here but that performed much much worse
         readonly Stack<TValue> _stack = new Stack<TValue>();
@@ -18,7 +18,7 @@ namespace Zenject
         protected readonly object _locker = new object();
 #endif
 
-        public StaticMemoryPoolBase(Action<TValue> onDespawnedMethod)
+        public StaticMemoryPoolBaseBase(Action<TValue> onDespawnedMethod)
         {
             _onDespawnedMethod = onDespawnedMethod;
 
@@ -138,11 +138,6 @@ namespace Zenject
             }
         }
 
-        TValue Alloc()
-        {
-            return new TValue();
-        }
-
         // We assume here that we're in a lock
         protected TValue SpawnInternal()
         {
@@ -182,6 +177,23 @@ namespace Zenject
                 _activeCount--;
                 _stack.Push(element);
             }
+        }
+
+        protected abstract TValue Alloc();
+    }
+
+    [NoReflectionBaking]
+    public abstract class StaticMemoryPoolBase<TValue> : StaticMemoryPoolBaseBase<TValue>
+        where TValue : class, new()
+    {
+        public StaticMemoryPoolBase(Action<TValue> onDespawnedMethod)
+            : base(onDespawnedMethod)
+        {
+        }
+
+        protected override TValue Alloc()
+        {
+            return new TValue();
         }
     }
 

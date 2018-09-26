@@ -10,7 +10,10 @@ namespace Zenject.ReflectionBaking
     public class ZenjectReflectionBakingSettings : ScriptableObject
     {
         [SerializeField]
-        bool _isEnabled;
+        bool _isEnabledInBuilds;
+
+        [SerializeField]
+        bool _isEnabledInEditor;
 
         [SerializeField]
         bool _allGeneratedAssemblies;
@@ -31,9 +34,14 @@ namespace Zenject.ReflectionBaking
             get { return _weavedAssemblies; }
         }
 
-        public bool IsEnabled
+        public bool IsEnabledInEditor
         {
-            get { return _isEnabled; }
+            get { return _isEnabledInEditor; }
+        }
+
+        public bool IsEnabledInBuilds
+        {
+            get { return _isEnabledInBuilds; }
         }
 
         public bool AllGeneratedAssemblies
