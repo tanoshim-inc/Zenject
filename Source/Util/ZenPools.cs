@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ModestTree;
 
 namespace Zenject.Internal
 {
@@ -22,6 +23,15 @@ namespace Zenject.Internal
 
         public static void DespawnList<T>(List<T> list)
         {
+        }
+
+        public static void DespawnArray<T>(T[] arr)
+        {
+        }
+
+        public static T[] SpawnArray<T>(int length)
+        {
+            return new T[length];
         }
 
         public static Dictionary<TKey, TValue> SpawnDictionary<TKey, TValue>()
@@ -122,6 +132,16 @@ namespace Zenject.Internal
             ListPool<T>.Instance.Despawn(list);
         }
 
+        public static void DespawnArray<T>(T[] arr)
+        {
+            ArrayPool<T>.GetPool(arr.Length).Despawn(arr);
+        }
+
+        public static T[] SpawnArray<T>(int length)
+        {
+            return ArrayPool<T>.GetPool(length).Spawn();
+        }
+
         public static InjectContext SpawnInjectContext(DiContainer container, Type memberType)
         {
             var context = _contextPool.Spawn();
@@ -138,5 +158,24 @@ namespace Zenject.Internal
             _contextPool.Despawn(context);
         }
 #endif
+
+        public static InjectContext SpawnInjectContext(
+            DiContainer container, InjectableInfo injectableInfo, InjectContext currentContext,
+            object targetInstance, Type targetType, object concreteIdentifier)
+        {
+            var context = SpawnInjectContext(container, injectableInfo.MemberType);
+
+            context.ObjectType = targetType;
+            context.ParentContext = currentContext;
+            context.ObjectInstance = targetInstance;
+            context.Identifier = injectableInfo.Identifier;
+            context.MemberName = injectableInfo.MemberName;
+            context.Optional = injectableInfo.Optional;
+            context.SourceType = injectableInfo.SourceType;
+            context.FallBackValue = injectableInfo.DefaultValue;
+            context.ConcreteIdentifier = concreteIdentifier;
+
+            return context;
+        }
     }
 }

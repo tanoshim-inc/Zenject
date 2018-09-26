@@ -12,6 +12,7 @@ using Mono.Collections.Generic;
 using UnityEditor;
 using System.Linq;
 using UnityEditor.Callbacks;
+using UnityEditor.Compilation;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -19,69 +20,29 @@ namespace Zenject.ReflectionBaking
 {
     public static class ReflectionBakingBuildObserver
     {
-        static bool _hasExecutedReflectionBakingForBuild;
-
-        [PostProcessScene]
-        public static void PostprocessScene()
+        [InitializeOnLoadMethod]
+        public static void Initialize()
         {
-            if (BuildPipeline.isBuildingPlayer && !_hasExecutedReflectionBakingForBuild)
-            {
-                // Only need to do this once
-                _hasExecutedReflectionBakingForBuild = true;
-
-                if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WSAPlayer)
-                {
-                    Log.Warn("Zenject reflection baking skipped because it is not currently supported on WSA platform!");
-                }
-                else
-                {
-                    ExecuteBaking();
-                }
-            }
+            CompilationPipeline.assemblyCompilationFinished += OnAssemblyCompiled;
         }
 
-        public static void ExecuteBaking()
+        static void OnAssemblyCompiled(string assembly, CompilerMessage[] messages)
         {
-            var settings = TryGetEnabledSettingsInstance();
-
-            if (settings == null)
+#if !UNITY_2018
+            if (Application.isEditor && !BuildPipeline.isBuildingPlayer)
             {
-                Log.Info("Skipping reflection baking since no settings object was found");
+                return;
+            }
+#endif
+
+            if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WSAPlayer)
+            {
+                Log.Warn("Zenject reflection baking skipped because it is not currently supported on WSA platform!");
             }
             else
             {
-                Assert.That(settings.IsEnabled);
-
-                ReflectionBakingRunner.Run(settings);
+                ReflectionBakingRunner.TryWeaveAssembly(assembly);
             }
-        }
-
-        static ZenjectReflectionBakingSettings TryGetEnabledSettingsInstance()
-        {
-            string[] guids = AssetDatabase.FindAssets("t:ZenjectReflectionBakingSettings");
-
-            if (guids.IsEmpty())
-            {
-                return null;
-            }
-
-            ZenjectReflectionBakingSettings enabledSettings = null;
-
-            foreach (var guid in guids)
-            {
-                var candidate = AssetDatabase.LoadAssetAtPath<ZenjectReflectionBakingSettings>(
-                    AssetDatabase.GUIDToAssetPath(guid));
-
-                if (candidate.IsEnabled)
-                {
-                    Assert.IsNull(enabledSettings, "Found multiple enabled ZenjectReflectionBakingSettings objects!  Please disable/delete one to continue.");
-                    enabledSettings = candidate;
-                }
-            }
-
-            return enabledSettings;
-
         }
     }
 }
-

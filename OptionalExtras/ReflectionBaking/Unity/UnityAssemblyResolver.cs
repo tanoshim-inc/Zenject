@@ -6,12 +6,12 @@ using System.Reflection;
 
 namespace Zenject.ReflectionBaking
 {
-    public class WeaverAssemblyResolver : BaseAssemblyResolver
+    public class UnityAssemblyResolver : BaseAssemblyResolver
     {
         readonly IDictionary<string, string> _appDomainAssemblyLocations;
         readonly IDictionary<string, AssemblyDefinition> _cache;
 
-        public WeaverAssemblyResolver()
+        public UnityAssemblyResolver()
         {
             _appDomainAssemblyLocations = new Dictionary<string, string>();
             _cache = new Dictionary<string, AssemblyDefinition>();

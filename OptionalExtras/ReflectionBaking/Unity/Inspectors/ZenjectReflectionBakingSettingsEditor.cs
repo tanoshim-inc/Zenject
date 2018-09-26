@@ -13,7 +13,8 @@ namespace Zenject.ReflectionBaking
     {
         SerializedProperty _weavedAssemblies;
         SerializedProperty _namespacePatterns;
-        SerializedProperty _isEnabled;
+        SerializedProperty _isEnabledInBuilds;
+        SerializedProperty _isEnabledInEditor;
         SerializedProperty _allGeneratedAssemblies;
 
         // Lists
@@ -42,7 +43,8 @@ namespace Zenject.ReflectionBaking
         {
             _weavedAssemblies = serializedObject.FindProperty("_weavedAssemblies");
             _namespacePatterns = serializedObject.FindProperty("_namespacePatterns");
-            _isEnabled = serializedObject.FindProperty("_isEnabled");
+            _isEnabledInEditor = serializedObject.FindProperty("_isEnabledInEditor");
+            _isEnabledInBuilds = serializedObject.FindProperty("_isEnabledInBuilds");
             _allGeneratedAssemblies = serializedObject.FindProperty("_allGeneratedAssemblies");
 
             _namespacePatternsList = new ReorderableList(serializedObject, _namespacePatterns);
@@ -83,8 +85,16 @@ namespace Zenject.ReflectionBaking
             {
                 GUILayout.Label("Settings", EditorStyles.boldLabel);
 
-                EditorGUILayout.PropertyField(_isEnabled, true);
+                EditorGUILayout.PropertyField(_isEnabledInBuilds, true);
+                EditorGUILayout.PropertyField(_isEnabledInEditor, true);
 
+#if !UNITY_2018
+                if (_isEnabledInEditor.boolValue)
+                {
+                    EditorGUILayout.HelpBox(
+                        "Reflection baking inside unity editor requires Unity 2018+!  It is however supported for builds", MessageType.Error);
+                }
+#endif
                 EditorGUILayout.PropertyField(_allGeneratedAssemblies, true);
 
                 if (_allGeneratedAssemblies.boolValue)

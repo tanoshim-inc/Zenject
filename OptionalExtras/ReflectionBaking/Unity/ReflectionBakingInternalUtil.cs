@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using ModestTree;
+using UnityEditor;
 using UnityEngine;
 
 namespace Zenject.ReflectionBaking
@@ -15,6 +16,32 @@ namespace Zenject.ReflectionBaking
             path = path.Substring(0, pathLength - /* Assets */ 6);
             path = Path.Combine(path, assetPath);
             return path;
+        }
+
+        public static ZenjectReflectionBakingSettings TryGetEnabledSettingsInstance()
+        {
+            string[] guids = AssetDatabase.FindAssets("t:ZenjectReflectionBakingSettings");
+
+            if (guids.IsEmpty())
+            {
+                return null;
+            }
+
+            ZenjectReflectionBakingSettings enabledSettings = null;
+
+            foreach (var guid in guids)
+            {
+                var candidate = AssetDatabase.LoadAssetAtPath<ZenjectReflectionBakingSettings>(
+                    AssetDatabase.GUIDToAssetPath(guid));
+
+                if ((Application.isEditor && candidate.IsEnabledInEditor) || (BuildPipeline.isBuildingPlayer && candidate.IsEnabledInBuilds))
+                {
+                    Assert.IsNull(enabledSettings, "Found multiple enabled ZenjectReflectionBakingSettings objects!  Please disable/delete one to continue.");
+                    enabledSettings = candidate;
+                }
+            }
+
+            return enabledSettings;
         }
 
         public static string ConvertAbsoluteToAssetPath(string systemPath)
