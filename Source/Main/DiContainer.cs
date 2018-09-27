@@ -892,8 +892,7 @@ namespace Zenject
             if (providerInfo == null)
             {
                 throw Assert.CreateException(
-                    "Unable to resolve type '{0}'{1}. Object graph:\n{2}",
-                    context.MemberType.PrettyName() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                    "Unable to resolve {0}{1}. Object graph:\n{2}", context.BindingId,
                     (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                     context.GetObjectGraphString());
             }
@@ -1037,8 +1036,7 @@ namespace Zenject
                         return context.FallBackValue;
                     }
 
-                    throw Assert.CreateException("Unable to resolve type '{0}'{1}. Object graph:\n{2}",
-                        memberType.PrettyName() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                    throw Assert.CreateException("Unable to resolve '{0}'{1}. Object graph:\n{2}", context.BindingId,
                         (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                         context.GetObjectGraphString());
                 }
@@ -1058,10 +1056,7 @@ namespace Zenject
                             }
 
                             throw Assert.CreateException(
-                                "Unable to resolve type '{0}'{1}. Object graph:\n{2}",
-                                memberType.PrettyName() + (context.Identifier == null
-                                    ? ""
-                                    : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                                "Unable to resolve '{0}'{1}. Object graph:\n{2}", context.BindingId,
                                     (context.ObjectType == null
                                      ? ""
                                      : " while building object with type '{0}'".Fmt(context.ObjectType)),
@@ -1071,10 +1066,7 @@ namespace Zenject
                         if (instances.Count() > 1)
                         {
                             throw Assert.CreateException(
-                                "Provider returned multiple instances when only one was expected!  While resolving type '{0}'{1}. Object graph:\n{2}",
-                                memberType.PrettyName() + (context.Identifier == null
-                                    ? ""
-                                    : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                                "Provider returned multiple instances when only one was expected!  While resolving '{0}'{1}. Object graph:\n{2}", context.BindingId,
                                     (context.ObjectType == null
                                      ? ""
                                      : " while building object with type '{0}'".Fmt(context.ObjectType)),

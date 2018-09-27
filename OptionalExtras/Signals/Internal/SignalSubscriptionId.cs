@@ -6,18 +6,18 @@ namespace Zenject
     [System.Diagnostics.DebuggerStepThrough]
     public struct SignalSubscriptionId : IEquatable<SignalSubscriptionId>
     {
-        Type _signalType;
+        BindingId _signalId;
         object _callback;
 
-        public SignalSubscriptionId(Type signalType, object callback)
+        public SignalSubscriptionId(BindingId signalId, object callback)
         {
-            _signalType = signalType;
+            _signalId = signalId;
             _callback = callback;
         }
 
-        public Type SignalType
+        public BindingId SignalId
         {
-            get { return _signalType; }
+            get { return _signalId; }
         }
 
         public object Callback
@@ -30,7 +30,7 @@ namespace Zenject
             unchecked // Overflow is fine, just wrap
             {
                 int hash = 17;
-                hash = hash * 29 + _signalType.GetHashCode();
+                hash = hash * 29 + _signalId.GetHashCode();
                 hash = hash * 29 + _callback.GetHashCode();
                 return hash;
             }
@@ -50,7 +50,7 @@ namespace Zenject
 
         public bool Equals(SignalSubscriptionId that)
         {
-            return object.Equals(this.SignalType, that.SignalType)
+            return object.Equals(this._signalId, that._signalId)
                 && object.Equals(this.Callback, that.Callback);
         }
 

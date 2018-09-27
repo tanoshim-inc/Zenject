@@ -32,6 +32,19 @@ namespace ModestTree
             return String.Format(s, args);
         }
 
+        public static int IndexOf<T>(this IList<T> list, T item)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (object.Equals(list[i], item))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
         public static string Join(this IEnumerable<string> values, string separator)
         {
             return string.Join(separator, values.ToArray());
