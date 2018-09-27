@@ -96,14 +96,15 @@ namespace Zenject
                 _isCreatingInstance = true;
 #endif
 
-                _instances = new List<object>();
-                _creator.GetAllInstancesWithInjectSplit(context, args, out injectAction, _instances);
-                Assert.IsNotNull(_instances);
+                var instances = new List<object>();
+                _creator.GetAllInstancesWithInjectSplit(context, args, out injectAction, instances);
+                Assert.IsNotNull(instances);
 
+                _instances = instances;
 #if !ZEN_MULTITHREADING
                 _isCreatingInstance = false;
 #endif
-                buffer.AllocFreeAddRange(_instances);
+                buffer.AllocFreeAddRange(instances);
             }
         }
     }
