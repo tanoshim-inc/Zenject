@@ -31,6 +31,13 @@ namespace Zenject
             return _map[scene];
         }
 
+        public SceneContext TryGetSceneContextForScene(string name)
+        {
+            var scene = SceneManager.GetSceneByName(name);
+            Assert.That(scene.IsValid(), "Could not find scene with name '{0}'", name);
+            return TryGetSceneContextForScene(scene);
+        }
+
         public SceneContext TryGetSceneContextForScene(Scene scene)
         {
             SceneContext context;

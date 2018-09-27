@@ -238,7 +238,12 @@ namespace Zenject
 
         public static bool ShouldAnalyzeNamespace(string ns)
         {
-            return ns != null && ns != "System" && !ns.StartsWith("System.")
+            if (ns == null)
+            {
+                return true;
+            }
+
+            return ns != "System" && !ns.StartsWith("System.")
                 && ns != "UnityEngine" && !ns.StartsWith("UnityEngine.")
                 && ns != "UnityEditor" && !ns.StartsWith("UnityEditor.")
                 && ns != "UnityStandardAssets" && !ns.StartsWith("UnityStandardAssets.");

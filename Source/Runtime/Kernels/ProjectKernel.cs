@@ -1,6 +1,7 @@
 #if !NOT_UNITY3D
 
 using System.Linq;
+using UnityEngine.SceneManagement;
 using ModestTree;
 using ModestTree.Util;
 using UnityEngine;
@@ -12,6 +13,9 @@ namespace Zenject
     {
         [Inject]
         ZenjectSettings _settings = null;
+
+        [Inject]
+        SceneContextRegistry _contextRegistry;
 
         // One issue with relying on MonoKernel.OnDestroy to call IDisposable.Dispose
         // is that the order that OnDestroy is called in is difficult to predict
@@ -58,9 +62,11 @@ namespace Zenject
             // (Unless it is destroyed manually)
             Assert.That(!IsDestroyed);
 
+            var sceneOrder = SceneManager.GetAllScenes();
+
             // Destroy the scene contexts from bottom to top
             // Since this is the reverse order that they were loaded in
-            foreach (var sceneContext in ZenUtilInternal.GetAllSceneContexts().Reverse().ToList())
+            foreach (var sceneContext in _contextRegistry.SceneContexts.OrderByDescending(x => sceneOrder.IndexOf(x.gameObject.scene)).ToList())
             {
                 if (immediate)
                 {
