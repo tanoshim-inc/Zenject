@@ -13,11 +13,6 @@ namespace ModestTree
             return String.Format(s, args);
         }
 
-        public static IEnumerable<T> Yield<T>(this T item)
-        {
-            yield return item;
-        }
-
         public static string Join(this IEnumerable<string> values, string separator)
         {
             return string.Join(separator, values.ToArray());
