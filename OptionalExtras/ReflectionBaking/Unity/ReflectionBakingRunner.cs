@@ -9,22 +9,16 @@ using ModestTree;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
-using UnityEditor;
 using System.Linq;
-using UnityEditor.Callbacks;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using Zenject.Internal;
 
 namespace Zenject.ReflectionBaking
 {
     public class ReflectionBakingRunner
     {
-        readonly ZenjectReflectionBakingSettings _settings;
-
-        string _assemblyFullPath;
-        Assembly _assembly;
-        ModuleDefinition _module;
+        readonly Assembly _assembly;
+        readonly ModuleDefinition _module;
+        readonly List<Regex> _namespaceRegexes;
 
         MethodReference _zenjectTypeInfoConstructor;
         MethodReference _injectableInfoConstructor;
@@ -43,53 +37,31 @@ namespace Zenject.ReflectionBaking
         TypeReference _objectArrayType;
         TypeReference _zenjectTypeInfoType;
 
-        public ReflectionBakingRunner(ZenjectReflectionBakingSettings settings)
+        ReflectionBakingRunner(
+            ModuleDefinition module, Assembly assembly, List<string> namespacePatterns)
         {
-            _settings = settings;
+            _module = module;
+            _assembly = assembly;
+            _namespaceRegexes = namespacePatterns.Select(CreateRegex).ToList();
         }
 
-        public static bool TryWeaveAssembly(string assemblyAssetPath)
+        public static int WeaveAssembly(
+            ModuleDefinition module, Assembly assembly, List<string> namespacePatterns)
         {
-            var settings = ReflectionBakingInternalUtil.TryGetEnabledSettingsInstance();
-
-            if (settings == null)
-            {
-                return false;
-            }
-
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            var runner = new ReflectionBakingRunner(settings);
-
-            int numTypesChanged = runner.Run(assemblyAssetPath);
-
-            stopwatch.Start();
-
-            if (numTypesChanged > 0)
-            {
-                UnityEngine.Debug.Log("Added reflection baking to '{0}' types in assembly '{1}', took {2:0.00} seconds"
-                    .Fmt(numTypesChanged, Path.GetFileName(assemblyAssetPath), stopwatch.Elapsed.TotalSeconds));
-                return true;
-            }
-
-            return false;
+            return new ReflectionBakingRunner(module, assembly, namespacePatterns).Run();
         }
 
-        int Run(string assemblyAssetPath)
+        int Run()
         {
-            ReadModule(assemblyAssetPath);
-
             SaveImports();
 
-            var namespaceRegexes = _settings.NamespacePatterns.Select(CreateRegex).ToList();
             int numTypesEditted = 0;
 
             var allTypes = _module.LookupAllTypes();
 
             foreach (var typeDef in allTypes)
             {
-                if (namespaceRegexes.Any() && !namespaceRegexes.Any(x => x.IsMatch(typeDef.FullName)))
+                if (_namespaceRegexes.Any() && !_namespaceRegexes.Any(x => x.IsMatch(typeDef.FullName)))
                 {
                     continue;
                 }
@@ -108,50 +80,12 @@ namespace Zenject.ReflectionBaking
                 }
             }
 
-            if (numTypesEditted > 0)
-            {
-                WriteModule();
-            }
-
             return numTypesEditted;
         }
 
         Regex CreateRegex(string regexStr)
         {
             return new Regex(regexStr, RegexOptions.Compiled);
-        }
-
-        void ReadModule(string assemblyAssetPath)
-        {
-            var readerParameters = new ReaderParameters()
-            {
-                AssemblyResolver = new UnityAssemblyResolver(),
-                // Tell the reader to look at symbols so we can get line numbers for errors, warnings, and logs.
-                ReadSymbols = true,
-            };
-
-            Assert.IsNull(_module);
-            Assert.IsNull(_assemblyFullPath);
-
-            _assemblyFullPath = ReflectionBakingInternalUtil.ConvertAssetPathToSystemPath(assemblyAssetPath);
-            _module = ModuleDefinition.ReadModule(_assemblyFullPath, readerParameters);
-
-            var assemblyName = Path.GetFileNameWithoutExtension(assemblyAssetPath);
-
-            _assembly = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(x => x.GetName().Name == assemblyName).SingleOrDefault();
-
-            Assert.IsNotNull(_assembly, "Could not find assembly '{0}' in currently loaded list of assemblies", assemblyName);
-        }
-
-        void WriteModule()
-        {
-            var writerParameters = new WriterParameters()
-            {
-                WriteSymbols = true
-            };
-
-            _module.Write(_assemblyFullPath, writerParameters);
         }
 
         void SaveImports()
@@ -169,7 +103,7 @@ namespace Zenject.ReflectionBaking
             _injectMemberInfoType = _module.ImportType<InjectTypeInfo.InjectMemberInfo>();
             _injectMemberInfoConstructor = _module.ImportMethod<InjectTypeInfo.InjectMemberInfo>(".ctor");
 
-            _preserveConstructor = _module.ImportMethod<UnityEngine.Scripting.PreserveAttribute>(".ctor");
+            _preserveConstructor = _module.ImportMethod<Zenject.Internal.PreserveAttribute>(".ctor");
             _constructorInfoConstructor = _module.ImportMethod<InjectTypeInfo.InjectConstructorInfo>(".ctor");
 
             _injectableInfoType = _module.ImportType<InjectableInfo>();
@@ -273,13 +207,11 @@ namespace Zenject.ReflectionBaking
         MethodDefinition TryAddFactoryMethod(
             TypeDefinition typeDef, ReflectionTypeInfo typeInfo)
         {
-#if !NOT_UNITY3D
-            if (typeInfo.Type.DerivesFromOrEqual<Component>())
+            if (typeInfo.Type.GetParentTypes().Any(x => x.FullName == "UnityEngine.Component"))
             {
                 Assert.That(typeInfo.InjectConstructor.Parameters.IsEmpty());
                 return null;
             }
-#endif
 
             if (typeInfo.InjectConstructor.ConstructorInfo == null)
             {
