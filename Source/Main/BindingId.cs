@@ -1,4 +1,5 @@
 using System;
+using ModestTree;
 
 namespace Zenject
 {
@@ -24,6 +25,16 @@ namespace Zenject
         {
             get { return _identifier; }
             set { _identifier = value; }
+        }
+
+        public override string ToString()
+        {
+            if (_identifier == null)
+            {
+                return _type.PrettyName();
+            }
+
+            return "{0} (ID: {1})".Fmt(_type, _identifier);
         }
 
         public override int GetHashCode()

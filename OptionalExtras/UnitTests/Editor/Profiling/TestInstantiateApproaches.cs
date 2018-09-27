@@ -19,13 +19,13 @@ namespace Zenject.Tests.Injection
     // improvement of maybe 15-20% for instantiate
     public class TestInstantiateApproaches : ZenjectUnitTestFixture
     {
-        [Test]
+        //[Test]
         public void TestWithoutReflectionBaking()
         {
             Log.Trace("Average without baking: {0:0.000}", Run<FooDerivedNoBaking>());
         }
 
-        [Test]
+        //[Test]
         public void TestWithReflectionBaking()
         {
             Log.Trace("Average with baking: {0:0.000}", Run<FooDerivedBaked>());

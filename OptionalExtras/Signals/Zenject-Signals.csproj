@@ -58,6 +58,7 @@
     <Compile Include="Internal\Binders\BindSignal\SignalCallbackWithLookupWrapper.cs" />
     <Compile Include="Internal\Binders\BindSignal\SignalCallbackWrapper.cs" />
     <Compile Include="Internal\Binders\DeclareSignal\DeclareSignalAsyncTickPriorityCopyBinder.cs" />
+    <Compile Include="Internal\Binders\DeclareSignal\DeclareSignalIdRequireHandlerAsyncTickPriorityCopyBinder.cs" />
     <Compile Include="Internal\Binders\DeclareSignal\DeclareSignalRequireHandlerAsyncTickPriorityCopyBinder.cs" />
     <Compile Include="Internal\Binders\DeclareSignal\SignalDeclarationBindInfo.cs" />
     <Compile Include="Internal\Binders\SignalCopyBinder.cs" />

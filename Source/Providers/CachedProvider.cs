@@ -90,20 +90,21 @@ namespace Zenject
                     var instanceType = _creator.GetInstanceType(context);
                     throw Assert.CreateException(
                         "Found circular dependency when creating type '{0}'. Object graph:\n {1}{2}\n",
-                        instanceType, context.GetObjectGraphString(), instanceType.PrettyName());
+                        instanceType, context.GetObjectGraphString(), instanceType);
                 }
 
                 _isCreatingInstance = true;
 #endif
 
-                _instances = new List<object>();
-                _creator.GetAllInstancesWithInjectSplit(context, args, out injectAction, _instances);
-                Assert.IsNotNull(_instances);
+                var instances = new List<object>();
+                _creator.GetAllInstancesWithInjectSplit(context, args, out injectAction, instances);
+                Assert.IsNotNull(instances);
 
+                _instances = instances;
 #if !ZEN_MULTITHREADING
                 _isCreatingInstance = false;
 #endif
-                buffer.AllocFreeAddRange(_instances);
+                buffer.AllocFreeAddRange(instances);
             }
         }
     }

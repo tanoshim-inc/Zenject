@@ -28,6 +28,5 @@ namespace Zenject
             _registry.Remove(_sceneContext);
         }
     }
-
 }
 
