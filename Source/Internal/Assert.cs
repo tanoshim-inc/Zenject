@@ -224,7 +224,7 @@ namespace ModestTree
             if (val != null)
             {
                 throw CreateException(
-                    "Assert Hit! {0}", FormatString(message, p1));
+                    "Assert Hit! {0}", message.Fmt(p1));
             }
         }
 
@@ -258,7 +258,7 @@ namespace ModestTree
         {
             if (val == null)
             {
-                throw CreateException("Assert Hit! {0}", FormatString(message, p1));
+                throw CreateException("Assert Hit! {0}", message.Fmt(p1));
             }
         }
 
@@ -270,7 +270,7 @@ namespace ModestTree
         {
             if (val == null)
             {
-                throw CreateException("Assert Hit! {0}", FormatString(message, p1, p2));
+                throw CreateException("Assert Hit! {0}", message.Fmt(p1, p2));
             }
         }
 
@@ -342,7 +342,7 @@ namespace ModestTree
         {
             if (!condition)
             {
-                throw CreateException("Assert hit! " + FormatString(message, p1));
+                throw CreateException("Assert hit! " + message.Fmt(p1));
             }
         }
 
@@ -355,7 +355,7 @@ namespace ModestTree
         {
             if (!condition)
             {
-                throw CreateException("Assert hit! " + FormatString(message, p1, p2));
+                throw CreateException("Assert hit! " + message.Fmt(p1, p2));
             }
         }
 
@@ -368,7 +368,7 @@ namespace ModestTree
         {
             if (!condition)
             {
-                throw CreateException("Assert hit! " + FormatString(message, p1, p2, p3));
+                throw CreateException("Assert hit! " + message.Fmt(p1, p2, p3));
             }
         }
 
@@ -410,35 +410,6 @@ namespace ModestTree
                 "Expected to receive exception of type '{0}' but nothing was thrown", typeof(TException).Name);
         }
 
-        static string FormatString(string format, params object[] parameters)
-        {
-            // ensure nulls are replaced with "NULL"
-            // and that the original parameters array will not be modified
-            if (parameters != null && parameters.Length > 0)
-            {
-                object[] paramToUse = parameters;
-
-                foreach (object cur in parameters)
-                {
-                    if (cur == null)
-                    {
-                        paramToUse = new object[parameters.Length];
-
-                        for (int i = 0; i < parameters.Length; ++i)
-                        {
-                            paramToUse[i] = parameters[i] ?? "NULL";
-                        }
-
-                        break;
-                    }
-                }
-
-                format = string.Format(format, paramToUse);
-            }
-
-            return format;
-        }
-
         public static ZenjectException CreateException()
         {
             return new ZenjectException("Assert hit!");
@@ -451,12 +422,12 @@ namespace ModestTree
 
         public static ZenjectException CreateException(string message, params object[] parameters)
         {
-            return new ZenjectException(FormatString(message, parameters));
+            return new ZenjectException(message.Fmt(parameters));
         }
 
         public static ZenjectException CreateException(Exception innerException, string message, params object[] parameters)
         {
-            return new ZenjectException(FormatString(message, parameters), innerException);
+            return new ZenjectException(message.Fmt(parameters), innerException);
         }
     }
 }

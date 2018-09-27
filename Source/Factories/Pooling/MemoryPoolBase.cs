@@ -159,7 +159,7 @@ namespace Zenject
             {
                 throw new ZenjectException(
                     "Error during construction of type '{0}' via {1}.Create method!".Fmt(
-                        typeof(TContract), this.GetType().PrettyName()), e);
+                        typeof(TContract), this.GetType()), e);
             }
         }
 

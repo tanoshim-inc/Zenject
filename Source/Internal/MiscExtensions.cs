@@ -10,6 +10,25 @@ namespace ModestTree
         // the existing string.Format method
         public static string Fmt(this string s, params object[] args)
         {
+            // Do in-place change to avoid the memory alloc
+            // This should be fine because the params is always used instead of directly
+            // passing an array
+            for (int i = 0; i < args.Length; i++)
+            {
+                var arg = args[i];
+
+                if (arg == null)
+                {
+                    // This is much more understandable than just the empty string
+                    args[i] = "NULL";
+                }
+                else if (arg is Type)
+                {
+                    // This often reads much better sometimes
+                    args[i] = ((Type)arg).PrettyName();
+                }
+            }
+
             return String.Format(s, args);
         }
 

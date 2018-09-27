@@ -622,7 +622,7 @@ namespace Zenject
                 if (ambiguousSelection)
                 {
                     throw Assert.CreateException(
-                        "Found multiple matches when only one was expected for type '{0}'{1}. \nObject graph:\n {2}",
+                        "Found multiple matches when only one was expected for type '{0}'{1}. Object graph:\n {2}",
                         context.MemberType,
                         (context.ObjectType == null
                             ? ""
@@ -749,7 +749,7 @@ namespace Zenject
                     if (!context.Optional)
                     {
                         throw Assert.CreateException(
-                            "Could not find required dependency with type '{0}' \nObject graph:\n {1}", context.MemberType, context.GetObjectGraphString());
+                            "Could not find required dependency with type '{0}' Object graph:\n {1}", context.MemberType, context.GetObjectGraphString());
                     }
 
                     return;
@@ -892,8 +892,8 @@ namespace Zenject
             if (providerInfo == null)
             {
                 throw Assert.CreateException(
-                    "Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
-                    context.MemberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                    "Unable to resolve type '{0}'{1}. Object graph:\n{2}",
+                    context.MemberType.PrettyName() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
                     (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                     context.GetObjectGraphString());
             }
@@ -1037,8 +1037,8 @@ namespace Zenject
                         return context.FallBackValue;
                     }
 
-                    throw Assert.CreateException("Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
-                        memberType.ToString() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
+                    throw Assert.CreateException("Unable to resolve type '{0}'{1}. Object graph:\n{2}",
+                        memberType.PrettyName() + (context.Identifier == null ? "" : " with ID '{0}'".Fmt(context.Identifier.ToString())),
                         (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                         context.GetObjectGraphString());
                 }
@@ -1058,8 +1058,8 @@ namespace Zenject
                             }
 
                             throw Assert.CreateException(
-                                "Unable to resolve type '{0}'{1}. \nObject graph:\n{2}",
-                                memberType.ToString() + (context.Identifier == null
+                                "Unable to resolve type '{0}'{1}. Object graph:\n{2}",
+                                memberType.PrettyName() + (context.Identifier == null
                                     ? ""
                                     : " with ID '{0}'".Fmt(context.Identifier.ToString())),
                                     (context.ObjectType == null
@@ -1071,8 +1071,8 @@ namespace Zenject
                         if (instances.Count() > 1)
                         {
                             throw Assert.CreateException(
-                                "Provider returned multiple instances when only one was expected!  While resolving type '{0}'{1}. \nObject graph:\n{2}",
-                                memberType.ToString() + (context.Identifier == null
+                                "Provider returned multiple instances when only one was expected!  While resolving type '{0}'{1}. Object graph:\n{2}",
+                                memberType.PrettyName() + (context.Identifier == null
                                     ? ""
                                     : " with ID '{0}'".Fmt(context.Identifier.ToString())),
                                     (context.ObjectType == null
@@ -1117,7 +1117,7 @@ namespace Zenject
                     {
                         // Allow one before giving up so that you can do circular dependencies via postinject or fields
                         throw Assert.CreateException(
-                            "Circular dependency detected! \nObject graph:\n {0}", context.GetObjectGraphString());
+                            "Circular dependency detected! Object graph:\n {0}", context.GetObjectGraphString());
                     }
 
                     bool twice = false;

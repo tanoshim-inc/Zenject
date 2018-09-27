@@ -33,7 +33,7 @@ namespace Zenject
                 // If condition is set then it's probably fine to allow the default of transient
                 Assert.That(!BindInfo.RequireExplicitScope || BindInfo.Condition != null,
                     "Scope must be set for the previous binding!  Please either specify AsTransient, AsCached, or AsSingle. Last binding: Contract: {0}, Identifier: {1} {2}",
-                    BindInfo.ContractTypes.Select(x => x.ToString()).Join(", "), BindInfo.Identifier,
+                    BindInfo.ContractTypes.Select(x => x.PrettyName()).Join(", "), BindInfo.Identifier,
                     BindInfo.ContextInfo != null ? "Context: '{0}'".Fmt(BindInfo.ContextInfo) : "");
                 return ScopeTypes.Transient;
             }
@@ -59,7 +59,7 @@ namespace Zenject
             {
                 throw Assert.CreateException(
                     e, "Error while finalizing previous binding! Contract: {0}, Identifier: {1} {2}",
-                    BindInfo.ContractTypes.Select(x => x.ToString()).Join(", "), BindInfo.Identifier,
+                    BindInfo.ContractTypes.Select(x => x.PrettyName()).Join(", "), BindInfo.Identifier,
                     BindInfo.ContextInfo != null ? "Context: '{0}'".Fmt(BindInfo.ContextInfo) : "");
             }
         }
