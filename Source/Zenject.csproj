@@ -97,6 +97,7 @@
     <Compile Include="Factories\Pooling\PoolFactory.cs" />
     <Compile Include="Factories\Pooling\Static\PoolableStaticMemoryPool.cs" />
     <Compile Include="Factories\Pooling\Static\StaticMemoryPool.cs" />
+    <Compile Include="Factories\Pooling\Util\ArrayPool.cs" />
     <Compile Include="Factories\Pooling\Util\DictionaryPool.cs" />
     <Compile Include="Factories\Pooling\Util\HashSetPool.cs" />
     <Compile Include="Factories\Pooling\Util\ListPool.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Binding\Binders\ConcreteBinders\ConcreteBinderNonGeneric.cs" />
     <Compile Include="Binding\Binders\FromBinders\FromBinder.cs" />
     <Compile Include="Injection\InjectUtil.cs" />
+    <Compile Include="Internal\TypeStringFormatter.cs" />
     <Compile Include="Internal\ValuePair.cs" />
     <Compile Include="Main\LazyInstanceInjector.cs" />
     <Compile Include="Main\LookupId.cs" />
@@ -162,8 +164,6 @@
     <Compile Include="Runtime\PoolableManager.cs" />
     <Compile Include="Util\ActionInstaller.cs" />
     <Compile Include="Util\DisposeBlock.cs" />
-    <Compile Include="Util\InjectTypeInfo.cs" />
-    <Compile Include="Util\NoReflectionCodeWeavingAttribute.cs" />
     <Compile Include="Util\ProfileBlock.cs" />
     <Compile Include="Util\ReflectionInfoTypeInfoConverter.cs" />
     <Compile Include="Util\ReflectionTypeInfo.cs" />
@@ -172,9 +172,7 @@
     <Compile Include="Util\ZenReflectionTypeAnalyzer.cs" />
     <Compile Include="Validation\IValidatable.cs" />
     <Compile Include="Factories\KeyedFactory.cs" />
-    <Compile Include="Injection\InjectableInfo.cs" />
     <Compile Include="Util\TypeAnalyzer.cs" />
-    <Compile Include="Util\ZenjectTypeInfo.cs" />
     <Compile Include="Main\IInstantiator.cs" />
     <Compile Include="Main\BindingId.cs" />
     <Compile Include="Install\IInstaller.cs" />
