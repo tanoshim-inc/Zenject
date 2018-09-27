@@ -74,7 +74,7 @@ namespace Zenject.ReflectionBaking
 
             Assert.IsNotNull(assembly, "Could not find unique assembly '{0}' in currently loaded list of assemblies", assemblyName);
 
-            int numTypesChanged = ReflectionBakingRunner.WeaveAssembly(
+            int numTypesChanged = ReflectionBakingModuleEditor.WeaveAssembly(
                 module, assembly, settings.NamespacePatterns);
 
             if (numTypesChanged > 0)

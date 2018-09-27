@@ -11,7 +11,7 @@ using Zenject.Internal;
 
 namespace Zenject.ReflectionBaking
 {
-    public static class ZenMenuItems
+    public static class ReflectionBakingMenuItems
     {
         [MenuItem("Assets/Create/Zenject/Reflection Baking Settings", false, 100)]
         public static void CreateReflectionBakingSettings()

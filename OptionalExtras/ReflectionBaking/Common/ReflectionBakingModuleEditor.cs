@@ -14,7 +14,7 @@ using Zenject.Internal;
 
 namespace Zenject.ReflectionBaking
 {
-    public class ReflectionBakingRunner
+    public class ReflectionBakingModuleEditor
     {
         readonly Assembly _assembly;
         readonly ModuleDefinition _module;
@@ -37,7 +37,7 @@ namespace Zenject.ReflectionBaking
         TypeReference _objectArrayType;
         TypeReference _zenjectTypeInfoType;
 
-        ReflectionBakingRunner(
+        ReflectionBakingModuleEditor(
             ModuleDefinition module, Assembly assembly, List<string> namespacePatterns)
         {
             _module = module;
@@ -46,9 +46,15 @@ namespace Zenject.ReflectionBaking
         }
 
         public static int WeaveAssembly(
+            ModuleDefinition module, Assembly assembly)
+        {
+            return WeaveAssembly(module, assembly, new List<string>());
+        }
+
+        public static int WeaveAssembly(
             ModuleDefinition module, Assembly assembly, List<string> namespacePatterns)
         {
-            return new ReflectionBakingRunner(module, assembly, namespacePatterns).Run();
+            return new ReflectionBakingModuleEditor(module, assembly, namespacePatterns).Run();
         }
 
         int Run()

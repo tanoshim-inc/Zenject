@@ -268,6 +268,21 @@ namespace ModestTree
             return result;
         }
 
+        public static IEnumerable<Type> GetParentTypes(this Type type)
+        {
+            if (type == null || type.BaseType() == null || type == typeof(object) || type.BaseType() == typeof(object))
+            {
+                yield break;
+            }
+
+            yield return type.BaseType();
+
+            foreach (var ancestor in type.BaseType().GetParentTypes())
+            {
+                yield return ancestor;
+            }
+        }
+
         public static bool IsOpenGenericType(this Type type)
         {
             bool result;
