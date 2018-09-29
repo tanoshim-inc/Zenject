@@ -66,6 +66,13 @@ namespace Zenject.ReflectionBaking
 
             var module = ModuleDefinition.ReadModule(assemblyFullPath, readerParameters);
 
+            if (module.AssemblyReferences.Where(x => x.Name.ToLower() == "zenject-usage").IsEmpty())
+            {
+                // Zenject-usage is used by the generated methods
+                // Important that we do this check otherwise we can corrupt some dlls that don't have access to it
+                return;
+            }
+
             var assemblyName = Path.GetFileNameWithoutExtension(assemblyAssetPath);
             var assembly = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(x => x.GetName().Name == assemblyName).OnlyOrDefault();

@@ -48,7 +48,12 @@ namespace Zenject
 
             if (shouldMakeActive && !_container.IsValidating)
             {
-                gameObj.SetActive(true);
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
+                {
+                    gameObj.SetActive(true);
+                }
             }
 
             // Note: We don't need to call ResolveRoots here because GameObjectContext does this for us

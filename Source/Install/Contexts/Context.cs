@@ -172,7 +172,15 @@ namespace Zenject
             {
                 Assert.IsNotNull(installerPrefab, "Found null installer prefab in '{0}'", this.GetType());
 
-                var installerGameObject = GameObject.Instantiate(installerPrefab.gameObject);
+                GameObject installerGameObject;
+
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("GameObject.Instantiate"))
+#endif
+                {
+                    installerGameObject = GameObject.Instantiate(installerPrefab.gameObject);
+                }
+
                 installerGameObject.transform.SetParent(this.transform, false);
                 var installer = installerGameObject.GetComponent<MonoInstaller>();
 
