@@ -104,7 +104,8 @@ namespace Zenject
         public void Awake()
         {
 #if ZEN_INTERNAL_PROFILING
-            using (ProfileTimers.CreateTimedBlock("SceneContext Awake - Other"))
+            ProfileTimers.ResetAll();
+            using (ProfileTimers.CreateTimedBlock("Other"))
 #endif
             {
                 Initialize();

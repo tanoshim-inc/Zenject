@@ -64,8 +64,8 @@ namespace Zenject
             Assert.IsNotNull(context);
 
             Assert.That(context.ObjectType.DerivesFrom<Component>(),
-            "Object '{0}' can only be injected into MonoBehaviour's since it was bound with 'FromNewComponentSibling'. Attempted to inject into non-MonoBehaviour '{1}'",
-            context.MemberType, context.ObjectType);
+                "Object '{0}' can only be injected into MonoBehaviour's since it was bound with 'FromNewComponentSibling'. Attempted to inject into non-MonoBehaviour '{1}'",
+                context.MemberType, context.ObjectType);
 
             object instance;
 

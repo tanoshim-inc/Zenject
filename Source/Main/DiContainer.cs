@@ -392,7 +392,13 @@ namespace Zenject
                         context.Optional = false;
 
                         instances.Clear();
-                        SafeGetInstances(providerInfo, context, instances);
+
+#if ZEN_INTERNAL_PROFILING
+                        using (ProfileTimers.CreateTimedBlock("DiContainer.Resolve"))
+#endif
+                        {
+                            SafeGetInstances(providerInfo, context, instances);
+                        }
 
                         // Zero matches might actually be valid in some cases
                         //Assert.That(matches.Any());
@@ -732,77 +738,82 @@ namespace Zenject
 
         public void ResolveAll(InjectContext context, List<object> buffer)
         {
-            Assert.IsNotNull(context);
-            // Note that different types can map to the same provider (eg. a base type to a concrete class and a concrete class to itself)
-
-            FlushBindings();
-            CheckForInstallWarning(context);
-
-            var matches = ZenPools.SpawnList<ProviderInfo>();
-
-            try
+#if ZEN_INTERNAL_PROFILING
+            using (ProfileTimers.CreateTimedBlock("DiContainer.Resolve"))
+#endif
             {
-                GetProviderMatches(context, matches);
+                Assert.IsNotNull(context);
+                // Note that different types can map to the same provider (eg. a base type to a concrete class and a concrete class to itself)
 
-                if (matches.Count == 0)
-                {
-                    if (!context.Optional)
-                    {
-                        throw Assert.CreateException(
-                            "Could not find required dependency with type '{0}' Object graph:\n {1}", context.MemberType, context.GetObjectGraphString());
-                    }
+                FlushBindings();
+                CheckForInstallWarning(context);
 
-                    return;
-                }
-
-                var instances = ZenPools.SpawnList<object>();
-                var allInstances = ZenPools.SpawnList<object>();
+                var matches = ZenPools.SpawnList<ProviderInfo>();
 
                 try
                 {
-                    for (int i = 0; i < matches.Count; i++)
+                    GetProviderMatches(context, matches);
+
+                    if (matches.Count == 0)
                     {
-                        var match = matches[i];
-
-                        instances.Clear();
-                        SafeGetInstances(match, context, instances);
-
-                        for (int k = 0; k < instances.Count; k++)
+                        if (!context.Optional)
                         {
-                            allInstances.Add(instances[k]);
+                            throw Assert.CreateException(
+                                "Could not find required dependency with type '{0}' Object graph:\n {1}", context.MemberType, context.GetObjectGraphString());
                         }
+
+                        return;
                     }
 
-                    if (allInstances.Count == 0 && !context.Optional)
-                    {
-                        throw Assert.CreateException(
-                            "Could not find required dependency with type '{0}'.  Found providers but they returned zero results!", context.MemberType);
-                    }
+                    var instances = ZenPools.SpawnList<object>();
+                    var allInstances = ZenPools.SpawnList<object>();
 
-                    if (IsValidating)
+                    try
                     {
-                        for (int i = 0; i < allInstances.Count; i++)
+                        for (int i = 0; i < matches.Count; i++)
                         {
-                            var instance = allInstances[i];
+                            var match = matches[i];
 
-                            if (instance is ValidationMarker)
+                            instances.Clear();
+                            SafeGetInstances(match, context, instances);
+
+                            for (int k = 0; k < instances.Count; k++)
                             {
-                                allInstances[i] = context.MemberType.GetDefaultValue();
+                                allInstances.Add(instances[k]);
                             }
                         }
-                    }
 
-                    buffer.AllocFreeAddRange(allInstances);
+                        if (allInstances.Count == 0 && !context.Optional)
+                        {
+                            throw Assert.CreateException(
+                                "Could not find required dependency with type '{0}'.  Found providers but they returned zero results!", context.MemberType);
+                        }
+
+                        if (IsValidating)
+                        {
+                            for (int i = 0; i < allInstances.Count; i++)
+                            {
+                                var instance = allInstances[i];
+
+                                if (instance is ValidationMarker)
+                                {
+                                    allInstances[i] = context.MemberType.GetDefaultValue();
+                                }
+                            }
+                        }
+
+                        buffer.AllocFreeAddRange(allInstances);
+                    }
+                    finally
+                    {
+                        ZenPools.DespawnList(instances);
+                        ZenPools.DespawnList(allInstances);
+                    }
                 }
                 finally
                 {
-                    ZenPools.DespawnList(instances);
-                    ZenPools.DespawnList(allInstances);
+                    ZenPools.DespawnList<ProviderInfo>(matches);
                 }
-            }
-            finally
-            {
-                ZenPools.DespawnList<ProviderInfo>(matches);
             }
         }
 
