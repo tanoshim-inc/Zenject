@@ -152,7 +152,12 @@ namespace Zenject
 
             if (shouldMakeActive && !container.IsValidating)
             {
-                gameObj.SetActive(true);
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
+                {
+                    gameObj.SetActive(true);
+                }
             }
 
             var installers = gameObj.GetComponentsInChildren<TInstaller>();

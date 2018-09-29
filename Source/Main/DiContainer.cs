@@ -1728,24 +1728,30 @@ namespace Zenject
             }
 
             GameObject gameObj;
-            if(gameObjectBindInfo.Position.HasValue && gameObjectBindInfo.Rotation.HasValue)
+
+#if ZEN_INTERNAL_PROFILING
+            using (ProfileTimers.CreateTimedBlock("GameObject.Instantiate"))
+#endif
             {
-                gameObj = (GameObject)GameObject.Instantiate(
-                    prefabAsGameObject, gameObjectBindInfo.Position.Value,gameObjectBindInfo.Rotation.Value, initialParent);
-            }
-            else if (gameObjectBindInfo.Position.HasValue)
-            {
-                gameObj = (GameObject)GameObject.Instantiate(
-                    prefabAsGameObject, gameObjectBindInfo.Position.Value,prefabAsGameObject.transform.rotation, initialParent);
-            }
-            else if (gameObjectBindInfo.Rotation.HasValue)
-            {
-                gameObj = (GameObject)GameObject.Instantiate(
-                    prefabAsGameObject, prefabAsGameObject.transform.position, gameObjectBindInfo.Rotation.Value, initialParent);
-            }
-            else
-            {
-                gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, initialParent);
+                if(gameObjectBindInfo.Position.HasValue && gameObjectBindInfo.Rotation.HasValue)
+                {
+                    gameObj = (GameObject)GameObject.Instantiate(
+                        prefabAsGameObject, gameObjectBindInfo.Position.Value,gameObjectBindInfo.Rotation.Value, initialParent);
+                }
+                else if (gameObjectBindInfo.Position.HasValue)
+                {
+                    gameObj = (GameObject)GameObject.Instantiate(
+                        prefabAsGameObject, gameObjectBindInfo.Position.Value,prefabAsGameObject.transform.rotation, initialParent);
+                }
+                else if (gameObjectBindInfo.Rotation.HasValue)
+                {
+                    gameObj = (GameObject)GameObject.Instantiate(
+                        prefabAsGameObject, prefabAsGameObject.transform.position, gameObjectBindInfo.Rotation.Value, initialParent);
+                }
+                else
+                {
+                    gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, initialParent);
+                }
             }
 
 #if !UNITY_EDITOR
@@ -2040,7 +2046,12 @@ namespace Zenject
 
             if (shouldMakeActive && !IsValidating)
             {
-                gameObj.SetActive(true);
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
+                {
+                    gameObj.SetActive(true);
+                }
             }
 
             return gameObj;
@@ -3412,7 +3423,12 @@ namespace Zenject
 
             if (shouldMakeActive && !IsValidating)
             {
-                gameObj.SetActive(true);
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
+                {
+                    gameObj.SetActive(true);
+                }
             }
 
             return component;

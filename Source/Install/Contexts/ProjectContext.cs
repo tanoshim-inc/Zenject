@@ -116,45 +116,50 @@ namespace Zenject
 
             var prefabWasActive = false;
 
-            if (prefab == null)
+#if ZEN_INTERNAL_PROFILING
+            using (ProfileTimers.CreateTimedBlock("GameObject.Instantiate"))
+#endif
             {
-                _instance = new GameObject("ProjectContext")
-                    .AddComponent<ProjectContext>();
-            }
-            else
-            {
-                prefabWasActive = prefab.activeSelf;
+                if (prefab == null)
+                {
+                    _instance = new GameObject("ProjectContext")
+                        .AddComponent<ProjectContext>();
+                }
+                else
+                {
+                    prefabWasActive = prefab.activeSelf;
 
-                GameObject gameObjectInstance;
+                    GameObject gameObjectInstance;
 #if UNITY_EDITOR
-                if(prefabWasActive)
-                {
-                    // This ensures the prefab's Awake() methods don't fire (and, if in the editor, that the prefab file doesn't get modified)
-                    gameObjectInstance = GameObject.Instantiate(prefab, ZenUtilInternal.GetOrCreateInactivePrefabParent());
-                    gameObjectInstance.SetActive(false);
-                    gameObjectInstance.transform.SetParent(null, false);
-                }
-                else
-                {
-                    gameObjectInstance = GameObject.Instantiate(prefab);
-                }
+                    if(prefabWasActive)
+                    {
+                        // This ensures the prefab's Awake() methods don't fire (and, if in the editor, that the prefab file doesn't get modified)
+                        gameObjectInstance = GameObject.Instantiate(prefab, ZenUtilInternal.GetOrCreateInactivePrefabParent());
+                        gameObjectInstance.SetActive(false);
+                        gameObjectInstance.transform.SetParent(null, false);
+                    }
+                    else
+                    {
+                        gameObjectInstance = GameObject.Instantiate(prefab);
+                    }
 #else
-                if(prefabWasActive)
-                {
-                    prefab.SetActive(false);
-                    gameObjectInstance = GameObject.Instantiate(prefab);
-                    prefab.SetActive(true);
-                }
-                else
-                {
-                    gameObjectInstance = GameObject.Instantiate(prefab);
-                }
+                    if(prefabWasActive)
+                    {
+                        prefab.SetActive(false);
+                        gameObjectInstance = GameObject.Instantiate(prefab);
+                        prefab.SetActive(true);
+                    }
+                    else
+                    {
+                        gameObjectInstance = GameObject.Instantiate(prefab);
+                    }
 #endif
 
-                _instance = gameObjectInstance.GetComponent<ProjectContext>();
+                    _instance = gameObjectInstance.GetComponent<ProjectContext>();
 
-                Assert.IsNotNull(_instance,
-                    "Could not find ProjectContext component on prefab 'Resources/{0}.prefab'", ProjectContextResourcePath);
+                    Assert.IsNotNull(_instance,
+                        "Could not find ProjectContext component on prefab 'Resources/{0}.prefab'", ProjectContextResourcePath);
+                }
             }
 
             // Note: We use Initialize instead of awake here in case someone calls
@@ -163,8 +168,13 @@ namespace Zenject
 
             if (prefabWasActive)
             {
-                // We always instantiate it as disabled so that Awake and Start events are triggered after inject
-                _instance.gameObject.SetActive(true);
+#if ZEN_INTERNAL_PROFILING
+                using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
+                {
+                    // We always instantiate it as disabled so that Awake and Start events are triggered after inject
+                    _instance.gameObject.SetActive(true);
+                }
             }
         }
 
