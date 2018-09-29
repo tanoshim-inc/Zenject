@@ -14,7 +14,7 @@ namespace Zenject
         public override void Start()
         {
             base.Start();
-            Log.Info(ProfileTimers.FormatResults());
+            Log.Info("SceneContext.Awake detailed profiling: {0}", ProfileTimers.FormatResults());
         }
 #endif
     }

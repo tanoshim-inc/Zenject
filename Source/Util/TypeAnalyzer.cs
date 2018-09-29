@@ -94,6 +94,16 @@ namespace Zenject
         }
 #endif
 
+        public static bool HasInfo<T>()
+        {
+            return HasInfo(typeof(T));
+        }
+
+        public static bool HasInfo(Type type)
+        {
+            return TryGetInfo(type) != null;
+        }
+
         public static InjectTypeInfo GetInfo<T>()
         {
             return GetInfo(typeof(T));

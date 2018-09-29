@@ -15,17 +15,23 @@ namespace Zenject
     {
         static Dictionary<string, TimerInfo> _timers = new Dictionary<string, TimerInfo>();
 
+        public static void ResetAll()
+        {
+            foreach (var timer in _timers.Values)
+            {
+                timer.Reset();
+            }
+        }
+
         public static string FormatResults()
         {
             var result = new StringBuilder();
 
-            var validTimers = _timers.Where(x => x.Key != "User Code");
-
-            var total = validTimers.Select(x => x.Value.TotalMilliseconds).Sum();
+            var total = _timers.Select(x => x.Value.TotalMilliseconds).Sum();
 
             result.Append("Total time tracked: {0:0.00} ms.  Details:".Fmt(total));
 
-            foreach (var pair in validTimers.OrderByDescending(x => x.Value.TotalMilliseconds))
+            foreach (var pair in _timers.OrderByDescending(x => x.Value.TotalMilliseconds))
             {
                 var time = pair.Value.TotalMilliseconds;
                 var percent = 100.0 * (time / total);
@@ -48,7 +54,7 @@ namespace Zenject
 
             if (!_timers.TryGetValue(name, out timer))
             {
-                timer = new TimerInfo(_timers.Values.Where(x => x.IsRunning));
+                timer = new TimerInfo();
                 _timers.Add(name, timer);
             }
 
@@ -117,21 +123,14 @@ namespace Zenject
         {
             readonly Stopwatch _timer;
 
-            public TimerInfo(IEnumerable<TimerInfo> parents)
+            public TimerInfo()
             {
                 _timer = new Stopwatch();
-
-                Parents = parents.ToList();
             }
 
             public int CallCount
             {
                 get; set;
-            }
-
-            public List<TimerInfo> Parents
-            {
-                get; private set;
             }
 
             public double TotalMilliseconds
@@ -142,6 +141,11 @@ namespace Zenject
             public bool IsRunning
             {
                 get { return _timer.IsRunning; }
+            }
+
+            public void Reset()
+            {
+                _timer.Reset();
             }
 
             public void Resume()
