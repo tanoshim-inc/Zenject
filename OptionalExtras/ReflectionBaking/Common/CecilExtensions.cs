@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ModestTree;
-using Mono.Cecil;
 using System;
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Cecil;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
 namespace Zenject.ReflectionBaking
 {
