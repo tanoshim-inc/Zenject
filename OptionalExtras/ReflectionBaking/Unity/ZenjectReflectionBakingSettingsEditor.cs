@@ -123,11 +123,6 @@ namespace Zenject.ReflectionBaking
                 _hasModifiedProperties = true;
             }
 
-            //if (GUILayout.Button("Force Run"))
-            //{
-                //ReflectionBakingBuildObserver.ExecuteBaking();
-            //}
-
             if (_hasModifiedProperties)
             {
                 _hasModifiedProperties = false;

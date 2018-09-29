@@ -27,11 +27,15 @@ namespace Zenject
         {
             var result = new StringBuilder();
 
-            var total = _timers.Select(x => x.Value.TotalMilliseconds).Sum();
+            // Uncomment if you only want to see zenject related info
+            //var timers = _timers.Where(x => x.Key != "User Code");
+            var timers = _timers;
+
+            var total = timers.Select(x => x.Value.TotalMilliseconds).Sum();
 
             result.Append("Total time tracked: {0:0.00} ms.  Details:".Fmt(total));
 
-            foreach (var pair in _timers.OrderByDescending(x => x.Value.TotalMilliseconds))
+            foreach (var pair in timers.OrderByDescending(x => x.Value.TotalMilliseconds))
             {
                 var time = pair.Value.TotalMilliseconds;
                 var percent = 100.0 * (time / total);
