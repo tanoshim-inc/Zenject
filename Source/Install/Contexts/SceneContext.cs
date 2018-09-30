@@ -7,17 +7,16 @@ using ModestTree;
 using ModestTree.Util;
 using UnityEngine;
 using UnityEngine.Serialization;
-using UnityEngine.SceneManagement;
 using Zenject.Internal;
 
 namespace Zenject
 {
     public class SceneContext : RunnableContext
     {
-        public event Action PreInstall = null;
-        public event Action PostInstall = null;
-        public event Action PreResolve = null;
-        public event Action PostResolve = null;
+        public event Action PreInstall;
+        public event Action PostInstall;
+        public event Action PreResolve;
+        public event Action PostResolve;
 
         public static Action<DiContainer> ExtraBindingsInstallMethod;
         public static Action<DiContainer> ExtraBindingsLateInstallMethod;
@@ -27,7 +26,7 @@ namespace Zenject
         [FormerlySerializedAs("ParentNewObjectsUnderRoot")]
         [Tooltip("When true, objects that are created at runtime will be parented to the SceneContext")]
         [SerializeField]
-        bool _parentNewObjectsUnderRoot = false;
+        bool _parentNewObjectsUnderRoot;
 
         [Tooltip("Optional contract names for this SceneContext, allowing contexts in subsequently loaded scenes to depend on it and be parented to it, and also for previously loaded decorators to be included")]
         [SerializeField]
@@ -164,7 +163,7 @@ namespace Zenject
                     return tempParentContainer;
                 }
 
-                return new DiContainer[] { ProjectContext.Instance.Container };
+                return new[] { ProjectContext.Instance.Container };
             }
 
             Assert.IsNull(ParentContainers,
@@ -233,7 +232,7 @@ namespace Zenject
 
             if (_parentNewObjectsUnderRoot)
             {
-                _container.DefaultParent = this.transform;
+                _container.DefaultParent = transform;
             }
             else
             {
@@ -309,7 +308,7 @@ namespace Zenject
             InstallSceneBindings(injectableMonoBehaviours);
 
             _container.Bind(typeof(SceneKernel), typeof(MonoKernel))
-                .To<SceneKernel>().FromNewComponentOn(this.gameObject).AsSingle().NonLazy();
+                .To<SceneKernel>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
 
             _container.Bind<ZenjectSceneLoader>().AsSingle();
 
@@ -344,7 +343,7 @@ namespace Zenject
 
         protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
-            var scene = this.gameObject.scene;
+            var scene = gameObject.scene;
 
             ZenUtilInternal.AddStateMachineBehaviourAutoInjectersInScene(scene);
             ZenUtilInternal.GetInjectableMonoBehavioursInScene(scene, monoBehaviours);

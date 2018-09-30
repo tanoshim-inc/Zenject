@@ -1,10 +1,8 @@
 #if UNITY_EDITOR
 
 using System.Collections;
-using System.Collections.Generic;
-using NUnit.Framework;
+using ModestTree;
 using UnityEngine.TestTools;
-using Assert=ModestTree.Assert;
 
 #pragma warning disable 219
 
@@ -82,10 +80,6 @@ namespace Zenject.Tests.Bindings
 
         class Foo
         {
-            public Foo()
-            {
-            }
-
             public string Value
             {
                 get;

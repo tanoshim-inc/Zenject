@@ -1,18 +1,16 @@
 #if !NOT_UNITY3D
 
+using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.SceneManagement;
 using ModestTree;
-using ModestTree.Util;
-using UnityEngine;
-using Zenject.Internal;
+using UnityEngine.SceneManagement;
 
 namespace Zenject
 {
     public class ProjectKernel : MonoKernel
     {
         [Inject]
-        ZenjectSettings _settings = null;
+        ZenjectSettings _settings;
 
         [Inject]
         SceneContextRegistry _contextRegistry;
@@ -52,7 +50,7 @@ namespace Zenject
 
             // Destroy project context after all scenes
             Assert.That(!IsDestroyed);
-            GameObject.DestroyImmediate(this.gameObject);
+            DestroyImmediate(gameObject);
             Assert.That(IsDestroyed);
         }
 
@@ -62,7 +60,12 @@ namespace Zenject
             // (Unless it is destroyed manually)
             Assert.That(!IsDestroyed);
 
-            var sceneOrder = SceneManager.GetAllScenes();
+            var sceneOrder = new List<Scene>();
+
+            for (int i = 0; i < SceneManager.sceneCount; i++)
+            {
+                sceneOrder.Add(SceneManager.GetSceneAt(i));
+            }
 
             // Destroy the scene contexts from bottom to top
             // Since this is the reverse order that they were loaded in
@@ -70,11 +73,11 @@ namespace Zenject
             {
                 if (immediate)
                 {
-                    GameObject.DestroyImmediate(sceneContext.gameObject);
+                    DestroyImmediate(sceneContext.gameObject);
                 }
                 else
                 {
-                    GameObject.Destroy(sceneContext.gameObject);
+                    Destroy(sceneContext.gameObject);
                 }
             }
         }

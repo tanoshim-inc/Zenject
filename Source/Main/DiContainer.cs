@@ -5,7 +5,6 @@ using System.Linq;
 using ModestTree;
 using ModestTree.Util;
 using Zenject.Internal;
-
 #if !NOT_UNITY3D
 using UnityEngine;
 #endif
@@ -69,7 +68,7 @@ namespace Zenject
 
             _settings = ZenjectSettings.Default;
 
-            var selfLookup = new DiContainer[] { this };
+            var selfLookup = new[] { this };
             _containerLookups[(int)InjectSources.Local] = selfLookup;
 
             var parentContainers = parentContainersEnumerable.ToArray();
@@ -109,7 +108,7 @@ namespace Zenject
             }
 
             // Assumed to be configured in a parent container
-            var settings = this.TryResolve<ZenjectSettings>();
+            var settings = TryResolve<ZenjectSettings>();
 
             if (settings != null)
             {
@@ -152,7 +151,7 @@ namespace Zenject
             set
             {
                 _settings = value;
-                this.Rebind<ZenjectSettings>().FromInstance(value);
+                Rebind<ZenjectSettings>().FromInstance(value);
             }
         }
 
@@ -181,7 +180,7 @@ namespace Zenject
 
             var result = Activator.CreateInstance(
                 typeof(LazyInject<>)
-                .MakeGenericType(newContext.MemberType), new object[] { this, newContext });
+                .MakeGenericType(newContext.MemberType), this, newContext);
 
             if (_isValidating)
             {
@@ -483,7 +482,7 @@ namespace Zenject
 
         DiContainer CreateSubContainer(bool isValidating)
         {
-            return new DiContainer(new DiContainer[] { this }, isValidating);
+            return new DiContainer(new[] { this }, isValidating);
         }
 
         public void RegisterProvider(
@@ -527,7 +526,7 @@ namespace Zenject
             }
             finally
             {
-                ZenPools.DespawnList<ProviderInfo>(allMatches);
+                ZenPools.DespawnList(allMatches);
             }
         }
 
@@ -607,7 +606,7 @@ namespace Zenject
                                 // Selected provider is better because it has condition.
                                 continue;
                             }
-                            if (selected != null && !selectedHasCondition)
+                            if (selected != null)
                             {
                                 // Both providers don't have a condition and are on equal depth.
                                 ambiguousSelection = true;
@@ -640,7 +639,7 @@ namespace Zenject
             }
             finally
             {
-                ZenPools.DespawnList<ProviderInfo>(localProviders);
+                ZenPools.DespawnList(localProviders);
             }
         }
 
@@ -685,7 +684,6 @@ namespace Zenject
             if (bindingId.Type.IsGenericType() && _providers.TryGetValue(new BindingId(bindingId.Type.GetGenericTypeDefinition(), bindingId.Identifier), out localProviders))
             {
                 buffer.AllocFreeAddRange(localProviders);
-                return;
             }
 
             // None found
@@ -812,7 +810,7 @@ namespace Zenject
                 }
                 finally
                 {
-                    ZenPools.DespawnList<ProviderInfo>(matches);
+                    ZenPools.DespawnList(matches);
                 }
             }
         }
@@ -866,7 +864,7 @@ namespace Zenject
             _hasDisplayedInstallWarning = true;
 
             // Feel free to comment this out if you are comfortable with this practice
-            ModestTree.Log.Warn("Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type '{0}'.  If you don't care about this, you can disable this warning by setting flag 'ZenjectSettings.DisplayWarningWhenResolvingDuringInstall' to false (see docs for details on ZenjectSettings).", rootContext.MemberType);
+            Log.Warn("Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type '{0}'.  If you don't care about this, you can disable this warning by setting flag 'ZenjectSettings.DisplayWarningWhenResolvingDuringInstall' to false (see docs for details on ZenjectSettings).", rootContext.MemberType);
 #endif
         }
 
@@ -945,11 +943,11 @@ namespace Zenject
                         .Where(x => x != null).ToList();
                 }
 
-                return new List<Type> {};
+                return new List<Type>();
             }
             finally
             {
-                ZenPools.DespawnList<ProviderInfo>(matches);
+                ZenPools.DespawnList(matches);
             }
         }
 
@@ -1008,16 +1006,16 @@ namespace Zenject
                         // than always requiring that they explicitly mark their array types as optional
                         subContext.Optional = true;
 
-                        var instances = ZenPools.SpawnList<object>();
+                        var results = ZenPools.SpawnList<object>();
 
                         try
                         {
-                            ResolveAll(subContext, instances);
-                            return ReflectionUtil.CreateArray(subContext.MemberType, instances);
+                            ResolveAll(subContext, results);
+                            return ReflectionUtil.CreateArray(subContext.MemberType, results);
                         }
                         finally
                         {
-                            ZenPools.DespawnList(instances);
+                            ZenPools.DespawnList(results);
                         }
                     }
 
@@ -1051,45 +1049,43 @@ namespace Zenject
                         (context.ObjectType == null ? "" : " while building object with type '{0}'".Fmt(context.ObjectType)),
                         context.GetObjectGraphString());
                 }
-                else
+
+                var instances = ZenPools.SpawnList<object>();
+
+                try
                 {
-                    var instances = ZenPools.SpawnList<object>();
+                    SafeGetInstances(providerInfo, context, instances);
 
-                    try
+                    if (instances.Count == 0)
                     {
-                        SafeGetInstances(providerInfo, context, instances);
-
-                        if (instances.Count == 0)
+                        if (context.Optional)
                         {
-                            if (context.Optional)
-                            {
-                                return context.FallBackValue;
-                            }
-
-                            throw Assert.CreateException(
-                                "Unable to resolve '{0}'{1}. Object graph:\n{2}", context.BindingId,
-                                    (context.ObjectType == null
-                                     ? ""
-                                     : " while building object with type '{0}'".Fmt(context.ObjectType)),
-                                     context.GetObjectGraphString());
+                            return context.FallBackValue;
                         }
 
-                        if (instances.Count() > 1)
-                        {
-                            throw Assert.CreateException(
-                                "Provider returned multiple instances when only one was expected!  While resolving '{0}'{1}. Object graph:\n{2}", context.BindingId,
-                                    (context.ObjectType == null
-                                     ? ""
-                                     : " while building object with type '{0}'".Fmt(context.ObjectType)),
-                                     context.GetObjectGraphString());
-                        }
+                        throw Assert.CreateException(
+                            "Unable to resolve '{0}'{1}. Object graph:\n{2}", context.BindingId,
+                            (context.ObjectType == null
+                             ? ""
+                             : " while building object with type '{0}'".Fmt(context.ObjectType)),
+                             context.GetObjectGraphString());
+                    }
 
-                        return instances.First();
-                    }
-                    finally
+                    if (instances.Count() > 1)
                     {
-                        ZenPools.DespawnList(instances);
+                        throw Assert.CreateException(
+                            "Provider returned multiple instances when only one was expected!  While resolving '{0}'{1}. Object graph:\n{2}", context.BindingId,
+                            (context.ObjectType == null
+                             ? ""
+                             : " while building object with type '{0}'".Fmt(context.ObjectType)),
+                             context.GetObjectGraphString());
                     }
+
+                    return instances.First();
+                }
+                finally
+                {
+                    ZenPools.DespawnList(instances);
                 }
             }
         }
@@ -1284,7 +1280,7 @@ namespace Zenject
             Type concreteType, bool autoInject, List<TypeValuePair> extraArgs, InjectContext context, object concreteIdentifier)
         {
 #if !NOT_UNITY3D
-            Assert.That(!concreteType.DerivesFrom<UnityEngine.Component>(),
+            Assert.That(!concreteType.DerivesFrom<Component>(),
                 "Error occurred while instantiating object of type '{0}'. Instantiator should not be used to create new mono behaviours.  Must use InstantiatePrefabForComponent, InstantiatePrefab, or InstantiateComponent.", concreteType);
 #endif
 
@@ -1465,7 +1461,7 @@ namespace Zenject
                         }
                         catch (Exception e)
                         {
-                            ModestTree.Log.ErrorException(e);
+                            Log.ErrorException(e);
                         }
                     }
                 }
@@ -1735,22 +1731,22 @@ namespace Zenject
             {
                 if(gameObjectBindInfo.Position.HasValue && gameObjectBindInfo.Rotation.HasValue)
                 {
-                    gameObj = (GameObject)GameObject.Instantiate(
+                    gameObj = GameObject.Instantiate(
                         prefabAsGameObject, gameObjectBindInfo.Position.Value,gameObjectBindInfo.Rotation.Value, initialParent);
                 }
                 else if (gameObjectBindInfo.Position.HasValue)
                 {
-                    gameObj = (GameObject)GameObject.Instantiate(
+                    gameObj = GameObject.Instantiate(
                         prefabAsGameObject, gameObjectBindInfo.Position.Value,prefabAsGameObject.transform.rotation, initialParent);
                 }
                 else if (gameObjectBindInfo.Rotation.HasValue)
                 {
-                    gameObj = (GameObject)GameObject.Instantiate(
+                    gameObj = GameObject.Instantiate(
                         prefabAsGameObject, prefabAsGameObject.transform.position, gameObjectBindInfo.Rotation.Value, initialParent);
                 }
                 else
                 {
-                    gameObj = (GameObject)GameObject.Instantiate(prefabAsGameObject, initialParent);
+                    gameObj = GameObject.Instantiate(prefabAsGameObject, initialParent);
                 }
             }
 
@@ -1786,7 +1782,7 @@ namespace Zenject
 
         public GameObject CreateEmptyGameObject(string name)
         {
-            return CreateEmptyGameObject(new GameObjectCreationParameters() { Name = name }, null);
+            return CreateEmptyGameObject(new GameObjectCreationParameters { Name = name }, null);
         }
 
         public GameObject CreateEmptyGameObject(
@@ -1836,10 +1832,10 @@ namespace Zenject
 
                 if (context == null)
                 {
-                    context = new InjectContext()
+                    context = new InjectContext
                     {
                         // This is the only information we can supply in this case
-                        Container = this,
+                        Container = this
                     };
                 }
 
@@ -2016,7 +2012,7 @@ namespace Zenject
         public GameObject InstantiatePrefab(UnityEngine.Object prefab, Transform parentTransform)
         {
             return InstantiatePrefab(
-                prefab, new GameObjectCreationParameters() { ParentTransform = parentTransform });
+                prefab, new GameObjectCreationParameters { ParentTransform = parentTransform });
         }
 
         // Create a new game object from a prefab and fill in dependencies for all children
@@ -2024,7 +2020,7 @@ namespace Zenject
             UnityEngine.Object prefab, Vector3 position, Quaternion rotation, Transform parentTransform)
         {
             return InstantiatePrefab(
-                prefab, new GameObjectCreationParameters()
+                prefab, new GameObjectCreationParameters
                 {
                     ParentTransform = parentTransform,
                     Position = position,
@@ -2066,7 +2062,7 @@ namespace Zenject
         // Create a new game object from a resource path and fill in dependencies for all children
         public GameObject InstantiatePrefabResource(string resourcePath, Transform parentTransform)
         {
-            return InstantiatePrefabResource(resourcePath, new GameObjectCreationParameters() { ParentTransform = parentTransform });
+            return InstantiatePrefabResource(resourcePath, new GameObjectCreationParameters { ParentTransform = parentTransform });
         }
 
         public GameObject InstantiatePrefabResource(
@@ -2162,7 +2158,7 @@ namespace Zenject
         {
             return InstantiatePrefabForComponent(
                 concreteType, prefab, extraArgs,
-                new GameObjectCreationParameters() { ParentTransform = parentTransform });
+                new GameObjectCreationParameters { ParentTransform = parentTransform });
         }
 
         // Note: For IL2CPP platforms make sure to use new object[] instead of new [] when creating
@@ -2245,7 +2241,7 @@ namespace Zenject
             return InstantiatePrefabResourceForComponentExplicit(
                 concreteType, resourcePath,
                 InjectUtil.CreateArgList(extraArgs),
-                new GameObjectCreationParameters() { ParentTransform = parentTransform });
+                new GameObjectCreationParameters { ParentTransform = parentTransform });
         }
 
         public T InstantiateScriptableObjectResource<T>(string resourcePath)
@@ -2300,7 +2296,7 @@ namespace Zenject
             }
             finally
             {
-                ZenPools.DespawnList<MonoBehaviour>(monoBehaviours);
+                ZenPools.DespawnList(monoBehaviours);
             }
         }
 
@@ -2371,7 +2367,7 @@ namespace Zenject
             }
             finally
             {
-                ZenPools.DespawnList<MonoBehaviour>(injectableMonoBehaviours);
+                ZenPools.DespawnList(injectableMonoBehaviours);
             }
 
             var matches = gameObject.GetComponentsInChildren(componentType, true);
@@ -2627,7 +2623,7 @@ namespace Zenject
             }
             finally
             {
-                ZenPools.DespawnList<ProviderInfo>(matches);
+                ZenPools.DespawnList(matches);
             }
         }
 
@@ -2958,7 +2954,7 @@ namespace Zenject
             where TPoolConcrete : TPoolContract, IMemoryPool
             where TPoolContract : IMemoryPool
         {
-            var contractTypes = new List<Type>() { typeof(IDisposable), typeof(TPoolContract) };
+            var contractTypes = new List<Type> { typeof(IDisposable), typeof(TPoolContract) };
 
             if (includeConcreteType)
             {
@@ -3264,26 +3260,26 @@ namespace Zenject
         }
 
 #if NET_4_6
-        public System.Lazy<T> InstantiateLazy<T>()
+        public Lazy<T> InstantiateLazy<T>()
         {
             return InstantiateLazy<T>(typeof(T));
         }
 
-        public System.Lazy<T> InstantiateLazy<T>(Type concreteType)
+        public Lazy<T> InstantiateLazy<T>(Type concreteType)
         {
             Assert.That(concreteType.DerivesFromOrEqual<T>());
-            return new System.Lazy<T>(() => (T)this.Instantiate(concreteType));
+            return new Lazy<T>(() => (T)Instantiate(concreteType));
         }
 
-        public System.Lazy<T> ResolveLazy<T>()
+        public Lazy<T> ResolveLazy<T>()
         {
             return ResolveLazy<T>(typeof(T));
         }
 
-        public System.Lazy<T> ResolveLazy<T>(Type concreteType)
+        public Lazy<T> ResolveLazy<T>(Type concreteType)
         {
             Assert.That(concreteType.DerivesFromOrEqual<T>());
-            return new System.Lazy<T>(() => (T)this.Resolve(concreteType));
+            return new Lazy<T>(() => (T)Resolve(concreteType));
         }
 #endif
 
@@ -3311,25 +3307,21 @@ namespace Zenject
                     {
                         return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
                     }
-                    else
+
+                    // In this case, just log it and continue to print out multiple validation errors
+                    // at once
+                    try
                     {
-                        // In this case, just log it and continue to print out multiple validation errors
-                        // at once
-                        try
-                        {
-                            return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
-                        }
-                        catch (Exception e)
-                        {
-                            ModestTree.Log.ErrorException(e);
-                            return new ValidationMarker(concreteType, true);
-                        }
+                        return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ErrorException(e);
+                        return new ValidationMarker(concreteType, true);
                     }
                 }
-                else
-                {
-                    return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
-                }
+
+                return InstantiateInternal(concreteType, autoInject, extraArgs, context, concreteIdentifier);
             }
         }
 
@@ -3341,7 +3333,7 @@ namespace Zenject
 
             FlushBindings();
 
-            var monoBehaviour = (Component)gameObject.AddComponent(componentType);
+            var monoBehaviour = gameObject.AddComponent(componentType);
             InjectExplicit(monoBehaviour, extraArgs);
             return monoBehaviour;
         }
@@ -3495,7 +3487,7 @@ namespace Zenject
                 "Expected type '{0}' to derive from ITickable", type);
 
             return BindInstance(
-                ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<TickableManager>();
+                ValuePair.New(type, order)).WhenInjectedInto<TickableManager>();
         }
 
         public CopyNonLazyBinder BindInitializableExecutionOrder<T>(int order)
@@ -3510,7 +3502,7 @@ namespace Zenject
                 "Expected type '{0}' to derive from IInitializable", type);
 
             return BindInstance(
-                ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<InitializableManager>();
+                ValuePair.New(type, order)).WhenInjectedInto<InitializableManager>();
         }
 
         public CopyNonLazyBinder BindDisposableExecutionOrder<T>(int order)
@@ -3531,7 +3523,7 @@ namespace Zenject
                 "Expected type '{0}' to derive from IDisposable", type);
 
             return BindInstance(
-                ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<DisposableManager>();
+                ValuePair.New(type, order)).WhenInjectedInto<DisposableManager>();
         }
 
         public CopyNonLazyBinder BindLateDisposableExecutionOrder(Type type, int order)
@@ -3540,7 +3532,7 @@ namespace Zenject
             "Expected type '{0}' to derive from ILateDisposable", type);
 
             return BindInstance(
-                ModestTree.Util.ValuePair.New(type, order)).WithId("Late").WhenInjectedInto<DisposableManager>();
+                ValuePair.New(type, order)).WithId("Late").WhenInjectedInto<DisposableManager>();
         }
 
         public CopyNonLazyBinder BindFixedTickableExecutionOrder<T>(int order)
@@ -3554,8 +3546,8 @@ namespace Zenject
             Assert.That(type.DerivesFrom<IFixedTickable>(),
                 "Expected type '{0}' to derive from IFixedTickable", type);
 
-            return Bind<ModestTree.Util.ValuePair<Type, int>>().WithId("Fixed")
-                .FromInstance(ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<TickableManager>();
+            return Bind<ValuePair<Type, int>>().WithId("Fixed")
+                .FromInstance(ValuePair.New(type, order)).WhenInjectedInto<TickableManager>();
         }
 
         public CopyNonLazyBinder BindLateTickableExecutionOrder<T>(int order)
@@ -3569,8 +3561,8 @@ namespace Zenject
             Assert.That(type.DerivesFrom<ILateTickable>(),
                 "Expected type '{0}' to derive from ILateTickable", type);
 
-            return Bind<ModestTree.Util.ValuePair<Type, int>>().WithId("Late")
-                .FromInstance(ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<TickableManager>();
+            return Bind<ValuePair<Type, int>>().WithId("Late")
+                .FromInstance(ValuePair.New(type, order)).WhenInjectedInto<TickableManager>();
         }
 
         public CopyNonLazyBinder BindPoolableExecutionOrder<T>(int order)
@@ -3584,8 +3576,8 @@ namespace Zenject
             Assert.That(type.DerivesFrom<IPoolable>(),
                 "Expected type '{0}' to derive from IPoolable", type);
 
-            return Bind<ModestTree.Util.ValuePair<Type, int>>()
-                .FromInstance(ModestTree.Util.ValuePair.New(type, order)).WhenInjectedInto<PoolableManager>();
+            return Bind<ValuePair<Type, int>>()
+                .FromInstance(ValuePair.New(type, order)).WhenInjectedInto<PoolableManager>();
         }
 
         class ProviderInfo

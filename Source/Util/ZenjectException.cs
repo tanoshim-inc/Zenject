@@ -1,9 +1,9 @@
 using System;
-using ModestTree;
+using System.Diagnostics;
 
 namespace Zenject
 {
-    [System.Diagnostics.DebuggerStepThrough]
+    [DebuggerStepThrough]
     [NoReflectionBaking]
     public class ZenjectException : Exception
     {

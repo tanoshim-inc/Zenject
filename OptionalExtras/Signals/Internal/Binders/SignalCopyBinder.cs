@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ModestTree;
 
 namespace Zenject
 {
@@ -15,7 +14,7 @@ namespace Zenject
 
         public SignalCopyBinder(BindInfo bindInfo)
         {
-            _bindInfos = new List<BindInfo>()
+            _bindInfos = new List<BindInfo>
             {
                 bindInfo
             };

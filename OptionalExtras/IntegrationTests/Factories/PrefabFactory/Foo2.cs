@@ -1,5 +1,3 @@
-using System;
-using Zenject;
 using UnityEngine;
 
 namespace Zenject.Tests.Factories.PrefabFactory
@@ -12,7 +10,7 @@ namespace Zenject.Tests.Factories.PrefabFactory
             get; private set;
         }
 
-        public class Factory : PlaceholderFactory<UnityEngine.Object, string, Foo2>
+        public class Factory : PlaceholderFactory<Object, string, Foo2>
         {
         }
 

@@ -1,6 +1,6 @@
-﻿using ModestTree;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Zenject.ReflectionBaking.Mono.Cecil;
 
@@ -31,7 +31,7 @@ namespace Zenject.ReflectionBaking
 
                 _appDomainAssemblyLocations[assemblies[i].FullName] = assemblies[i].Location;
 
-                AddSearchDirectory(System.IO.Path.GetDirectoryName(assemblies[i].Location));
+                AddSearchDirectory(Path.GetDirectoryName(assemblies[i].Location));
             }
         }
 

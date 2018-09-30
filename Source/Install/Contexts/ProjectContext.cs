@@ -1,26 +1,23 @@
 #if !NOT_UNITY3D
 
 using System;
-using ModestTree;
-
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
+using ModestTree;
+using UnityEngine;
 using Zenject.Internal;
 
 #if UNITY_EDITOR
-using UnityEditor;
 #endif
-
-using UnityEngine;
 
 namespace Zenject
 {
     public class ProjectContext : Context
     {
-        public event Action PreInstall = null;
-        public event Action PostInstall = null;
-        public event Action PreResolve = null;
-        public event Action PostResolve = null;
+        public event Action PreInstall;
+        public event Action PostInstall;
+        public event Action PreResolve;
+        public event Action PostResolve;
 
         public const string ProjectContextResourcePath = "ProjectContext";
         public const string ProjectContextResourcePathOld = "ProjectCompositionRoot";
@@ -39,7 +36,7 @@ namespace Zenject
         ReflectionBakingCoverageModes _buildsReflectionBakingCoverageMode;
 
         [SerializeField]
-        ZenjectSettings _settings = null;
+        ZenjectSettings _settings;
 
         DiContainer _container;
 
@@ -77,7 +74,7 @@ namespace Zenject
 
         public override IEnumerable<GameObject> GetRootGameObjects()
         {
-            return new[] { this.gameObject };
+            return new[] { gameObject };
         }
 
         public static GameObject TryGetPrefab()
@@ -106,10 +103,10 @@ namespace Zenject
         static void InstantiateAndInitialize()
         {
 #if UNITY_EDITOR
-            ProfileBlock.UnityMainThread = System.Threading.Thread.CurrentThread;
+            ProfileBlock.UnityMainThread = Thread.CurrentThread;
 #endif
 
-            Assert.That(GameObject.FindObjectsOfType<ProjectContext>().IsEmpty(),
+            Assert.That(FindObjectsOfType<ProjectContext>().IsEmpty(),
                 "Tried to create multiple instances of ProjectContext!");
 
             var prefab = TryGetPrefab();
@@ -224,7 +221,7 @@ namespace Zenject
 #endif
 
             _container = new DiContainer(
-                new DiContainer[] { StaticContext.Container }, isValidating);
+                new[] { StaticContext.Container }, isValidating);
 
             // Do this after creating DiContainer in case it's needed by the pre install logic
             if (PreInstall != null)
@@ -271,15 +268,15 @@ namespace Zenject
 
         protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
-            ZenUtilInternal.AddStateMachineBehaviourAutoInjectersUnderGameObject(this.gameObject);
-            ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(this.gameObject, monoBehaviours);
+            ZenUtilInternal.AddStateMachineBehaviourAutoInjectersUnderGameObject(gameObject);
+            ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(gameObject, monoBehaviours);
         }
 
         void InstallBindings(List<MonoBehaviour> injectableMonoBehaviours)
         {
             if (_parentNewObjectsUnderContext)
             {
-                _container.DefaultParent = this.transform;
+                _container.DefaultParent = transform;
             }
             else
             {
@@ -295,7 +292,7 @@ namespace Zenject
             _container.Bind<Context>().FromInstance(this);
 
             _container.Bind(typeof(ProjectKernel), typeof(MonoKernel))
-                .To<ProjectKernel>().FromNewComponentOn(this.gameObject).AsSingle().NonLazy();
+                .To<ProjectKernel>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
 
             _container.Bind<SceneContextRegistry>().AsSingle();
 

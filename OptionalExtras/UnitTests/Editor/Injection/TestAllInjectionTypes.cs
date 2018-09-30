@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using Zenject;
 using NUnit.Framework;
-using ModestTree;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Injection
 {
@@ -75,13 +71,13 @@ namespace Zenject.Tests.Injection
             bool _didPostInjectBase;
 
             [Inject]
-            public static Test0 BaseStaticFieldPublic = null;
+            public static Test0 BaseStaticFieldPublic;
 
             [Inject]
-            static Test0 BaseStaticFieldPrivate = null;
+            static Test0 BaseStaticFieldPrivate;
 
             [Inject]
-            protected static Test0 BaseStaticFieldProtected = null;
+            protected static Test0 BaseStaticFieldProtected;
 
             [Inject]
             public static Test0 BaseStaticPropertyPublic
@@ -106,13 +102,13 @@ namespace Zenject.Tests.Injection
 
             // Instance
             [Inject]
-            public Test0 BaseFieldPublic = null;
+            public Test0 BaseFieldPublic;
 
             [Inject]
-            Test0 BaseFieldPrivate = null;
+            Test0 BaseFieldPrivate;
 
             [Inject]
-            protected readonly Test0 BaseFieldProtected = null;
+            protected readonly Test0 BaseFieldProtected;
 
             Test0 _basePropertyPublicValue;
 
@@ -211,13 +207,13 @@ namespace Zenject.Tests.Injection
             }
 
             [Inject]
-            public static Test0 DerivedStaticFieldPublic = null;
+            public static Test0 DerivedStaticFieldPublic;
 
             [Inject]
-            static Test0 DerivedStaticFieldPrivate = null;
+            static Test0 DerivedStaticFieldPrivate;
 
             [Inject]
-            protected static Test0 DerivedStaticFieldProtected = null;
+            protected static Test0 DerivedStaticFieldProtected;
 
             [Inject]
             public static Test0 DerivedStaticPropertyPublic
@@ -270,13 +266,13 @@ namespace Zenject.Tests.Injection
             }
 
             [Inject]
-            public Test0 DerivedFieldPublic = null;
+            public Test0 DerivedFieldPublic;
 
             [Inject]
-            Test0 DerivedFieldPrivate = null;
+            Test0 DerivedFieldPrivate;
 
             [Inject]
-            protected Test0 DerivedFieldProtected = null;
+            protected Test0 DerivedFieldProtected;
 
             Test0 _derivedPropertyPublicValue;
 

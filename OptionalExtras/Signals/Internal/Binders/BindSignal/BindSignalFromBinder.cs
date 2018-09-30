@@ -48,7 +48,7 @@ namespace Zenject
             // We need to do this to make sure SignalCallbackWithLookupWrapper does not have
             // generic types to avoid AOT issues
             Func<object, Action<object>> methodGetterMapper =
-                (obj) => (s) => _methodGetter((TObject)obj)((TSignal)s);
+                obj => s => _methodGetter((TObject)obj)((TSignal)s);
 
             var wrapperBinder = _container.Bind<IDisposable>()
                 .To<SignalCallbackWithLookupWrapper>()

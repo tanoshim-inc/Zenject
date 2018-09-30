@@ -1,14 +1,9 @@
 ﻿#if UNITY_EDITOR
 
-using System;
-using UnityEngine.TestTools;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using UnityEngine;
 using ModestTree;
-using Assert=ModestTree.Assert;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Zenject.Tests.Bindings
 {

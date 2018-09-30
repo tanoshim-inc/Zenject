@@ -1,6 +1,5 @@
 #if UNITY_EDITOR
 
-using Zenject;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.TestTools;

@@ -1,18 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using JetBrains.Annotations;
+using System.Linq;
 using ModestTree;
 using UnityEditor;
-using System.Linq;
-using UnityEditor.Callbacks;
 using UnityEditor.Compilation;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Zenject.ReflectionBaking.Mono.Cecil;
+using Debug = UnityEngine.Debug;
 
 namespace Zenject.ReflectionBaking
 {
@@ -57,11 +52,11 @@ namespace Zenject.ReflectionBaking
 
             var assemblyFullPath = ReflectionBakingInternalUtil.ConvertAssetPathToSystemPath(assemblyAssetPath);
 
-            var readerParameters = new ReaderParameters()
+            var readerParameters = new ReaderParameters
             {
                 AssemblyResolver = new UnityAssemblyResolver(),
                 // Tell the reader to look at symbols so we can get line numbers for errors, warnings, and logs.
-                ReadSymbols = true,
+                ReadSymbols = true
             };
 
             var module = ModuleDefinition.ReadModule(assemblyFullPath, readerParameters);
@@ -84,14 +79,14 @@ namespace Zenject.ReflectionBaking
 
             if (numTypesChanged > 0)
             {
-                var writerParameters = new WriterParameters()
+                var writerParameters = new WriterParameters
                 {
                     WriteSymbols = true
                 };
 
                 module.Write(assemblyFullPath, writerParameters);
 
-                UnityEngine.Debug.Log("Added reflection baking to '{0}' types in assembly '{1}', took {2:0.00} seconds"
+                Debug.Log("Added reflection baking to '{0}' types in assembly '{1}', took {2:0.00} seconds"
                     .Fmt(numTypesChanged, Path.GetFileName(assemblyAssetPath), stopwatch.Elapsed.TotalSeconds));
             }
         }

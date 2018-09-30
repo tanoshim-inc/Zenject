@@ -1,17 +1,14 @@
 #if UNITY_EDITOR
 
+using System.Collections;
 using System.Collections.Generic;
-using Zenject.Internal;
+using System.Linq;
 using ModestTree;
 using NUnit.Framework;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Zenject;
-using System.Collections;
-using UnityEngine.TestTools;
+using Zenject.Internal;
 using Assert = ModestTree.Assert;
-using System.Linq;
 
 // Ignore warning about using SceneManager.UnloadScene instead of SceneManager.UnloadSceneAsync
 #pragma warning disable 618

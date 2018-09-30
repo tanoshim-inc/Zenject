@@ -1,11 +1,5 @@
-
-using System;
-using System.Collections.Generic;
-using Zenject;
 using NUnit.Framework;
-using System.Linq;
-using ModestTree;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Bindings.Singletons
 {
@@ -90,7 +84,7 @@ namespace Zenject.Tests.Bindings.Singletons
 
         public class Bar
         {
-            public static int InstanceCount = 0;
+            public static int InstanceCount;
 
             public Bar()
             {

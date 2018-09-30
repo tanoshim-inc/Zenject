@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Zenject.Internal;
 using ModestTree;
+using Zenject.Internal;
 
 namespace Zenject
 {
@@ -51,7 +51,7 @@ namespace Zenject
             var installer = (InstallerBase)subContainer.InstantiateExplicit(
                 _installerType, extraArgs);
 
-            ZenPools.DespawnList<TypeValuePair>(extraArgs);
+            ZenPools.DespawnList(extraArgs);
 
             installer.InstallBindings();
 

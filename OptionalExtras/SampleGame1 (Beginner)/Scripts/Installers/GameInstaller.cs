@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
-using Zenject;
-using System.Linq;
 
 namespace Zenject.Asteroids
 {
     public class GameInstaller : MonoInstaller
     {
         [Inject]
-        Settings _settings = null;
+        Settings _settings;
 
         public override void InstallBindings()
         {

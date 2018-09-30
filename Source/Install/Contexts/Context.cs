@@ -6,8 +6,6 @@ using System.Linq;
 using ModestTree;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Zenject.Internal;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -107,11 +105,11 @@ namespace Zenject
         {
             foreach (var installer in installers)
             {
-                Assert.IsNotNull(installer, "Found null installer in Context '{0}'", this.name);
+                Assert.IsNotNull(installer, "Found null installer in Context '{0}'", name);
 
 #if UNITY_EDITOR
                 Assert.That(PrefabUtility.GetPrefabType(installer.gameObject) != PrefabType.Prefab,
-                    "Found prefab with name '{0}' in the Installer property of Context '{1}'.  You should use the property 'InstallerPrefabs' for this instead.", installer.name, this.name);
+                    "Found prefab with name '{0}' in the Installer property of Context '{1}'.  You should use the property 'InstallerPrefabs' for this instead.", installer.name, name);
 #endif
             }
 
@@ -170,7 +168,7 @@ namespace Zenject
 
             foreach (var installerPrefab in installerPrefabs)
             {
-                Assert.IsNotNull(installerPrefab, "Found null installer prefab in '{0}'", this.GetType());
+                Assert.IsNotNull(installerPrefab, "Found null installer prefab in '{0}'", GetType());
 
                 GameObject installerGameObject;
 
@@ -181,7 +179,7 @@ namespace Zenject
                     installerGameObject = GameObject.Instantiate(installerPrefab.gameObject);
                 }
 
-                installerGameObject.transform.SetParent(this.transform, false);
+                installerGameObject.transform.SetParent(transform, false);
                 var installer = installerGameObject.GetComponent<MonoInstaller>();
 
                 Assert.IsNotNull(installer, "Could not find installer component on prefab '{0}'", installerPrefab.name);
@@ -204,7 +202,7 @@ namespace Zenject
             foreach (var installer in allInstallers)
             {
                 Assert.IsNotNull(installer,
-                    "Found null installer in '{0}'", this.GetType());
+                    "Found null installer in '{0}'", GetType());
 
                 Container.Inject(installer);
 
@@ -249,7 +247,7 @@ namespace Zenject
                 if (this is SceneContext)
                 {
                     if (binding.Context == null && binding.UseSceneContext
-                        && binding.gameObject.scene == this.gameObject.scene)
+                        && binding.gameObject.scene == gameObject.scene)
                     {
                         binding.Context = this;
                     }
@@ -271,7 +269,7 @@ namespace Zenject
 
             if (binding.Components == null || binding.Components.IsEmpty())
             {
-                ModestTree.Log.Warn("Found empty list of components on ZenjectBinding on object '{0}'", binding.name);
+                Log.Warn("Found empty list of components on ZenjectBinding on object '{0}'", binding.name);
                 return;
             }
 
@@ -288,7 +286,7 @@ namespace Zenject
 
                 if (component == null)
                 {
-                    ModestTree.Log.Warn("Found null component in ZenjectBinding on object '{0}'", binding.name);
+                    Log.Warn("Found null component in ZenjectBinding on object '{0}'", binding.name);
                     continue;
                 }
 

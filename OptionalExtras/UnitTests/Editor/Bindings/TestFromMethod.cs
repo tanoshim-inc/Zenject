@@ -1,10 +1,6 @@
 using System;
-using System.Collections.Generic;
-using Zenject;
 using NUnit.Framework;
-using System.Linq;
-using ModestTree;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Bindings
 {
@@ -16,7 +12,7 @@ namespace Zenject.Tests.Bindings
         {
             var foo = new Foo();
 
-            Container.Bind<Foo>().FromMethod((ctx) => foo).AsSingle().NonLazy();
+            Container.Bind<Foo>().FromMethod(ctx => foo).AsSingle().NonLazy();
 
             Assert.IsEqual(Container.Resolve<Foo>(), foo);
         }
@@ -26,7 +22,7 @@ namespace Zenject.Tests.Bindings
         {
             var foo = new Foo();
 
-            Container.Bind<Foo>().FromMethod((ctx) => foo).AsTransient().NonLazy();
+            Container.Bind<Foo>().FromMethod(ctx => foo).AsTransient().NonLazy();
 
             Assert.IsEqual(Container.Resolve<Foo>(), foo);
         }
@@ -36,7 +32,7 @@ namespace Zenject.Tests.Bindings
         {
             var foo = new Foo();
 
-            Container.Bind<Foo>().FromMethod((ctx) => foo).AsSingle().NonLazy();
+            Container.Bind<Foo>().FromMethod(ctx => foo).AsSingle().NonLazy();
 
             Assert.IsEqual(Container.Resolve<Foo>(), foo);
         }
@@ -51,7 +47,7 @@ namespace Zenject.Tests.Bindings
         {
             int numCalls = 0;
 
-            Func<InjectContext, Foo> method = (ctx) =>
+            Func<InjectContext, Foo> method = ctx =>
             {
                 numCalls++;
                 return null;
@@ -71,7 +67,7 @@ namespace Zenject.Tests.Bindings
         [Test]
         public void TestCached2()
         {
-            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromMethod((ctx) => new Foo()).AsSingle().NonLazy();
+            Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().FromMethod(ctx => new Foo()).AsSingle().NonLazy();
 
             Assert.IsEqual(Container.Resolve<Foo>(), Container.Resolve<Foo>());
             Assert.IsEqual(Container.Resolve<Foo>(), Container.Resolve<IFoo>());

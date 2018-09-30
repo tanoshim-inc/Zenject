@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
-using Zenject;
 
 #pragma warning disable 649
 #pragma warning disable 618
@@ -20,7 +16,7 @@ namespace Zenject.Asteroids
 #endif
 
         ShipStateFactory _stateFactory;
-        ShipState _state = null;
+        ShipState _state;
 
         [Inject]
         public void Construct(ShipStateFactory stateFactory)

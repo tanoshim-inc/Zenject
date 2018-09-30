@@ -2,9 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Zenject.Internal;
 using ModestTree;
+using Zenject.Internal;
 
 namespace Zenject
 {
@@ -86,7 +85,7 @@ namespace Zenject
         protected override void AddInstallers(List<TypeValuePair> args, GameObjectContext context)
         {
             context.AddNormalInstaller(
-                new ActionInstaller((subContainer) =>
+                new ActionInstaller(subContainer =>
                     {
                         var extraArgs = ZenPools.SpawnList<TypeValuePair>();
 
@@ -96,7 +95,7 @@ namespace Zenject
                         var installer = (InstallerBase)subContainer.InstantiateExplicit(
                             _installerType, extraArgs);
 
-                        ZenPools.DespawnList<TypeValuePair>(extraArgs);
+                        ZenPools.DespawnList(extraArgs);
 
                         installer.InstallBindings();
                     }));
@@ -145,7 +144,7 @@ namespace Zenject
             Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
 
             context.AddNormalInstaller(
-                new ActionInstaller((subContainer) =>
+                new ActionInstaller(subContainer =>
                     {
                         _installerMethod(subContainer, (TParam1)args[0].Value);
                     }));
@@ -173,7 +172,7 @@ namespace Zenject
             Assert.That(args[1].Type.DerivesFromOrEqual<TParam2>());
 
             context.AddNormalInstaller(
-                new ActionInstaller((subContainer) =>
+                new ActionInstaller(subContainer =>
                     {
                         _installerMethod(subContainer,
                             (TParam1)args[0].Value,
@@ -204,7 +203,7 @@ namespace Zenject
             Assert.That(args[2].Type.DerivesFromOrEqual<TParam3>());
 
             context.AddNormalInstaller(
-                new ActionInstaller((subContainer) =>
+                new ActionInstaller(subContainer =>
                     {
                         _installerMethod(subContainer,
                             (TParam1)args[0].Value,
@@ -244,7 +243,7 @@ namespace Zenject
             Assert.That(args[3].Type.DerivesFromOrEqual<TParam4>());
 
             context.AddNormalInstaller(
-                new ActionInstaller((subContainer) =>
+                new ActionInstaller(subContainer =>
                     {
                         _installerMethod(subContainer,
                             (TParam1)args[0].Value,
@@ -286,7 +285,7 @@ namespace Zenject
             Assert.That(args[4].Type.DerivesFromOrEqual<TParam5>());
 
             context.AddNormalInstaller(
-                new ActionInstaller((subContainer) =>
+                new ActionInstaller(subContainer =>
                     {
                         _installerMethod(subContainer,
                             (TParam1)args[0].Value,
@@ -330,7 +329,7 @@ namespace Zenject
             Assert.That(args[5].Type.DerivesFromOrEqual<TParam6>());
 
             context.AddNormalInstaller(
-                new ActionInstaller((subContainer) =>
+                new ActionInstaller(subContainer =>
                     {
                         _installerMethod(subContainer,
                             (TParam1)args[0].Value,
@@ -380,7 +379,7 @@ namespace Zenject
             Assert.That(args[9].Type.DerivesFromOrEqual<TParam10>());
 
             context.AddNormalInstaller(
-                new ActionInstaller((subContainer) =>
+                new ActionInstaller(subContainer =>
                     {
                         _installerMethod(subContainer,
                             (TParam1)args[0].Value,

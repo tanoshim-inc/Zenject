@@ -2,8 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using ModestTree;
 using System.Linq;
+using ModestTree;
 using Zenject.Internal;
 
 namespace Zenject

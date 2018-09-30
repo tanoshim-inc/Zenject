@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using ModestTree;
 using NUnit.Framework;
-using Zenject;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests
 {

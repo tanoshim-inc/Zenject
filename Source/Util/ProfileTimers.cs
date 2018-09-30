@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using ModestTree;
-using System.Linq;
 
 namespace Zenject
 {
@@ -88,7 +88,7 @@ namespace Zenject
 
                 instance._exclusiveTimer = exclusiveTimer;
 
-                foreach (var timer in ProfileTimers._timers.Values)
+                foreach (var timer in _timers.Values)
                 {
                     if (exclusiveTimer == timer)
                     {

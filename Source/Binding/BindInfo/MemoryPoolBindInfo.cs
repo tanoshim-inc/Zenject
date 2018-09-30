@@ -1,12 +1,10 @@
-using System;
-
 namespace Zenject
 {
     public enum PoolExpandMethods
     {
         OneAtATime,
         Double,
-        Disabled,
+        Disabled
     }
 
     [NoReflectionBaking]
