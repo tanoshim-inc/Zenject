@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using Zenject.Internal;
+using ModestTree;
 using Assert = ModestTree.Assert;
 #if UNITY_EDITOR
 using System.Linq;
@@ -79,21 +80,8 @@ namespace Zenject
         bool CurrentTestHasAttribute<T>()
             where T : Attribute
         {
-            // tests with double parameters need to have their () removed first
-            var name = TestContext.CurrentContext.Test.FullName;
-
-            // Remove all characters after the first open bracket if there is one
-            int openBracketIndex = name.IndexOf("(", StringComparison.Ordinal);
-
-            if (openBracketIndex != -1)
-            {
-                name = name.Substring(0, openBracketIndex);
-            }
-
-            // Now we can get the substring starting at the last '.'
-            name = name.Substring(name.LastIndexOf(".", StringComparison.Ordinal) + 1);
-
-            return GetType().GetMethod(name).GetCustomAttributes(true)
+            return GetType().GetMethod(TestContext.CurrentContext.Test.MethodName)
+                .GetCustomAttributes(true)
                 .Cast<Attribute>().OfType<T>().Any();
         }
 
