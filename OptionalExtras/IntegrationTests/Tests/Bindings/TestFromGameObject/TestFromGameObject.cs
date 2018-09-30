@@ -1,14 +1,11 @@
 ﻿#if UNITY_EDITOR
 
 using System;
-using UnityEngine.TestTools;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using UnityEngine;
 using ModestTree;
-using Assert=ModestTree.Assert;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Zenject.Tests.Bindings
 {
@@ -104,7 +101,7 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestMultipleConcreteTransient2()
         {
             PreInstall();
-            Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type>() {typeof(Foo), typeof(Bar)}).FromNewComponentOnNewGameObject()
+            Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type> {typeof(Foo), typeof(Bar)}).FromNewComponentOnNewGameObject()
                 .WithGameObjectName(GameObjName).AsTransient().NonLazy();
 
             PostInstall();
@@ -119,7 +116,7 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestMultipleConcreteCached()
         {
             PreInstall();
-            Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type>() {typeof(Foo), typeof(Bar)}).FromNewComponentOnNewGameObject()
+            Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type> {typeof(Foo), typeof(Bar)}).FromNewComponentOnNewGameObject()
                 .WithGameObjectName(GameObjName).AsSingle().NonLazy();
 
             PostInstall();
@@ -134,7 +131,7 @@ namespace Zenject.Tests.Bindings
         public IEnumerator TestMultipleConcreteSingle()
         {
             PreInstall();
-            Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type>() {typeof(Foo), typeof(Bar)}).FromNewComponentOnNewGameObject()
+            Container.Bind(typeof(IFoo), typeof(IBar)).To(new List<Type> {typeof(Foo), typeof(Bar)}).FromNewComponentOnNewGameObject()
                 .WithGameObjectName(GameObjName).AsSingle().NonLazy();
 
             PostInstall();
@@ -183,7 +180,7 @@ namespace Zenject.Tests.Bindings
 
             Container.Bind<Foo>().FromNewComponentOnNewGameObject()
                 .WithGameObjectName(GameObjName)
-                .UnderTransform((context) => tempGameObject.transform).AsSingle().NonLazy();
+                .UnderTransform(context => tempGameObject.transform).AsSingle().NonLazy();
 
             PostInstall();
 

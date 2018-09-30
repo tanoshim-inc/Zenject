@@ -1,14 +1,10 @@
 #if UNITY_EDITOR
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using UnityEngine;
 using ModestTree;
+using UnityEngine;
 using UnityEngine.TestTools;
-using Assert=ModestTree.Assert;
 using Zenject.Tests.Bindings.DiContainerMethods;
 
 namespace Zenject.Tests.Bindings
@@ -258,7 +254,7 @@ namespace Zenject.Tests.Bindings
             parentGameObject.transform.position = new Vector3(100, 100, 100);
             var parentTransform = parentGameObject.transform;
 
-            var go = (Foo)Container.InstantiatePrefabForComponentExplicit(typeof(Foo), FooPrefab, new List<TypeValuePair>(), new GameObjectCreationParameters() { ParentTransform = parentTransform });
+            var go = (Foo)Container.InstantiatePrefabForComponentExplicit(typeof(Foo), FooPrefab, new List<TypeValuePair>(), new GameObjectCreationParameters { ParentTransform = parentTransform });
 
             var foo = go.GetComponentInChildren<Foo>();
 
@@ -273,17 +269,20 @@ namespace Zenject.Tests.Bindings
 
             var parentGameObject = new GameObject();
             parentGameObject.transform.position = new Vector3(100, 100, 100);
+            parentGameObject.transform.rotation = Quaternion.Euler(10, 10, 10);
             var parentTransform = parentGameObject.transform;
 
-            var go = (Foo)Container.InstantiatePrefabForComponentExplicit(typeof(Foo), FooPrefab, new List<TypeValuePair>(), new GameObjectCreationParameters()
+            var go = (Foo)Container.InstantiatePrefabForComponentExplicit(typeof(Foo), FooPrefab, new List<TypeValuePair>(), new GameObjectCreationParameters
             {
                 ParentTransform = parentTransform,
-                Position = new Vector3(50, 50, 50)
+                Position = new Vector3(50, 50, 50),
+                Rotation = Quaternion.Euler(20, 20, 20)
             });
 
             var foo = go.GetComponentInChildren<Foo>();
 
-            Assert.IsEqual(foo.transform.position, new Vector3(150, 150, 150));
+            Assert.IsEqual(foo.transform.position, new Vector3(50, 50, 50));
+            Assert.IsEqual(foo.transform.rotation.eulerAngles, new Vector3(20, 20, 20));
             yield break;
         }
 

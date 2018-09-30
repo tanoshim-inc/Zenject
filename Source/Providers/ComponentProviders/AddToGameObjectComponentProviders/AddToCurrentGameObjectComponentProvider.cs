@@ -3,10 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Zenject.Internal;
 using ModestTree;
 using UnityEngine;
-using Zenject;
+using Zenject.Internal;
 
 namespace Zenject
 {
@@ -102,7 +101,7 @@ namespace Zenject
                 _container.InjectExplicit(instance, _componentType, extraArgs, context, _concreteIdentifier);
 
                 Assert.That(extraArgs.IsEmpty());
-                ZenPools.DespawnList<TypeValuePair>(extraArgs);
+                ZenPools.DespawnList(extraArgs);
 
                 if (_instantiateCallback != null)
                 {

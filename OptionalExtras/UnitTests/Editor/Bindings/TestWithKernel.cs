@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
-using Zenject;
 using NUnit.Framework;
-using System.Linq;
-using ModestTree;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Bindings
 {
     [TestFixture]
     public class TestWithKernel : ZenjectUnitTestFixture
     {
-        static int GlobalInitializeCount = 0;
+        static int GlobalInitializeCount;
 
         public class Foo : IInitializable
         {

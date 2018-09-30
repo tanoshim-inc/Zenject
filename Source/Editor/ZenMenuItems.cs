@@ -1,13 +1,10 @@
 #if !NOT_UNITY3D
 
-using System;
 using System.IO;
-using UnityEditor;
-using UnityEngine;
 using ModestTree;
+using UnityEditor;
 using UnityEditor.SceneManagement;
-using System.Linq;
-using UnityEngine.SceneManagement;
+using UnityEngine;
 
 namespace Zenject.Internal
 {
@@ -262,7 +259,7 @@ namespace Zenject.Internal
             ZenUnityEditorUtil.SaveThenRunPreserveSceneSetup(() =>
                 {
                     var numValidated = ZenUnityEditorUtil.ValidateAllActiveScenes();
-                    ModestTree.Log.Info("Validated all '{0}' active scenes successfully", numValidated);
+                    Log.Info("Validated all '{0}' active scenes successfully", numValidated);
                 });
         }
 
@@ -272,14 +269,14 @@ namespace Zenject.Internal
                 {
                     SceneParentAutomaticLoader.ValidateMultiSceneSetupAndLoadDefaultSceneParents();
                     ZenUnityEditorUtil.ValidateCurrentSceneSetup();
-                    ModestTree.Log.Info("All scenes validated successfully");
+                    Log.Info("All scenes validated successfully");
                 });
         }
 
         [MenuItem("Assets/Create/Zenject/Unit Test", false, 60)]
         public static void CreateUnitTest()
         {
-            ZenMenuItems.AddCSharpClassTemplate("Unit Test", "UntitledUnitTest",
+            AddCSharpClassTemplate("Unit Test", "UntitledUnitTest",
                   "using Zenject;"
                 + "\nusing NUnit.Framework;"
                 + "\n"
@@ -297,7 +294,7 @@ namespace Zenject.Internal
         [MenuItem("Assets/Create/Zenject/Integration Test", false, 60)]
         public static void CreateIntegrationTest()
         {
-            ZenMenuItems.AddCSharpClassTemplate("Integration Test", "UntitledIntegrationTest",
+            AddCSharpClassTemplate("Integration Test", "UntitledIntegrationTest",
                   "using Zenject;"
                 + "\nusing System.Collections;"
                 + "\nusing UnityEngine.TestTools;"
@@ -325,7 +322,7 @@ namespace Zenject.Internal
         [MenuItem("Assets/Create/Zenject/Scene Test", false, 60)]
         public static void CreateSceneTest()
         {
-            ZenMenuItems.AddCSharpClassTemplate("Scene Test Fixture", "UntitledSceneTest",
+            AddCSharpClassTemplate("Scene Test Fixture", "UntitledSceneTest",
                   "using Zenject;"
                 + "\nusing System.Collections;"
                 + "\nusing UnityEngine;"

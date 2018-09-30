@@ -3,12 +3,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using UnityEngine;
 using ModestTree;
+using UnityEngine;
 using UnityEngine.TestTools;
-using Assert=ModestTree.Assert;
 
 namespace Zenject.Tests.Bindings
 {
@@ -55,7 +52,7 @@ namespace Zenject.Tests.Bindings
             var gameObject = Container.CreateEmptyGameObject("Foo");
             gameObject.AddComponent<Foo>();
 
-            Container.Bind<Foo>().FromComponentOn((context) => gameObject).AsSingle().NonLazy();
+            Container.Bind<Foo>().FromComponentOn(context => gameObject).AsSingle().NonLazy();
 
             PostInstall();
 
@@ -73,7 +70,7 @@ namespace Zenject.Tests.Bindings
             gameObject.AddComponent<Foo>();
             gameObject.AddComponent<Foo>();
 
-            Container.Bind<Foo>().FromComponentsOn((context) => gameObject).AsCached().NonLazy();
+            Container.Bind<Foo>().FromComponentsOn(context => gameObject).AsCached().NonLazy();
 
             PostInstall();
 
@@ -108,7 +105,7 @@ namespace Zenject.Tests.Bindings
             gameObject.AddComponent<Bar>();
 
             Container.Bind(typeof(IFoo), typeof(IBar))
-                .To(new List<Type>() { typeof(Foo), typeof(Bar) })
+                .To(new List<Type> { typeof(Foo), typeof(Bar) })
                 .FromComponentOn(gameObject).AsCached().NonLazy();
 
             PostInstall();

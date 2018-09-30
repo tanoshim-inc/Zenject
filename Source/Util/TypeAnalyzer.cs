@@ -1,16 +1,13 @@
-using System.Diagnostics;
-using System.Linq.Expressions;
-using ModestTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using ModestTree;
+using Zenject.Internal;
 
 #if !NOT_UNITY3D
-using UnityEngine;
 #endif
-
-using Zenject.Internal;
 
 namespace Zenject
 {
@@ -20,7 +17,7 @@ namespace Zenject
     {
         FallbackToDirectReflection,
         NoCheckAssumeFullCoverage,
-        FallbackToDirectReflectionWithWarning,
+        FallbackToDirectReflectionWithWarning
     }
 
     public static class TypeAnalyzer
@@ -176,7 +173,7 @@ namespace Zenject
             // Make sure that the static constructor logic doesn't inflate our profile measurements
             using (ProfileTimers.CreateTimedBlock("User Code"))
             {
-                System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+                RuntimeHelpers.RunClassConstructor(type.TypeHandle);
             }
 #endif
 
@@ -198,10 +195,7 @@ namespace Zenject
                         typeof(ZenTypeInfoGetter), getInfoMethod));
 #endif
 
-                    if (infoGetter != null)
-                    {
-                        return infoGetter();
-                    }
+                    return infoGetter();
                 }
             }
 

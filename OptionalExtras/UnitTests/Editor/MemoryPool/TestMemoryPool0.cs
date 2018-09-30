@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 #pragma warning disable 219
 
@@ -328,10 +328,6 @@ namespace Zenject.Tests.Bindings
 
         class Bar
         {
-            public Bar()
-            {
-            }
-
             public class Pool : MemoryPool<Bar>
             {
             }
@@ -339,10 +335,6 @@ namespace Zenject.Tests.Bindings
 
         class Foo
         {
-            public Foo()
-            {
-            }
-
             public int ResetCount
             {
                 get; private set;

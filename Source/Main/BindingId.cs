@@ -1,9 +1,10 @@
 using System;
+using System.Diagnostics;
 using ModestTree;
 
 namespace Zenject
 {
-    [System.Diagnostics.DebuggerStepThrough]
+    [DebuggerStepThrough]
     public struct BindingId : IEquatable<BindingId>
     {
         Type _type;
@@ -55,10 +56,8 @@ namespace Zenject
                 BindingId otherId = (BindingId)other;
                 return otherId == this;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public bool Equals(BindingId that)
@@ -68,7 +67,7 @@ namespace Zenject
 
         public static bool operator ==(BindingId left, BindingId right)
         {
-            return left.Type == right.Type && object.Equals(left.Identifier, right.Identifier);
+            return left.Type == right.Type && Equals(left.Identifier, right.Identifier);
         }
 
         public static bool operator !=(BindingId left, BindingId right)

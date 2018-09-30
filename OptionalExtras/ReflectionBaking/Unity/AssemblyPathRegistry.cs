@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using ModestTree;
 using UnityEditorInternal;
 using UnityEngine;
@@ -11,7 +9,7 @@ namespace Zenject.ReflectionBaking
 {
     public class AssemblyPathRegistry
     {
-        static List<string> _assemblies = null;
+        static List<string> _assemblies;
 
         public static List<string> GetAllGeneratedAssemblyRelativePaths()
         {

@@ -1,5 +1,3 @@
-using System;
-using Zenject;
 using UnityEngine;
 
 namespace Zenject.Tests.Factories.PrefabFactory
@@ -14,7 +12,7 @@ namespace Zenject.Tests.Factories.PrefabFactory
             WasInitialized = true;
         }
 
-        public class Factory : PlaceholderFactory<UnityEngine.Object, Foo>
+        public class Factory : PlaceholderFactory<Object, Foo>
         {
         }
 

@@ -1,8 +1,7 @@
+using System.Collections;
 using System.Linq;
 using ModestTree;
 using UnityEngine;
-using Zenject;
-using System.Collections;
 #if UNITY_EDITOR
 using UnityEngine.TestTools;
 #endif
@@ -52,7 +51,6 @@ namespace Zenject.Tests.AutoInjecter
 
             Assert.IsEqual(bar.Foo, Container.Resolve<Foo>());
             Assert.That(bar.ConstructCalled);
-            yield break;
         }
 
         [UnityTest]
@@ -71,7 +69,6 @@ namespace Zenject.Tests.AutoInjecter
 
             Assert.IsEqual(qux.Container, gorp.Container);
             Assert.IsEqual(qux.Container.ParentContainers.Single(), Container);
-            yield break;
         }
 
         [UnityTest]
@@ -84,7 +81,6 @@ namespace Zenject.Tests.AutoInjecter
 
             Assert.IsEqual(qux.Container, Container);
             Assert.IsEqual(qux.Container, Container.Resolve<SceneContext>().Container);
-            yield break;
         }
 
         [UnityTest]
@@ -98,7 +94,6 @@ namespace Zenject.Tests.AutoInjecter
                 .GetComponentInChildren<Qux>();
 
             Assert.IsEqual(qux.Container, ProjectContext.Instance.Container);
-            yield break;
         }
 
         [UnityTest]
@@ -110,7 +105,6 @@ namespace Zenject.Tests.AutoInjecter
             var qux = GameObject.Instantiate(GetPrefab("QuxProject")).GetComponentInChildren<Qux>();
 
             Assert.IsEqual(qux.Container, ProjectContext.Instance.Container);
-            yield break;
         }
 
         [UnityTest]
@@ -123,7 +117,6 @@ namespace Zenject.Tests.AutoInjecter
 
             Assert.IsEqual(qux.Container, Container);
             Assert.IsEqual(qux.Container, Container.Resolve<SceneContext>().Container);
-            yield break;
         }
 
         [UnityTest]
@@ -137,7 +130,6 @@ namespace Zenject.Tests.AutoInjecter
                 ProjectContext.Instance.transform).GetComponentInChildren<Qux>();
 
             Assert.IsEqual(qux.Container, ProjectContext.Instance.Container);
-            yield break;
         }
     }
 #endif

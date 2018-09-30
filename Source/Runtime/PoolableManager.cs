@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using ModestTree;
-using Zenject;
 using System.Linq;
+using ModestTree;
+using ModestTree.Util;
 
 namespace Zenject
 {
@@ -16,13 +16,13 @@ namespace Zenject
             [InjectLocal]
             List<IPoolable> poolables,
             [Inject(Optional = true, Source = InjectSources.Local)]
-            List<ModestTree.Util.ValuePair<Type, int>> priorities)
+            List<ValuePair<Type, int>> priorities)
         {
             _poolables = poolables.Select(x => CreatePoolableInfo(x, priorities))
                 .OrderBy(x => x.Priority).Select(x => x.Poolable).ToList();
         }
 
-        PoolableInfo CreatePoolableInfo(IPoolable poolable, List<ModestTree.Util.ValuePair<Type, int>> priorities)
+        PoolableInfo CreatePoolableInfo(IPoolable poolable, List<ValuePair<Type, int>> priorities)
         {
             var match = priorities.Where(x => poolable.GetType().DerivesFromOrEqual(x.First)).Select(x => (int?)(x.Second)).SingleOrDefault();
             int priority = match.HasValue ? match.Value : 0;

@@ -1,14 +1,9 @@
 ﻿#if UNITY_EDITOR
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using UnityEngine;
 using ModestTree;
+using UnityEngine;
 using UnityEngine.TestTools;
-using Assert=ModestTree.Assert;
 using Zenject.Tests.Factories.PrefabFactory;
 
 namespace Zenject.Tests.Factories
@@ -40,7 +35,7 @@ namespace Zenject.Tests.Factories
         {
             PreInstall();
 
-            Container.BindFactory<UnityEngine.Object, Foo, Foo.Factory>().FromFactory<PrefabFactory<Foo>>();
+            Container.BindFactory<Object, Foo, Foo.Factory>().FromFactory<PrefabFactory<Foo>>();
             Container.Bind<IInitializable>().To<Runner>().AsSingle().WithArguments(FooPrefab);
 
             PostInstall();
@@ -52,7 +47,7 @@ namespace Zenject.Tests.Factories
         {
             PreInstall();
 
-            Container.BindFactory<UnityEngine.Object, string, Foo2, Foo2.Factory>().FromFactory<PrefabFactory<string, Foo2>>();
+            Container.BindFactory<Object, string, Foo2, Foo2.Factory>().FromFactory<PrefabFactory<string, Foo2>>();
             Container.Bind<IInitializable>().To<Runner2>().AsSingle().WithArguments(Foo2Prefab);
 
             PostInstall();

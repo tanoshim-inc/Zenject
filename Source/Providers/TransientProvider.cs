@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Zenject.Internal;
 using ModestTree;
+using Zenject.Internal;
 
 namespace Zenject
 {
@@ -72,7 +72,7 @@ namespace Zenject
                     instance, instanceType, extraArgs, context, _concreteIdentifier);
 
                 Assert.That(extraArgs.Count == 0);
-                ZenPools.DespawnList<TypeValuePair>(extraArgs);
+                ZenPools.DespawnList(extraArgs);
 
                 if (_instantiateCallback != null)
                 {

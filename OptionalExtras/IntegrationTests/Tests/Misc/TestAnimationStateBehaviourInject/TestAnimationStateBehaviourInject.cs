@@ -1,11 +1,8 @@
 ﻿#if UNITY_EDITOR
 
 using System.Collections;
-using System.Collections.Generic;
 using ModestTree;
-using UnityEngine;
 using UnityEngine.TestTools;
-using Zenject.Tests;
 
 namespace Zenject.Tests.TestAnimationStateBehaviourInject
 {
@@ -28,15 +25,10 @@ namespace Zenject.Tests.TestAnimationStateBehaviourInject
             yield return null;
 
             Assert.IsEqual(StateBehaviour1.OnStateEnterCalls, 1);
-            yield break;
         }
 
         public class Foo : IInitializable
         {
-            public Foo()
-            {
-            }
-
             public bool HasInitialized
             {
                 get; private set;

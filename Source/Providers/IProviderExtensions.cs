@@ -63,7 +63,7 @@ namespace Zenject
             }
             finally
             {
-                ZenPools.DespawnList<object>(allInstances);
+                ZenPools.DespawnList(allInstances);
             }
         }
 
@@ -92,7 +92,7 @@ namespace Zenject
             }
             finally
             {
-                ZenPools.DespawnList<object>(allInstances);
+                ZenPools.DespawnList(allInstances);
             }
         }
     }

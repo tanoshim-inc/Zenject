@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using ModestTree;
-
 namespace Zenject
 {
     [NoReflectionBaking]

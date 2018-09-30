@@ -2,14 +2,8 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using UnityEngine;
 using ModestTree;
 using UnityEngine.TestTools;
-using Assert=ModestTree.Assert;
-using Zenject.Tests.Bindings.DiContainerMethods;
 
 namespace Zenject.Tests
 {
@@ -59,7 +53,6 @@ namespace Zenject.Tests
             yield return DestroyEverything();
 
             Assert.That(Foo.WasDisposed);
-            yield break;
         }
 
         [UnityTest]
@@ -78,7 +71,6 @@ namespace Zenject.Tests
             Assert.That(ProjectContext.HasInstance);
             yield return DestroyEverything();
             Assert.That(!ProjectContext.HasInstance);
-            yield break;
         }
     }
 }

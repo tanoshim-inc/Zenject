@@ -61,7 +61,7 @@ namespace Zenject.ReflectionBaking
 
         public static void DirtyAllScripts()
         {
-            Assembly editorAssembly = typeof(UnityEditor.Editor).Assembly;
+            Assembly editorAssembly = typeof(Editor).Assembly;
 
             Type compilationInterface = editorAssembly.GetType("UnityEditor.Scripting.ScriptCompilation.EditorCompilationInterface");
 
@@ -72,7 +72,7 @@ namespace Zenject.ReflectionBaking
                 dirtyAllScriptsMethod.Invoke(null, null);
             }
 
-            UnityEditor.AssetDatabase.Refresh();
+            AssetDatabase.Refresh();
         }
     }
 }

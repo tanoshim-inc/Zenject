@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
+
 #if !NOT_UNITY3D
-using UnityEngine;
+
 #endif
 
 namespace Zenject
@@ -23,7 +23,7 @@ namespace Zenject
                 Func<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract> method)
         {
             ProviderFunc =
-                (container) => new MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>(method);
+                container => new MethodProviderWithContainer<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>(method);
 
             return this;
         }
@@ -43,7 +43,7 @@ namespace Zenject
                 CreateIFactoryBinder<IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>>(out factoryId));
 
             ProviderFunc =
-                (container) => { return new IFactoryProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>(container, factoryId); };
+                container => { return new IFactoryProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>(container, factoryId); };
 
             return new ArgConditionCopyNonLazyBinder(BindInfo);
         }

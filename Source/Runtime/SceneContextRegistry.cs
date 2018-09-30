@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 using ModestTree;
+using UnityEngine.SceneManagement;
 
 namespace Zenject
 {
@@ -86,7 +86,7 @@ namespace Zenject
 
             if (!removed)
             {
-                ModestTree.Log.Warn("Failed to remove SceneContext from SceneContextRegistry");
+                Log.Warn("Failed to remove SceneContext from SceneContextRegistry");
             }
         }
     }

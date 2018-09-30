@@ -1,10 +1,6 @@
 
 using System;
-using System.Diagnostics;
-using ModestTree;
-using ModestTree.Util;
 using NUnit.Framework;
-using UnityEngine;
 using Zenject.Internal;
 using Assert = ModestTree.Assert;
 
@@ -21,7 +17,7 @@ namespace Zenject.Tests.Other
         {
         }
 
-        [NoReflectionBakingAttribute]
+        [NoReflectionBaking]
         class Foo
         {
             [InjectCustom]

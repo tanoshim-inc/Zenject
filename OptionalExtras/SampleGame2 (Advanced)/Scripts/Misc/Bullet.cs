@@ -1,13 +1,11 @@
-﻿using System;
-using UnityEngine;
-using Zenject;
+﻿using UnityEngine;
 
 namespace Zenject.SpaceFighter
 {
     public enum BulletTypes
     {
         FromEnemy,
-        FromPlayer,
+        FromPlayer
     }
 
     public class Bullet : MonoBehaviour, IPoolable<float, float, BulletTypes, IMemoryPool>
@@ -18,13 +16,13 @@ namespace Zenject.SpaceFighter
         float _lifeTime;
 
         [SerializeField]
-        MeshRenderer _renderer = null;
+        MeshRenderer _renderer;
 
         [SerializeField]
-        Material _playerMaterial = null;
+        Material _playerMaterial;
 
         [SerializeField]
-        Material _enemyMaterial = null;
+        Material _enemyMaterial;
 
         IMemoryPool _pool;
 
@@ -53,7 +51,7 @@ namespace Zenject.SpaceFighter
 
                 if (player != null && _type == BulletTypes.FromEnemy)
                 {
-                    player.TakeDamage(this.MoveDirection);
+                    player.TakeDamage(MoveDirection);
                     _pool.Despawn(this);
                 }
             }

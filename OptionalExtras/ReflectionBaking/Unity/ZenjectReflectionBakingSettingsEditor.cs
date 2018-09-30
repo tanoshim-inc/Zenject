@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using ModestTree;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -27,13 +23,13 @@ namespace Zenject.ReflectionBaking
 
         bool _hasModifiedProperties;
 
-        static GUIContent _weavedAssembliesListHeaderContent = new GUIContent()
+        static GUIContent _weavedAssembliesListHeaderContent = new GUIContent
         {
             text = "Weaved Assemblies",
             tooltip = "The list of all the assemblies that will be editted to have reflection information directly embedded"
         };
 
-        static GUIContent _namespacePatternListHeaderContent = new GUIContent()
+        static GUIContent _namespacePatternListHeaderContent = new GUIContent
         {
             text = "Namespace Patterns",
             tooltip = "This list of Regex patterns will be compared to the name of each type in the given assemblies, and when a match is found that type will be editting to directly contain reflection information"

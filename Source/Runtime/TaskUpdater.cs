@@ -1,12 +1,12 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using ModestTree;
-using ModestTree.Util;
 
 namespace Zenject
 {
     // Update tasks once per frame based on a priority
-    [System.Diagnostics.DebuggerStepThrough]
+    [DebuggerStepThrough]
     public abstract class TaskUpdater<TTask>
     {
         readonly LinkedList<TaskInfo> _tasks = new LinkedList<TaskInfo>();

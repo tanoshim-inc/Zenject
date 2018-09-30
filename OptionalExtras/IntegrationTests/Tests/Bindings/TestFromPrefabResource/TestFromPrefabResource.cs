@@ -1,14 +1,8 @@
 ﻿#if UNITY_EDITOR
 
-using System;
-using UnityEngine.TestTools;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using UnityEngine;
 using ModestTree;
-using Assert=ModestTree.Assert;
+using UnityEngine.TestTools;
 using Zenject.Tests.Bindings.FromPrefabResource;
 
 namespace Zenject.Tests.Bindings
@@ -178,7 +172,7 @@ namespace Zenject.Tests.Bindings
                 Assert.IsNotNull(_jim.Bob);
                 Assert.IsNotNull(_bob.Jim);
 
-                ModestTree.Log.Info("Jim and bob successfully got the other reference");
+                Log.Info("Jim and bob successfully got the other reference");
             }
         }
     }

@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using ModestTree;
-using System.Linq;
 
 namespace Zenject
 {
@@ -69,26 +69,26 @@ namespace Zenject
                 return null;
             }
 
-            return TimedBlock.Pool.Spawn(_timers.Values, timer);
+            return TimedBlock.Pool.Spawn(timer);
         }
 
         class TimedBlock : IDisposable
         {
-            public static StaticMemoryPool<IEnumerable<TimerInfo>, TimerInfo, TimedBlock> Pool =
-                new StaticMemoryPool<IEnumerable<TimerInfo>, TimerInfo, TimedBlock>(OnSpawned, OnDespawned);
+            public static StaticMemoryPool<TimerInfo, TimedBlock> Pool =
+                new StaticMemoryPool<TimerInfo, TimedBlock>(OnSpawned, OnDespawned);
 
             readonly List<TimerInfo> _pausedTimers = new List<TimerInfo>();
 
             TimerInfo _exclusiveTimer;
 
             static void OnSpawned(
-                IEnumerable<TimerInfo> timers, TimerInfo exclusiveTimer, TimedBlock instance)
+                TimerInfo exclusiveTimer, TimedBlock instance)
             {
-                Assert.That(instance._pausedTimers.IsEmpty());
+                Assert.That(instance._pausedTimers.Count == 0);
 
                 instance._exclusiveTimer = exclusiveTimer;
 
-                foreach (var timer in timers)
+                foreach (var timer in _timers.Values)
                 {
                     if (exclusiveTimer == timer)
                     {

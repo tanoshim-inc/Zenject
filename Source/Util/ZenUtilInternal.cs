@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using ModestTree;
 using ModestTree.Util;
-
 #if !NOT_UNITY3D
 using UnityEngine.SceneManagement;
 using UnityEngine;
@@ -14,6 +12,10 @@ namespace Zenject.Internal
 {
     public static class ZenUtilInternal
     {
+#if UNITY_EDITOR
+        static GameObject _disabledIndestructibleGameObject;
+#endif
+
         // Due to the way that Unity overrides the Equals operator,
         // normal null checks such as (x == null) do not always work as
         // expected
@@ -241,12 +243,13 @@ namespace Zenject.Internal
             }
         }
 
+#if UNITY_EDITOR
         // Returns a Transform in the DontDestroyOnLoad scene (or, if we're not in play mode, within the current active scene)
         // whose GameObject is inactive, and whose hide flags are set to HideAndDontSave. We can instantiate prefabs in here
         // without any of their Awake() methods firing.
         public static Transform GetOrCreateInactivePrefabParent()
         {
-            if(disabledIndestructibleGameObject == null || (!Application.isPlaying && disabledIndestructibleGameObject.scene != SceneManager.GetActiveScene()))
+            if(_disabledIndestructibleGameObject == null || (!Application.isPlaying && _disabledIndestructibleGameObject.scene != SceneManager.GetActiveScene()))
             {
                 var go = new GameObject("ZenUtilInternal_PrefabParent");
                 go.hideFlags = HideFlags.HideAndDontSave;
@@ -257,13 +260,13 @@ namespace Zenject.Internal
                     UnityEngine.Object.DontDestroyOnLoad(go);
                 }
 
-                disabledIndestructibleGameObject = go;
+                _disabledIndestructibleGameObject = go;
             }
 
-            return disabledIndestructibleGameObject.transform;
+            return _disabledIndestructibleGameObject.transform;
         }
+#endif
 
-        static GameObject disabledIndestructibleGameObject;
 #endif
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using ModestTree;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ namespace Zenject.Tests
     public class SceneContextEventsTester : MonoBehaviour
     {
         [SerializeField]
-        SceneContext _sceneContext = null;
+        SceneContext _sceneContext;
 
         bool _calledPreInstall;
         bool _calledPostInstall;

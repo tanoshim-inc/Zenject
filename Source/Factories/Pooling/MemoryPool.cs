@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using ModestTree;
-
 namespace Zenject
 {
     // Zero parameters
@@ -17,7 +13,7 @@ namespace Zenject
                 using (ProfileTimers.CreateTimedBlock("User Code"))
 #endif
 #if UNITY_EDITOR
-                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+                using (ProfileBlock.Start("{0}.Reinitialize", GetType()))
 #endif
                 {
                     Reinitialize(item);
@@ -51,7 +47,7 @@ namespace Zenject
                 using (ProfileTimers.CreateTimedBlock("User Code"))
 #endif
 #if UNITY_EDITOR
-                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+                using (ProfileBlock.Start("{0}.Reinitialize", GetType()))
 #endif
                 {
                     Reinitialize(param, item);
@@ -86,7 +82,7 @@ namespace Zenject
                 using (ProfileTimers.CreateTimedBlock("User Code"))
 #endif
 #if UNITY_EDITOR
-                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+                using (ProfileBlock.Start("{0}.Reinitialize", GetType()))
 #endif
                 {
                     Reinitialize(param1, param2, item);
@@ -121,7 +117,7 @@ namespace Zenject
                 using (ProfileTimers.CreateTimedBlock("User Code"))
 #endif
 #if UNITY_EDITOR
-                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+                using (ProfileBlock.Start("{0}.Reinitialize", GetType()))
 #endif
                 {
                     Reinitialize(param1, param2, param3, item);
@@ -155,7 +151,7 @@ namespace Zenject
                 using (ProfileTimers.CreateTimedBlock("User Code"))
 #endif
 #if UNITY_EDITOR
-                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+                using (ProfileBlock.Start("{0}.Reinitialize", GetType()))
 #endif
                 {
                     Reinitialize(param1, param2, param3, param4, item);
@@ -189,7 +185,7 @@ namespace Zenject
                 using (ProfileTimers.CreateTimedBlock("User Code"))
 #endif
 #if UNITY_EDITOR
-                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+                using (ProfileBlock.Start("{0}.Reinitialize", GetType()))
 #endif
                 {
                     Reinitialize(param1, param2, param3, param4, param5, item);
@@ -225,7 +221,7 @@ namespace Zenject
                 using (ProfileTimers.CreateTimedBlock("User Code"))
 #endif
 #if UNITY_EDITOR
-                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+                using (ProfileBlock.Start("{0}.Reinitialize", GetType()))
 #endif
                 {
                     Reinitialize(param1, param2, param3, param4, param5, param6, item);
@@ -261,7 +257,7 @@ namespace Zenject
                 using (ProfileTimers.CreateTimedBlock("User Code"))
 #endif
 #if UNITY_EDITOR
-                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+                using (ProfileBlock.Start("{0}.Reinitialize", GetType()))
 #endif
                 {
                     Reinitialize(param1, param2, param3, param4, param5, param6, param7, item);
@@ -297,7 +293,7 @@ namespace Zenject
                 using (ProfileTimers.CreateTimedBlock("User Code"))
 #endif
 #if UNITY_EDITOR
-                using (ProfileBlock.Start("{0}.Reinitialize", this.GetType()))
+                using (ProfileBlock.Start("{0}.Reinitialize", GetType()))
 #endif
                 {
                     Reinitialize(param1, param2, param3, param4, param5, param6, param7, param8, item);

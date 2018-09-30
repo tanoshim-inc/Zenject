@@ -1,7 +1,6 @@
 using System;
-using ModestTree;
 using NUnit.Framework;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Other
 {
@@ -15,10 +14,6 @@ namespace Zenject.Tests.Other
 
         public class SaveHandler : ISaveHandler
         {
-            public SaveHandler()
-            {
-            }
-
             public void Save()
             {
             }

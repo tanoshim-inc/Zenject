@@ -1,6 +1,5 @@
 ﻿using ModestTree;
 using UnityEngine;
-using Zenject;
 
 #pragma warning disable 649
 
@@ -20,7 +19,7 @@ namespace Zenject.Tests.Bindings.DiContainerMethods
         [Inject]
         public void Initialize()
         {
-            ModestTree.Log.Trace("Received arg '{0}' in Gorp", _arg);
+            Log.Trace("Received arg '{0}' in Gorp", _arg);
         }
     }
 }

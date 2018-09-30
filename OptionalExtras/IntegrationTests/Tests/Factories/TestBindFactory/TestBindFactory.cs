@@ -1,14 +1,9 @@
 ﻿#if UNITY_EDITOR
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using UnityEngine;
 using ModestTree;
+using UnityEngine;
 using UnityEngine.TestTools;
-using Assert=ModestTree.Assert;
 using Zenject.Tests.Factories.BindFactory;
 
 namespace Zenject.Tests.Factories
@@ -317,7 +312,7 @@ namespace Zenject.Tests.Factories
         public IEnumerator TestToResource()
         {
             PreInstall();
-            Container.BindFactory<UnityEngine.Object, PlaceholderFactory<UnityEngine.Object>>()
+            Container.BindFactory<Object, PlaceholderFactory<Object>>()
                 .To<Texture>().FromResource("TestBindFactory/TestTexture").NonLazy();
 
             PostInstall();
@@ -458,7 +453,7 @@ namespace Zenject.Tests.Factories
             var tempGameObject = new GameObject("Foo");
 
             Container.BindFactory<Foo, Foo.Factory>().FromNewComponentOnNewGameObject()
-                .UnderTransform((context) => tempGameObject.transform);
+                .UnderTransform(context => tempGameObject.transform);
 
             PostInstall();
 

@@ -1,8 +1,7 @@
 
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Bindings
 {
@@ -47,7 +46,7 @@ namespace Zenject.Tests.Bindings
         [Test]
         public void Test1()
         {
-            Container.BindFactory<Foo, Foo.Factory>().FromPoolableMemoryPool<Foo>(x => x.WithInitialSize(2).FromNew());
+            Container.BindFactory<Foo, Foo.Factory>().FromPoolableMemoryPool(x => x.WithInitialSize(2).FromNew());
 
             var factory = Container.Resolve<Foo.Factory>();
 

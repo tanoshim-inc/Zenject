@@ -1,5 +1,4 @@
-﻿using ModestTree;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Zenject.Tests.Bindings.InstantiateCallback
 {

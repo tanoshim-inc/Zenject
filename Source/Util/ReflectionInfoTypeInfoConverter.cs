@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using ModestTree;
-
 #if !NOT_UNITY3D
 using UnityEngine;
 #endif
@@ -83,7 +82,7 @@ namespace Zenject.Internal
                     // This should be rare though and only seems to occur when instantiating
                     // structs on platforms that don't support lambda expressions
                     // Non-structs should always have a default constructor
-                    factoryMethod = (args) =>
+                    factoryMethod = args =>
                     {
                         Assert.That(args.Length == 0);
                         return Activator.CreateInstance(type, new object[0]);
@@ -116,22 +115,20 @@ namespace Zenject.Internal
                     Expression.Convert(
                         Expression.New(type), typeof(object)), param).Compile();
             }
-            else
+
+            ParameterInfo[] par = constructor.GetParameters();
+            Expression[] args = new Expression[par.Length];
+
+            for (int i = 0; i != par.Length; ++i)
             {
-                ParameterInfo[] par = constructor.GetParameters();
-                Expression[] args = new Expression[par.Length];
-
-                for (int i = 0; i != par.Length; ++i)
-                {
-                    args[i] = Expression.Convert(
-                        Expression.ArrayIndex(
-                            param, Expression.Constant(i)), par[i].ParameterType);
-                }
-
-                return Expression.Lambda<ZenFactoryMethod>(
-                    Expression.Convert(
-                        Expression.New(constructor, args), typeof(object)), param).Compile();
+                args[i] = Expression.Convert(
+                    Expression.ArrayIndex(
+                        param, Expression.Constant(i)), par[i].ParameterType);
             }
+
+            return Expression.Lambda<ZenFactoryMethod>(
+                Expression.Convert(
+                    Expression.New(constructor, args), typeof(object)), param).Compile();
 #else
             return null;
 #endif
@@ -221,7 +218,7 @@ namespace Zenject.Internal
 
             if (fieldInfo != null)
             {
-                return ((object injectable, object value) => fieldInfo.SetValue(injectable, value));
+                return ((injectable, value) => fieldInfo.SetValue(injectable, value));
             }
 
             Assert.IsNotNull(propInfo);
@@ -231,7 +228,7 @@ namespace Zenject.Internal
 #else
             if (propInfo.CanWrite)
             {
-                return ((object injectable, object value) => propInfo.SetValue(injectable, value, null));
+                return ((injectable, value) => propInfo.SetValue(injectable, value, null));
             }
 
             return GetOnlyPropertySetter(parentType, propInfo.Name);

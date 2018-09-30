@@ -1,14 +1,12 @@
-using System;
-using ModestTree;
 using NUnit.Framework;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Other
 {
     [TestFixture]
     public class TestDecorators : ZenjectUnitTestFixture
     {
-        static int CallCounter = 0;
+        static int CallCounter;
 
         public interface ISaveHandler
         {

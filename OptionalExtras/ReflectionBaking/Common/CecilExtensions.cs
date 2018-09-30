@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ModestTree;
-using System;
 using Zenject.ReflectionBaking.Mono.Cecil;
 using Zenject.ReflectionBaking.Mono.Collections.Generic;
+using ICustomAttributeProvider = Zenject.ReflectionBaking.Mono.Cecil.ICustomAttributeProvider;
 
 namespace Zenject.ReflectionBaking
 {
     public static class CecilExtensions
     {
-        public static Type TryGetActualType(this TypeReference typeRef, System.Reflection.Assembly assembly)
+        public static Type TryGetActualType(this TypeReference typeRef, Assembly assembly)
         {
             var reflectionName = GetReflectionName(typeRef);
             return assembly.GetType(reflectionName);

@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using ModestTree;
 using System.Linq;
-
+using ModestTree;
 #if ZEN_SIGNALS_ADD_UNIRX
 using UniRx;
 #endif
@@ -116,13 +115,13 @@ namespace Zenject
 
         public void Subscribe<TSignal>(Action callback, object identifier = null)
         {
-            Action<object> wrapperCallback = (args) => callback();
+            Action<object> wrapperCallback = args => callback();
             SubscribeInternal(typeof(TSignal), identifier, callback, wrapperCallback);
         }
 
         public void Subscribe<TSignal>(Action<TSignal> callback, object identifier = null)
         {
-            Action<object> wrapperCallback = (args) => callback((TSignal)args);
+            Action<object> wrapperCallback = args => callback((TSignal)args);
             SubscribeInternal(typeof(TSignal), identifier, callback, wrapperCallback);
         }
 
@@ -246,10 +245,8 @@ namespace Zenject
             {
                 throw Assert.CreateException("Fired undeclared signal '{0}'!", signalId);
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
     }
 }

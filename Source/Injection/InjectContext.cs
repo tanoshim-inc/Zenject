@@ -225,11 +225,11 @@ namespace Zenject
             subContext.FallBackValue = null;
 
             // Inherit these ones by default
-            subContext.ObjectType = this.ObjectType;
-            subContext.ObjectInstance = this.ObjectInstance;
-            subContext.Optional = this.Optional;
-            subContext.SourceType = this.SourceType;
-            subContext.Container = this.Container;
+            subContext.ObjectType = ObjectType;
+            subContext.ObjectInstance = ObjectInstance;
+            subContext.Optional = Optional;
+            subContext.SourceType = SourceType;
+            subContext.Container = Container;
 
             return subContext;
         }
@@ -238,17 +238,17 @@ namespace Zenject
         {
             var clone = new InjectContext();
 
-            clone.ObjectType = this.ObjectType;
-            clone.ParentContext = this.ParentContext;
-            clone.ConcreteIdentifier = this.ConcreteIdentifier;
-            clone.ObjectInstance = this.ObjectInstance;
-            clone.Identifier = this.Identifier;
-            clone.MemberType = this.MemberType;
-            clone.MemberName = this.MemberName;
-            clone.Optional = this.Optional;
-            clone.SourceType = this.SourceType;
-            clone.FallBackValue = this.FallBackValue;
-            clone.Container = this.Container;
+            clone.ObjectType = ObjectType;
+            clone.ParentContext = ParentContext;
+            clone.ConcreteIdentifier = ConcreteIdentifier;
+            clone.ObjectInstance = ObjectInstance;
+            clone.Identifier = Identifier;
+            clone.MemberType = MemberType;
+            clone.MemberName = MemberName;
+            clone.Optional = Optional;
+            clone.SourceType = SourceType;
+            clone.FallBackValue = FallBackValue;
+            clone.Container = Container;
 
             return clone;
         }

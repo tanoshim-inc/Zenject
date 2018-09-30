@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using Zenject;
-using NUnit.Framework;
 using System.Linq;
 using ModestTree;
-using Assert=ModestTree.Assert;
+using NUnit.Framework;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Bindings
 {
@@ -165,7 +162,7 @@ namespace Zenject.Tests.Bindings
 
         class FooFactory : IFactory<Foo>
         {
-            public static int InstanceCount = 0;
+            public static int InstanceCount;
 
             public FooFactory()
             {

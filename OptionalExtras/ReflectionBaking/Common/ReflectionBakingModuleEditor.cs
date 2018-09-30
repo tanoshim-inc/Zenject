@@ -1,16 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using ModestTree;
-using System.Linq;
 using Zenject.Internal;
 using Zenject.ReflectionBaking.Mono.Cecil;
 using Zenject.ReflectionBaking.Mono.Cecil.Cil;
 using Zenject.ReflectionBaking.Mono.Collections.Generic;
+using MethodAttributes = Zenject.ReflectionBaking.Mono.Cecil.MethodAttributes;
 
 namespace Zenject.ReflectionBaking
 {
@@ -43,6 +41,7 @@ namespace Zenject.ReflectionBaking
             _module = module;
             _assembly = assembly;
             _namespaceRegexes = namespacePatterns.Select(CreateRegex).ToList();
+            _namespaceRegexes.Add(CreateRegex("^Zenject"));
         }
 
         public static int WeaveAssembly(
@@ -227,8 +226,8 @@ namespace Zenject.ReflectionBaking
 
             var factoryMethod = new MethodDefinition(
                 TypeAnalyzer.ReflectionBakingFactoryMethodName,
-                Mono.Cecil.MethodAttributes.Private | Mono.Cecil.MethodAttributes.HideBySig |
-                Mono.Cecil.MethodAttributes.Static,
+                MethodAttributes.Private | MethodAttributes.HideBySig |
+                MethodAttributes.Static,
                 _module.TypeSystem.Object);
 
             var p1 = new ParameterDefinition(_objectArrayType);
@@ -309,8 +308,8 @@ namespace Zenject.ReflectionBaking
         {
             var methodDef = new MethodDefinition(
                 name,
-                Mono.Cecil.MethodAttributes.Private | Mono.Cecil.MethodAttributes.HideBySig |
-                Mono.Cecil.MethodAttributes.Static,
+                MethodAttributes.Private | MethodAttributes.HideBySig |
+                MethodAttributes.Static,
                 _module.TypeSystem.Void);
 
             var p1 = new ParameterDefinition(_module.TypeSystem.Object);
@@ -340,7 +339,7 @@ namespace Zenject.ReflectionBaking
             {
                 postInjectMethods.Add(
                     AddPostInjectMethod(
-                        TypeAnalyzer.ReflectionBakingInjectMethodPrefix + i.ToString(), typeInfo.InjectMethods[i], typeDef, genericTypeDef));
+                        TypeAnalyzer.ReflectionBakingInjectMethodPrefix + i, typeInfo.InjectMethods[i], typeDef, genericTypeDef));
             }
 
             return postInjectMethods;
@@ -381,8 +380,8 @@ namespace Zenject.ReflectionBaking
         {
             var methodDef = new MethodDefinition(
                 name,
-                Mono.Cecil.MethodAttributes.Private | Mono.Cecil.MethodAttributes.HideBySig |
-                Mono.Cecil.MethodAttributes.Static,
+                MethodAttributes.Private | MethodAttributes.HideBySig |
+                MethodAttributes.Static,
                 _module.TypeSystem.Void);
 
             var p1 = new ParameterDefinition(_module.TypeSystem.Object);
@@ -412,7 +411,7 @@ namespace Zenject.ReflectionBaking
             {
                 methodDefs.Add(
                     AddSetterMethod(
-                        TypeAnalyzer.ReflectionBakingPropertySetterPrefix + i.ToString(),
+                        TypeAnalyzer.ReflectionBakingPropertySetterPrefix + i,
                         typeInfo.InjectProperties[i].PropertyInfo, typeDef, genericTypeDef));
             }
 
@@ -428,7 +427,7 @@ namespace Zenject.ReflectionBaking
             {
                 methodDefs.Add(
                     AddSetterMethod(
-                        TypeAnalyzer.ReflectionBakingFieldSetterPrefix + i.ToString(),
+                        TypeAnalyzer.ReflectionBakingFieldSetterPrefix + i,
                         typeInfo.InjectFields[i].FieldInfo, typeDef, genericTypeDef));
             }
 
@@ -442,8 +441,8 @@ namespace Zenject.ReflectionBaking
         {
             var getInfoMethodDef = new MethodDefinition(
                 TypeAnalyzer.ReflectionBakingGetInjectInfoMethodName,
-                Mono.Cecil.MethodAttributes.Private | Mono.Cecil.MethodAttributes.HideBySig |
-                Mono.Cecil.MethodAttributes.Static,
+                MethodAttributes.Private | MethodAttributes.HideBySig |
+                MethodAttributes.Static,
                 _zenjectTypeInfoType);
 
             typeDef.Methods.Add(getInfoMethodDef);

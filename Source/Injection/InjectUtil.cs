@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using ModestTree;
 
 namespace Zenject
 {
-    [System.Diagnostics.DebuggerStepThrough]
+    [DebuggerStepThrough]
     public struct TypeValuePair
     {
         public Type Type;
@@ -18,7 +19,7 @@ namespace Zenject
         }
     }
 
-    [System.Diagnostics.DebuggerStepThrough]
+    [DebuggerStepThrough]
     public static class InjectUtil
     {
         public static List<TypeValuePair> CreateArgList(IEnumerable<object> args)
@@ -37,68 +38,68 @@ namespace Zenject
 
         public static List<TypeValuePair> CreateArgListExplicit<T>(T param)
         {
-            return new List<TypeValuePair>()
+            return new List<TypeValuePair>
             {
-                CreateTypePair(param),
+                CreateTypePair(param)
             };
         }
 
         public static List<TypeValuePair> CreateArgListExplicit<TParam1, TParam2>(TParam1 param1, TParam2 param2)
         {
-            return new List<TypeValuePair>()
+            return new List<TypeValuePair>
             {
                 CreateTypePair(param1),
-                CreateTypePair(param2),
+                CreateTypePair(param2)
             };
         }
 
         public static List<TypeValuePair> CreateArgListExplicit<TParam1, TParam2, TParam3>(
             TParam1 param1, TParam2 param2, TParam3 param3)
         {
-            return new List<TypeValuePair>()
+            return new List<TypeValuePair>
             {
                 CreateTypePair(param1),
                 CreateTypePair(param2),
-                CreateTypePair(param3),
+                CreateTypePair(param3)
             };
         }
 
         public static List<TypeValuePair> CreateArgListExplicit<TParam1, TParam2, TParam3, TParam4>(
             TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4)
         {
-            return new List<TypeValuePair>()
+            return new List<TypeValuePair>
             {
                 CreateTypePair(param1),
                 CreateTypePair(param2),
                 CreateTypePair(param3),
-                CreateTypePair(param4),
+                CreateTypePair(param4)
             };
         }
 
         public static List<TypeValuePair> CreateArgListExplicit<TParam1, TParam2, TParam3, TParam4, TParam5>(
             TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5)
         {
-            return new List<TypeValuePair>()
+            return new List<TypeValuePair>
             {
                 CreateTypePair(param1),
                 CreateTypePair(param2),
                 CreateTypePair(param3),
                 CreateTypePair(param4),
-                CreateTypePair(param5),
+                CreateTypePair(param5)
             };
         }
 
         public static List<TypeValuePair> CreateArgListExplicit<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6>(
             TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5, TParam6 param6)
         {
-            return new List<TypeValuePair>()
+            return new List<TypeValuePair>
             {
                 CreateTypePair(param1),
                 CreateTypePair(param2),
                 CreateTypePair(param3),
                 CreateTypePair(param4),
                 CreateTypePair(param5),
-                CreateTypePair(param6),
+                CreateTypePair(param6)
             };
         }
 

@@ -1,8 +1,6 @@
 #if !NOT_UNITY3D
 
-using System.Text;
 using ModestTree;
-using ModestTree.Util;
 
 namespace Zenject
 {

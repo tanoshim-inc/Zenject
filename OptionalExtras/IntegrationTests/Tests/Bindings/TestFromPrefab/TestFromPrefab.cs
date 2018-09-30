@@ -1,14 +1,9 @@
 ﻿#if UNITY_EDITOR
 
-using System;
-using UnityEngine.TestTools;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using UnityEngine;
 using ModestTree;
-using Assert=ModestTree.Assert;
+using UnityEngine;
+using UnityEngine.TestTools;
 using Zenject.Tests.Bindings.FromPrefab;
 
 namespace Zenject.Tests.Bindings
@@ -18,11 +13,6 @@ namespace Zenject.Tests.Bindings
         GameObject FooPrefab
         {
             get { return GetPrefab("Foo"); }
-        }
-
-        GameObject FooPrefab2
-        {
-            get { return GetPrefab("Foo2"); }
         }
 
         GameObject GorpPrefab
@@ -225,7 +215,7 @@ namespace Zenject.Tests.Bindings
                 Assert.IsNotNull(_jim.Bob);
                 Assert.IsNotNull(_bob.Jim);
 
-                ModestTree.Log.Info("Jim and bob successfully got the other reference");
+                Log.Info("Jim and bob successfully got the other reference");
             }
         }
     }

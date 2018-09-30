@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ModestTree;
 using Zenject.Internal;
-using TypeExtensions = ModestTree.TypeExtensions;
 
 namespace Zenject
 {

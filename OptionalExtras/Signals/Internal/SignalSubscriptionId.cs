@@ -1,9 +1,9 @@
 using System;
-using ModestTree;
+using System.Diagnostics;
 
 namespace Zenject
 {
-    [System.Diagnostics.DebuggerStepThrough]
+    [DebuggerStepThrough]
     public struct SignalSubscriptionId : IEquatable<SignalSubscriptionId>
     {
         BindingId _signalId;
@@ -40,18 +40,16 @@ namespace Zenject
         {
             if (that is SignalSubscriptionId)
             {
-                return this.Equals((SignalSubscriptionId)that);
+                return Equals((SignalSubscriptionId)that);
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public bool Equals(SignalSubscriptionId that)
         {
-            return object.Equals(this._signalId, that._signalId)
-                && object.Equals(this.Callback, that.Callback);
+            return Equals(_signalId, that._signalId)
+                && Equals(Callback, that.Callback);
         }
 
         public static bool operator == (SignalSubscriptionId left, SignalSubscriptionId right)

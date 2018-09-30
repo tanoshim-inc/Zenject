@@ -1,15 +1,8 @@
 #if UNITY_EDITOR
 
-using System;
-using UnityEngine.TestTools;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using UnityEngine;
 using ModestTree;
-using Assert=ModestTree.Assert;
-using Zenject.Tests.Bindings.FromPrefab;
+using UnityEngine.TestTools;
 
 namespace Zenject.Tests.Bindings
 {
@@ -111,7 +104,7 @@ namespace Zenject.Tests.Bindings
 
         public class Bar
         {
-            public static int InstanceCount = 0;
+            public static int InstanceCount;
 
             public Bar()
             {

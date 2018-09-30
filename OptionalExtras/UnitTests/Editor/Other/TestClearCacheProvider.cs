@@ -1,7 +1,6 @@
-using System;
-using NUnit.Framework;
-using Assert=ModestTree.Assert;
 using System.Linq;
+using NUnit.Framework;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Other
 {
