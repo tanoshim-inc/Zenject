@@ -174,7 +174,7 @@ namespace Zenject.ReflectionBaking
         {
             _weavedAssemblies.arraySize++;
             SerializedProperty weaved = _weavedAssemblies.GetArrayElementAtIndex(_weavedAssemblies.arraySize - 1);
-            weaved.stringValue = (string)path;
+            weaved.stringValue = ((string)path).Replace("\\", "/");
             ApplyModifiedProperties();
         }
     }

@@ -47,6 +47,11 @@ namespace Zenject.ReflectionBaking
                 return;
             }
 
+            if (!settings.AllGeneratedAssemblies && !settings.WeavedAssemblies.Contains(assemblyAssetPath))
+            {
+                return;
+            }
+
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
@@ -61,7 +66,9 @@ namespace Zenject.ReflectionBaking
 
             var module = ModuleDefinition.ReadModule(assemblyFullPath, readerParameters);
 
-            if (module.AssemblyReferences.Where(x => x.Name.ToLower() == "zenject-usage").IsEmpty())
+            var assemblyRefNames = module.AssemblyReferences.Select(x => x.Name.ToLower()).ToList();
+
+            if (!assemblyRefNames.Contains("zenject-usage"))
             {
                 // Zenject-usage is used by the generated methods
                 // Important that we do this check otherwise we can corrupt some dlls that don't have access to it

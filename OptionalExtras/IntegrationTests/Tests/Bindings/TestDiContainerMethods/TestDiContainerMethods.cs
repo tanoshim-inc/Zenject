@@ -281,9 +281,16 @@ namespace Zenject.Tests.Bindings
 
             var foo = go.GetComponentInChildren<Foo>();
 
-            Assert.IsEqual(foo.transform.position, new Vector3(50, 50, 50));
-            Assert.IsEqual(foo.transform.rotation.eulerAngles, new Vector3(20, 20, 20));
+            Assert.That(Approximately(foo.transform.position, new Vector3(50, 50, 50)));
+            Assert.That(Approximately(foo.transform.rotation.eulerAngles, new Vector3(20, 20, 20)));
             yield break;
+        }
+
+        static bool Approximately(Vector3 left, Vector3 right)
+        {
+            return Mathf.Approximately(left.x, right.x)
+                && Mathf.Approximately(left.y, right.y)
+                && Mathf.Approximately(left.z, right.z);
         }
 
         public class Qux
