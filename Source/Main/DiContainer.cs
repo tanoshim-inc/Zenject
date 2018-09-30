@@ -1694,95 +1694,89 @@ namespace Zenject
 
             var prefabAsGameObject = GetPrefabAsGameObject(prefab);
 
-            var wasActive = prefabAsGameObject.activeSelf;
+            var prefabWasActive = prefabAsGameObject.activeSelf;
 
-            shouldMakeActive = wasActive;
+            shouldMakeActive = prefabWasActive;
 
             var parent = GetTransformGroup(gameObjectBindInfo, context);
 
             Transform initialParent;
 #if !UNITY_EDITOR
-            if(wasActive)
+            if (prefabWasActive)
             {
                 prefabAsGameObject.SetActive(false);
             }
 #else
-            if(wasActive)
+            if (prefabWasActive)
             {
                 initialParent = ZenUtilInternal.GetOrCreateInactivePrefabParent();
             }
             else
 #endif
-            if(parent != null)
             {
-                initialParent = parent;
-            }
-            else
-            {
-                // This ensures it gets added to the right scene instead of just the active scene
-                initialParent = ContextTransform;
+                if (parent != null)
+                {
+                    initialParent = parent;
+                }
+                else
+                {
+                    // This ensures it gets added to the right scene instead of just the active scene
+                    initialParent = ContextTransform;
+                }
             }
 
+            bool positionAndRotationWereSet;
             GameObject gameObj;
 
 #if ZEN_INTERNAL_PROFILING
             using (ProfileTimers.CreateTimedBlock("GameObject.Instantiate"))
 #endif
             {
-                if(gameObjectBindInfo.Position.HasValue && gameObjectBindInfo.Rotation.HasValue)
+                if (gameObjectBindInfo.Position.HasValue && gameObjectBindInfo.Rotation.HasValue)
                 {
                     gameObj = GameObject.Instantiate(
-                        prefabAsGameObject, gameObjectBindInfo.Position.Value,gameObjectBindInfo.Rotation.Value, initialParent);
+                        prefabAsGameObject, gameObjectBindInfo.Position.Value, gameObjectBindInfo.Rotation.Value, initialParent);
+                    positionAndRotationWereSet = true;
                 }
                 else if (gameObjectBindInfo.Position.HasValue)
                 {
                     gameObj = GameObject.Instantiate(
-                        prefabAsGameObject, gameObjectBindInfo.Position.Value,prefabAsGameObject.transform.rotation, initialParent);
+                        prefabAsGameObject, gameObjectBindInfo.Position.Value, prefabAsGameObject.transform.rotation, initialParent);
+                    positionAndRotationWereSet = true;
                 }
                 else if (gameObjectBindInfo.Rotation.HasValue)
                 {
                     gameObj = GameObject.Instantiate(
                         prefabAsGameObject, prefabAsGameObject.transform.position, gameObjectBindInfo.Rotation.Value, initialParent);
+                    positionAndRotationWereSet = true;
                 }
                 else
                 {
                     gameObj = GameObject.Instantiate(prefabAsGameObject, initialParent);
+                    positionAndRotationWereSet = false;
                 }
             }
 
 #if !UNITY_EDITOR
-            if(wasActive)
+            if (prefabWasActive)
             {
                 prefabAsGameObject.SetActive(true);
             }
 #else
-            if(wasActive)
+            if (prefabWasActive)
             {
                 gameObj.SetActive(false);
 
-                if(parent == null)
+                if (parent == null)
                 {
-                    gameObj.transform.SetParent(ContextTransform, false);
+                    gameObj.transform.SetParent(ContextTransform, positionAndRotationWereSet);
                 }
             }
 #endif
 
-            if(gameObj.transform.parent != parent)
+            if (gameObj.transform.parent != parent)
             {
-                gameObj.transform.SetParent(parent, false);
-
-                // On iOS unity seems to ignore the worldPositionStays argument
-                // to SetParent, which causes prefab instances to get offset by the scene context transform
-                // https://github.com/svermeulen/Zenject/issues/547
-                if (gameObjectBindInfo.Position.HasValue)
-                {
-                    gameObj.transform.position = gameObjectBindInfo.Position.Value;
-                }
-
-                if (gameObjectBindInfo.Rotation.HasValue)
-                {
-                    gameObj.transform.rotation = gameObjectBindInfo.Rotation.Value;
-                }
+                gameObj.transform.SetParent(parent, positionAndRotationWereSet);
             }
 
             if (gameObjectBindInfo.Name != null)
