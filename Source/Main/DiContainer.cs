@@ -1770,6 +1770,19 @@ namespace Zenject
             if(gameObj.transform.parent != parent)
             {
                 gameObj.transform.SetParent(parent, false);
+
+                // On iOS unity seems to ignore the worldPositionStays argument
+                // to SetParent, which causes prefab instances to get offset by the scene context transform
+                // https://github.com/svermeulen/Zenject/issues/547
+                if (gameObjectBindInfo.Position.HasValue)
+                {
+                    gameObj.transform.position = gameObjectBindInfo.Position.Value;
+                }
+
+                if (gameObjectBindInfo.Rotation.HasValue)
+                {
+                    gameObj.transform.rotation = gameObjectBindInfo.Rotation.Value;
+                }
             }
 
             if (gameObjectBindInfo.Name != null)
