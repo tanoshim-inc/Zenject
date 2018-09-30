@@ -43,6 +43,7 @@ namespace Zenject.ReflectionBaking
             _module = module;
             _assembly = assembly;
             _namespaceRegexes = namespacePatterns.Select(CreateRegex).ToList();
+            _namespaceRegexes.Add(CreateRegex("^Zenject"));
         }
 
         public static int WeaveAssembly(

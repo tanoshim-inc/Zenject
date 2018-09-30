@@ -69,26 +69,26 @@ namespace Zenject
                 return null;
             }
 
-            return TimedBlock.Pool.Spawn(_timers.Values, timer);
+            return TimedBlock.Pool.Spawn(timer);
         }
 
         class TimedBlock : IDisposable
         {
-            public static StaticMemoryPool<IEnumerable<TimerInfo>, TimerInfo, TimedBlock> Pool =
-                new StaticMemoryPool<IEnumerable<TimerInfo>, TimerInfo, TimedBlock>(OnSpawned, OnDespawned);
+            public static StaticMemoryPool<TimerInfo, TimedBlock> Pool =
+                new StaticMemoryPool<TimerInfo, TimedBlock>(OnSpawned, OnDespawned);
 
             readonly List<TimerInfo> _pausedTimers = new List<TimerInfo>();
 
             TimerInfo _exclusiveTimer;
 
             static void OnSpawned(
-                IEnumerable<TimerInfo> timers, TimerInfo exclusiveTimer, TimedBlock instance)
+                TimerInfo exclusiveTimer, TimedBlock instance)
             {
-                Assert.That(instance._pausedTimers.IsEmpty());
+                Assert.That(instance._pausedTimers.Count == 0);
 
                 instance._exclusiveTimer = exclusiveTimer;
 
-                foreach (var timer in timers)
+                foreach (var timer in ProfileTimers._timers.Values)
                 {
                     if (exclusiveTimer == timer)
                     {
