@@ -8,11 +8,13 @@ namespace Zenject
         readonly BindStatement _bindStatement;
         readonly Func<TObject, Action<TSignal>> _methodGetter;
         readonly DiContainer _container;
+        readonly SignalBindingBindInfo _signalBindInfo;
 
         public BindSignalFromBinder(
-            BindStatement bindStatement, Func<TObject, Action<TSignal>> methodGetter,
+            SignalBindingBindInfo signalBindInfo, BindStatement bindStatement, Func<TObject, Action<TSignal>> methodGetter,
             DiContainer container)
         {
+            _signalBindInfo = signalBindInfo;
             _bindStatement = bindStatement;
             _methodGetter = methodGetter;
             _container = container;
@@ -53,7 +55,7 @@ namespace Zenject
             var wrapperBinder = _container.Bind<IDisposable>()
                 .To<SignalCallbackWithLookupWrapper>()
                 .AsCached()
-                .WithArguments(typeof(TSignal), typeof(TObject), objectLookupId, methodGetterMapper)
+                .WithArguments(_signalBindInfo, typeof(TObject), objectLookupId, methodGetterMapper)
                 .NonLazy();
 
             var copyBinder = new SignalCopyBinder( wrapperBinder.BindInfo);

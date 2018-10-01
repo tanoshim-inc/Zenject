@@ -7,13 +7,20 @@ namespace Zenject
     {
         DiContainer _container;
         BindStatement _bindStatement;
+        SignalBindingBindInfo _signalBindInfo;
 
-        public BindSignalToBinder(DiContainer container)
+        public BindSignalToBinder(DiContainer container, SignalBindingBindInfo signalBindInfo)
         {
             _container = container;
 
+            _signalBindInfo = signalBindInfo;
             // This will ensure that they finish the binding
             _bindStatement = container.StartBinding();
+        }
+
+        protected SignalBindingBindInfo SignalBindInfo
+        {
+            get { return _signalBindInfo; }
         }
 
         public SignalCopyBinder ToMethod(Action<TSignal> callback)
@@ -27,7 +34,7 @@ namespace Zenject
                 // Note that there's a reason we don't just make SignalCallbackWrapper have a generic
                 // argument for signal type - because when using struct type signals it throws
                 // exceptions on AOT platforms
-                .WithArguments(typeof(TSignal), (Action<object>)(o => callback((TSignal)o)))
+                .WithArguments(_signalBindInfo, (Action<object>)(o => callback((TSignal)o)))
                 .NonLazy().BindInfo;
 
             return new SignalCopyBinder(bindInfo);
@@ -51,7 +58,7 @@ namespace Zenject
         public BindSignalFromBinder<TObject, TSignal> ToMethod<TObject>(Func<TObject, Action<TSignal>> handlerGetter)
         {
             return new BindSignalFromBinder<TObject, TSignal>(
-                _bindStatement, handlerGetter, _container);
+                _signalBindInfo, _bindStatement, handlerGetter, _container);
         }
     }
 }
