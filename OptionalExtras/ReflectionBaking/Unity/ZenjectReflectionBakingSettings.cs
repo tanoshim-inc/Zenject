@@ -15,7 +15,10 @@ namespace Zenject.ReflectionBaking
         bool _allGeneratedAssemblies = true;
 
         [SerializeField]
-        List<string> _weavedAssemblies;
+        List<string> _includeAssemblies;
+
+        [SerializeField]
+        List<string> _excludeAssemblies;
 
         [SerializeField]
         List<string> _namespacePatterns;
@@ -25,9 +28,14 @@ namespace Zenject.ReflectionBaking
             get { return _namespacePatterns; }
         }
 
-        public List<string> WeavedAssemblies
+        public List<string> IncludeAssemblies
         {
-            get { return _weavedAssemblies; }
+            get { return _includeAssemblies; }
+        }
+
+        public List<string> ExcludeAssemblies
+        {
+            get { return _excludeAssemblies; }
         }
 
         public bool IsEnabledInEditor
