@@ -47,7 +47,12 @@ namespace Zenject.ReflectionBaking
                 return;
             }
 
-            if (!settings.AllGeneratedAssemblies && !settings.WeavedAssemblies.Contains(assemblyAssetPath))
+            if (settings.AllGeneratedAssemblies && settings.ExcludeAssemblies.Contains(assemblyAssetPath))
+            {
+                return;
+            }
+
+            if (!settings.AllGeneratedAssemblies && !settings.IncludeAssemblies.Contains(assemblyAssetPath))
             {
                 return;
             }
