@@ -239,7 +239,7 @@ namespace Zenject.Tests.Factories
         {
             PreInstall();
             Container.BindFactory<string, Foo, Foo.Factory>()
-                .FromSubContainerResolve().ByNewPrefabResource<FooInstaller>("TestBindFactoryOne/FooSubContainer");
+                .FromSubContainerResolve().ByNewContextPrefabResource<FooInstaller>("TestBindFactoryOne/FooSubContainer");
 
             AddFactoryUser<Foo, Foo.Factory>();
 
@@ -255,7 +255,7 @@ namespace Zenject.Tests.Factories
         {
             PreInstall();
             Container.BindFactory<string, IFoo, IFooFactory>()
-                .To<Foo>().FromSubContainerResolve().ByNewPrefabResource<FooInstaller>("TestBindFactoryOne/FooSubContainer");
+                .To<Foo>().FromSubContainerResolve().ByNewContextPrefabResource<FooInstaller>("TestBindFactoryOne/FooSubContainer");
 
             AddFactoryUser<IFoo, IFooFactory>();
 
