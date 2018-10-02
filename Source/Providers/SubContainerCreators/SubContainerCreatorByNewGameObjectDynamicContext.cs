@@ -9,48 +9,37 @@ using Zenject.Internal;
 namespace Zenject
 {
     [NoReflectionBaking]
-    public abstract class SubContainerCreatorByNewPrefabDynamicContext : SubContainerCreatorDynamicContext
+    public abstract class SubContainerCreatorByNewGameObjectDynamicContext : SubContainerCreatorDynamicContext
     {
-        readonly IPrefabProvider _prefabProvider;
         readonly GameObjectCreationParameters _gameObjectBindInfo;
 
-        public SubContainerCreatorByNewPrefabDynamicContext(
-            DiContainer container,
-            IPrefabProvider prefabProvider, GameObjectCreationParameters gameObjectBindInfo)
+        public SubContainerCreatorByNewGameObjectDynamicContext(
+            DiContainer container, GameObjectCreationParameters gameObjectBindInfo)
             : base(container)
         {
-            _prefabProvider = prefabProvider;
             _gameObjectBindInfo = gameObjectBindInfo;
         }
 
         protected override GameObject CreateGameObject(out bool shouldMakeActive)
         {
-            var prefab = _prefabProvider.GetPrefab();
-
-            var gameObj = Container.CreateAndParentPrefab(
-                prefab, _gameObjectBindInfo, null, out shouldMakeActive);
-
-            if (gameObj.GetComponent<GameObjectContext>() != null)
-            {
-                throw Assert.CreateException(
-                    "Found GameObjectContext already attached to prefab with name '{0}'!  When using ByNewPrefabMethod or ByNewPrefabInstaller, the GameObjectContext is added to the prefab dynamically", prefab.name);
-            }
-
-            return gameObj;
+            shouldMakeActive = true;
+            var gameObject = Container.CreateEmptyGameObject(_gameObjectBindInfo, null);
+            gameObject.SetActive(false);
+            return gameObject;
         }
     }
 
     [NoReflectionBaking]
-    public class SubContainerCreatorByNewPrefabInstaller : SubContainerCreatorByNewPrefabDynamicContext
+    public class SubContainerCreatorByNewGameObjectInstaller : SubContainerCreatorByNewGameObjectDynamicContext
     {
         readonly Type _installerType;
         readonly List<TypeValuePair> _extraArgs;
 
-        public SubContainerCreatorByNewPrefabInstaller(
-            DiContainer container, IPrefabProvider prefabProvider,
+        public SubContainerCreatorByNewGameObjectInstaller(
+            DiContainer container,
             GameObjectCreationParameters gameObjectBindInfo,
             Type installerType, List<TypeValuePair> extraArgs)
-            : base(container, prefabProvider, gameObjectBindInfo)
+            : base(container, gameObjectBindInfo)
         {
             _installerType = installerType;
             _extraArgs = extraArgs;
@@ -80,15 +69,15 @@ namespace Zenject
     }
 
     [NoReflectionBaking]
-    public class SubContainerCreatorByNewPrefabMethod : SubContainerCreatorByNewPrefabDynamicContext
+    public class SubContainerCreatorByNewGameObjectMethod : SubContainerCreatorByNewGameObjectDynamicContext
     {
         readonly Action<DiContainer> _installerMethod;
 
-        public SubContainerCreatorByNewPrefabMethod(
-            DiContainer container, IPrefabProvider prefabProvider,
+        public SubContainerCreatorByNewGameObjectMethod(
+            DiContainer container,
             GameObjectCreationParameters gameObjectBindInfo,
             Action<DiContainer> installerMethod)
-            : base(container, prefabProvider, gameObjectBindInfo)
+            : base(container, gameObjectBindInfo)
         {
             _installerMethod = installerMethod;
         }
@@ -102,15 +91,15 @@ namespace Zenject
     }
 
     [NoReflectionBaking]
-    public class SubContainerCreatorByNewPrefabMethod<TParam1> : SubContainerCreatorByNewPrefabDynamicContext
+    public class SubContainerCreatorByNewGameObjectMethod<TParam1> : SubContainerCreatorByNewGameObjectDynamicContext
     {
         readonly Action<DiContainer, TParam1> _installerMethod;
 
-        public SubContainerCreatorByNewPrefabMethod(
-            DiContainer container, IPrefabProvider prefabProvider,
+        public SubContainerCreatorByNewGameObjectMethod(
+            DiContainer container,
             GameObjectCreationParameters gameObjectBindInfo,
             Action<DiContainer, TParam1> installerMethod)
-            : base(container, prefabProvider, gameObjectBindInfo)
+            : base(container, gameObjectBindInfo)
         {
             _installerMethod = installerMethod;
         }
@@ -129,15 +118,15 @@ namespace Zenject
     }
 
     [NoReflectionBaking]
-    public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2> : SubContainerCreatorByNewPrefabDynamicContext
+    public class SubContainerCreatorByNewGameObjectMethod<TParam1, TParam2> : SubContainerCreatorByNewGameObjectDynamicContext
     {
         readonly Action<DiContainer, TParam1, TParam2> _installerMethod;
 
-        public SubContainerCreatorByNewPrefabMethod(
-            DiContainer container, IPrefabProvider prefabProvider,
+        public SubContainerCreatorByNewGameObjectMethod(
+            DiContainer container,
             GameObjectCreationParameters gameObjectBindInfo,
             Action<DiContainer, TParam1, TParam2> installerMethod)
-            : base(container, prefabProvider, gameObjectBindInfo)
+            : base(container, gameObjectBindInfo)
         {
             _installerMethod = installerMethod;
         }
@@ -159,15 +148,15 @@ namespace Zenject
     }
 
     [NoReflectionBaking]
-    public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3> : SubContainerCreatorByNewPrefabDynamicContext
+    public class SubContainerCreatorByNewGameObjectMethod<TParam1, TParam2, TParam3> : SubContainerCreatorByNewGameObjectDynamicContext
     {
         readonly Action<DiContainer, TParam1, TParam2, TParam3> _installerMethod;
 
-        public SubContainerCreatorByNewPrefabMethod(
-            DiContainer container, IPrefabProvider prefabProvider,
+        public SubContainerCreatorByNewGameObjectMethod(
+            DiContainer container,
             GameObjectCreationParameters gameObjectBindInfo,
             Action<DiContainer, TParam1, TParam2, TParam3> installerMethod)
-            : base(container, prefabProvider, gameObjectBindInfo)
+            : base(container, gameObjectBindInfo)
         {
             _installerMethod = installerMethod;
         }
@@ -191,7 +180,7 @@ namespace Zenject
     }
 
     [NoReflectionBaking]
-    public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4> : SubContainerCreatorByNewPrefabDynamicContext
+    public class SubContainerCreatorByNewGameObjectMethod<TParam1, TParam2, TParam3, TParam4> : SubContainerCreatorByNewGameObjectDynamicContext
     {
         readonly
 #if !NET_4_6
@@ -199,14 +188,14 @@ namespace Zenject
 #endif
             Action<DiContainer, TParam1, TParam2, TParam3, TParam4> _installerMethod;
 
-        public SubContainerCreatorByNewPrefabMethod(
-            DiContainer container, IPrefabProvider prefabProvider,
+        public SubContainerCreatorByNewGameObjectMethod(
+            DiContainer container,
             GameObjectCreationParameters gameObjectBindInfo,
 #if !NET_4_6
             ModestTree.Util.
 #endif
             Action<DiContainer, TParam1, TParam2, TParam3, TParam4> installerMethod)
-            : base(container, prefabProvider, gameObjectBindInfo)
+            : base(container, gameObjectBindInfo)
         {
             _installerMethod = installerMethod;
         }
@@ -232,7 +221,7 @@ namespace Zenject
     }
 
     [NoReflectionBaking]
-    public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4, TParam5> : SubContainerCreatorByNewPrefabDynamicContext
+    public class SubContainerCreatorByNewGameObjectMethod<TParam1, TParam2, TParam3, TParam4, TParam5> : SubContainerCreatorByNewGameObjectDynamicContext
     {
         readonly
 #if !NET_4_6
@@ -240,14 +229,14 @@ namespace Zenject
 #endif
             Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> _installerMethod;
 
-        public SubContainerCreatorByNewPrefabMethod(
-            DiContainer container, IPrefabProvider prefabProvider,
+        public SubContainerCreatorByNewGameObjectMethod(
+            DiContainer container,
             GameObjectCreationParameters gameObjectBindInfo,
 #if !NET_4_6
             ModestTree.Util.
 #endif
             Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> installerMethod)
-            : base(container, prefabProvider, gameObjectBindInfo)
+            : base(container, gameObjectBindInfo)
         {
             _installerMethod = installerMethod;
         }
@@ -275,7 +264,7 @@ namespace Zenject
     }
 
     [NoReflectionBaking]
-    public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> : SubContainerCreatorByNewPrefabDynamicContext
+    public class SubContainerCreatorByNewGameObjectMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> : SubContainerCreatorByNewGameObjectDynamicContext
     {
         readonly
 #if !NET_4_6
@@ -283,14 +272,14 @@ namespace Zenject
 #endif
             Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> _installerMethod;
 
-        public SubContainerCreatorByNewPrefabMethod(
-            DiContainer container, IPrefabProvider prefabProvider,
+        public SubContainerCreatorByNewGameObjectMethod(
+            DiContainer container,
             GameObjectCreationParameters gameObjectBindInfo,
 #if !NET_4_6
             ModestTree.Util.
 #endif
             Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> installerMethod)
-            : base(container, prefabProvider, gameObjectBindInfo)
+            : base(container, gameObjectBindInfo)
         {
             _installerMethod = installerMethod;
         }
@@ -320,7 +309,7 @@ namespace Zenject
     }
 
     [NoReflectionBaking]
-    public class SubContainerCreatorByNewPrefabMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> : SubContainerCreatorByNewPrefabDynamicContext
+    public class SubContainerCreatorByNewGameObjectMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> : SubContainerCreatorByNewGameObjectDynamicContext
     {
         readonly
 #if !NET_4_6
@@ -328,14 +317,14 @@ namespace Zenject
 #endif
             Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> _installerMethod;
 
-        public SubContainerCreatorByNewPrefabMethod(
-            DiContainer container, IPrefabProvider prefabProvider,
+        public SubContainerCreatorByNewGameObjectMethod(
+            DiContainer container,
             GameObjectCreationParameters gameObjectBindInfo,
 #if !NET_4_6
             ModestTree.Util.
 #endif
             Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> installerMethod)
-            : base(container, prefabProvider, gameObjectBindInfo)
+            : base(container, gameObjectBindInfo)
         {
             _installerMethod = installerMethod;
         }

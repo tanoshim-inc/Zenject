@@ -102,6 +102,19 @@ namespace Zenject
 
 #if !NOT_UNITY3D
 
+        public NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder ByNewGameObjectMethod(
+            Action<DiContainer> installerMethod)
+        {
+            var gameObjectInfo = new GameObjectCreationParameters();
+
+            SubFinalizer = new SubContainerPrefabBindingFinalizer(
+                _bindInfo, _subIdentifier, _resolveAll,
+                (container) => new SubContainerCreatorByNewGameObjectMethod(
+                    container, gameObjectInfo, installerMethod));
+
+            return new NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder(_bindInfo, gameObjectInfo);
+        }
+
         public NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder ByNewPrefabMethod(
             UnityEngine.Object prefab, Action<DiContainer> installerMethod)
         {
@@ -115,6 +128,27 @@ namespace Zenject
                     container,
                     new PrefabProvider(prefab),
                     gameObjectInfo, installerMethod));
+
+            return new NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder(_bindInfo, gameObjectInfo);
+        }
+
+        public NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder ByNewGameObjectInstaller<TInstaller>()
+            where TInstaller : InstallerBase
+        {
+            return ByNewGameObjectInstaller(typeof(TInstaller));
+        }
+
+        public NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder ByNewGameObjectInstaller(Type installerType)
+        {
+            Assert.That(installerType.DerivesFrom<InstallerBase>(),
+                "Invalid installer type given during bind command.  Expected type '{0}' to derive from 'Installer<>'", installerType);
+
+            var gameObjectInfo = new GameObjectCreationParameters();
+
+            SubFinalizer = new SubContainerPrefabBindingFinalizer(
+                _bindInfo, _subIdentifier, _resolveAll,
+                (container) => new SubContainerCreatorByNewGameObjectInstaller(
+                    container, gameObjectInfo, installerType, _bindInfo.Arguments));
 
             return new NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder(_bindInfo, gameObjectInfo);
         }
