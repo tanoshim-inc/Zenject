@@ -51,7 +51,7 @@ namespace Zenject
                 if (result == null)
                 {
                     Assert.That(!context.MemberType.IsPrimitive(),
-                    "Invalid value returned from FromMethod.  Expected non-null.");
+                        "Invalid value returned from FromMethod.  Expected non-null.");
                 }
                 else
                 {

@@ -112,6 +112,82 @@ namespace Zenject.Tests.Bindings
             yield break;
         }
 
+        [UnityTest]
+        public IEnumerator RunMatchSingleNonGeneric()
+        {
+            Setup1();
+            PreInstall();
+            Container.Bind<Qux>().AsSingle();
+            Container.Bind(typeof(Foo)).FromComponentInHierarchy();
+
+            PostInstall();
+
+            var qux = Container.Resolve<Qux>();
+            Assert.IsEqual(qux.Foos.Count, 1);
+            Assert.IsEqual(qux.Foos[0], _foo1);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunMatchMultipleNonGeneric()
+        {
+            Setup1();
+            PreInstall();
+            Container.Bind<Qux>().AsSingle();
+            Container.Bind(typeof(Foo)).FromComponentsInHierarchy();
+
+            PostInstall();
+
+            var qux = Container.Resolve<Qux>();
+            Assert.IsEqual(qux.Foos.Count, 2);
+            Assert.IsEqual(qux.Foos[0], _foo1);
+            Assert.IsEqual(qux.Foos[1], _foo2);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunMatchNotFoundFailureNonGeneric()
+        {
+            Setup2();
+            PreInstall();
+            Container.Bind<Bar>().AsSingle().NonLazy();
+            Container.Bind(typeof(Foo)).FromComponentInHierarchy();
+
+            Assert.Throws(() => PostInstall());
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunMatchNotFoundSuccessNonGeneric()
+        {
+            Setup2();
+            PreInstall();
+
+            Container.Bind<Qux>().AsSingle().NonLazy();
+            Container.Bind(typeof(Foo)).FromComponentsInHierarchy();
+
+            PostInstall();
+
+            var qux = Container.Resolve<Qux>();
+            Assert.IsEqual(qux.Foos.Count, 0);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator TestOptionalNonGeneric()
+        {
+            PreInstall();
+
+            Container.Bind<Qiv>().AsSingle().NonLazy();
+            Container.Bind(typeof(Foo)).FromComponentInHierarchy();
+
+            PostInstall();
+
+            var qiv = Container.Resolve<Qiv>();
+            Assert.IsNull(qiv.Foo);
+            yield break;
+        }
+
         public class Foo : MonoBehaviour
         {
         }

@@ -127,6 +127,82 @@ namespace Zenject.Tests.Bindings
             yield break;
         }
 
+        [UnityTest]
+        public IEnumerator RunMatchSingleChildNonGeneric()
+        {
+            Setup1();
+            PreInstall();
+            Container.Bind(typeof(Grandchild)).FromComponentInChildren();
+            Container.Bind(typeof(Child)).FromComponentInChildren();
+
+            PostInstall();
+
+            Assert.IsEqual(_root.Grandchild, _grandchild);
+            Assert.IsEqual(_root.Childs.Count, 1);
+            Assert.IsEqual(_root.Childs[0], _child1);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunMatchAllChildrenNonGeneric()
+        {
+            Setup1();
+            PreInstall();
+            Container.Bind(typeof(Grandchild)).FromComponentInChildren();
+            Container.Bind<Child>().FromComponentsInChildren();
+
+            PostInstall();
+
+            Assert.IsEqual(_root.Grandchild, _grandchild);
+            Assert.IsEqual(_root.Childs.Count, 2);
+            Assert.IsEqual(_root.Childs[0], _child1);
+            Assert.IsEqual(_root.Childs[1], _child2);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunMissingChildrenFailureNonGeneric()
+        {
+            new GameObject("root").AddComponent<Root>();
+
+            PreInstall();
+            Container.Bind(typeof(Grandchild)).FromComponentInChildren();
+
+            Assert.Throws(() => PostInstall());
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RunMissingChildrenSuccessNonGeneric()
+        {
+            var root = new GameObject("root").AddComponent<Root>();
+
+            var grandchild = new GameObject("grandchild").AddComponent<Grandchild>();
+            grandchild.transform.SetParent(root.transform);
+
+            PreInstall();
+            Container.Bind(typeof(Grandchild)).FromComponentInChildren();
+
+            PostInstall();
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator TestOptionalNonGeneric()
+        {
+            var root = new GameObject("root").AddComponent<RootWithOptional>();
+
+            PreInstall();
+
+            Container.Bind(typeof(Child)).FromComponentInChildren();
+
+            PostInstall();
+
+            Assert.IsNull(root.Child);
+
+            yield break;
+        }
+
         public class Root : MonoBehaviour
         {
             [Inject]

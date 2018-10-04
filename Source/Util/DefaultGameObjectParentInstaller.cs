@@ -1,6 +1,7 @@
 #if !NOT_UNITY3D
 
 using System;
+using UnityEngine;
 
 namespace Zenject
 {
@@ -30,6 +31,21 @@ namespace Zenject
             // to clean it up if they want to first
             Container.BindDisposableExecutionOrder<DefaultParentObjectDestroyer>(int.MinValue);
 #endif
+        }
+
+        class DefaultParentObjectDestroyer : IDisposable
+        {
+            readonly GameObject _gameObject;
+
+            public DefaultParentObjectDestroyer(GameObject gameObject)
+            {
+                _gameObject = gameObject;
+            }
+
+            public void Dispose()
+            {
+                GameObject.Destroy(_gameObject);
+            }
         }
     }
 }

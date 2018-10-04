@@ -37,22 +37,5 @@ namespace Zenject
                 }
             }
         }
-
-#if !NOT_UNITY3D
-        class DefaultParentObjectDestroyer : IDisposable
-        {
-            readonly GameObject _gameObject;
-
-            public DefaultParentObjectDestroyer(GameObject gameObject)
-            {
-                _gameObject = gameObject;
-            }
-
-            public void Dispose()
-            {
-                GameObject.Destroy(_gameObject);
-            }
-        }
-#endif
     }
 }
