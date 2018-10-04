@@ -12,13 +12,7 @@ namespace Zenject
         {
         }
 
-        public
-#if NOT_UNITY3D
-            ScopeConcreteIdArgConditionCopyNonLazyBinder
-#else
-            DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder
-#endif
-            ByMethod(Action<DiContainer, TParam1> installerMethod)
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder ByMethod(Action<DiContainer, TParam1> installerMethod)
         {
             var subcontainerBindInfo = new SubContainerCreatorBindInfo();
 
@@ -28,11 +22,7 @@ namespace Zenject
                     new SubContainerCreatorByMethod<TParam1>(
                         container, subcontainerBindInfo, installerMethod), false);
 
-#if NOT_UNITY3D
             return new ScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo);
-#else
-            return new DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder(subcontainerBindInfo, BindInfo);
-#endif
         }
 
 #if !NOT_UNITY3D

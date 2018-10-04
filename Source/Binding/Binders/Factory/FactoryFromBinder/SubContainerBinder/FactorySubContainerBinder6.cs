@@ -12,13 +12,7 @@ namespace Zenject
         {
         }
 
-        public 
-#if NOT_UNITY3D
-            ScopeConcreteIdArgConditionCopyNonLazyBinder
-#else
-            DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder
-#endif
-            ByMethod(
+        public ScopeConcreteIdArgConditionCopyNonLazyBinder ByMethod(
 #if !NET_4_6
             ModestTree.Util.
 #endif
@@ -32,11 +26,7 @@ namespace Zenject
                     new SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6>(
                         container, subcontainerBindInfo, installerMethod), false);
 
-#if NOT_UNITY3D
             return new ScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo);
-#else
-            return new DefaultParentScopeConcreteIdArgConditionCopyNonLazyBinder(subcontainerBindInfo, BindInfo);
-#endif
         }
 
 #if !NOT_UNITY3D

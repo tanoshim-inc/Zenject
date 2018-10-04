@@ -11,26 +11,6 @@ namespace Zenject
         public static void ApplyBindSettings(
             SubContainerCreatorBindInfo subContainerBindInfo, DiContainer subContainer)
         {
-            if (subContainerBindInfo.DefaultParentName != null)
-            {
-#if !ZEN_TESTS_OUTSIDE_UNITY && !NOT_UNITY3D
-                var defaultParent = new GameObject(
-                    subContainerBindInfo.DefaultParentName);
-
-                defaultParent.transform.SetParent(
-                    subContainer.InheritedDefaultParent, false);
-
-                subContainer.DefaultParent = defaultParent.transform;
-
-                subContainer.Bind<IDisposable>()
-                    .To<DefaultParentObjectDestroyer>().AsCached().WithArguments(defaultParent);
-
-                // Always destroy the default parent last so that the non-monobehaviours get a chance
-                // to clean it up if they want to first
-                subContainer.BindDisposableExecutionOrder<DefaultParentObjectDestroyer>(int.MinValue);
-#endif
-            }
-
             if (subContainerBindInfo.CreateKernel)
             {
                 var parentContainer = subContainer.ParentContainers.OnlyOrDefault();
@@ -48,6 +28,12 @@ namespace Zenject
                     parentContainer.BindInterfacesTo<Kernel>().FromSubContainerResolve()
                         .ByInstance(subContainer).AsCached();
                     subContainer.Bind<Kernel>().AsCached();
+                }
+
+                if (subContainerBindInfo.DefaultParentName != null)
+                {
+                    DefaultGameObjectParentInstaller.Install(
+                        subContainer, subContainerBindInfo.DefaultParentName);
                 }
             }
         }
