@@ -12,7 +12,7 @@ namespace Zenject.Tests.Bindings.FromComponentInHierarchyGameObjectContext
         public override void InstallBindings()
         {
             Container.Bind<Foo>().FromInstance(_foo).AsSingle();
-            Container.Bind<Gorp>().FromComponentInHierarchy();
+            Container.Bind<Gorp>().FromComponentInHierarchy().AsSingle();
         }
     }
 }
