@@ -3266,30 +3266,6 @@ namespace Zenject
             return (T)InstantiateExplicit(typeof(T), extraArgs);
         }
 
-#if NET_4_6
-        public Lazy<T> InstantiateLazy<T>()
-        {
-            return InstantiateLazy<T>(typeof(T));
-        }
-
-        public Lazy<T> InstantiateLazy<T>(Type concreteType)
-        {
-            Assert.That(concreteType.DerivesFromOrEqual<T>());
-            return new Lazy<T>(() => (T)Instantiate(concreteType));
-        }
-
-        public Lazy<T> ResolveLazy<T>()
-        {
-            return ResolveLazy<T>(typeof(T));
-        }
-
-        public Lazy<T> ResolveLazy<T>(Type concreteType)
-        {
-            Assert.That(concreteType.DerivesFromOrEqual<T>());
-            return new Lazy<T>(() => (T)Resolve(concreteType));
-        }
-#endif
-
         public object InstantiateExplicit(Type concreteType, List<TypeValuePair> extraArgs)
         {
             bool autoInject = true;

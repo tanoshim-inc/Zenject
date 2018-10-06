@@ -50,38 +50,6 @@ namespace Zenject.Tests.Bindings.Singletons
             Assert.Throws(() => temp = gorp.Bar.Value);
         }
 
-#if NET_4_6
-        [Test]
-        public void TestInstantiateLazy()
-        {
-            Bar.InstanceCount = 0;
-
-            var bar = Container.InstantiateLazy<Bar>();
-
-            Assert.IsEqual(Bar.InstanceCount, 0);
-
-            bar.Value.DoIt();
-
-            Assert.IsEqual(Bar.InstanceCount, 1);
-        }
-
-        [Test]
-        public void TestResolveLazy()
-        {
-            Bar.InstanceCount = 0;
-
-            Container.Bind<Bar>().AsSingle();
-
-            var bar = Container.ResolveLazy<Bar>();
-
-            Assert.IsEqual(Bar.InstanceCount, 0);
-
-            bar.Value.DoIt();
-
-            Assert.IsEqual(Bar.InstanceCount, 1);
-        }
-#endif
-
         public class Bar
         {
             public static int InstanceCount;
