@@ -18,9 +18,11 @@ namespace Zenject
             return signalBinder;
         }
 
-        public static BindSignalToBinder<TSignal> BindSignal<TSignal>(this DiContainer container)
+        public static BindSignalIdToBinder<TSignal> BindSignal<TSignal>(this DiContainer container)
         {
-            return new BindSignalToBinder<TSignal>(container);
+            var signalBindInfo = new SignalBindingBindInfo(typeof(TSignal));
+
+            return new BindSignalIdToBinder<TSignal>(container, signalBindInfo);
         }
     }
 }

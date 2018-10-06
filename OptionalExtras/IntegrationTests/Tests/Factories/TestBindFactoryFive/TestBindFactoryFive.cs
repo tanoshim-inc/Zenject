@@ -191,7 +191,7 @@ namespace Zenject.Tests.Factories
         public IEnumerator TestToSubContainerPrefabResourceSelf()
         {
             PreInstall();
-            Container.BindFactory<double, int, float, string, char, Foo, Foo.Factory>().FromSubContainerResolve().ByNewPrefabResource<FooInstaller>("TestBindFactoryFive/FooSubContainer");
+            Container.BindFactory<double, int, float, string, char, Foo, Foo.Factory>().FromSubContainerResolve().ByNewContextPrefabResource<FooInstaller>("TestBindFactoryFive/FooSubContainer");
 
             AddFactoryUser<Foo, Foo.Factory>();
 
@@ -207,7 +207,7 @@ namespace Zenject.Tests.Factories
         {
             PreInstall();
             Container.BindFactory<double, int, float, string, char, IFoo, IFooFactory>()
-                .To<Foo>().FromSubContainerResolve().ByNewPrefabResource<FooInstaller>("TestBindFactoryFive/FooSubContainer");
+                .To<Foo>().FromSubContainerResolve().ByNewContextPrefabResource<FooInstaller>("TestBindFactoryFive/FooSubContainer");
 
             AddFactoryUser<IFoo, IFooFactory>();
 
