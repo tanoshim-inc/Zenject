@@ -30,11 +30,13 @@ namespace Zenject
                     subContainer.Bind<Kernel>().AsCached();
                 }
 
+#if !NOT_UNITY3D
                 if (subContainerBindInfo.DefaultParentName != null)
                 {
                     DefaultGameObjectParentInstaller.Install(
                         subContainer, subContainerBindInfo.DefaultParentName);
                 }
+#endif
             }
         }
     }
