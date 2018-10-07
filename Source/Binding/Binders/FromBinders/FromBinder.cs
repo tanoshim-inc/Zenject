@@ -747,7 +747,7 @@ namespace Zenject
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
-            BindInfo.RequireExplicitScope = false;
+            BindInfo.RequireExplicitScope = true;
 
             // Don't know how it's created so can't assume here that it violates AsSingle
             BindInfo.MarkAsCreationBinding = false;

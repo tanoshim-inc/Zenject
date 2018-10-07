@@ -49,7 +49,7 @@ namespace Zenject
         }
 
         // This method can be called if you want to clear the memory for an AsSingle instance,
-        // See isssue https://github.com/modesttree/Zenject/issues/441
+        // See isssue https://github.com/svermeulen/Zenject/issues/441
         public void ClearCache()
         {
 #if ZEN_MULTITHREADING

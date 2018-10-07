@@ -30,7 +30,7 @@ namespace Zenject.Internal
         [MenuItem("Edit/Zenject/Help...")]
         public static void OpenDocumentation()
         {
-            Application.OpenURL("https://github.com/modesttree/zenject");
+            Application.OpenURL("https://github.com/svermeulen/zenject");
         }
 
         [MenuItem("GameObject/Zenject/Scene Context", false, 9)]

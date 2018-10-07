@@ -58,7 +58,7 @@ namespace Zenject.Tests.Bindings
             Setup1();
             PreInstall();
             Container.Bind<Qux>().AsSingle();
-            Container.Bind<Foo>().FromComponentsInHierarchy();
+            Container.Bind<Foo>().FromComponentsInHierarchy().AsCached();
 
             PostInstall();
 
@@ -88,7 +88,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
 
             Container.Bind<Qux>().AsSingle().NonLazy();
-            Container.Bind<Foo>().FromComponentsInHierarchy();
+            Container.Bind<Foo>().FromComponentsInHierarchy().AsCached();
 
             PostInstall();
 
@@ -134,7 +134,7 @@ namespace Zenject.Tests.Bindings
             Setup1();
             PreInstall();
             Container.Bind<Qux>().AsSingle();
-            Container.Bind(typeof(Foo)).FromComponentsInHierarchy();
+            Container.Bind(typeof(Foo)).FromComponentsInHierarchy().AsCached();
 
             PostInstall();
 
@@ -164,7 +164,7 @@ namespace Zenject.Tests.Bindings
             PreInstall();
 
             Container.Bind<Qux>().AsSingle().NonLazy();
-            Container.Bind(typeof(Foo)).FromComponentsInHierarchy();
+            Container.Bind(typeof(Foo)).FromComponentsInHierarchy().AsCached();
 
             PostInstall();
 

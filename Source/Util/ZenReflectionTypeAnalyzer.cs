@@ -228,7 +228,7 @@ namespace Zenject.Internal
                 // This might result in some non obvious errors like null reference exceptions
                 // but is probably the best trade-off since it allows zenject to be more compatible
                 // with libraries that don't depend on zenject at all
-                // Discussion here - https://github.com/modesttree/Zenject/issues/416
+                // Discussion here - https://github.com/svermeulen/Zenject/issues/416
                 return constructors.OrderBy(x => x.GetParameters().Count()).First();
             }
 
