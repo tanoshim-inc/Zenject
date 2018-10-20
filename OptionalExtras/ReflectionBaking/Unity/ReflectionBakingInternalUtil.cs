@@ -59,20 +59,20 @@ namespace Zenject.ReflectionBaking
             return systemPath.Substring(projectPath.Length, assetPathLength);
         }
 
-        public static void DirtyAllScripts()
+        public static void TryForceUnityFullCompile()
         {
-            Assembly editorAssembly = typeof(Editor).Assembly;
+            Type compInterface = typeof(UnityEditor.Editor).Assembly.GetType(
+                "UnityEditor.Scripting.ScriptCompilation.EditorCompilationInterface");
 
-            Type compilationInterface = editorAssembly.GetType("UnityEditor.Scripting.ScriptCompilation.EditorCompilationInterface");
-
-            if (compilationInterface != null)
+            if (compInterface != null)
             {
-                BindingFlags staticBindingFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-                MethodInfo dirtyAllScriptsMethod = compilationInterface.GetMethod("DirtyAllScripts", staticBindingFlags);
+                var dirtyAllScriptsMethod = compInterface.GetMethod(
+                    "DirtyAllScripts", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+
                 dirtyAllScriptsMethod.Invoke(null, null);
             }
 
-            AssetDatabase.Refresh();
+            UnityEditor.AssetDatabase.Refresh();
         }
     }
 }

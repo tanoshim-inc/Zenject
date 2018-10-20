@@ -107,7 +107,14 @@ namespace Zenject.ReflectionBaking
                 GUILayout.Label("Settings", EditorStyles.boldLabel);
 
                 EditorGUILayout.PropertyField(_isEnabledInBuilds, true);
+
+                var oldIsEnabledInEditorValue = _isEnabledInEditor.boolValue;
                 EditorGUILayout.PropertyField(_isEnabledInEditor, true);
+
+                if (oldIsEnabledInEditorValue != _isEnabledInEditor.boolValue)
+                {
+                    ReflectionBakingInternalUtil.TryForceUnityFullCompile();
+                }
 
 #if !UNITY_2018
                 if (_isEnabledInEditor.boolValue)
