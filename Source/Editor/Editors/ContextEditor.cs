@@ -11,7 +11,7 @@ namespace Zenject
             {
                 return new string[]
                 {
-                    "_installers",
+                    "_monoInstallers",
                     "_installerPrefabs",
                     "_scriptableObjectInstallers",
                 };
@@ -24,7 +24,7 @@ namespace Zenject
             {
                 return new string[]
                 {
-                    "Installers",
+                    "Mono Installers",
                     "Prefab Installers",
                     "Scriptable Object Installers",
                 };
