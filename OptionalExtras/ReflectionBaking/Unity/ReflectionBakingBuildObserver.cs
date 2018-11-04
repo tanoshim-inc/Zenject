@@ -65,6 +65,8 @@ namespace Zenject.ReflectionBaking
             var readerParameters = new ReaderParameters
             {
                 AssemblyResolver = new UnityAssemblyResolver(),
+                // Is this necessary?
+                //ReadSymbols = true,
             };
 
             var module = ModuleDefinition.ReadModule(assemblyFullPath, readerParameters);
@@ -89,7 +91,13 @@ namespace Zenject.ReflectionBaking
 
             if (numTypesChanged > 0)
             {
-                module.Write(assemblyFullPath, new WriterParameters());
+                var writerParams = new WriterParameters()
+                {
+                    // Is this necessary?
+                    //WriteSymbols = true
+                };
+
+                module.Write(assemblyFullPath, writerParams);
 
                 Debug.Log("Added reflection baking to '{0}' types in assembly '{1}', took {2:0.00} seconds"
                     .Fmt(numTypesChanged, Path.GetFileName(assemblyAssetPath), stopwatch.Elapsed.TotalSeconds));

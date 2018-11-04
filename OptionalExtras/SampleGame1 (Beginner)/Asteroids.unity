@@ -292,15 +292,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89715ad69b973a14899afa2c6730b30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _installers:
-  - {fileID: 805392157}
-  _installerPrefabs: []
   _scriptableObjectInstallers:
   - {fileID: 11400000, guid: 48da99ff693be7b4d89b133042973796, type: 2}
+  _monoInstallers:
+  - {fileID: 805392157}
+  _installerPrefabs: []
   _autoRun: 1
   _parentNewObjectsUnderRoot: 0
   _contractNames: []
-  _parentContractName: 
   _parentContractNames: []
 --- !u!114 &805392157
 MonoBehaviour:
@@ -573,6 +572,7 @@ MonoBehaviour:
   _components:
   - {fileID: 1194014233}
   _identifier: 
+  _useSceneContext: 0
   _context: {fileID: 0}
   _bindType: 1
 --- !u!1 &1495790302
@@ -762,6 +762,7 @@ MonoBehaviour:
   _components:
   - {fileID: 1495790306}
   _identifier: Main
+  _useSceneContext: 0
   _context: {fileID: 0}
   _bindType: 0
 --- !u!114 &1495790310
@@ -778,6 +779,7 @@ MonoBehaviour:
   _components:
   - {fileID: 1495790308}
   _identifier: 
+  _useSceneContext: 0
   _context: {fileID: 0}
   _bindType: 0
 --- !u!82 &1495790311
