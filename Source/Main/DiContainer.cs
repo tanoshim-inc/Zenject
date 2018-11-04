@@ -1385,7 +1385,7 @@ namespace Zenject
             {
                 InjectExplicit(newObj, concreteType, extraArgs, context, concreteIdentifier);
 
-                if (extraArgs.Count > 0)
+                if (extraArgs.Count > 0 && !(newObj is ValidationMarker))
                 {
                     throw Assert.CreateException(
                         "Passed unnecessary parameters when injecting into type '{0}'. \nExtra Parameters: {1}\nObject graph:\n{2}",
