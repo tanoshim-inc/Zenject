@@ -54,15 +54,19 @@ namespace Zenject
             using (ProfileBlock.Start("Zenject.LazyInstanceInjector.LazyInjectAll"))
 #endif
             {
-                var queue = new Queue<object>(_instancesToInject);
+                var tempList = new List<object>();
 
-                while (!queue.IsEmpty())
+                while (!_instancesToInject.IsEmpty())
                 {
-                    var obj = queue.Dequeue();
+                    tempList.Clear();
+                    tempList.AddRange(_instancesToInject);
 
-                    if (_instancesToInject.Remove(obj))
+                    foreach (var instance in tempList)
                     {
-                        _container.Inject(obj);
+                        // We use LazyInject instead of calling _container.inject directly
+                        // Because it might have already been lazily injected
+                        // as a result of a previous call to inject
+                        LazyInject(instance);
                     }
                 }
             }
