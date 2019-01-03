@@ -55,9 +55,10 @@ namespace Zenject
             return _prefabProvider.GetPrefab();
         }
 
-        public GameObject Instantiate(List<TypeValuePair> args, out Action injectAction)
+        public GameObject Instantiate(InjectContext context, List<TypeValuePair> args, out Action injectAction)
         {
-            var context = new InjectContext(_container, _argumentTarget, null);
+            Assert.That(_argumentTarget == null || _argumentTarget.DerivesFromOrEqual(context.MemberType));
+
             bool shouldMakeActive;
             var gameObject = _container.CreateAndParentPrefab(
                 GetPrefab(), _gameObjectBindInfo, context, out shouldMakeActive);
