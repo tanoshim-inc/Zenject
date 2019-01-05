@@ -15,6 +15,8 @@ namespace Zenject
         readonly SignalBus _parentBus;
         readonly Dictionary<SignalSubscriptionId, SignalSubscription> _subscriptionMap = new Dictionary<SignalSubscriptionId, SignalSubscription>();
         readonly ZenjectSettings.SignalSettings _settings;
+        readonly SignalDeclaration.Factory _signalDeclarationFactory;
+        readonly DiContainer _container;
 
         public SignalBus(
             [Inject(Source = InjectSources.Local)]
@@ -23,11 +25,15 @@ namespace Zenject
             SignalBus parentBus,
             [InjectOptional]
             ZenjectSettings zenjectSettings,
-            SignalSubscription.Pool subscriptionPool)
+            SignalSubscription.Pool subscriptionPool,
+            SignalDeclaration.Factory signalDeclarationFactory,
+            DiContainer container)
         {
             _subscriptionPool = subscriptionPool;
             zenjectSettings = zenjectSettings ?? ZenjectSettings.Default;
             _settings = zenjectSettings.Signals ?? ZenjectSettings.SignalSettings.Default;
+            _signalDeclarationFactory = signalDeclarationFactory;
+            _container = container;
 
             _localDeclarationMap = signalDeclarations.ToDictionary(x => x.BindingId, x => x);
             _parentBus = parentBus;
@@ -220,6 +226,39 @@ namespace Zenject
             var subscription = _subscriptionPool.Spawn(callback, declaration);
 
             _subscriptionMap.Add(id, subscription);
+        }
+
+        public void DeclareSignal<T>(
+            object identifier = null, SignalMissingHandlerResponses? missingHandlerResponse = null, bool? forceAsync = null, int? asyncTickPriority = null)
+        {
+            DeclareSignal(typeof(T), identifier, missingHandlerResponse, forceAsync, asyncTickPriority);
+        }
+
+        public void DeclareSignal(
+            Type signalType, object identifier = null, SignalMissingHandlerResponses? missingHandlerResponse = null, bool? forceAsync = null, int? asyncTickPriority = null)
+        {
+            var bindInfo = SignalExtensions.CreateDefaultSignalDeclarationBindInfo(_container, signalType);
+
+            bindInfo.Identifier = identifier;
+
+            if (missingHandlerResponse.HasValue)
+            {
+                bindInfo.Identifier = missingHandlerResponse.Value;
+            }
+
+            if (forceAsync.HasValue)
+            {
+                bindInfo.RunAsync = forceAsync.Value;
+            }
+
+            if (asyncTickPriority.HasValue)
+            {
+                bindInfo.TickPriority = asyncTickPriority.Value;
+            }
+
+            var declaration = _signalDeclarationFactory.Create(bindInfo);
+
+            _localDeclarationMap.Add(declaration.BindingId, declaration);
         }
 
         SignalDeclaration GetDeclaration(Type signalType, object identifier, bool requireDeclaration)
