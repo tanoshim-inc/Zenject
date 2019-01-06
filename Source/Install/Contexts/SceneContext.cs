@@ -63,11 +63,7 @@ namespace Zenject
         {
             get
             {
-#if UNITY_EDITOR
                 return ProjectContext.Instance.Container.IsValidating;
-#else
-                return false;
-#endif
             }
         }
 
@@ -112,7 +108,6 @@ namespace Zenject
             }
         }
 
-#if UNITY_EDITOR
         public void Validate()
         {
             Assert.That(IsValidating);
@@ -120,7 +115,6 @@ namespace Zenject
             Install();
             Resolve();
         }
-#endif
 
         protected override void RunInternal()
         {
@@ -207,10 +201,6 @@ namespace Zenject
 
         public void Install()
         {
-#if !UNITY_EDITOR
-            Assert.That(!IsValidating);
-#endif
-
             Assert.That(!_hasInstalled);
             _hasInstalled = true;
 

@@ -64,13 +64,11 @@ namespace Zenject
             }
         }
 
-#if UNITY_EDITOR
         public static bool ValidateOnNextRun
         {
             get;
             set;
         }
-#endif
 
         public override IEnumerable<GameObject> GetRootGameObjects()
         {
@@ -211,14 +209,10 @@ namespace Zenject
                 TypeAnalyzer.ReflectionBakingCoverageMode = _buildsReflectionBakingCoverageMode;
             }
 
-            bool isValidating = false;
-
-#if UNITY_EDITOR
-            isValidating = ValidateOnNextRun;
+            var isValidating = ValidateOnNextRun;
 
             // Reset immediately to ensure it doesn't get used in another run
             ValidateOnNextRun = false;
-#endif
 
             _container = new DiContainer(
                 new[] { StaticContext.Container }, isValidating);
@@ -297,7 +291,9 @@ namespace Zenject
             _container.Bind<SceneContextRegistry>().AsSingle();
 
             InstallSceneBindings(injectableMonoBehaviours);
+
             InstallInstallers();
+
         }
     }
 }
