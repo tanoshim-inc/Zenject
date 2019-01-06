@@ -146,7 +146,7 @@ namespace Zenject
 
                 var baseType = type.BaseType();
 
-                if (baseType != null && ShouldAnalyzeType(baseType))
+                if (baseType != null && !ShouldSkipTypeAnalysis(baseType))
                 {
                     info.BaseTypeInfo = TryGetInfo(baseType);
                 }
@@ -164,7 +164,7 @@ namespace Zenject
 
         static InjectTypeInfo GetInfoInternal(Type type)
         {
-            if (!ShouldAnalyzeType(type))
+            if (ShouldSkipTypeAnalysis(type))
             {
                 return null;
             }
@@ -222,35 +222,17 @@ namespace Zenject
             }
         }
 
-        public static bool ShouldAnalyzeType(Type type)
+        public static bool ShouldSkipTypeAnalysis(Type type)
         {
-            if (type == null || type.IsEnum() || type.IsArray || type.IsInterface()
+            return type == null || type.IsEnum() || type.IsArray || type.IsInterface()
                 || type.ContainsGenericParameters() || IsStaticType(type)
-                || type == typeof(object))
-            {
-                return false;
-            }
-
-            return ShouldAnalyzeNamespace(type.Namespace);
+                || type == typeof(object);
         }
 
         static bool IsStaticType(Type type)
         {
             // Apparently this is unique to static classes
             return type.IsAbstract() && type.IsSealed();
-        }
-
-        public static bool ShouldAnalyzeNamespace(string ns)
-        {
-            if (ns == null)
-            {
-                return true;
-            }
-
-            return ns != "System" && !ns.StartsWith("System.")
-                && ns != "UnityEngine" && !ns.StartsWith("UnityEngine.")
-                && ns != "UnityEditor" && !ns.StartsWith("UnityEditor.")
-                && ns != "UnityStandardAssets" && !ns.StartsWith("UnityStandardAssets.");
         }
 
         static InjectTypeInfo CreateTypeInfoFromReflection(Type type)
