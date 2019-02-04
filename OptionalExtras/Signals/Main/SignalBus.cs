@@ -74,6 +74,14 @@ namespace Zenject
             }
         }
 
+        public void Fire<TSignal>(TSignal signal, object identifier = null)
+        {
+            // Do this before creating the signal so that it throws if the signal was not declared
+            var declaration = GetDeclaration(typeof(TSignal), identifier, true);
+
+            declaration.Fire(signal);
+        }
+
         public void Fire<TSignal>(object identifier = null)
         {
             // Do this before creating the signal so that it throws if the signal was not declared
@@ -86,6 +94,15 @@ namespace Zenject
         public void Fire(object signal, object identifier = null)
         {
             GetDeclaration(signal.GetType(), identifier, true).Fire(signal);
+        }
+
+        public void TryFire<TSignal>(TSignal signal, object identifier = null)
+        {
+            var declaration = GetDeclaration(typeof(TSignal), identifier, false);
+            if (declaration != null)
+            {
+                declaration.Fire(signal);
+            }
         }
 
         public void TryFire<TSignal>(object identifier = null)
