@@ -19,7 +19,7 @@ namespace Zenject.Tests.Signals
         }
 
         [Inject]
-        SignalBus _signalBus;
+        SignalBus _signalBus = null;
 
         [Test]
         public void TestMissingDeclaration()
