@@ -38,14 +38,14 @@ namespace Zenject.Tests.Signals
         public void TestIdentifierMissing()
         {
             _signalBus.DeclareSignal<FooSignal>();
-            Assert.Throws(() => _signalBus.Fire(new FooSignal(), "asdf"));
+            Assert.Throws(() => _signalBus.FireId("asdf", new FooSignal()));
         }
 
         [Test]
         public void TestIdentifier()
         {
             _signalBus.DeclareSignal<FooSignal>("asdf");
-            _signalBus.Fire(new FooSignal(), "asdf");
+            _signalBus.FireId("asdf", new FooSignal());
         }
     }
 }

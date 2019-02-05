@@ -18,7 +18,7 @@ namespace Zenject.Tests.Signals
         {
             var signalBus = Container.Resolve<SignalBus>();
 
-            Assert.Throws(() => signalBus.Fire<FooSignal>("asdf"));
+            Assert.Throws(() => signalBus.FireId<FooSignal>("asdf"));
         }
 
         [Test]
@@ -33,25 +33,25 @@ namespace Zenject.Tests.Signals
             bool received = false;
 
             Action callback = () => received = true;
-            signalBus.Subscribe<FooSignal>(callback, signalId);
+            signalBus.SubscribeId<FooSignal>(signalId, callback);
 
             Assert.Throws(() => signalBus.Subscribe<FooSignal>(callback));
 
             Assert.That(!received);
-            signalBus.Fire<FooSignal>(signalId);
+            signalBus.FireId<FooSignal>(signalId);
             Assert.That(received);
 
             Assert.Throws(() => signalBus.Fire<FooSignal>());
-            Assert.Throws(() => signalBus.Fire<FooSignal>("asdfz"));
+            Assert.Throws(() => signalBus.FireId<FooSignal>("asdfz"));
 
             received = false;
-            signalBus.Fire<FooSignal>(signalId);
+            signalBus.FireId<FooSignal>(signalId);
             Assert.That(received);
 
-            signalBus.Unsubscribe<FooSignal>(callback, signalId);
+            signalBus.UnsubscribeId<FooSignal>(signalId, callback);
 
             received = false;
-            signalBus.Fire<FooSignal>(signalId);
+            signalBus.FireId<FooSignal>(signalId);
             Assert.That(!received);
         }
 
@@ -85,7 +85,7 @@ namespace Zenject.Tests.Signals
             var signalBus = Container.Resolve<SignalBus>();
 
             Assert.That(!received);
-            signalBus.Fire<FooSignal>("asdf");
+            signalBus.FireId<FooSignal>("asdf");
             Assert.That(received);
         }
 
@@ -103,7 +103,7 @@ namespace Zenject.Tests.Signals
             var sent = new FooSignal();
 
             Assert.IsNull(received);
-            signalBus.Fire(sent, "asdf");
+            signalBus.FireId("asdf", sent);
             Assert.IsEqual(received, sent);
         }
 
@@ -120,7 +120,7 @@ namespace Zenject.Tests.Signals
             var signalBus = Container.Resolve<SignalBus>();
 
             Assert.That(!qux.HasRecievedSignal);
-            signalBus.Fire<FooSignal>("asdf");
+            signalBus.FireId<FooSignal>("asdf");
             Assert.That(qux.HasRecievedSignal);
         }
 
