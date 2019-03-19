@@ -1,3 +1,11 @@
+> ### NOTIFICATION TO ALL USERS
+> Zenject, a software developed by Modest Tree, was previously transferred and posted at  https://github.com/svermeulen/Zenject. The user previously requested donations for support of the Zenject development via online accounts. Please be aware that Modest Tree is not affiliated with any donation accounts. 
+>
+> The software has now been transferred back to the Modest Tree company account. We apologize for any confusion that this has caused Zenject users. 
+>
+> Previous correspondence regarding Zenject was handled by Modest Tree employee, Steve Vermeulen, and he has done a great job keeping the community updated. Following his departure, Zenject requests are being handled by alternative employees, who will be engaging on all current and future requests to support the community.
+>
+> Modest Tree looks forward to supporting all users of Zenject. You can also contact us at zenject@modesttree.com
 
 <img src="Documentation/Images/ZenjectLogo.png?raw=true" alt="Zenject" width="600px" height="134px"/>
 
