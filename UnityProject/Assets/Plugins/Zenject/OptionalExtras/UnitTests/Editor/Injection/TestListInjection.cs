@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
-using Zenject;
-using NUnit.Framework;
-using ModestTree;
-using Assert=ModestTree.Assert;
 using System.Linq;
+using NUnit.Framework;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Injection
 {

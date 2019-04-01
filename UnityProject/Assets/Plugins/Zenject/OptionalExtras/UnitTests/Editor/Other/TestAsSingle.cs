@@ -1,11 +1,5 @@
-
-using System;
-using System.Collections.Generic;
-using Zenject;
 using NUnit.Framework;
-using System.Linq;
-using ModestTree;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Bindings.Singletons
 {
@@ -46,7 +40,7 @@ namespace Zenject.Tests.Bindings.Singletons
 
             Assert.Throws(() =>
                 {
-                    Container.Bind<Foo>().FromMethod((container) => new Foo()).AsSingle();
+                    Container.Bind<Foo>().FromMethod(container => new Foo()).AsSingle();
                     Container.FlushBindings();
                 });
 
@@ -66,7 +60,7 @@ namespace Zenject.Tests.Bindings.Singletons
         [Test]
         public void TestToSingleMethod()
         {
-            Container.Bind<Foo>().FromMethod((container) => new Foo()).AsSingle();
+            Container.Bind<Foo>().FromMethod(container => new Foo()).AsSingle();
 
             Assert.Throws(() =>
                 {
@@ -100,7 +94,7 @@ namespace Zenject.Tests.Bindings.Singletons
 
             Assert.Throws(() =>
                 {
-                    Container.Bind<Foo>().FromMethod((container) => new Foo()).AsSingle();
+                    Container.Bind<Foo>().FromMethod(container => new Foo()).AsSingle();
                     Container.FlushBindings();
                 });
 
@@ -124,7 +118,7 @@ namespace Zenject.Tests.Bindings.Singletons
 
             Assert.Throws(() =>
                 {
-                    Container.Bind<Foo>().FromMethod((container) => new Foo()).AsSingle();
+                    Container.Bind<Foo>().FromMethod(container => new Foo()).AsSingle();
                     Container.FlushBindings();
                 });
 

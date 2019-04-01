@@ -39,7 +39,12 @@ public class Logger
 }
 ```
 
-Now, to test this class, create a new folder named Editor, then right click on it inside the Project tab, and select `Create -> Zenject -> Unit Test`.  Name it `TestLogger`.cs.  This will create a basic template that we can fill in with our tests.  Copy and paste the following:
+To test the class do the following:
+- Open up Unity's Test Runner by clicking Window -> General -> Test Runner
+- Underneath the EditMode tab click "Create EditMode Test Assembly Folder". This will create a folder that contains the necessary asmdef file that is needed to get access to the Nunit namespace.
+- Select the newly created asmdef file and add a reference to Zenject-TestFramework
+- Right click inside the folder in the Project tab and select `Create -> Zenject -> Unit Test`.  Name it `TestLogger`.cs.  This will create a basic template that we can fill in with our tests
+- Copy and paste the following:
 
 ```csharp
 using System;
@@ -193,7 +198,12 @@ public class SpaceShip : MonoBehaviour
 }
 ```
 
-After adding this class to your project, you can add an integration test for it by right clicking somewhere in the Project tab and then selecting `Create -> Zenject -> Integration Test` and then naming it `SpaceShipTests.cs`.  This will create the following template code with everything you need to start writing your test:
+To test the class do the following:
+- Open up Unity's Test Runner by clicking Window -> General -> Test Runner
+- Underneath the PlayMode tab click "Create PlayMode Test Assembly Folder". This will create a folder that contains the necessary asmdef file that is needed to get access to the Nunit namespace.
+- Select the newly created asmdef file and add a reference to Zenject-TestFramework
+- Right click inside the folder in the Project tab and select `Create -> Zenject -> Integration Test`.  Name it `SpaceShipTests`.cs.  This will create a basic template that we can fill in with our tests
+- This will create the following template code with everything you need to start writing your test:
 
 ```csharp
 public class SpaceShipTests : ZenjectIntegrationTestFixture
@@ -347,7 +357,7 @@ public class SpaceFighterTests : SceneTestFixture
 }
 ```
 
-Note that you can add your own scene tests through the right click menu in the Projects tab by choosing `Create -> Zenject -> Scene Test`.
+Note that you can add your own scene tests through the right click menu in the Projects tab by choosing `Create -> Zenject -> Scene Test`.  Note that they will require an asmdef file set up in a similar way to integration tests as described above.
 
 Every scene test should inherit from SceneTestFixture, and then at some point in each test method it should call `yield return LoadScene(NameOfScene)`
 
@@ -381,6 +391,38 @@ public class TestSceneStartup : SceneTestFixture
 ```
 
 Note that the scene name that you pass to the LoadScene method must be added to the build settings for it to be loaded properly
+
+If you want to test multiple scenes being loaded at once, you can do that too, by using LoadScenes instead of LoadScene, like this:
+
+```csharp
+public class TestSceneStartup : SceneTestFixture
+{
+    [UnityTest]
+    public IEnumerator TestSpaceFighter()
+    {
+        yield return LoadScenes("SpaceFighterMenu", "SpaceFighterEnvironment");
+
+        // Wait a few seconds to ensure the scene starts correctly
+        yield return new WaitForSeconds(2.0f);
+    }
+}
+```
+
+In this case, it will inject your SceneTestFixture derived class with the last loaded SceneContext container which will also be set to the SceneContainer property.  If you want to access the other scene containers you can do that too using the SceneContainers property.
+
+Note that if you are executing a particularly long test, you might have to increase the timeout value which defaults to 30 seconds.  For example:
+
+```csharp
+public class LongTestExample : SceneTestFixture
+{
+    [UnityTest]
+    [Timeout(60000)]
+    public IEnumerator ExecuteSoakTest()
+    {
+        ...
+    }
+}
+```
 
 ### User Driven Test Beds
 

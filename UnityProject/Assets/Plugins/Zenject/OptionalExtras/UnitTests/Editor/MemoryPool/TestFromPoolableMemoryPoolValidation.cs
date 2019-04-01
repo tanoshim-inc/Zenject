@@ -1,8 +1,7 @@
 
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Bindings
 {
@@ -59,7 +58,7 @@ namespace Zenject.Tests.Bindings
             container.Settings = new ZenjectSettings(
                 ValidationErrorResponses.Throw, RootResolveMethods.All);
 
-            container.BindFactory<Foo, Foo.Factory>().FromPoolableMemoryPool<Foo>(x => x.WithInitialSize(2));
+            container.BindFactory<Foo, Foo.Factory>().FromPoolableMemoryPool(x => x.WithInitialSize(2));
 
             Assert.Throws(() => container.ResolveRoots());
         }
@@ -73,7 +72,7 @@ namespace Zenject.Tests.Bindings
                 ValidationErrorResponses.Throw, RootResolveMethods.All);
 
             container.Bind<Bar>().AsSingle();
-            container.BindFactory<Foo, Foo.Factory>().FromPoolableMemoryPool<Foo>(x => x.WithInitialSize(2));
+            container.BindFactory<Foo, Foo.Factory>().FromPoolableMemoryPool(x => x.WithInitialSize(2));
 
             container.ResolveRoots();
         }

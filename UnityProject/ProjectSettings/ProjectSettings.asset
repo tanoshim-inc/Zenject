@@ -609,7 +609,9 @@ PlayerSettings:
   webGLCompressionFormat: 1
   webGLLinkerTarget: 0
   scriptingDefineSymbols:
-    13: 
+    1: ZEN_INTERNAL_PROFILING;ZEN_INTERNAL_NO_POOLS
+    13: ZEN_INTERNAL_PROFILING
+    14: ZEN_INTERNAL_PROFILING
   platformArchitecture:
     iOS: 2
   scriptingBackend:
@@ -626,8 +628,9 @@ PlayerSettings:
   additionalIl2CppArgs: 
   scriptingRuntimeVersion: 0
   apiCompatibilityLevelPerPlatform:
-    Metro: 2
-    Standalone: 1
+    Metro: 3
+    Standalone: 2
+    WebGL: 2
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Game1

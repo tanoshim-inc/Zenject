@@ -1,8 +1,4 @@
 
-## Signals
-
-NOTE: If you are upgrading from zenject 5.x and want to continue using that version of signals, you can find a zenject-6 compatible version of that [here](https://github.com/svermeulen/ZenjectSignalsOld).  So to use that, just import zenject 6 making sure to uncheck the `OptionalExtras/Signals` folder, and then add the `ZenjectSignalsOld` folder from the linked repo to your project instead.
-
 ## Table Of Contents
 
 * Introduction
@@ -18,6 +14,7 @@ NOTE: If you are upgrading from zenject 5.x and want to continue using that vers
     * <a href="#use-with-subcontainers">Signals With Subcontainers</a>
     * <a href="#async-signals">Asynchronous Signals</a>
     * <a href="#settings">Signal Settings</a>
+    * <a href="#identifiers">Identifiers</a>
 
 ## <a id="theory"></a>Motivation / Theory
 
@@ -82,7 +79,7 @@ public class GameInstaller : MonoInstaller<GameInstaller>
 }
 ```
 
-To run, just create copy and paste the code above into a new file named `GameInstaller` then create an empty scene with a new scene context and attach the new installer.
+To run, just copy and paste the code above into a new file named `GameInstaller` then create an empty scene with a new scene context and attach the new installer.
 
 There are several ways of creating signal handlers.  Another approach would be the following
 
@@ -227,22 +224,13 @@ public override void InstallBindings()
 
 Any objects that are in the container where it's declared, or any sub container, can now listen on the signal and also fire it.
 
-You might also consider making your signal classes a struct instead of a class like this:
-
-```csharp
-public struct PlayerDiedSignal
-{
-}
-```
-
-This has the advantage of not causing any heap allocations, and can be more efficient in general when the signal has zero parameters or only a few parameters.
-
 ## <a id="declaration-syntax"></a>Declaration Binding Syntax
 
 The format of the DeclareSignal statement is the following:
 
 <pre>
 Container.DeclareSignal&lt;<b>SignalType</b>&gt;()
+    .WithId(<b>Identifier</b>)
     .<b>(RequiredSubscriber|OptionalSubscriber|OptionalSubscriberWithWarning)</b>()
     .<b>(RunAsync|RunSync)</b>()
     .WithTickPriority(<b>TickPriority</b>)
@@ -252,6 +240,8 @@ Container.DeclareSignal&lt;<b>SignalType</b>&gt;()
 Where:
 
 - **SignalType** - The custom class that represents the signal
+
+* **Identifier** = The value to use to uniquely identify the binding.  This can be ignored in most cases, but can be useful in cases where you want to define multiple distinct signals using the same signal type.
 
 - **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired but there are no subscribers associated with it.  Unless it is over-ridden in <a href="#settings">ZenjectSettings</a>, the default is OptionalSubscriber, which will do nothing in this case.  When RequiredSubscriber is set, exceptions will be thrown in the case of zero subscribers.  OptionalSubscriberWithWarning is half way in between where it will issue a console log warning instead of an exception.  Which one you choose depends on how strict you prefer your application to be, and whether it matters if the given signal is actually handled or not.
 
@@ -318,6 +308,33 @@ public class UserManager
 }
 ```
 
+When `Fire()` is called, SignalBus expects the signal to be declared and exception will be thrown if the signal is not declared. If you want to call `Fire()` regardless of the signal declaration, use `TryFire()` method instead that ignores undeclared signals. You can use `TryFire()` looks like this:
+
+```csharp
+public class UserJoinedSignal
+{
+}
+
+public class UserManager
+{
+    readonly SignalBus _signalBus;
+
+    public UserManager(SignalBus signalBus)
+    {
+        _signalBus = signalBus;
+    }
+
+    public void DoSomething()
+    {
+        // Generic version
+        _signalBus.TryFire<UserJoinedSignal>(); // Nothing happens if UserJoinedSignal is NOT declared
+
+        // Non-Generic version
+        _signalBus.TryFire(new UserJoinedSignal()); // Nothing happens if UserJoinedSignal is NOT declared
+    }
+}
+```
+
 ## <a id="#bindsignal"></a>Binding Signals with BindSignal
 
 As mentioned above, in addition to being able to directly subscribe to signals on the signal bus (via `SignalBus.Subscribe` or `SignalBus.GetStream`) you can also directly bind a signal to a handling class inside an installer.  This approach has advantages and disadvantages compared to directly subscribing in a handling class so again comes down to personal preference.
@@ -326,6 +343,7 @@ The format of the BindSignal command is:
 
 <pre>
 Container.BindSignal&lt;<b>SignalType</b>&gt;()
+    .WithId(<b>Identifier</b>)
     .ToMethod(<b>Handler</b>)
     .From(<b>ConstructionMethod</b>)
     .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers();
@@ -334,6 +352,8 @@ Container.BindSignal&lt;<b>SignalType</b>&gt;()
 Where:
 
 - **SignalType** - The custom class that represents the signal
+
+* **Identifier** = The value to use to uniquely identify the binding.  This can be ignored in most cases.  Note that when using signal identifiers you have to use the same identifier for DeclareSignal as well (and Fire, Subscribe, etc.)
 
 - **ConstructionMethod** - When binding to an instance method above, you also need to define where this instance comes from.  See the section on Handler below for more detail
 
@@ -372,7 +392,7 @@ Container.Bind<Greeter>().AsSingle();
 Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).FromResolve();
 ```
 
-In this case we want the signal to trigger the `Greeter.SayHello` method.  Note that we need to supply a value for `From` in thise case so that there is an instance that can be called with the given method.
+In this case we want the signal to trigger the `Greeter.SayHello` method.  Note that we need to supply a value for `From` in this case because an instance is needed to call the given method on.
 
 Similar to static methods you could also bind to a method without parameters:
 
@@ -442,7 +462,7 @@ Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>((x, s) => x.SayHello(
 
 ## <a id="signalbusinstaller"></a>SignalBusInstaller
 
-The zenject signal functionality is optional.  When importing zenject, if you do not want to include signals you can simply uncheck the `OptionalExtras/Signals` folder.  As a result of this, signals are not enabled automatically, so you have to explicitly install them yourself by calling `SignalBusInstaller.Install(Container)` in one of your installers.
+Signals are an optional feature of Zenject.  When importing Zenject, if you do not want to include signals you can simply uncheck the `OptionalExtras/Signals` folder.  As a result of this, signals are not enabled automatically, so you have to explicitly install them yourself by calling `SignalBusInstaller.Install(Container)` in one of your installers.
 
 You could either do this just one time in a `ProjectContext` installer, or you could do this in each scene in a `SceneContext` installer.  Note that you only need to do this once, and then you can use signals in the container that you pass to `SignalBusInstaller,` as well as any subcontainers, which is why if you install to `ProjectContext` you do not need to install to `SceneContext.`
 

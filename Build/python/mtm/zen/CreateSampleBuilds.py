@@ -91,11 +91,19 @@ class Runner:
             self._enableIl2cpp()
             self._createBuild()
 
-        if self._args.buildType == 'all' or self._args.buildType == 'webgl':
-            self._log.heading("Building WebGl")
+        if self._args.buildType == 'all' or self._args.buildType == 'webgl35':
+            self._log.heading("Building WebGl 3.5")
             self._platform = Platforms.WebGl
+            self._enableNet35()
             self._createBuild()
-            self._sys.copyFile('[WebGlTemplate]', '[OutputRootDir]/WebGl/Web.config')
+            self._sys.copyFile('[WebGlTemplate]', '[OutputRootDir]/WebGl/Net35/Web.config')
+
+        if self._args.buildType == 'all' or self._args.buildType == 'webgl46':
+            self._log.heading("Building WebGl 4.6")
+            self._platform = Platforms.WebGl
+            self._enableNet46()
+            self._createBuild()
+            self._sys.copyFile('[WebGlTemplate]', '[OutputRootDir]/WebGl/Net46/Web.config')
 
         # TODO
         #self._log.heading("Building Ios")
@@ -191,7 +199,7 @@ def installBindings():
             'TempDir': '[RootDir]/Temp',
             'WebGlTemplate': '[ScriptDir]/web_config_template.xml',
             'OutputRootDir': '[RootDir]/SampleBuilds',
-            'UnityExePath': 'D:/Utils/Unity/Installs/2018.1.0f2/Editor/Unity.exe',
+            'UnityExePath': 'C:/Program Files/Unity/Hub/Editor/2018.1.0f2/Editor/Unity.exe',
             'LogPath': '[BuildDir]/Log.txt',
             'UnityProjectPath': '[RootDir]/UnityProject',
             'MsBuildExePath': 'C:/Windows/Microsoft.NET/Framework/v4.0.30319/msbuild.exe'
@@ -225,7 +233,7 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--clearOutput', action='store_true', help='')
     parser.add_argument('-rt', '--runTests', action='store_true', help='')
     parser.add_argument('-rb', '--runBuilds', action='store_true', help='')
-    parser.add_argument('-t', '--buildType', type=str, default='win35', choices=['win35', 'win46', 'wsa35', 'wsa46', 'wsa46il2cpp', 'wsa35il2cpp', 'webgl', 'all'], help='')
+    parser.add_argument('-t', '--buildType', type=str, default='win35', choices=['win35', 'win46', 'wsa35', 'wsa46', 'wsa46il2cpp', 'wsa35il2cpp', 'webgl35', 'webgl46', 'all'], help='')
 
     args = parser.parse_args(sys.argv[1:])
 

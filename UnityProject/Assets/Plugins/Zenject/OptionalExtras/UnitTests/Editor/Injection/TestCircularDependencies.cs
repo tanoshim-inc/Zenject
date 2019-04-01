@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using Zenject;
 using NUnit.Framework;
-using System.Linq;
-using ModestTree;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Injection
 {
@@ -59,7 +54,7 @@ namespace Zenject.Tests.Injection
         {
             public static int CreateCount;
 
-            public Test4 Other = null;
+            public Test4 Other;
 
             public Test3()
             {
@@ -69,7 +64,7 @@ namespace Zenject.Tests.Injection
             [Inject]
             public void Initialize(Test4 other)
             {
-                this.Other = other;
+                Other = other;
             }
         }
 
@@ -87,7 +82,7 @@ namespace Zenject.Tests.Injection
             [Inject]
             public void Initialize(Test3 other)
             {
-                this.Other = other;
+                Other = other;
             }
         }
 
