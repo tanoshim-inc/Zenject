@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using Zenject;
 using NUnit.Framework;
-using ModestTree;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.BindFeatures
 {
@@ -16,7 +12,7 @@ namespace Zenject.Tests.BindFeatures
             Container.Bind<IFoo>().To<Foo>().AsCached().WithConcreteId("asdf");
             Container.Bind<IFoo>().To<Foo>().AsCached();
 
-            Container.BindInstance("a").When(x => object.Equals(x.ConcreteIdentifier, "asdf") && x.ObjectType == typeof(Foo));
+            Container.BindInstance("a").When(x => Equals(x.ConcreteIdentifier, "asdf") && x.ObjectType == typeof(Foo));
             Container.BindInstance("b").When(x => x.ConcreteIdentifier == null && x.ObjectType == typeof(Foo));
 
             var foos = Container.ResolveAll<IFoo>();

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 #pragma warning disable 219
 
@@ -60,6 +60,22 @@ namespace Zenject.Tests.Bindings
             Assert.IsEqual(pool.NumActive, 0);
             Assert.IsEqual(pool.NumTotal, 2);
             Assert.IsEqual(pool.NumInactive, 2);
+        }
+
+        [Test]
+        public void TestFactoryScopeDefault()
+        {
+            Container.BindMemoryPool<Foo, Foo.Pool>();
+
+            Assert.IsEqual(Container.Resolve<Foo.Pool>(), Container.Resolve<Foo.Pool>());
+        }
+
+        [Test]
+        public void TestFactoryScopeTransient()
+        {
+            Container.BindMemoryPool<Foo, Foo.Pool>().AsTransient();
+
+            Assert.IsNotEqual(Container.Resolve<Foo.Pool>(), Container.Resolve<Foo.Pool>());
         }
 
         [Test]
@@ -312,10 +328,6 @@ namespace Zenject.Tests.Bindings
 
         class Bar
         {
-            public Bar()
-            {
-            }
-
             public class Pool : MemoryPool<Bar>
             {
             }
@@ -323,10 +335,6 @@ namespace Zenject.Tests.Bindings
 
         class Foo
         {
-            public Foo()
-            {
-            }
-
             public int ResetCount
             {
                 get; private set;

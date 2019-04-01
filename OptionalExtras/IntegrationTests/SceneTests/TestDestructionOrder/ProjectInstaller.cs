@@ -1,6 +1,3 @@
-using UnityEngine;
-using Zenject;
-
 namespace Zenject.Tests.TestDestructionOrder
 {
     public class ProjectInstaller : MonoInstaller<ProjectInstaller>
