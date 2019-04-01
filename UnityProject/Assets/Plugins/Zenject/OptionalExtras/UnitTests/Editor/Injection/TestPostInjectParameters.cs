@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using Zenject;
 using NUnit.Framework;
-using ModestTree;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Injection
 {
@@ -26,7 +22,7 @@ namespace Zenject.Tests.Injection
         {
             public bool HasInitialized;
 
-            public Test0 test0 = null;
+            public Test0 test0;
 
             [Inject]
             public Test1 test1 = null;

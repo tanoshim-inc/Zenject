@@ -70,7 +70,7 @@ namespace Zenject.Internal
                 }
                 case BuildTarget.WebGL:
                 {
-                    BuildGeneric("WebGl", scenePaths, isRelease);
+                    BuildGeneric("WebGl/{0}".Fmt(GetScriptingRuntimeString()), scenePaths, isRelease);
                     break;
                 }
                 case BuildTarget.Android:

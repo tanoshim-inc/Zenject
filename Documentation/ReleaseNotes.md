@@ -1,6 +1,112 @@
 
 # <a id="release-notes"></a>Release Notes
 
+## Version 8.0.0 (February 5, 2019)
+
+Minor bug fixes, a few extra bind methods, and one minor breaking api change in SignalBus.
+
+Notable
+- Added new bind methods FromScriptableObject and FromNewScriptableObject bind methods for cases where you already have the ScriptableObject reference at install time
+- Added new subcontainer bind method ByInstanceGetter
+- Bug fix - the inject order was wrong in some rare edge cases (ie. sometimes objects would receive injected parameters that have not themsevles been injected yet)
+- Bug fix - readonly properties were not injectable
+- Added ability to declare signals at runtime after install
+- Fixed playmode tests to work inside builds instead of just in editor
+- Changed SignalBus class to have separate method names for the methods that take an identifier parameter.  Also added the ability to specify the signal type explicitly in Fire and TryFire methods.
+
+Minor
+- Fixed Pool Monitor window to support unity dark theme
+- Changed the visual order of installer types on context to match their execution order
+- Bug fix - classes in the System namespace (ie. Stopwatch) were not able to be created by zenject
+- Fixed minor bugs with validation
+- Fixed warnings in unity 2018 and unity 2019
+- Fixed OnInstantiate method to work properly in cases where you bind multiple types to a new prefab
+- Added UnityEvent versions of the events to SceneContext to allow hooking into it from inspector directly
+- Fixed compile warnings specific to Rider IDE
+
+## Version 6.6.0 (February 5, 2019)
+
+Minor bug fixes and a few minor extra features
+
+- Changed the visual order of installer types on context to match their execution order
+- Bug fix - readonly properties were not injectable
+- Fixed OnInstantiate method to work properly in cases where you bind multiple types to a new prefab
+- Bug fix - classes in the System namespace (ie. Stopwatch) were not able to be created by zenject
+- Added the ability to specify the signal type explicitly in Fire and TryFire methods
+- Fixed some compiler warnings
+- Added new subcontainer bind method ByInstanceGetter
+
+## Version 7.3.1 (October 20, 2018)
+
+Minor bug fixes
+
+- Fixed compiler error related to the test framework asmdef
+- Fixed issue with reflection baking on Unity 2018.3
+- Changed the visual order of installers in contexts to match the actual order they are executed in (eg. scriptable object installers first)
+
+## Version 7.3.0 (October 6, 2018)
+
+Merged in changes from LTS version 6.5.0
+
+## Version 6.5.0 (October 6, 2018)
+
+Mostly optimizations, some minor bug fixes, and a few minor new features.
+
+Notable:
+- Added support for [Reflection Baking](https://github.com/svermeulen/Zenject#optimization_notes) to automatically eliminate costs associated with reflection from your zenject application.
+- General optimizations to memory usage and processing time
+- Added non-generic versions of all the FromComponentX methods
+- Fixed multi-threading issues
+- Added new bind methods ByNewGameObjectInstaller and ByNewGameObjectMethod
+- Added ZEN_INTERNAL_PROFILING define to allow users to easily see how much cpu time is devoted to zenject versus custom game code
+- Added an optional identifier for signals
+
+Minor:
+- Added ability to use custom attributes in place of Zenject.InjectAttribute
+- Changed to use Expression.New when possible for inject methods, fields, properties, and constructors for extra speed
+- Added ArrayPool class
+- Improved readability of error messages
+- Fixed rare bug where instantiated prefabs would get offset slightly by the scene context position
+- Renamed ByNewPrefabResource to ByNewContextPrefabResource properly and made the previous name obsolete
+- Added documentation for WithKernel, and WithDefaultGameObjectParent bind methods
+
+## Version 7.2.0 (August 27, 2018)
+
+Merged in changes from LTS version 6.4.0
+
+## Version 6.4.0 (August 27, 2018)
+
+A few new minor features and some bug fixes
+
+Notable:
+- Added new bind method WithDefaultGameObjectParent when using FromSubContainerResolve and ByInstaller or ByMethod to ensure instantiated game objects get destroyed with the subcontainer
+- Added WithKernel bind method to avoid the need to make Facades always derive from Kernel
+- Added ability to specify transient scope with BindFactory and BindMemoryPool methods
+- Added new bind method OnInstantiated to run custom code when the object is created
+
+Minor:
+- Fixed decorators to properly be inherited into subcontainers
+- Fixed bug with validation + decorators
+- Added PrefabFactory and PrefabResourceFactory helper classes
+- Fixed issue with destruction order of signals in some edge cases
+- Added FromSubContainerResolve.ByInstance bind method to explicitly supply container to use
+- Bug fix to support factories with 6 arguments
+- Added ParentBus property to SignalBus
+
+## Version 7.1.0 (August 6, 2018)
+
+Merged in changes from LTS version 6.3.0
+
+## Version 6.3.0 (August 6, 2018)
+
+Bug fixes and some minor extensions
+
+- Fixed struct type signals to work properly on AOT platforms
+- Fixed issue with ZenjectIntegrationTestFixture where exceptions were being thrown during setup
+- Added support for testing multiple scenes at once when using SceneTestFixture
+- Added TryFire method on SignalBus for cases where you don't care if it's declared or not
+- Fixed zenject integration tests to play nicely with asmdef files
+
 ## Version 7.0.0 (July 19, 2018)
 
 Upgraded project to 2018.1.  Created an LTS branch of zenject to maintain support for Unity 2017.x

@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using Zenject;
 using NUnit.Framework;
-using ModestTree;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Injection
 {
@@ -72,7 +68,7 @@ namespace Zenject.Tests.Injection
 
         public class SimpleBase
         {
-            public bool WasCalled = false;
+            public bool WasCalled;
 
             [Inject]
             void Init()

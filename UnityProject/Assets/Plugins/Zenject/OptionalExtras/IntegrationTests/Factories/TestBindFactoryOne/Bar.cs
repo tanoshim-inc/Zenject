@@ -1,5 +1,4 @@
 using UnityEngine;
-using Zenject;
 
 namespace Zenject.Tests.Factories.BindFactoryOne
 {

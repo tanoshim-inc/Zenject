@@ -1,6 +1,4 @@
-using UnityEngine;
 using UnityEngine.SceneManagement;
-using Zenject;
 
 namespace Zenject.Tests.TestDestructionOrder
 {

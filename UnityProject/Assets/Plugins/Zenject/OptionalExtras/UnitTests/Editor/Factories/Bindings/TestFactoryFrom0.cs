@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using Zenject;
 using NUnit.Framework;
-using System.Linq;
-using ModestTree;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Bindings
 {
@@ -33,6 +28,22 @@ namespace Zenject.Tests.Bindings
             Container.BindFactory<Foo, Foo.Factory>().FromNew().NonLazy();
 
             Assert.IsNotNull(Container.Resolve<Foo.Factory>().Create());
+        }
+
+        [Test]
+        public void TestFactoryScopeDefault()
+        {
+            Container.BindFactory<Foo, Foo.Factory>();
+
+            Assert.IsEqual(Container.Resolve<Foo.Factory>(), Container.Resolve<Foo.Factory>());
+        }
+
+        [Test]
+        public void TestFactoryScopeTransient()
+        {
+            Container.BindFactory<Foo, Foo.Factory>().AsTransient();
+
+            Assert.IsNotEqual(Container.Resolve<Foo.Factory>(), Container.Resolve<Foo.Factory>());
         }
 
         [Test]

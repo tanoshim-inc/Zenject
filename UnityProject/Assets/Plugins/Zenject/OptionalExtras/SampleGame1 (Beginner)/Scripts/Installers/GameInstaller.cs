@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
-using Zenject;
-using System.Linq;
 
 namespace Zenject.Asteroids
 {

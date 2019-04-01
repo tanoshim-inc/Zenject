@@ -1,15 +1,10 @@
-using System;
-using Zenject.Internal;
+using JetBrains.Annotations;
 
 namespace Zenject
 {
-    public abstract class InjectAttributeBase : PreserveAttribute
+    [MeansImplicitUse(ImplicitUseKindFlags.Assign)]
+    public abstract class InjectAttributeBase : Zenject.Internal.PreserveAttribute
     {
-        [Preserve]
-        public InjectAttributeBase()
-        {
-        }
-
         public bool Optional
         {
             get;

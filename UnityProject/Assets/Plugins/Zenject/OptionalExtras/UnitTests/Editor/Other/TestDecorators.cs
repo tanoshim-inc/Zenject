@@ -1,14 +1,12 @@
-using System;
-using ModestTree;
 using NUnit.Framework;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Other
 {
     [TestFixture]
     public class TestDecorators : ZenjectUnitTestFixture
     {
-        static int CallCounter = 0;
+        static int CallCounter;
 
         public interface ISaveHandler
         {
@@ -193,5 +191,46 @@ namespace Zenject.Tests.Other
             Assert.IsEqual(SaveHandler.NumInstances, 1);
             Assert.IsEqual(SaveDecorator1.CallCount, 1);
         }
+
+        [Test]
+        public void TestContainerInheritance()
+        {
+            Container.Bind<ISaveHandler>().To<SaveHandler>().AsSingle();
+            Container.Decorate<ISaveHandler>().With<SaveDecorator1>();
+
+            var subContainer = Container.CreateSubContainer();
+
+            CallCounter = 1;
+            SaveHandler.CallCount = 0;
+            SaveDecorator1.CallCount = 0;
+
+            subContainer.Resolve<ISaveHandler>().Save();
+
+            Assert.IsEqual(SaveDecorator1.CallCount, 1);
+            Assert.IsEqual(SaveHandler.CallCount, 2);
+        }
+
+
+        // TODO - Fix this
+        //[Test]
+        //public void TestContainerInheritance2()
+        //{
+            //Container.Bind<ISaveHandler>().To<SaveHandler>().AsSingle();
+            //Container.Decorate<ISaveHandler>().With<SaveDecorator1>();
+
+            //var subContainer = Container.CreateSubContainer();
+            //subContainer.Decorate<ISaveHandler>().With<SaveDecorator2>();
+
+            //CallCounter = 1;
+            //SaveHandler.CallCount = 0;
+            //SaveDecorator1.CallCount = 0;
+            //SaveDecorator2.CallCount = 0;
+
+            //subContainer.Resolve<ISaveHandler>().Save();
+
+            //Assert.IsEqual(SaveDecorator2.CallCount, 1);
+            //Assert.IsEqual(SaveDecorator1.CallCount, 2);
+            //Assert.IsEqual(SaveHandler.CallCount, 3);
+        //}
     }
 }

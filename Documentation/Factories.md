@@ -16,6 +16,7 @@ Similar to the main documentation, I recommend at least reading the Introduction
     * <a href="#custom-factories">Custom Factories</a>
     * <a href="#ifactory">Using IFactory directly</a>
     * <a href="#custom-interface">Custom Factory Interface</a>
+    * <a href="#prefab-factories">Prefab Factory</a>
     * <a href="#implementing-validatable">Implementing IValidatable</a>
 
 ## <a id="theory"></a>Theory
@@ -68,7 +69,7 @@ public class Enemy
 }
 ```
 
-But now, every place that needs to create a new `Enemy` instance needs to also supply an instance of `Player`, and we are back at the problem mentioned <a href="../README.md#theory">in the main theory section</a>.  So to address this, factories must be used to create every dynamic instance to ensure that these extra dependencies are filled in my zenject.
+But now, every place that needs to create a new `Enemy` instance needs to also supply an instance of `Player`, and we are back at the problem mentioned <a href="../README.md#theory">in the main theory section</a>.  So to address this, factories must be used to create every dynamic instance to ensure that these extra dependencies are filled in by zenject.
 
 ## <a id="example"></a>Example
 
@@ -241,10 +242,12 @@ Other things to be aware of:
 <pre>
 Container.BindFactory&lt;<b>ContractType</b>, <b>PlaceholderFactoryType</b>&gt;()
     .WithId(<b>Identifier</b>)
+    .WithFactoryArguments(<b>Factory Arguments</b>)
     .To&lt;<b>ResultType</b>&gt;()
     .From<b>ConstructionMethod</b>()
+    .As<b>Scope</b>()
     .WithArguments(<b>Arguments</b>)
-    .WithFactoryArguments(<b>Factory Arguments</b>)
+    .OnInstantiated(<b>InstantiatedCallback</b>)
     .When(<b>Condition</b>)
     .NonLazy()
     .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers();
@@ -257,6 +260,10 @@ Where:
 * **PlaceholderFactoryType** = The class deriving from `PlaceholderFactory<>`
 
 * **WithFactoryArguments** = If you want to inject extra arguments into your placeholder factory derived class, you can include them here.  Note that `WithArguments` applies to the actual instantiated type and not the factory.
+
+* **Scope** = Note that unlike for non-factory bindings, the default is AsCached instead of AsTransient, which is almost always what you want for factories, so in most cases you can leave this unspecified.
+
+Other bind methods have the same functionality as <a href="../README.md#binding">non factory bindings</a>.
 
 ## <a id="abstract-factories"></a>Abstract Factories
 
@@ -544,6 +551,83 @@ public class FooInstaller : MonoInstaller<FooInstaller>
 ```
 
 Note that there is an equivalent method for memory pools called `BindMemoryPoolCustomInterface` as well
+
+## <a id="prefab-factories"></a>Prefab Factory
+
+In some cases you might want the code that is calling the Create method to also provide the prefab to use for the new object.  You could directly call `DiContainer.InstantiatePrefabForComponent` but this would violate our rule of only injecting DiContainer into the 'composition root layer' (ie. factories and installers), so it would be better to write a custom factory like this instead:
+
+```csharp
+public class Foo
+{
+    public class Factory : PlaceholderFactory<UnityEngine.Object, Foo>
+    {
+    }
+}
+
+public class FooFactory : IFactory<UnityEngine.Object, Foo>
+{
+    readonly DiContainer _container;
+
+    public FooFactory(DiContainer container)
+    {
+        _container = container;
+    }
+
+    public Foo Create(UnityEngine.Object prefab)
+    {
+        return _container.InstantiatePrefabForComponent<Foo>(prefab);
+    }
+}
+
+public override void InstallBindings()
+{
+    Container.BindFactory<UnityEngine.Object, Foo, Foo.Factory>().FromFactory<FooFactory>();
+}
+```
+
+However, this kind of custom factory is common enough that there is a helper class included for this purpose called PrefabFactory.  So you could just do this instead:
+
+```csharp
+public class Foo
+{
+    public class Factory : PlaceholderFactory<UnityEngine.Object, Foo>
+    {
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public GameObject Prefab;
+
+    public override void InstallBindings()
+    {
+        Container.BindFactory<UnityEngine.Object, Foo, Foo.Factory>().FromFactory<PrefabFactory<Foo>>();
+    }
+}
+```
+
+A similar helper class is provided when instantiating a prefab from a resource path.  For example:
+
+```csharp
+public class Foo
+{
+    public class Factory : PlaceholderFactory<string, Foo>
+    {
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public GameObject Prefab;
+
+    public override void InstallBindings()
+    {
+        Container.BindFactory<string, Foo, Foo.Factory>().FromFactory<PrefabResourceFactory<Foo>>();
+    }
+}
+```
+
+One thing to be aware of when using PrefabResource or PrefabResourceFactory is that validation does not run in those cases.  So if our Foo class above was missing a dependency then we would not find this out until run time.  This is not possible because the prefab is needed for validation.
 
 ## <a id="implementing-validatable"></a>Implementing IValidatable
 

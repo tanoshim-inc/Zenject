@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using Zenject;
 using NUnit.Framework;
-using System.Linq;
-using ModestTree;
-using Assert=ModestTree.Assert;
+using Assert = ModestTree.Assert;
 
 namespace Zenject.Tests.Bindings
 {
@@ -46,10 +41,6 @@ namespace Zenject.Tests.Bindings
 
         public class Bar
         {
-            public Bar()
-            {
-            }
-
             public string Value
             {
                 get; private set;

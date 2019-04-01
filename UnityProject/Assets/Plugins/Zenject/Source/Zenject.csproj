@@ -20,7 +20,7 @@
     <IntermediateOutputPath>..\..\..\..\..\..\NonUnityBuild\Temp\Debug\</IntermediateOutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\..\NonUnityBuild\Temp\Debug\</BaseIntermediateOutputPath>
     <OutputPath>..\..\..\..\..\NonUnityBuild\Bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NOT_UNITY3D</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NOT_UNITY3D;ZEN_MULTITHREADING</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -30,7 +30,7 @@
     <IntermediateOutputPath>..\..\..\..\..\..\NonUnityBuild\Temp\Release\</IntermediateOutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\..\NonUnityBuild\Temp\Release\</BaseIntermediateOutputPath>
     <OutputPath>..\..\..\..\..\NonUnityBuild\Bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NOT_UNITY3D</DefineConstants>
+    <DefineConstants>TRACE;NOT_UNITY3D;ZEN_MULTITHREADING;ZEN_INTERNAL_NO_POOLS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -44,9 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Binding\Binders\ArgConditionCopyNonLazyBinder.cs" />
-    <Compile Include="Binding\Binders\ArgNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\ConcreteIdArgConditionCopyNonLazyBinder.cs" />
-    <Compile Include="Binding\Binders\ConcreteIdArgNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\ConditionCopyNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\CopyNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryArgumentsToChoiceBinder\FactoryArgumentsToChoiceBinder0.cs" />
@@ -78,16 +76,17 @@
     <Compile Include="Binding\Binders\Factory\Pooling\MemoryPoolExpandBinder.cs" />
     <Compile Include="Binding\Binders\Factory\Pooling\MemoryPoolInitialSizeBinder.cs" />
     <Compile Include="Binding\Binders\IdBinder.cs" />
-    <Compile Include="Binding\Binders\IdScopeConditionCopyNonLazyBinder.cs" />
+    <Compile Include="Binding\Binders\IdScopeConcreteIdArgConditionCopyNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\IfNotBoundBinder.cs" />
+    <Compile Include="Binding\Binders\InstantiateCallbackConditionCopyNonLazyBinder.cs" />
     <Compile Include="Binding\Binders\ScopeConcreteIdArgConditionCopyNonLazyBinder.cs" />
-    <Compile Include="Binding\Binders\ScopeConcreteIdArgNonLazyBinder.cs" />
-    <Compile Include="Binding\Binders\ScopeConditionCopyNonLazyBinder.cs" />
-    <Compile Include="Binding\Binders\ScopeNonLazyBinder.cs" />
+    <Compile Include="Binding\Binders\WithKernelScopeConcreteIdArgConditionCopyNonLazyBinder.cs" />
+    <Compile Include="Binding\BindInfo\BindStatement.cs" />
     <Compile Include="Binding\BindInfo\FactoryBindInfo.cs" />
     <Compile Include="Binding\BindInfo\GameObjectCreationParameters.cs" />
     <Compile Include="Binding\BindInfo\MemoryPoolBindInfo.cs" />
     <Compile Include="Binding\Finalizers\NullBindingFinalizer.cs" />
+    <Compile Include="Binding\Finalizers\SubContainerBindingFinalizer.cs" />
     <Compile Include="Factories\FactoryProviderWrapper.cs" />
     <Compile Include="Factories\PlaceholderFactory.cs" />
     <Compile Include="Factories\PlaceholderFactoryBase.cs" />
@@ -98,6 +97,7 @@
     <Compile Include="Factories\Pooling\PoolFactory.cs" />
     <Compile Include="Factories\Pooling\Static\PoolableStaticMemoryPool.cs" />
     <Compile Include="Factories\Pooling\Static\StaticMemoryPool.cs" />
+    <Compile Include="Factories\Pooling\Util\ArrayPool.cs" />
     <Compile Include="Factories\Pooling\Util\DictionaryPool.cs" />
     <Compile Include="Factories\Pooling\Util\HashSetPool.cs" />
     <Compile Include="Factories\Pooling\Util\ListPool.cs" />
@@ -143,8 +143,10 @@
     <Compile Include="Binding\Binders\ConcreteBinders\ConcreteBinderNonGeneric.cs" />
     <Compile Include="Binding\Binders\FromBinders\FromBinder.cs" />
     <Compile Include="Injection\InjectUtil.cs" />
+    <Compile Include="Internal\TypeStringFormatter.cs" />
     <Compile Include="Internal\ValuePair.cs" />
     <Compile Include="Main\LazyInstanceInjector.cs" />
+    <Compile Include="Main\LookupId.cs" />
     <Compile Include="Main\SingletonMarkRegistry.cs" />
     <Compile Include="Main\ZenjectSettings.cs" />
     <Compile Include="Providers\CachedOpenTypeProvider.cs" />
@@ -154,18 +156,24 @@
     <Compile Include="Providers\MethodProviderMultiple.cs" />
     <Compile Include="Providers\MethodProviderUntyped.cs" />
     <Compile Include="Providers\PoolableMemoryPoolProvider.cs" />
+    <Compile Include="Providers\SubContainerCreators\SubContainerCreatorBindInfo.cs" />
+    <Compile Include="Providers\SubContainerCreators\SubContainerCreatorByInstance.cs" />
+    <Compile Include="Providers\SubContainerCreators\SubContainerCreatorByInstanceGetter.cs" />
+    <Compile Include="Providers\SubContainerCreators\SubContainerCreatorUtil.cs" />
     <Compile Include="Runtime\GuiRenderableManager.cs" />
     <Compile Include="Runtime\Kernels\Kernel.cs" />
     <Compile Include="Runtime\PoolableManager.cs" />
     <Compile Include="Util\ActionInstaller.cs" />
     <Compile Include="Util\DisposeBlock.cs" />
     <Compile Include="Util\ProfileBlock.cs" />
+    <Compile Include="Util\ReflectionInfoTypeInfoConverter.cs" />
+    <Compile Include="Util\ReflectionTypeInfo.cs" />
     <Compile Include="Util\ReflectionUtil.cs" />
+    <Compile Include="Util\ZenPools.cs" />
+    <Compile Include="Util\ZenReflectionTypeAnalyzer.cs" />
     <Compile Include="Validation\IValidatable.cs" />
     <Compile Include="Factories\KeyedFactory.cs" />
-    <Compile Include="Injection\InjectableInfo.cs" />
     <Compile Include="Util\TypeAnalyzer.cs" />
-    <Compile Include="Util\ZenjectTypeInfo.cs" />
     <Compile Include="Main\IInstantiator.cs" />
     <Compile Include="Main\BindingId.cs" />
     <Compile Include="Install\IInstaller.cs" />
@@ -207,13 +215,10 @@
     <Compile Include="Binding\Finalizers\ScopableBindingFinalizer.cs" />
     <Compile Include="Binding\Finalizers\ProviderBindingFinalizer.cs" />
     <Compile Include="Binding\Finalizers\IBindingFinalizer.cs" />
-    <Compile Include="Binding\Finalizers\BindFinalizerWrapper.cs" />
     <Compile Include="Binding\Finalizers\SingleProviderBindingFinalizer.cs" />
     <Compile Include="Binding\Binders\SubContainerBinder.cs" />
-    <Compile Include="Binding\Finalizers\SubContainerInstallerBindingFinalizer.cs" />
     <Compile Include="Binding\Finalizers\PrefabBindingFinalizer.cs" />
     <Compile Include="Binding\Finalizers\PrefabResourceBindingFinalizer.cs" />
-    <Compile Include="Binding\Finalizers\SubContainerMethodBindingFinalizer.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryFromBinderBase.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryFromBinder\SubContainerBinder\FactorySubContainerBinder0.cs" />
     <Compile Include="Binding\Binders\Factory\FactoryFromBinder\SubContainerBinder\FactorySubContainerBinderBase.cs" />
