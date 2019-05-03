@@ -31,17 +31,32 @@ namespace Zenject
             get { return _container; }
         }
 
+        IEnumerable<InjectableInfo> GetAllInjectableIncludingBaseTypes() 
+        {
+            var info = TypeAnalyzer.GetInfo(_installerType);
+
+            while (info != null) 
+            {
+                foreach (var injectable in info.AllInjectables) 
+                {
+                    yield return injectable;
+                }
+
+                info = info.BaseTypeInfo;
+            }
+        }
+
         DiContainer CreateTempContainer(List<TypeValuePair> args)
         {
             var tempSubContainer = Container.CreateSubContainer();
 
-            var installerInjectables = TypeAnalyzer.GetInfo(_installerType);
+            var allInjectables = GetAllInjectableIncludingBaseTypes();
 
             foreach (var argPair in args)
             {
                 // We need to intelligently match on the exact parameters here to avoid the issue
                 // brought up in github issue #217
-                var match = installerInjectables.AllInjectables
+                var match = allInjectables
                     .Where(x => argPair.Type.DerivesFromOrEqual(x.MemberType))
                     .OrderBy(x => ZenUtilInternal.GetInheritanceDelta(argPair.Type, x.MemberType)).FirstOrDefault();
 
@@ -76,5 +91,4 @@ namespace Zenject
 }
 
 #endif
-
 
