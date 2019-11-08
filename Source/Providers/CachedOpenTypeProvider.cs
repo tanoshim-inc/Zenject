@@ -101,7 +101,7 @@ namespace Zenject
 
                 if (matchesAll) 
                 {
-                    Assert.IsNotNull(result); // Is there any case where this is hit?
+                    Assert.IsNull(result); // Is there any case where this is hit?
                     result = instanceList;
                 }
             }
