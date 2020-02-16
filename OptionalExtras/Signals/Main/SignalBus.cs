@@ -49,6 +49,26 @@ namespace Zenject
             get { return _subscriptionMap.Count; }
         }
 
+
+        //Fires Signals with their interfaces
+        public void AbstractFire<TSignal>() where TSignal : new() => AbstractFire(new TSignal());
+		public void AbstractFire<TSignal>(TSignal signal) => AbstractFireId(null, signal);
+		public void AbstractFireId<TSignal>(object identifier, TSignal signal)
+		{
+			// Do this before creating the signal so that it throws if the signal was not declared
+			Type signalType = typeof(TSignal);
+			var declaration = GetDeclaration(signalType, identifier, true);
+			declaration.Fire(signal);
+
+            Type[] interfaces = signalType.GetInterfaces();
+            int numOfInterfaces = interfaces.Length;
+            for (int i = 0; i < numOfInterfaces; i++)
+            {
+                declaration = GetDeclaration(interfaces[i], identifier, true);
+                declaration.Fire(signal);
+            }
+		}
+
         public void LateDispose()
         {
             if (_settings.RequireStrictUnsubscribe)
