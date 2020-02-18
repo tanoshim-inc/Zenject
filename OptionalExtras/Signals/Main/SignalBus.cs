@@ -11,7 +11,7 @@ namespace Zenject
     public class SignalBus : ILateDisposable
     {
         readonly SignalSubscription.Pool _subscriptionPool;
-        readonly Dictionary<BindingId, SignalDeclaration> _localDeclarationMap;
+        readonly Dictionary<BindingId, SignalDeclaration> _localDeclarationMap = new Dictionary<BindingId, SignalDeclaration>();
         readonly SignalBus _parentBus;
         readonly Dictionary<SignalSubscriptionId, SignalSubscription> _subscriptionMap = new Dictionary<SignalSubscriptionId, SignalSubscription>();
         readonly ZenjectSettings.SignalSettings _settings;
@@ -35,7 +35,14 @@ namespace Zenject
             _signalDeclarationFactory = signalDeclarationFactory;
             _container = container;
 
-            _localDeclarationMap = signalDeclarations.ToDictionary(x => x.BindingId, x => x);
+           signalDeclarations.ForEach(x =>
+			{
+				if (!_localDeclarationMap.ContainsKey(x.BindingId))
+				{
+					_localDeclarationMap.Add(x.BindingId, x);
+				}
+				else _localDeclarationMap[x.BindingId].Subscriptions.AllocFreeAddRange(x.Subscriptions);
+			});
             _parentBus = parentBus;
         }
 
@@ -50,43 +57,22 @@ namespace Zenject
         }
 
 
-        //AbstractFire Works like a normal Fire but it fires the interface types of the signal too
+        //Fires Signals with their interfaces
         public void AbstractFire<TSignal>() where TSignal : new() => AbstractFire(new TSignal());
 		public void AbstractFire<TSignal>(TSignal signal) => AbstractFireId(null, signal);
 		public void AbstractFireId<TSignal>(object identifier, TSignal signal)
 		{
 			// Do this before creating the signal so that it throws if the signal was not declared
-			Type tt = typeof(TSignal);
-			var declaration = GetDeclaration(tt, identifier, true);
-			declaration.Fire(signal);
+			Type signalType = typeof(TSignal);
+            InternalFire(signalType, signal, identifier, true);
 
-            //Everything is fired like a normal signal and then this method Fires the signal with the interface types
-            //Its async because its faster and doesn't blocks the main thread when you fire signals
-            //Tested with a loop of 1 million iteration and this is the faster way of getting the interfaces fast
-			FireSignalGetDeclarationForInterfacesAsync(identifier, signal, tt);
-		}
-
-        //Fire and forget methof for the task
-		public async void FireSignalGetDeclarationForInterfacesAsync<TSignal>(object identifier, TSignal signal, Type type)
-		{
-			await Task.Run(() => FireSignalGetDeclarationForInterfacesTask(identifier, signal, type));
-		}
-        public async Task FireSignalGetDeclarationForInterfacesTask<TSignal>(object identifier, TSignal signal, Type type)
-        {
-            //The asynchronous iteration for reflection
-            Type[] interfaces = type.GetInterfaces();
+            Type[] interfaces = signalType.GetInterfaces();
             int numOfInterfaces = interfaces.Length;
             for (int i = 0; i < numOfInterfaces; i++)
             {
-                //To make this work you should also declare the signal's interfaces, but they are automatically declared
-                //if you do "DeclareSignalWithInterfaces<TSignal>()" in the container 
-                //Go to SignalExtensions.cs for more info
-                var declaration = GetDeclaration(interfaces[i], identifier, true);
-                declaration.Fire(signal);
+                InternalFire(interfaces[i], signal, identifier, true);
             }
-        }
-
-
+		}
 
         public void LateDispose()
         {
@@ -232,7 +218,7 @@ namespace Zenject
 
         public IObservable<object> GetStreamId(Type signalType, object identifier)
         {
-            return GetDeclaration(signalType, identifier, true).Stream;
+            return GetDeclaration(new BindingId(signalType, identifier)).Stream;
         }
 
         public IObservable<object> GetStream(Type signalType)
