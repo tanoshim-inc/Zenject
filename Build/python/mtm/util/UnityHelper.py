@@ -12,8 +12,10 @@ import mtm.util.MiscUtil as MiscUtil
 
 from mtm.util.SystemHelper import ProcessErrorCodeException
 
-UnityLogFileLocation = os.getenv('localappdata') + '\\Unity\\Editor\\Editor.log'
-#UnityLogFileLocation = '{Modest3dDir}/Modest3DLog.txt'
+if os.name == 'nt':
+    UnityLogFileLocation = os.getenv('localappdata') + '\\Unity\\Editor\\Editor.log'
+else:
+    UnityLogFileLocation = '~/Library/Logs/Unity/Editor.log'
 
 class Platforms:
     Windows = 'windows'
@@ -23,7 +25,7 @@ class Platforms:
     OsX = 'osx'
     Linux = 'linux'
     Ios = 'ios'
-    WindowsStoreApp = 'wsa'
+    WindowsStoreApp = 'WindowsStoreApps'
     All = [Windows, WebPlayer, Android, WebGl, OsX, Linux, Ios, WindowsStoreApp]
 
 class UnityReturnedErrorCodeException(Exception):
@@ -43,8 +45,15 @@ class UnityHelper:
     def onUnityLog(self, logStr):
         self._log.debug(logStr)
 
+    def _createUnityOpenCommand(self, args):
+        if os.name == 'nt':
+            return '"C:/Program Files/Unity/Hub/Editor/2019.1.0f2/Editor/Unity.exe" ' + args
+
+        return 'open -n "/Applications/Unity/Hub/Editor/2019.1.0f2/Unity.app" --args ' + args
+
     def openUnity(self, projectPath, platform):
-        self._sys.executeNoWait('"[UnityExePath]" -buildTarget {0} -projectPath "{1}"'.format(self._getBuildTargetArg(platform), projectPath))
+        args = '-buildTarget {0} -projectPath "{1}"'.format(self._getBuildTargetArg(platform), projectPath)
+        self._sys.executeNoWait(self._createUnityOpenCommand(args))
 
     def runEditorFunction(self, projectPath, editorCommand, platform = Platforms.Windows, batchMode = True, quitAfter = True, extraExtraArgs = ''):
         extraArgs = ''
@@ -83,7 +92,7 @@ class UnityHelper:
             return 'ios'
 
         if platform == Platforms.WindowsStoreApp:
-            return 'wsa'
+            return 'WindowsStoreApps'
 
         assertThat(False, "Unhandled platform {0}".format(platform))
 
@@ -94,17 +103,15 @@ class UnityHelper:
         logWatcher = LogWatcher(logPath, self.onUnityLog)
         logWatcher.start()
 
-        assertThat(self._varMgr.hasKey('UnityExePath'), "Could not find path variable 'UnityExePath'")
-
         try:
-            command = '"[UnityExePath]" -buildTarget {0} -projectPath "{1}"'.format(self._getBuildTargetArg(platform), projectPath)
+            args = '-buildTarget {0} -projectPath "{1}"'.format(self._getBuildTargetArg(platform), projectPath)
 
             if editorCommand:
-                command += ' -executeMethod ' + editorCommand
+                args += ' -executeMethod ' + editorCommand
 
-            command += ' ' + extraArgs
+            args += ' ' + extraArgs
 
-            self._sys.executeAndWait(command)
+            self._sys.executeAndWait(self._createUnityOpenCommand(args))
 
         except ProcessErrorCodeException as e:
             raise UnityReturnedErrorCodeException("Error while running Unity!  Command returned with error code.")

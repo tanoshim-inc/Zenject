@@ -61,6 +61,12 @@ namespace Zenject.Internal
 
             switch (EditorUserBuildSettings.activeBuildTarget)
             {
+                case BuildTarget.StandaloneOSX: 
+                {
+                    BuildGeneric(
+                        "OsX/{0}/ZenjectSamples".Fmt(GetScriptingRuntimeString()), scenePaths, isRelease);
+                    break;
+                }
                 case BuildTarget.StandaloneWindows64:
                 case BuildTarget.StandaloneWindows:
                 {

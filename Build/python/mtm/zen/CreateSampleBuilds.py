@@ -36,7 +36,7 @@ class Runner:
     _varManager = Inject('VarManager')
 
     def __init__(self):
-        self._platform = Platforms.Windows
+        self._platform = Platforms.OsX
 
     def run(self, args):
         self._args = args
@@ -199,7 +199,6 @@ def installBindings():
             'TempDir': '[RootDir]/Temp',
             'WebGlTemplate': '[ScriptDir]/web_config_template.xml',
             'OutputRootDir': '[RootDir]/SampleBuilds',
-            'UnityExePath': 'C:/Program Files/Unity/Hub/Editor/2018.1.0f2/Editor/Unity.exe',
             'LogPath': '[BuildDir]/Log.txt',
             'UnityProjectPath': '[RootDir]/UnityProject',
             'MsBuildExePath': 'C:/Windows/Microsoft.NET/Framework/v4.0.30319/msbuild.exe'
@@ -208,6 +207,7 @@ def installBindings():
             'UseDevenv': False
         },
     }
+
     Container.bind('Config').toSingle(Config, [config])
 
     Container.bind('LogStream').toSingle(LogStreamFile)

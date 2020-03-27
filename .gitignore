@@ -15,3 +15,6 @@ project_root_marker
 
 *.csproj.user
 /SampleBuilds
+
+# Added by Mathijs:
+.DS_Store

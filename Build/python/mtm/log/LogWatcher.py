@@ -5,7 +5,6 @@ import errno
 import os
 import signal
 import threading
-import msvcrt
 
 class LogWatcher:
     def __init__(self, logPath, logFunc):
@@ -71,6 +70,8 @@ def onLog(logStr):
     print(logStr)
 
 if __name__ == '__main__':
+
+    import msvcrt
 
     if len(sys.argv) != 2:
         print("Invalid # of arguments")

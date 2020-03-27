@@ -633,7 +633,7 @@ public class TestInstaller : MonoInstaller<TestInstaller>
     {
         Container.Bind<Bar>().AsSingle();
 
-        Container.BindFactory<Vector3, Foo, Foo.Factory>().FromMonoPoolableMemoryPool<Foo>(
+        Container.BindFactory<Vector3, Foo, Foo.Factory>().FromMonoPoolableMemoryPool(
             x => x.WithInitialSize(2).FromComponentInNewPrefab(FooPrefab).UnderTransformGroup("FooPool"));
     }
 }
@@ -1341,6 +1341,7 @@ Note the following:
 
 - We've installed `PoolableManager` in our subcontainer
 - In EnemyFacade, we have to call the `TriggerOnSpawned` and `TriggerOnDespawned` methods on PoolableManager to trigger the `OnSpawned` and `OnDespawned` methods for the rest of the subcontainer classes
+- You can also pass generic arguments to `PoolableManager<>` to allow passing runtime parameters to the `TriggerOnSpawned` so they are forwarded on to your `IPoolable<>` derived classes
 
 Note also that the order that the `IPoolable` classes are triggered will use the same execution order that is set with the `BindExecutionOrder` method, just like the other standard interfaces.  Also note that the `OnDespawned` methods are called in the reverse order compared to `OnSpawned`.
 

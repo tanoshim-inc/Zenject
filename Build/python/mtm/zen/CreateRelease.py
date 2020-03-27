@@ -2,6 +2,7 @@
 import sys
 import os
 import re
+import time
 
 import argparse
 
@@ -54,6 +55,10 @@ class Runner:
         self._varMgr.set('ZenjectDir', '[AssetsDir]/Plugins/Zenject')
         self._varMgr.set('DistDir', '[BuildDir]/Dist')
         self._varMgr.set('BinDir', '[RootDir]/NonUnityBuild/Bin')
+
+        if self._args.buildNonUnity:
+            self._vsSolutionHelper.buildVisualStudioProject('[RootDir]/NonUnityBuild/Zenject.sln', 'Release')
+            return 
 
         versionStr = self._sys.readFileAsText('[ZenjectDir]/Version.txt').strip()
 
@@ -159,14 +164,18 @@ def installBindings():
 
     config = {
         'PathVars': {
-            'UnityExePath': 'C:/Program Files/Unity/Hub/Editor/2018.1.0f2/Editor/Unity.exe',
-            'LogPath': os.path.join(BuildDir, 'Log.txt'),
-            'MsBuildExePath': 'C:/Windows/Microsoft.NET/Framework/v4.0.30319/msbuild.exe'
+            'LogPath': os.path.join(BuildDir, 'Log.txt')
         },
         'Compilation': {
             'UseDevenv': False
         },
     }
+
+    if os.name == 'nt':
+        config['PathVars']['MsBuildExePath'] = 'C:/Windows/Microsoft.NET/Framework/v4.0.30319/msbuild.exe'
+    else:
+        config['PathVars']['MsBuildExePath'] = 'xbuild'
+
     Container.bind('Config').toSingle(Config, [config])
 
     Container.bind('LogStream').toSingle(LogStreamFile)
@@ -188,6 +197,7 @@ if __name__ == '__main__':
         sys.exit(2)
 
     parser = argparse.ArgumentParser(description='Zenject Releaser')
+    parser.add_argument('-bnu', '--buildNonUnity', action='store_true', help='')
     parser.add_argument('-t', '--addTag', action='store_true', help='')
     args = parser.parse_args(sys.argv[1:])
 

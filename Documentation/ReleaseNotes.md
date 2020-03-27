@@ -1,6 +1,37 @@
 
 # <a id="release-notes"></a>Release Notes
 
+## Version 9.1.0 (October 13, 2019)
+
+New Features
+* Changed SceneLoader methods to use optional arguments instead of overloads to allow only specifying parameters of interest
+* Added CustomPoolableManager class to allow passing arguments to IPoolable<T> derived classes
+* Added non generic variant of DeclareSignal method
+* Added support for NSubstitute usage with auto mocking
+
+Bug fixes
+* Fixed exception that would sometimes occur in multi-threaded applications
+* Fixed some issues related to game object subcontainers and circular dependencies
+* Changed the PreInstall/PostInstall/PreResolve/PostResolve methods in ProjectContext to be static so they can be used before initialization occurs
+* Fixed IL2CPP issue related to default values
+* Other minor bug fixes
+
+## Version 9.0.0 (April 21, 2019)
+
+This is the beginning of zenject support for Unity 2019.  For Unity 2018.4.x use 8.0.x versions of zenject.  For Unity 2017.4.x use 6.6.X versions of zenject.
+
+No changes in this version except compatibility fixes for Unity 2019.
+
+## Version 6.6.1 (April 21, 2019)
+
+- Fixed WindowsStoreApps platform to build properly when using .NET 4.6 backend
+
+## Version 8.0.1 (April 21, 2019)
+
+Minor bug fixes:
+- Fixed issue with UniRx signals integration
+- Fixed to allow reflection baking to work inside unity editor for 2018.1+
+
 ## Version 8.0.0 (February 5, 2019)
 
 Minor bug fixes, a few extra bind methods, and one minor breaking api change in SignalBus.

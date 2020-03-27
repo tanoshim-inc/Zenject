@@ -3,7 +3,7 @@
 
 When writing properly loosely coupled code using dependency injection, it is much easier to isolate specific areas of your code base for the purposes of running tests on them without needing to fire up your entire project.  This can take the form of user-driven test-beds or fully automated tests using NUnit.  Automated tests are especially useful when used with a continuous integration server.  This allows you to automatically run the tests whenever new commits are pushed to source control.
 
-There are three very basic helper classes included with Zenject that can make it easier to write automated tests for your game.  One is for Unit Tests, the other is for Integration Tests, and the third is for Scene Tests.  All approaches are run via Unity's built in Test Runner (which also has a command line interface that you can hook up to a continuous integration server).  The main differences are that Unit Tests are much smaller in scope and meant for testing a small subset of the classes in your application, whereas Integration Tests can be more expansive and can involve firing up many different systems.  And Scene Tests are used to fire up entire scenes and then probe the state of the scene as part of the test.
+There are three basic helper classes included with Zenject that can make it easier to write automated tests for your game.  One is for Unit Tests, the other is for Integration Tests, and the third is for Scene Tests.  All approaches are run via Unity's built in Test Runner (which also has a command line interface that you can hook up to a continuous integration server).  The main differences are that Unit Tests are much smaller in scope and meant for testing a small subset of the classes in your application, whereas Integration Tests can be more expansive and can involve firing up many different systems.  And Scene Tests are used to fire up entire scenes and then probe the state of the scene as part of the test.
 
 This is best shown with some examples.
 
@@ -42,7 +42,7 @@ public class Logger
 To test the class do the following:
 - Open up Unity's Test Runner by clicking Window -> General -> Test Runner
 - Underneath the EditMode tab click "Create EditMode Test Assembly Folder". This will create a folder that contains the necessary asmdef file that is needed to get access to the Nunit namespace.
-- Select the newly created asmdef file and add a reference to Zenject-TestFramework
+- Select the newly created asmdef file and add a reference to Zenject-TestFramework in the Unity inspector (Tests Import Settings -> Assembly Definition References)
 - Right click inside the folder in the Project tab and select `Create -> Zenject -> Unit Test`.  Name it `TestLogger`.cs.  This will create a basic template that we can fill in with our tests
 - Copy and paste the following:
 
@@ -297,7 +297,7 @@ public class SpaceShipTests : ZenjectIntegrationTestFixture
 
 After `PostInstall()` is called, our integration test is injected, so we can define `[Inject]` fields on it like above if we don't want to call `Container.Resolve` for every test.
 
-Note that we can yield our coroutine to test behaviour across time.  If you are unfamiliar with how Unity's test runner works (and in particular how 'playmode test' work) please see the [unity documentation](https://docs.unity3d.com/Manual/testing-editortestsrunner.html).
+Note that we can yield our coroutine to test behaviour across time.  If you are unfamiliar with how Unity's test runner works (and in particular how 'playmode test' work) please see the [unity documentation](https://docs.unity3d.com/Packages/com.unity.test-framework@1.1/manual/index.html).
 
 Every zenject integration test is broken up into three phases:
 

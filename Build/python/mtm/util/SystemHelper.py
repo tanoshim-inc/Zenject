@@ -191,7 +191,7 @@ class SystemHelper:
 
     def deleteDirectory(self, dirPath):
         dirPath = self._varManager.expand(dirPath)
-        shutil.rmtree(dirPath)
+        os.system('rmdir /S /Q "{0}"'.format(dirPath))
 
     def deleteDirectoryIfExists(self, dirPath):
         dirPath = self._varManager.expand(dirPath)

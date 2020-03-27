@@ -4,10 +4,6 @@ from mtm.ioc.Inject import Inject
 from mtm.ioc.Inject import InjectMany
 import mtm.ioc.IocAssertions as Assertions
 import mtm.util.MiscUtil as MiscUtil
-
-import win32api
-import win32com.client
-
 from mtm.util.Assert import *
 
 class VisualStudioHelper:
@@ -33,6 +29,8 @@ class VisualStudioHelper:
             self.openCustomSolution(project, platform, filePath)
 
     def openFileInExistingVisualStudioInstance(self, filePath, lineNo):
+        import win32api
+        import win32com.client
         try:
             dte = win32com.client.GetActiveObject("VisualStudio.DTE.12.0")
 
