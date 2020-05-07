@@ -1,26 +1,91 @@
-name: CI
+name: Continuous Integration
 
 on: 
+  pull_request: {}
   push:
+    branches: 
+      - master
     paths-ignore:
       - 'Documentation/**'
       - '*.md'
-  
-jobs:
-   
-  #enable this job to request a manual unity license
-  Request-License:
-    runs-on: ubuntu-latest
-    if: false
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
 
-      - name: Request manual activation file
-        uses: MirrorNG/unity-runner@master
-        id: getManualLicenseFile
+env: 
+  UNITY_LICENSE: "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>\n    <License id=\"Terms\">\n        <MachineBindings>\n            <Binding Key=\"1\" Value=\"c2c51cf86c7548ec9172c33ee4fe8905\"/>\n            <Binding Key=\"2\" Value=\"c2c51cf86c7548ec9172c33ee4fe8905\"/>\n        </MachineBindings>\n        <MachineID Value=\"jGOG/gpCyVVRuO7sOft8/fNr4PI=\"/>\n        <SerialHash Value=\"20d8e17fa85bafcd88b26e364803e5b088655823\"/>\n        <Features>\n            <Feature Value=\"33\"/>\n            <Feature Value=\"1\"/>\n            <Feature Value=\"12\"/>\n            <Feature Value=\"2\"/>\n            <Feature Value=\"24\"/>\n            <Feature Value=\"3\"/>\n            <Feature Value=\"36\"/>\n            <Feature Value=\"17\"/>\n            <Feature Value=\"19\"/>\n            <Feature Value=\"62\"/>\n        </Features>\n        <DeveloperData Value=\"AQAAAEY0LTUzMkMtODM2Si1VVzJKLVRKR1EtQVY4Rg==\"/>\n        <SerialMasked Value=\"F4-532C-836J-UW2J-TJGQ-XXXX\"/>\n        <StartDate Value=\"2017-12-20T00:00:00\"/>\n        <UpdateDate Value=\"2020-01-26T15:24:01\"/>\n        <InitialActivationDate Value=\"2017-12-20T19:29:43\"/>\n        <LicenseVersion Value=\"6.x\"/>\n        <ClientProvidedVersion Value=\"2019.3.0f1\"/>\n        <AlwaysOnline Value=\"false\"/>\n        <Entitlements>\n            <Entitlement Ns=\"unity_editor\" Tag=\"UnityPersonal\" Type=\"EDITOR\" ValidTo=\"9999-12-31T00:00:00\"/>\n        </Entitlements>\n    </License>\n<Signature xmlns=\"http://www.w3.org/2000/09/xmldsig#\"><SignedInfo><CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments\"/><SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\"/><Reference URI=\"#Terms\"><Transforms><Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/></Transforms><DigestMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#sha1\"/><DigestValue>srmRlNuh0XDH54JucaFTVJIy7xs=</DigestValue></Reference></SignedInfo><SignatureValue>JdxmcngUM8jp1u+uZuLsp8SGiQr+xyJUEfVK/GTFJibVgKkyx9G2P35auCkvlK2Q4jAvcmtPwURn\nUfqDM+29Afv9UoA6T+XjixjpXrFZAr/7ymMMTSCdm0ifczWwoAOS0QnZp03PWTlujUHJhBw27TZe\nc9qI4R8QFRCJ54AgXsN1Vlfqg4EGwQTDoVSAz3XJuTVkdWvcbJpghDLKmu/WW+vfDjif21o4S7et\nX+Eq9BB24V6oTdxgM++wpDhKd4K1NEfaaqct55ONPbWfuzoPVknV3267eHG4+CpTn0LwZo2K7gd9\nEn2aWqxPn/mvKrHTUfGTOWtOoUOgqkleDxVF9A==</SignatureValue></Signature></root>"
+          
+jobs:
+  buildAndTestForSupportedPlatforms:
+    name: Build for ${{ matrix.targetPlatform }} on version ${{ matrix.unityVersion }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        projectPath:
+          - UnityProject
+        unityVersion:
+          - 2019.3.0f1
+        targetPlatform:
+          - StandaloneOSX # Build a macOS standalone (Intel 64-bit).
+          - StandaloneWindows64 # Build a Windows 64-bit standalone.
+          - StandaloneLinux64 # Build a Linux 64-bit standalone.
+          - iOS # Build an iOS player.
+          - WebGL # WebGL.
+          # Not yet supported GitHub actions:
+          # - Android # Build a Android standalone.
+          # - PS4 # Build a Playstation 4 standalone.
+          # - Windows Store # Build a standalone for Windows Store devices.
+          
+    steps:
+
+      #Checkout
+      - uses: actions/checkout@v2
         with:
-            entrypoint: /request_activation.sh
+          lfs: true
+      
+      # Cache
+      - uses: actions/cache@v1.1.0
+        with:
+          path: ${{ matrix.projectPath }}/Library
+          key: Library-${{ matrix.projectPath }}-${{ matrix.targetPlatform }}
+          restore-keys: |
+            Library-${{ matrix.projectPath }}-
+            Library-
+            
+      # Run Tests
+      - uses: webbertakken/unity-test-runner@v1.4
+        id: testRunner
+        with:
+          projectPath: ${{ matrix.projectPath }}
+          unityVersion: ${{ matrix.unityVersion }}
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Test results (all modes)
+          path: ${{ steps.testRunner.outputs.artifactsPath }}
+          
+      # Build
+      - uses: webbertakken/unity-builder@v0.10
+        with:
+          projectPath: ${{ matrix.projectPath }}
+          unityVersion: ${{ matrix.unityVersion }}
+          targetPlatform: ${{ matrix.targetPlatform }}
+          customParameters: "-myParameter myValue -myBoolean -ThirdParameter andItsValue"
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Build
+          path: build
+   
+#enable this job to request a manual unity license
+#Request-License:
+# runs-on: ubuntu-latest
+#if: false
+#steps:
+#  - name: Checkout repository
+#    uses: actions/checkout@v2
+#
+#      - name: Request manual activation file
+#       uses: MirrorNG/unity-runner@master
+#      id: getManualLicenseFile
+#     with:
+#        entrypoint: /request_activation.sh
 
       # This will produce a Unity_xxx.alf file
       # download it in your computer and upload it to
@@ -29,11 +94,11 @@ jobs:
       # add the contents of Unity_xxx.ulf file to your repository's secrets
       # as UNITY_LICENSE
       # then disable this job
-      - name: Expose as artifact
-        uses: actions/upload-artifact@v1
-        with:
-            name: Manual Activation File
-            path: ${{ steps.getManualLicenseFile.outputs.filePath }}
+#    - name: Expose as artifact
+#      uses: actions/upload-artifact@v1
+#     with:
+#        name: Manual Activation File
+#       path: ${{ steps.getManualLicenseFile.outputs.filePath }}
   
         
   Zenject-usage:
@@ -80,59 +145,21 @@ jobs:
           ls -l Zenject-usage
           cp Zenject-usage/Zenject-usage.dll UnityProject/Assets/Plugins/Zenject/Source/Usage
           ls -l UnityProject/Assets/Plugins/Zenject/Source/Usage
-        
-#      - name: Set up Python ${{ matrix.python-version }}
-#        uses: actions/setup-python@v1
+                
+# Upload artifacts
+#      - name: Publish test results
+#        uses: actions/upload-artifact@v1
 #        with:
-#          python-version: "3.8"
+#          name: Test results (editor mode)
+#          path: UnityProject/Tests/editmode-results.xml
 
-#      - name: Install filter-repo
-#        run: pip3 install git-filter-repo
-
-      - name: Activate license
-        uses: MirrorNG/unity-runner@master
-        with:
-          entrypoint: /activate.sh
-          
-      # Configure test runner
-      - name: Run editor Tests
-        uses: MirrorNG/unity-runner@master
-        with:
-          args: -projectPath UnityProject -runTests -testPlatform editmode -testResults Tests/editmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
-        
-      # Upload artifacts
-      - name: Publish test results
-        uses: actions/upload-artifact@v1
-        with:
-          name: Test results (editor mode)
-          path: UnityProject/Tests/editmode-results.xml
-
-#      - name: Generate Solution
-#        uses: MirrorNG/unity-runner@master
+#      - name: Release
+#        uses: cycjimmy/semantic-release-action@v2
 #        with:
-#          # Arguments to pass to unity
-#          args: -buildTarget StandaloneWindows64 -customBuildName MirrorNG -customBuildPath ./build/StandaloneWindows64 -projectPath . -executeMethod  UnityEditor.SyncVS.SyncSolution -quit
-  
-#      - name: SonarQube analysis
-#        uses: MirrorNG/unity-sonarscanner@master
-#        with:
-#          buildCommand: /opt/Unity/Editor/Data/NetCore/Sdk-2.2.107/dotnet build workspace.sln
-#          projectKey: MirrorNG_MirrorNG
-#          projectName: MirrorNG
-#          sonarOrganisation: mirrorng
-#          beginArguments: /d:sonar.verbose="true" /d:sonar.cs.nunit.reportsPaths=Tests/editmode-results.xml /d:sonar.cs.opencover.reportsPaths=Tests/workspace-opencov/EditMode/TestCoverageResults_0000.xml
+#          extra_plugins: |
+#            @semantic-release/exec
+#            @semantic-release/changelog
+#            @semantic-release/git
+#          branch: master
 #        env:
-#          FrameworkPathOverride: /opt/Unity/Editor/Data/MonoBleedingEdge/
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Release
-        uses: cycjimmy/semantic-release-action@v2
-        with:
-          extra_plugins: |
-            @semantic-release/exec
-            @semantic-release/changelog
-            @semantic-release/git
-          branch: master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

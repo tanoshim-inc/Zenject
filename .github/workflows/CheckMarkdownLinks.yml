@@ -1,6 +1,10 @@
 name: Check Markdown links
 
-on: push
+on: 
+  push:
+    paths:
+      - 'Documentation/**'
+      - '*.md'
 jobs:
   linkChecker:
     runs-on: ubuntu-latest
